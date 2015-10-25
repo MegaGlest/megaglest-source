@@ -4463,7 +4463,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 bool MenuStateCustomGame::textInput(std::string text) {
 	//printf("In [%s::%s Line: %d] text [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str());
 	if(activeInputLabel != NULL) {
-		bool handled = keyPressEditLabel(text, &activeInputLabel);
+		bool handled = textInputEditLabel(text, &activeInputLabel);
 		if(handled == true && &labelGameName != activeInputLabel) {
 			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -4546,23 +4546,23 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 		return;
 	}
 
-//	if(activeInputLabel != NULL) {
-//		bool handled = keyPressEditLabel(c, &activeInputLabel);
-//		if(handled == true && &labelGameName != activeInputLabel) {
-//			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//
-//			if(hasNetworkGameSettings() == true) {
-//				needToSetChangedGameSettings = true;
-//				lastSetChangedGameSettings   = time(NULL);
-//			}
-//		}
-//	}
-//	else {
-//		if(hasNetworkGameSettings() == true) {
-//			chatManager.keyPress(c);
-//		}
-//	}
+	if(activeInputLabel != NULL) {
+		bool handled = keyPressEditLabel(c, &activeInputLabel);
+		if(handled == true && &labelGameName != activeInputLabel) {
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+		}
+	}
+	else {
+		if(hasNetworkGameSettings() == true) {
+			chatManager.keyPress(c);
+		}
+	}
 }
 
 void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {

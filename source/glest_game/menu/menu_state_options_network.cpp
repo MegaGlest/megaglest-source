@@ -444,7 +444,7 @@ void MenuStateOptionsNetwork::keyPress(SDL_KeyboardEvent c) {
 //			&labelTransifexUser == activeInputLabel ||
 //			&labelTransifexPwd == activeInputLabel ||
 //			&labelTransifexI18N == activeInputLabel) {
-//			keyPressEditLabel(c, &activeInputLabel);
+//			textInputEditLabel(c, &activeInputLabel);
 //		}
 //	}
 //	else {

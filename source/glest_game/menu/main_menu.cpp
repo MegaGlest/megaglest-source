@@ -403,22 +403,24 @@ void MenuState::setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activ
 	}
 }
 
-bool MenuState::keyPressEditLabel(string input, GraphicLabel **activeInputLabelPtr) {
+
+bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr){
+	if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
+			isKeyPressed(SDLK_RETURN,c,false) == true ) {
+		GraphicLabel *activeInputLabel = *activeInputLabelPtr;
+		setActiveInputLabel(NULL,activeInputLabelPtr);
+		//textCharLength.clear();
+		activeInputLabel->clearTextCharLengthList();
+		return true;
+	}
+	return false;
+}
+
+bool MenuState::textInputEditLabel(string input, GraphicLabel **activeInputLabelPtr) {
 	bool eventHandled = false;
 	GraphicLabel *activeInputLabel = *activeInputLabelPtr;
 	if(activeInputLabel != NULL) {
 		int maxTextSize= activeInputLabel->getMaxEditWidth();
-
-//		SDL_Keycode key = extractKeyPressed(c);
-//		if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
-//				isKeyPressed(SDLK_RETURN,c,false) == true ) {
-//			setActiveInputLabel(NULL,activeInputLabelPtr);
-//			//textCharLength.clear();
-//			activeInputLabel->clearTextCharLengthList();
-//			eventHandled = true;
-//			return eventHandled;
-//		}
-
 
 		//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
 		//   (c=='-') || (c=='(') || (c==')')) {

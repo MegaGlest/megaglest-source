@@ -3865,27 +3865,36 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 }
 
 bool MenuStateConnectedGame::textInput(std::string text) {
-	if(activeInputLabel != NULL) {
-			bool handled = keyPressEditLabel(text, &activeInputLabel);
-			if(handled == true) {
-				switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
-	            needToSetChangedGameSettings = true;
-	            lastSetChangedGameSettings   = time(NULL);
-			}
+	if (activeInputLabel != NULL) {
+		bool handled = textInputEditLabel(text, &activeInputLabel);
+		if (handled == true) {
+			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
+			needToSetChangedGameSettings = true;
+			lastSetChangedGameSettings = time(NULL);
 		}
-		else {
-			NetworkManager &networkManager= NetworkManager::getInstance();
-			ClientInterface *clientInterface = networkManager.getClientInterface();
-			if(clientInterface != NULL &&
-					clientInterface->isConnected() == true &&
-					clientInterface->getIntroDone() == true) {
-				chatManager.textInput(text);
-			}
+		return handled;
+	} else {
+		NetworkManager &networkManager = NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
+		if (clientInterface != NULL && clientInterface->isConnected() == true
+				&& clientInterface->getIntroDone() == true) {
+			return chatManager.textInput(text);
 		}
+	}
+	return false;
 }
 
 void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
-
+	if(activeInputLabel!=NULL) {
+		keyPressEditLabel( c, &activeInputLabel);
+	} else {
+		NetworkManager &networkManager = NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
+		if (clientInterface != NULL && clientInterface->isConnected() == true
+				&& clientInterface->getIntroDone() == true) {
+			chatManager.keyPress(c);
+		}
+	}
 }
 
 void MenuStateConnectedGame::keyUp(SDL_KeyboardEvent key) {

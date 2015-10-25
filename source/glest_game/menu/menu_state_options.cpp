@@ -1026,17 +1026,22 @@ bool MenuStateOptions::textInput(std::string text) {
 			&labelTransifexUser == activeInputLabel ||
 			&labelTransifexPwd == activeInputLabel ||
 			&labelTransifexI18N == activeInputLabel) {
-			keyPressEditLabel(text, &activeInputLabel);
+			textInputEditLabel(text, &activeInputLabel);
 		}
 	}
 }
 
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
-		GraphicComponent::saveAllCustomProperties(containerName);
-		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
+	if (activeInputLabel == NULL) {
+		keyPressEditLabel(c, &activeInputLabel);
+	} else {
+		Config &configKeys = Config::getInstance(
+				std::pair<ConfigType, ConfigType>(cfgMainKeys, cfgUserKeys));
+		if (isKeyPressed(configKeys.getSDLKey("SaveGUILayout"), c) == true) {
+			GraphicComponent::saveAllCustomProperties(containerName);
+			//Lang &lang= Lang::getInstance();
+			//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
+		}
 	}
 }
 
