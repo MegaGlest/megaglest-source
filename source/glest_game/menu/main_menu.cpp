@@ -466,37 +466,19 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 		if(isKeyPressed(SDLK_BACKSPACE,c) == true && text.length() > 0) {
 			//printf("BSPACE text [%s]\n",text.c_str());
 
-/*
-			size_t found = text.find_last_of("_");
-			if (found == string::npos || found != text.length()-1) {
-				text.erase(text.end() - 1);
-			}
-			else {
-				if(text.size() > 1) {
-					text.erase(text.end() - 2);
-				}
-			}
-*/
-
 			bool hasUnderscore = false;
 			bool delChar = false;
 			size_t found = text.find_last_of("_");
 			if (found == string::npos || found != text.length()-1) {
 				//printf("A text.length() = %d textCharLength.size() = %d\n",text.length(),textCharLength.size());
-
-				//if(textCharLength[textCharLength.size()-1] >= 1) {
 				if(activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1] >= 1) {
-					//textCharLength[textCharLength.size()-1] = text.length();
 					delChar = true;
 				}
 			}
 			else {
 				//printf("B text.length() = %d textCharLength.size() = %d\n",text.length(),textCharLength.size());
-
 				hasUnderscore = true;
-				//if(textCharLength.size() >= 2 && textCharLength[textCharLength.size()-2] >= 1) {
 				if(activeInputLabel->getTextCharLengthList().size() >= 2 && activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-2] >= 1) {
-					//textCharLength[textCharLength.size()-2] = text.length();
 					delChar = true;
 				}
 			}
@@ -505,34 +487,19 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 					//if(textCharLength.size() > 1) {
 					if(activeInputLabel->getTextCharLengthList().size() > 1) {
 						//printf("Underscore erase start\n");
-						//for(unsigned int i = 0; i < textCharLength.size(); ++i) {
-						//	printf("len = %d [%d]\n",i,textCharLength[i]);
-						//}
-
-						//for(unsigned int i = 0; i < textCharLength[textCharLength.size()-2]; ++i) {
 						for(unsigned int i = 0; i < (unsigned int)activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-2]; ++i) {
-							//printf("erase A1 i = %d [%s]\n",i,text.c_str());
 							text.erase(text.end() -2);
-							//printf("erase A2 i = %d [%s]\n",i,text.c_str());
 						}
 						//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-						//textCharLength.pop_back();
 						activeInputLabel->deleteTextCharLengthFromList();
-						//textCharLength.pop_back();
 						activeInputLabel->deleteTextCharLengthFromList();
-						//textCharLength.push_back(1);
 						activeInputLabel->addTextCharLengthToList(1);
 					}
 				}
 				else {
-					//for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
 					for(unsigned int i = 0; i < (unsigned int)activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1]; ++i) {
-						//printf("erase B1 i = %d [%s]\n",i,text.c_str());
 						text.erase(text.end() -1);
-						//printf("erase B2 i = %d [%s]\n",i,text.c_str());
 					}
-					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-					//textCharLength.pop_back();
 					activeInputLabel->deleteTextCharLengthFromList();
 				}
 			}
