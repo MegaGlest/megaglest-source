@@ -853,8 +853,27 @@ void Gui::computeDisplay(){
 		}
 
 		//portraits
-		for(int i= 0; i < selection.getCount(); ++i){
-			display.setUpImage(i, selection.getUnit(i)->getType()->getImage());
+		int unitIndex = 0;
+		for(unitIndex = 0; unitIndex < selection.getCount(); ++unitIndex){
+			try {
+				const Unit *unit = selection.getUnit(unitIndex);
+				if(unit == NULL) {
+					throw megaglest_runtime_error("unit == NULL");
+				}
+				if(unit->getType() == NULL) {
+					throw megaglest_runtime_error("unit->getType() == NULL");
+				}
+				if(unit->getType()->getImage() == NULL) {
+					throw megaglest_runtime_error("unit->getType()->getImage()");
+				}
+
+				display.setUpImage(unitIndex, unit->getType()->getImage());
+			}
+			catch(exception &ex) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error in unit selection for index: %d error [%s]",unitIndex,ex.what());
+				throw megaglest_runtime_error(szBuf, true);
+			}
 		}
 
 		// ================ PART 2 ================
