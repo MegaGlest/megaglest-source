@@ -129,6 +129,11 @@ find_path(LUA_INCLUDE_DIR lua.h
 )
 unset(_lua_include_subdirs)
 
+IF(STATIC_LUA AND APPLE)
+  # at least in mac ports, static lib is without numbers in name
+  SET(_lua_library_names lua.a liblua.a ${_lua_library_names})
+ENDIF()
+
 find_library(LUA_LIBRARY
   NAMES ${_lua_library_names} lua
   HINTS

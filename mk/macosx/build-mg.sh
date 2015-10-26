@@ -139,8 +139,10 @@ architecture="$(uname -m)"
 echo 'We have detected the following system:'
 echo " [ $distribution ] [ $release ] [ $architecture ] [ $xcode_ver ]"
 case $release in
-	*) 	echo 'Turning ON dynamic PNG ...'
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF";;
+	*) 	if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+			echo 'Turning ON dynamic PNG ...'
+			EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF -DWANT_USE_VLC=OFF"
+		fi;;
 esac
 case $xcode_ver in
 	# en.wikipedia.org/wiki/Xcode, Version, OS X SDK(s) <- lowest, but not less than 10.4
@@ -229,10 +231,10 @@ else
 		echo 'Mini test:'
 		echo '>>> megaglest --version'
 		./megaglest --version | head -3
-		echo '>>> megaglest_editor --help'
-		./megaglest_editor --help | head -3
-		echo '>>> megaglest_g3dviewer --help'
-		./megaglest_g3dviewer --help | head -3
+		#echo '>>> megaglest_editor --help'
+		#./megaglest_editor --help | head -3
+		#echo '>>> megaglest_g3dviewer --help'
+		#./megaglest_g3dviewer --help | head -3
 		echo 'Dependencies:'
 		otool -L megaglest
 		echo '- - - - - - - - - - - - - - - - - - - -'

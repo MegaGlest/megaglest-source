@@ -145,14 +145,18 @@ detect_system
 echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
 
-EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FONTCONFIG=OFF"
+if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FONTCONFIG=OFF"
+fi
 case $distribution in
 	Debian)
 		case $release in
 			6.*|7.*) ;;
 			*)
-				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
 				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
 				;;
 		esac
@@ -162,9 +166,10 @@ case $distribution in
 		case $release in
 			10.*|11.*|12.*|13.*|14.*) ;;
 			*)
-				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi;;
 		esac
 		;;
 
@@ -172,33 +177,36 @@ case $distribution in
 		case $release in
 			13|13.*|14|15|16|17|17.*) ;;
 			*)
-				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi;;
 		esac
 		;;
 
 	SuSE|SUSE?LINUX|Opensuse)
 		case $release in
 			*)
-				echo 'Turning ON dynamic CURL ...'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic CURL ...'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
+				fi;;
 		esac
 		;;
 
 	Fedora)
 		case $release in
 			*)
-				echo 'Turning ON dynamic CURL ...'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic CURL ...'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
+				fi;;
 		esac
 		;;
 
 	Arch)
 		echo 'Turning ON dynamic LIBS ...'
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_STATIC_LIBS=OFF"
+		WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 		;;
 esac
 

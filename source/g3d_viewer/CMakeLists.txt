@@ -159,7 +159,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
-	IF(EXISTS ${HELP2MAN})
+	IF(EXISTS ${HELP2MAN} AND NOT APPLE)
+		# on mac <> --help sometimes hangs, so we need "NOT APPLE" ^ or some timeout here for now
 		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime strategy game")
@@ -184,7 +185,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		        ${TARGET_NAME} 
 		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN})
+	        IF(EXISTS ${HELP2MAN} AND EXISTS ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE})
          		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
 		        # Installation of the program manpage file

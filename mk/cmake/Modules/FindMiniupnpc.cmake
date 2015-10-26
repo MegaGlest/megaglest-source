@@ -41,9 +41,10 @@ SET(MINIUPNPC_DIR_SEARCH $ENV{MINIUPNPC_ROOT})
 #   PATH_SUFFIXES miniupnpc)
 
 FIND_PATH(MINIUPNP_INCLUDE_DIR miniupnpc.h
-  ${MINIUPNPC_DIR_SEARCH}/include/miniupnpc
-  /usr/include/miniupnpc
-  /usr/local/include/miniupnpc)
+  PATHS ${MINIUPNPC_DIR_SEARCH}/include
+  /usr/include
+  /usr/local/include
+  PATH_SUFFIXES miniupnpc)
 
 #message(STATUS "Finding miniupnpc.h result: ${MINIUPNP_INCLUDE_DIR}")
 
@@ -58,13 +59,12 @@ FIND_LIBRARY(MINIUPNP_LIBRARY NAMES ${MINIUPNPC_LIBRARY_NAMES})
 
 #message(STATUS "Finding miniupnpc lib result: ${MINIUPNP_LIBRARY}")
 
-if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
-    set (MINIUPNP_FOUND TRUE)
-endif ()
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(MINIUPNP REQUIRED_VARS MINIUPNP_LIBRARY MINIUPNP_INCLUDE_DIR)
 
 if (MINIUPNP_FOUND)
   if (NOT MINIUPNP_FIND_QUIETLY)
-    message (STATUS "Found the miniupnpc libraries at ${MINIUPNP_LIBRARY}")
+    #message (STATUS "Found the miniupnpc libraries at ${MINIUPNP_LIBRARY}")
     message (STATUS "Found the miniupnpc headers at ${MINIUPNP_INCLUDE_DIR}")
   endif (NOT MINIUPNP_FIND_QUIETLY)
 
