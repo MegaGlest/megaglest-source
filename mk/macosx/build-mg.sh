@@ -141,7 +141,7 @@ echo " [ $distribution ] [ $release ] [ $architecture ] [ $xcode_ver ]"
 case $release in
 	*) 	if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 			echo 'Turning ON dynamic PNG ...'
-			EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF -DWANT_USE_VLC=OFF"
+			EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF -DWANT_USE_VLC=OFF -DWANT_USE_OpenSSL=OFF"
 		fi;;
 esac
 case $xcode_ver in
