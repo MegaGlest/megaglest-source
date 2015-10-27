@@ -841,6 +841,9 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 	}
 	currentFile = "";
 	fileName = "New (unsaved) map";
+
+	wxPaintEvent ev;
+	onPaint(ev);
 }
 
 void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
