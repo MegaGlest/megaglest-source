@@ -469,7 +469,7 @@ IF(NOT DEFINED CPACK_GENERATOR)
 	 libsdl1.2-dev,
 	 libvlc-dev,
 	 libvorbis-dev,
-	 libwxgtk2.8-dev,
+	 libwxgtk2.9-dev,
 	 libxerces-c2-dev,
 	 libxml2-dev,
 	 libz-dev,

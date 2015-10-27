@@ -199,6 +199,7 @@ public:
 	void onMouseMove(wxMouseEvent &event);
 	void onPaint(wxPaintEvent &event);
 	void onKeyDown(wxKeyEvent &event);
+	void OnSize(wxSizeEvent&);
 	void setCurrentGLContext();
 
 	wxGLContext * getCtx() { return context; }

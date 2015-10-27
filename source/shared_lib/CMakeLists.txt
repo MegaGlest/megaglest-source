@@ -312,9 +312,6 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
                         streflop/softfloat)
 	ENDIF()
 
-	#IF(NOT WANT_STATIC_LIBS)
-	#MESSAGE(STATUS "*** Searching for miniupnpc since WANT_STATIC_LIBS is off ...")
-        #MESSAGE(STATUS "*** Searching for miniupnpc ...")
         IF(NOT FORCE_EMBEDDED_LIBS)
         	FIND_PACKAGE(Miniupnpc)
 	ENDIF()

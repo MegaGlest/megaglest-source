@@ -303,12 +303,8 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	model= NULL;
 
 	Config &config = Config::getInstance();
-    //getGlPlatformExtensions();
 
 	isControlKeyPressed = false;
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
-	//int args[] = { WX_GL_RGBA, WX_GL_MIN_ALPHA,  0  }; // to prevent flicker
-	glCanvas = new GlCanvas(this, args);
 
 #if wxCHECK_VERSION(2, 9, 1)
 
@@ -438,10 +434,9 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     fileDialog->SetDirectory(ToUnicode(defaultPath.c_str()));
 
 
-	glCanvas->SetFocus();
-
-	//timer = new wxTimer(this);
-	//timer->Start(100);
+	if(glCanvas != NULL) {
+		glCanvas->SetFocus();
+	}
 
 	// For windows register g3d file extension to launch this app
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -482,7 +477,13 @@ void MainWindow::setupTimer() {
 
 void MainWindow::setupStartupSettings() {
 
+	//printf("In setupStartupSettings #1\n");
+	if(glCanvas == NULL) {
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+		glCanvas = new GlCanvas(this, args);
+	}
 	glCanvas->setCurrentGLContext();
+	//printf("In setupStartupSettings #2\n");
 
 	GLuint err = glewInit();
 	if (GLEW_OK != err) {
@@ -563,8 +564,9 @@ MainWindow::~MainWindow(){
 	delete renderer;
 	renderer = NULL;
 
-	//delete glCanvas;
-	if(glCanvas) glCanvas->Destroy();
+	if(glCanvas) {
+		glCanvas->Destroy();
+	}
 	glCanvas = NULL;
 
 }
@@ -572,45 +574,27 @@ MainWindow::~MainWindow(){
 void MainWindow::init() {
 
 #if wxCHECK_VERSION(2, 9, 3)
-	//glCanvas->setCurrentGLContext();
-	//printf("setcurrent #1\n");
+
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
 	glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
-
-	//renderer->init();
-
-	//wxCommandEvent event;
-	//onMenuRestart(event);
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
-	if(!IsShown()) return;
+	if(!IsShown()) {
+		event.Skip();
+		return;
+	}
 	
-#if wxCHECK_VERSION(2, 9, 4)
-	//glCanvas->setCurrentGLContext();
-#elif wxCHECK_VERSION(2, 9, 3)
-
-#elif wxCHECK_VERSION(2, 9, 1)
-	glCanvas->setCurrentGLContext();
-#endif
-
+	bool isFirstWindowShownEvent = !startupSettingsInited ;
 	if(startupSettingsInited == false) {
 		startupSettingsInited = true;
 		setupStartupSettings();
 	}
-
-	//wxClientDC &dc = event.GetDC();
-//	wxPaintDC dc(this);
-//	if(overrideSize.first > 0 && overrideSize.second > 0) {
-//		wxRect r(0,0,100,100);
-//		dc.SetDeviceClippingRegion(r);
-//		// Then I destroy the clipping region
-//		dc.DestroyClippingRegion();
-//	}
+	glCanvas->setCurrentGLContext();
 
 	static float autoScreenshotRender = -1;
 	if(autoScreenShotAndExit == true && autoScreenshotRender >= 0) {
@@ -667,6 +651,12 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 
 	renderer->renderParticleManager();
 	
+	if(isFirstWindowShownEvent) {
+		this->Refresh();
+		glCanvas->Refresh();
+		glCanvas->SetFocus();
+	}
+
 	bool haveLoadedParticles = (particleProjectilePathList.empty() == false || particleSplashPathList.empty() == false);
 
 	if(autoScreenShotAndExit == true && viewportW > 0 && viewportH > 0) {
@@ -770,7 +760,9 @@ void MainWindow::onClose(wxCloseEvent &event){
 	renderer = NULL;
 
 	//delete glCanvas;
-	if(glCanvas) glCanvas->Destroy();
+	if(glCanvas) {
+		glCanvas->Destroy();
+	}
 	glCanvas = NULL;
 
 	this->Destroy();
@@ -1257,12 +1249,6 @@ void MainWindow::loadUnit(string path, string skillName) {
 				this->particleSplashPathList.push_back(skillParticleSplashFile);
 				printf("Added skill splash particle [%s]\n",skillParticleSplashFile.c_str());
 			}
-
-			//glCanvas->SetCurrent();
-			//renderer->init();
-
-			//wxCommandEvent event;
-			//onMenuRestart(event);
 		}
 		SetTitle(ToUnicode(titlestring));
 	}
@@ -1271,7 +1257,6 @@ void MainWindow::loadUnit(string path, string skillName) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
-	//timer->Start(100);
 }
 
 void MainWindow::loadModel(string path) {
@@ -2030,8 +2015,8 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 // to prevent flicker
 GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 #if wxCHECK_VERSION(2, 9, 1)
-		: wxGLCanvas(mainWindow, -1, args, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas")) {
-	this->context = NULL;
+		: wxGLCanvas(mainWindow, wxID_ANY, args, wxDefaultPosition, mainWindow->GetClientSize(), wxFULL_REPAINT_ON_RESIZE, wxT("GLCanvas")) {
+	this->context = new wxGLContext(this);
 #else
 		: wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
 	this->context = NULL;
@@ -2040,14 +2025,28 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 }
 
 GlCanvas::~GlCanvas() {
-	if(this->context) delete this->context;
+	if(this->context) {
+		delete this->context;
+	}
 	this->context = NULL;
 }
 
 void GlCanvas::setCurrentGLContext() {
 #ifndef __APPLE__
 
-#if wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(3, 0, 0)
+	//printf("Setting glcontext 3x!\n");
+
+	//if(!IsShown()) {}
+	if(this->context == NULL) {
+		//printf("Make new ctx!\n");
+		this->context = new wxGLContext(this);
+		//printf("Set ctx [%p]\n",this->context);
+	}
+#elif wxCHECK_VERSION(2, 9, 1)
+	//printf("Setting glcontext 29x!\n");
+
+	//if(!IsShown()) {}
 	if(this->context == NULL) {
 		this->context = new wxGLContext(this);
 		//printf("Set ctx [%p]\n",this->context);
@@ -2080,6 +2079,12 @@ void GlCanvas::onKeyDown(wxKeyEvent &event) {
 	mainWindow->onKeyDown(event);
 }
 
+void GlCanvas::OnSize(wxSizeEvent&event) {
+
+	//printf("OnSize %dx%d\n",event.m_size.GetWidth(),event.m_size.GetHeight());
+	Update();
+}
+
 //    EVT_SPIN_DOWN(GlCanvas::onMouseDown)
 //    EVT_SPIN_UP(GlCanvas::onMouseDown)
 //    EVT_MIDDLE_DOWN(GlCanvas::onMouseWheel)
@@ -2089,6 +2094,7 @@ BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
     EVT_MOUSEWHEEL(GlCanvas::onMouseWheel)
     EVT_MOTION(GlCanvas::onMouseMove)
     EVT_KEY_DOWN(GlCanvas::onKeyDown)
+    EVT_SIZE(GlCanvas::OnSize)
 END_EVENT_TABLE()
 
 // ===============================================

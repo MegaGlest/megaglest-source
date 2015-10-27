@@ -423,6 +423,7 @@ IF(wxWidgets_FIND_STYLE STREQUAL "win32")
       D:/
       $ENV{ProgramFiles}
     PATH_SUFFIXES 
+      wxWidgets-3.0.2
       wxWidgets-2.9.4
       wxWidgets-2.9.3
       wxWidgets-2.9.2
@@ -704,7 +705,7 @@ ELSE(wxWidgets_FIND_STYLE STREQUAL "win32")
     
     IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
         MESSAGE(STATUS "Searching for wx on FreeBSD")
-        FIND_PROGRAM(wxWidgets_CONFIG_EXECUTABLE NAMES $ENV{WX_CONFIG} wxgtk2u-2.8-config wxgtk2u-2.6-config wxgtk2-2.6-config
+        FIND_PROGRAM(wxWidgets_CONFIG_EXECUTABLE NAMES $ENV{WX_CONFIG} wxgtk2u-3.0-config wxgtk2u-2.9-config wxgtk2u-2.8-config wxgtk2u-2.6-config wxgtk2-2.6-config
         ONLY_CMAKE_FIND_ROOT_PATH
         )
     ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
@@ -737,7 +738,15 @@ ELSE(wxWidgets_FIND_STYLE STREQUAL "win32")
         ERROR_QUIET
         )
       MESSAGE(STATUS "${wxWidgets_CONFIG_EXECUTABLE} ${wxWidgets_SELECT_OPTIONS} --cxxflags")
-          
+      
+      EXECUTE_PROCESS(
+        COMMAND sh "${wxWidgets_CONFIG_EXECUTABLE}"
+          --version
+        OUTPUT_VARIABLE wxWidgets_VERSION
+        ERROR_QUIET
+        )
+      MESSAGE(STATUS "${wxWidgets_CONFIG_EXECUTABLE} --version returned: ${wxWidgets_VERSION}")    
+
       IF(RET EQUAL 0)
         STRING(STRIP "${wxWidgets_CXX_FLAGS}" wxWidgets_CXX_FLAGS)
         SEPARATE_ARGUMENTS(wxWidgets_CXX_FLAGS)
