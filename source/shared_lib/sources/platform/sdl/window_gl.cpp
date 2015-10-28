@@ -96,6 +96,38 @@ void WindowGl::swapBuffersGl(){
 	context.swapBuffers();
 }
 
+void WindowGl::eventToggleFullScreen(bool isFullscreen) {
+	Window::eventToggleFullScreen(isFullscreen);
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		//SDL_Surface *cur_surface = SDL_GetVideoSurface();
+		if(getScreenWindow() != NULL) {
+			if(getIsFullScreen()){
+				SDL_SetWindowFullscreen(getScreenWindow(),SDL_WINDOW_FULLSCREEN_DESKTOP);
+			}
+			else {
+				SDL_SetWindowFullscreen(getScreenWindow(),0);
+			}
+		}
+
+		if(isFullscreen) {
+			changeVideoModeFullScreen(isFullscreen);
+			ChangeVideoMode(true, getScreenWidth(), getScreenHeight(),
+					true,context.getColorBits(), context.getDepthBits(), context.getStencilBits(),
+					context.getHardware_acceleration(),context.getFullscreen_anti_aliasing(),
+					context.getGammaValue());
+
+		}
+		else {
+			changeVideoModeFullScreen(false);
+			ChangeVideoMode(true, getDesiredScreenWidth(), getDesiredScreenHeight(),
+					false,context.getColorBits(), context.getDepthBits(), context.getStencilBits(),
+					context.getHardware_acceleration(),context.getFullscreen_anti_aliasing(),
+					context.getGammaValue());
+		}
+	}
+}
+
 // changes display resolution at any time
 bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight,
 		bool fullscreenWindow,

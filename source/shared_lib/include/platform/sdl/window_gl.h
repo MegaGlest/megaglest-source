@@ -45,11 +45,16 @@ public:
 	SDL_Surface * getScreenSurface();
 	virtual int getScreenWidth();
 	virtual int getScreenHeight();
+	virtual int getDesiredScreenWidth() { return getScreenWidth(); }
+	virtual int getDesiredScreenHeight() { return getScreenHeight(); }
 
 	virtual bool ChangeVideoMode(bool preserveContext, int resWidth, int resHeight,
 			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,
             bool hardware_acceleration, bool fullscreen_anti_aliasing,
             float gammaValue);
+
+protected:
+	virtual void eventToggleFullScreen(bool isFullscreen);
 };
 
 }}//end namespace

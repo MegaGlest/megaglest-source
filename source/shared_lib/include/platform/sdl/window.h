@@ -213,6 +213,7 @@ protected:
 	virtual void eventMenu(int menuId) {}
 	virtual void eventClose() {};
 	virtual void eventDestroy() {};
+	virtual void eventToggleFullScreen(bool isFullscreen) {};
 
 private:
 	/// needed to detect double clicks

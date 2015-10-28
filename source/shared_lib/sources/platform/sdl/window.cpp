@@ -617,16 +617,8 @@ void Window::toggleFullscreen() {
 
 	Window::isFullScreen = !Window::isFullScreen;
 
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		//SDL_Surface *cur_surface = SDL_GetVideoSurface();
-		if(sdlWindow != NULL) {
-			if(isFullScreen){
-				SDL_SetWindowFullscreen(sdlWindow,SDL_WINDOW_FULLSCREEN);
-			}
-			else {
-				SDL_SetWindowFullscreen(sdlWindow,0);
-			}
-		}
+	if(global_window) {
+		global_window->eventToggleFullScreen(Window::isFullScreen);
 	}
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

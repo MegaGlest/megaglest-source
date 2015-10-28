@@ -826,6 +826,31 @@ MainWindow::~MainWindow(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+int MainWindow::getDesiredScreenWidth() {
+	Config &config= Config::getInstance();
+	return config.getInt("ScreenWidth");
+}
+int MainWindow::getDesiredScreenHeight() {
+	Config &config= Config::getInstance();
+	return config.getInt("ScreenHeight");
+}
+
+void MainWindow::eventToggleFullScreen(bool isFullscreen) {
+	WindowGl::eventToggleFullScreen(isFullscreen);
+
+	if(isFullscreen) {
+		Metrics::reload(this->program->getWindow()->getScreenWidth(),
+				this->program->getWindow()->getScreenHeight());
+	}
+	else {
+		Config &config= Config::getInstance();
+		Metrics::reload(config.getInt("ScreenWidth"),config.getInt("ScreenHeight"));
+		//window->setText(config.getString("WindowTitle","MegaGlest"));
+		//this->mainMenu->init();
+	}
+
+}
+
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     const Metrics &metrics = Metrics::getInstance();
     int vx = metrics.toVirtualX(x);

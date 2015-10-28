@@ -62,6 +62,11 @@ public:
     bool getTriggerLanguageToggle() const { return triggerLanguageToggle; }
     string getTriggerLanguage() const { return triggerLanguage; }
 
+	virtual int getDesiredScreenWidth();
+	virtual int getDesiredScreenHeight();
+
+protected:
+    virtual void eventToggleFullScreen(bool isFullscreen);
 };
 
 }}//end namespace
