@@ -143,14 +143,16 @@ rem /p:VCTargetsPath=%MSBUILD_PATH_MG_x64%;
 
 rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:detailed /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m /t:Rebuild Glest_vc2012.sln
 rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m /t:Rebuild Glest_vc2012.sln
-if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=Win32;PlatformToolset=v140 /m /t:Rebuild Glest_vc2015.sln
+rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=Win32;PlatformToolset=v140 /m /t:Rebuild Glest_vc2015.sln
+if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=Win32;PlatformToolset=v140 /m /t:Rebuild Glest_vc2015.sln
 
 rem if not "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release Glest_vc2010.sln
 rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=x64 /v:q /m /p:PlatformToolset=v110_xp Glest_vc2012.sln
 
 rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:detailed /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m Glest_vc2012.sln
 rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m Glest_vc2012.sln
-if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=Win32;PlatformToolset=v140 /m Glest_vc2015.sln
+rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=Win32;PlatformToolset=v140 /m Glest_vc2015.sln
+if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=Win32;PlatformToolset=v140 /m Glest_vc2015.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
