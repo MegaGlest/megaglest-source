@@ -4603,6 +4603,38 @@ bool Game::textInput(std::string text) {
 	return false;
 }
 
+bool Game::sdlKeyDown(SDL_KeyboardEvent key) {
+	if(this->masterserverMode == true) {
+		return false;
+	}
+	if(gameStarted == false || totalRenderFps <= 0) {
+		return false;
+	}
+
+	if(chatManager.getEditEnabled() == true) {
+		return false;
+	}
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	//group
+	for(int idx = 1; idx <= Selection::maxGroups; idx++) {
+		string keyName = "GroupUnitsKey" + intToStr(idx);
+
+		SDL_Keycode groupHotKey = configKeys.getSDLKey(keyName.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
+
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,keyName.c_str(),isKeyPressed(groupHotKey,key));
+		//printf(" group key check %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
+		if(key.keysym.sym==groupHotKey){
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//printf("IS GROUP KEY %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
+			gui.groupKey(idx-1);
+			return true;
+		}
+	}
+	return false;
+}
+
 void Game::keyDown(SDL_KeyboardEvent key) {
 	if(this->masterserverMode == true) {
 		return;
@@ -4852,33 +4884,6 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			else if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key, false) == true) {
 				popupMenu.setEnabled(!popupMenu.getEnabled());
 				popupMenu.setVisible(popupMenu.getEnabled());
-			}
-			//group
-			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
-
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("====== Check ingame custom grouping hotkeys ======\n");
-				//printf("====== Check ingame custom grouping hotkeys ======\n");
-
-				for(int idx = 1; idx <= Selection::maxGroups; idx++) {
-					string keyName = "GroupUnitsKey" + intToStr(idx);
-					//char groupHotKey = configKeys.getCharKey(keyName.c_str());
-					//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
-
-					SDL_Keycode groupHotKey = configKeys.getSDLKey(keyName.c_str());
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
-
-					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,keyName.c_str(),isKeyPressed(groupHotKey,key));
-					//printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
-					//printf("IS GROUP KEY %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
-					if(key.keysym.sym==groupHotKey){
-					//if(isKeyPressed(groupHotKey,key) == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-						gui.groupKey(idx-1);
-						break;
-					}
-				}
 			}
 
 			//hotkeys

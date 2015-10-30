@@ -96,6 +96,7 @@ public:
 	virtual void mouseMove(int x, int y, const MouseState *mouseState);
 	virtual bool textInput(std::string text){ return false; };
 	virtual void keyDown(SDL_KeyboardEvent key){};
+	virtual bool sdlKeyDown(SDL_KeyboardEvent key){ return false; };
 	virtual void keyUp(SDL_KeyboardEvent key){};
 	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
@@ -195,6 +196,7 @@ public:
 	//main
 	bool textInput(std::string text);
     void keyDown(SDL_KeyboardEvent key);
+    bool sdlKeyDown(SDL_KeyboardEvent key);
     void keyUp(SDL_KeyboardEvent key);
     void keyPress(SDL_KeyboardEvent c);
 

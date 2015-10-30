@@ -49,6 +49,7 @@ public:
 	virtual void eventMouseDoubleClick(int x, int y, MouseButton mouseButton);
 	virtual void eventMouseMove(int x, int y, const MouseState *mouseState);
 	virtual bool eventTextInput(std::string text);
+	virtual bool eventSdlKeyDown(SDL_KeyboardEvent key);
 	virtual void eventKeyDown(SDL_KeyboardEvent key);
 	virtual void eventMouseWheel(int x, int y, int zDelta);
 	virtual void eventKeyUp(SDL_KeyboardEvent key);

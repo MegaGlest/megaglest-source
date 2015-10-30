@@ -285,7 +285,7 @@ bool Window::handleEvent() {
 
 					{
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_TEXTINPUT ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					codeLocation = "i";
 					Window::isKeyPressedDown = true;
@@ -316,21 +316,15 @@ bool Window::handleEvent() {
 					}
 #endif
 					if(global_window) {
-						//char key = getKey(event.key.keysym,true);
-						//key = tolower(key);
-						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
-
-						//event.key.keysym.mod = SDL_GetModState();
 						if(global_window->eventTextInput(event.text.text) == false) {
 							event.key.keysym.sym = event.text.text[0];
 							global_window->eventKeyDown(event.key);
 							global_window->eventKeyPress(event.key);
 						}
-
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_TEXTINPUT ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					break;
 
@@ -343,13 +337,14 @@ bool Window::handleEvent() {
 					//printf("In SDL_KEYDOWN\n");
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-//					if(SDL_GetModState() == 0 && event.key.keysym.sym != SDLK_BACKSPACE) {
-//						printf("In SDL_KEYDOWN key SKIP\n");
-//						break;
-//					}
+					bool keyDownConsumed=false;
+					if(global_window) {
+						keyDownConsumed=global_window->eventSdlKeyDown(event.key);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					}
+
 					// Stop unprintable characters (ctrl+, alt+ and escape),
 					// also prevent ` and/or ~ appearing in console every time it's toggled.
-
 					SDL_Keymod mod = SDL_GetModState();
 					if (!isUnprintableChar(event.key.keysym,mod)) {
 						//printf("In SDL_KEYDOWN key SKIP [%d]\n",event.key.keysym.sym);
@@ -389,8 +384,10 @@ bool Window::handleEvent() {
 						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
 
 						//event.key.keysym.mod = SDL_GetModState();
-						global_window->eventKeyDown(event.key);
-						global_window->eventKeyPress(event.key);
+						if(!keyDownConsumed){
+							global_window->eventKeyDown(event.key);
+							global_window->eventKeyPress(event.key);
+						}
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}

@@ -288,7 +288,8 @@ public:
 
     //event managing
 	virtual bool textInput(std::string text);
-    virtual void keyDown(SDL_KeyboardEvent key);
+	virtual bool sdlKeyDown(SDL_KeyboardEvent key);
+	virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyUp(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void mouseDownLeft(int x, int y);

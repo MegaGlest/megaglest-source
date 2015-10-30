@@ -329,6 +329,11 @@ bool Program::textInput(std::string text) {
 	return programState->textInput(text);
 }
 
+bool Program::sdlKeyDown(SDL_KeyboardEvent key) {
+	//delegate event
+	return programState->sdlKeyDown(key);
+}
+
 void Program::keyDown(SDL_KeyboardEvent key) {
 	if(msgBox.getEnabled()) {
 		//SDL_keysym keystate = Window::getKeystate();

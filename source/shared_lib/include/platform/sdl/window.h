@@ -205,6 +205,7 @@ protected:
 	virtual void eventKeyUp(SDL_KeyboardEvent key) {}
 	virtual void eventKeyPress(SDL_KeyboardEvent c) {}
 	virtual bool eventTextInput(std::string text) { return false; }
+	virtual bool eventSdlKeyDown(SDL_KeyboardEvent key) { return false; }
 	virtual void eventResize() {};
 	virtual void eventPaint() {}
 	virtual void eventTimer(int timerId) {}

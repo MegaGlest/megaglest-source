@@ -349,7 +349,7 @@ void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 void Gui::groupKey(int groupIndex) {
 	if(isKeyDown(vkControl)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
-		selection.assignGroup(groupIndex,isKeyDown(vkShift));
+		selection.assignGroup(groupIndex,!isKeyDown(vkShift));
 	}
 	else{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);

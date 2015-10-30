@@ -1129,6 +1129,13 @@ bool MainWindow::eventTextInput(std::string text) {
 	return result;
 }
 
+bool MainWindow::eventSdlKeyDown(SDL_KeyboardEvent key) {
+	if(program == NULL) {
+	    	throw megaglest_runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+	}
+	return program->sdlKeyDown(key);
+}
+
 void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
 
