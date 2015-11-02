@@ -14,7 +14,7 @@ CPU_COUNT=-1
 CMAKE_ONLY=0
 MAKE_ONLY=0
 USE_XCODE=0
-CLANG_FORCED=0
+GCC_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
@@ -24,7 +24,7 @@ while getopts "c:defhl:mnxb" option; do
 		c) CPU_COUNT=${OPTARG};;
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
 		e) FORCE_EMBEDDED_LIBS=1;;
-		f) CLANG_FORCED=1;;
+		f) GCC_FORCED=1;;
 		h) 	echo "Usage: $0 <option>"
 			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
 			echo "       option descriptions:"
@@ -32,7 +32,7 @@ while getopts "c:defhl:mnxb" option; do
 			echo "       -c x : Force the cpu / cores count to x - example: -c 4"
 			echo "       -d   : Force DYNAMIC compile (do not want static libs)"
 			echo "       -e   : Force compile with EMBEDDED libraries"
-			echo "       -f   : Force using Clang compiler"
+			echo "       -f   : Force using Gcc compiler"
 			echo "       -l x : Force using LUA version x - example: -l 5.3"
 			echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
@@ -48,7 +48,7 @@ while getopts "c:defhl:mnxb" option; do
 			CMAKE_ONLY=0
 			MAKE_ONLY=0
 			USE_XCODE=0
-			CLANG_FORCED=0
+			GCC_FORCED=0
 			WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 			LUA_FORCED_VERSION=0;;
 		\?)
@@ -164,11 +164,11 @@ if [ "$CMAKE_OSX_ARCHITECTURES" != "" ]; then
 fi
 
 if [ "$USE_XCODE" -ne "1" ]; then
-	if [ "$CLANG_FORCED" -eq "1" ]; then
+	if [ "$GCC_FORCED" -ne "1" ]; then
 		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH} -DCMAKE_CXX_COMPILER=${CLANGPP_BIN_PATH}"
-		echo "USER WANTS to use CLANG / LLVM compiler!"
 	else
 		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${GCC_BIN_PATH} -DCMAKE_CXX_COMPILER=${GCCPP_BIN_PATH}"
+		echo "USER WANTS to use Gcc compiler!"
 	fi
 fi
 
@@ -185,7 +185,7 @@ if [ "$MAKE_ONLY" -eq "0" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBREAKPAD_ROOT=$BREAKPAD_ROOT"
 	if [ "$BUILD_BUNDLE" -ne "1" ]; then
 		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_INSTALL_PREFIX=''"
-		if [ "$CLANG_FORCED" -eq "1" ] || [ "$USE_XCODE" -eq "1" ]; then
+		if [ "$GCC_FORCED" -ne "1" ] || [ "$USE_XCODE" -eq "1" ]; then
 			#^ Remove this condition when it V will start working on gcc
 			EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DBUILD_MEGAGLEST_TESTS=ON"
 		else
