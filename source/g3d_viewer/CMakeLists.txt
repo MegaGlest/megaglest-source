@@ -26,14 +26,13 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 
 	FIND_PACKAGE(GLEW REQUIRED)
-	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_PATH})
+	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARIES})
 	ENDIF()
 
 	IF(NOT WIN32)
-
-                IF(WANT_XERCES)
+                IF(WANT_USE_XercesC)
 		        FIND_PACKAGE(XercesC REQUIRED)
 		        INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
 		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
@@ -44,6 +43,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		# wxWidgets include (this will do all the magic to configure everything)
 		include( ${wxWidgets_USE_FILE} )
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
+		MESSAGE(STATUS " wxWidgets: ${wxWidgets_INCLUDE_DIRS} ;/;  ${wxWidgets_LIBRARIES}")
 	ELSE()
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
@@ -102,7 +102,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	    ${GLEST_MAIN_INCLUDE_ROOT}global
 	    ${GLEST_MAIN_INCLUDE_ROOT}sound)
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
     			${GLEST_LIB_INCLUDE_ROOT}streflop)
@@ -112,10 +112,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	IF(WIN32)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
-	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ENDIF()
+	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 
 	SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp" "../glest_game/global/config.cpp")
 	
@@ -136,17 +134,10 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 			SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})	
 			ENDIF(APPLE)
 	ENDFOREACH(DIR)
-	
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
         SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
         IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
@@ -161,24 +152,21 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
 	ENDIF()
 
-	IF(WIN32)
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ELSE()
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ENDIF()
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
-	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
+	IF(EXISTS ${HELP2MAN} AND NOT APPLE)
+		# on mac <> --help sometimes hangs, so we need "NOT APPLE" ^ or some timeout here for now
+		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
+			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
 		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --no-discard-stderr --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
@@ -197,7 +185,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		        ${TARGET_NAME} 
 		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN})
+	        IF(EXISTS ${HELP2MAN} AND NOT APPLE)
          		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
 		        # Installation of the program manpage file
@@ -226,6 +214,5 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 						DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 				ENDIF()
 			ENDIF()
-
         ENDIF()
 ENDIF()

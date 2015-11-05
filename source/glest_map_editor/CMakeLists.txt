@@ -32,6 +32,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		# wxWidgets include (this will do all the magic to configure everything)
 		include( ${wxWidgets_USE_FILE} )
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
+		MESSAGE(STATUS " wxWidgets: ${wxWidgets_INCLUDE_DIRS} ;/;  ${wxWidgets_LIBRARIES}")
 	ELSE()
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
@@ -85,7 +86,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
             ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
 	    ${GLEST_MAIN_INCLUDE_ROOT}global)
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
     			${GLEST_LIB_INCLUDE_ROOT}streflop)
@@ -95,11 +96,8 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	IF(WIN32)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
-	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ENDIF()
-
+	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 
 	SET(MG_SOURCE_FILES "../glest_game/global/config.cpp")
 	
@@ -121,16 +119,9 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 			ENDIF(APPLE)
 	ENDFOREACH(DIR)
 
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
         SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
         IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
@@ -146,7 +137,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 	
 	SET(MG_STREFLOP "")
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(MG_STREFLOP "streflop")
 	ENDIF()
 
@@ -154,24 +145,21 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 	ENDIF()
 
-	IF(WIN32)
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ELSE()
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ENDIF()
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
-	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
+	IF(EXISTS ${HELP2MAN} AND NOT APPLE)
+		# on mac <> --help sometimes hangs, so we need "NOT APPLE" ^ or some timeout here for now
+		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "Map editor for the popular 3D realtime strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
+			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
 		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --no-discard-stderr --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
@@ -183,7 +171,6 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		ENDIF()
 	ENDIF()
 
-
         # Requires an install prefix for the items below to work
         IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
 	        # Installation of the program
@@ -191,7 +178,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		        ${TARGET_NAME} 
 		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN})
+	        IF(EXISTS ${HELP2MAN} AND NOT APPLE)
          		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
 		        # Installation of the program manpage file

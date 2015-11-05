@@ -5,17 +5,13 @@
 #  FONTCONFIG_LIBRARIES    - List of libraries when using FONTCONFIG.
 #  FONTCONFIG_FOUND        - True if FONTCONFIG found.
 
-IF(WANT_STATIC_LIBS)
-	OPTION(FONTCONFIG_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
-ENDIF()
-
 # Look for the header file.
 FIND_PATH( FONTCONFIG_INCLUDE_DIR NAMES fontconfig/fontconfig.h
                                   DOC "Path in which the file fontconfig/fontconfig.h is located." )
 MARK_AS_ADVANCED(FONTCONFIG_INCLUDE_DIR)
 
-IF(FONTCONFIG_STATIC)
-	FIND_LIBRARY( FONTCONFIG_LIBRARY NAMES libfontconfig.a fontconfig
+IF(STATIC_FONTCONFIG)
+	FIND_LIBRARY( FONTCONFIG_LIBRARY NAMES libfontconfig.a fontconfig.a fontconfig
 					DOC "Path to fontconfig library." )
 ELSE()
 	FIND_LIBRARY( FONTCONFIG_LIBRARY NAMES fontconfig

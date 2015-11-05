@@ -10,11 +10,6 @@
 #
 #
 
-OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
-IF(WANT_STATIC_LIBS)
-	OPTION(FTGL_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
-ENDIF()
-
 #message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #1 Searching for FTGL lib in custom path: [${FTGL_LIBRARY_PATH}]")
 
 IF (FTGL_LIBRARY AND FTGL_INCLUDE_DIR)
@@ -30,9 +25,9 @@ ELSE (FTGL_LIBRARY AND FTGL_INCLUDE_DIR)
             PATHS /usr/local/include 
                   /usr/include)
 
-  IF (FTGL_STATIC AND NOT FTGL_LIBRARY)
+  IF (STATIC_FTGL AND NOT FTGL_LIBRARY)
     FIND_LIBRARY(FTGL_LIBRARY 
-                  NAMES libftgl.a ftgl libftgl libftgl.dll
+                  NAMES libftgl.a ftgl.a ftgl libftgl libftgl.dll
                   PATHS /usr/local/lib 
                         /usr/lib
                         ${FTGL_LIBRARY_PATH})

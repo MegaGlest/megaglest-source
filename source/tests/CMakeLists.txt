@@ -21,15 +21,16 @@ IF(BUILD_MEGAGLEST_TESTS)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${${SDL_VERSION_NAME}_LIBRARY})
 	ENDIF()
 
-	find_package( FriBiDi )
-	if(ENABLE_FRIBIDI AND FRIBIDI_LIBRARIES)
-	        add_definitions(-DHAVE_FRIBIDI)
+	if(WANT_USE_FriBiDi)
+		find_package( FriBiDi )
+		if(FRIBIDI_FOUND)
+			add_definitions(-DHAVE_FRIBIDI)
 
-        	include_directories( ${FRIBIDI_INCLUDE_DIR} )
-                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
-
-	elseif(ENABLE_FRIBIDI AND NOT FRIBIDI_LIBRARIES)
-		message("Could not find FriBiDi. Disabling FriBiDi support.")
+			include_directories( ${FRIBIDI_INCLUDE_DIR} )
+			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
+		else()
+			message("Could not find FriBiDi. Disabling FriBiDi support.")
+		endif()
 	endif()
 
 	#########################################################################################
@@ -70,7 +71,7 @@ IF(BUILD_MEGAGLEST_TESTS)
                 ${PROJECT_SOURCE_DIR}/source/glest_game/types
                 )
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
 			${GLEST_LIB_INCLUDE_ROOT}streflop
@@ -139,16 +140,9 @@ IF(BUILD_MEGAGLEST_TESTS)
 	
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
 
@@ -159,7 +153,7 @@ IF(BUILD_MEGAGLEST_TESTS)
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
 	IF(NOT WIN32)
-		IF(WANT_STREFLOP)
+		IF(WANT_USE_STREFLOP)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)

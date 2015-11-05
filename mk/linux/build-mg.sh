@@ -19,58 +19,59 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
-FORCE_EMBEDDED_LIBS="-DFORCE_EMBEDDED_LIBS=OFF"
+FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
+BUILD_MEGAGLEST_TESTS="ON"
 
 while getopts "c:defhl:mnx" option; do
    case "${option}" in
-        c) 
+        c)
            CPU_COUNT=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
         ;;
-        d) 
+        d)
            WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 #           echo "${option} value: ${OPTARG}"
         ;;
-        e) 
-           FORCE_EMBEDDED_LIBS="-DFORCE_EMBEDDED_LIBS=ON"
+        e)
+           FORCE_EMBEDDED_LIBS=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        f) 
+        f)
            CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        h) 
+        h)
                 echo "Usage: $0 <option>"
                 echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
-                echo "       -e   : Force EMBEDDED libraries compile"
+                echo "       -e   : Force compile with EMBEDDED libraries"
                 echo "       -f   : Force using CLANG compiler"
-                echo "       -l x : Force using LUA version x - example: -l 51"                
+                echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
                 echo "       -h   : Display this help usage"
 
-        	exit 1        
+        	exit 1
         ;;
-        l) 
+        l)
            LUA_FORCED_VERSION=${OPTARG}
 #           echo "${option} value: ${OPTARG} LUA_FORCED_VERSION [${LUA_FORCED_VERSION}]"
         ;;
-        m) 
+        m)
            CMAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        n) 
+        n)
            MAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        x) 
+        x)
            FORCE_32BIT_CROSS_COMPILE=1
 #           echo "${option} value: ${OPTARG}"
         ;;
@@ -110,7 +111,7 @@ BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 # by our installers.
 # For more cmake/build options refer to 
 #   http://wiki.megaglest.org/Linux_Compiling#Building_using_CMake_by_Hand
-EXTRA_CMAKE_OPTIONS=-DWANT_USE_SDL2=ON
+EXTRA_CMAKE_OPTIONS=
 
 # Build threads
 # By default we use all physical CPU cores to build.
@@ -144,14 +145,19 @@ detect_system
 echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
 
-EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFONTCONFIG_STATIC=OFF"
+if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FONTCONFIG=OFF"
+fi
 case $distribution in
 	Debian)
 		case $release in
 			6.*|7.*) ;;
 			*)
-				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DOGG_STATIC=OFF -DFORCE_USE_EMBEDDED_IRCCLIENT=ON"
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
 				;;
 		esac
 		;;
@@ -160,9 +166,10 @@ case $distribution in
 		case $release in
 			10.*|11.*|12.*|13.*|14.*) ;;
 			*)
-				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DOGG_STATIC=OFF -DFORCE_USE_EMBEDDED_IRCCLIENT=ON"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi;;
 		esac
 		;;
 
@@ -170,33 +177,36 @@ case $distribution in
 		case $release in
 			13|13.*|14|15|16|17|17.*) ;;
 			*)
-				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DOGG_STATIC=OFF -DFORCE_USE_EMBEDDED_IRCCLIENT=ON"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi;;
 		esac
 		;;
 
 	SuSE|SUSE?LINUX|Opensuse)
 		case $release in
 			*)
-				echo 'Turning ON dynamic CURL ...'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_CURL_DYNAMIC_LIBS=ON"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic CURL ...'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
+				fi;;
 		esac
 		;;
 
 	Fedora)
 		case $release in
 			*)
-				echo 'Turning ON dynamic CURL ...'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_CURL_DYNAMIC_LIBS=ON"
-				;;
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic CURL ...'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
+				fi;;
 		esac
 		;;
 
 	Arch)
 		echo 'Turning ON dynamic LIBS ...'
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_STATIC_LIBS=OFF"
+		WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 		;;
 esac
 
@@ -226,18 +236,13 @@ elif [ "`echo $CC | grep -oF 'clang'`" = 'clang' -a "`echo $CXX | grep -oF 'clan
 #exit 1;
 fi
 
-LUA_FORCED_CMAKE=
-if [ $LUA_FORCED_VERSION != 0 ]; then
-        if [ $LUA_FORCED_VERSION = 53 ]; then
-                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_3=ON"
-                echo "USER WANTS TO FORCE USE of LUA 5.3"
-        elif [ $LUA_FORCED_VERSION = 52 ]; then
-                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_2=ON"
-                echo "USER WANTS TO FORCE USE of LUA 5.2"
-        elif [ $LUA_FORCED_VERSION = 51 ]; then
-                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_1=ON"
-                echo "USER WANTS TO FORCE USE of LUA 5.1"
-        fi
+if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_VERSION=$LUA_FORCED_VERSION"
+	#echo "USER WANTS TO FORCE USE of LUA $LUA_FORCED_VERSION"
+fi
+
+if [ "$FORCE_EMBEDDED_LIBS" != "0" ] && [ "$FORCE_EMBEDDED_LIBS" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_EMBEDDED_LIBS=ON"
 fi
 
 if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
@@ -248,15 +253,15 @@ if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
 
 fi
 
-if [ $MAKE_ONLY = 0 ]; then 
+if [ $MAKE_ONLY = 0 ]; then
         echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS $FORCE_EMBEDDED_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
-        if [ $? -ne 0 ]; then 
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=$BUILD_MEGAGLEST_TESTS -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
+        if [ $? -ne 0 ]; then
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
 fi
 
-if [ $CMAKE_ONLY = 1 ]; then 
+if [ $CMAKE_ONLY = 1 ]; then
         echo "==================> You may now call make with $NUMCORES cores... <=================="
 else
         echo "==================> About to call make with $NUMCORES cores... <=================="
@@ -274,4 +279,3 @@ else
         echo 'Or change into mk/linux and run it from there:'
         echo '  ./megaglest --ini-path=./ --data-path=./'
 fi
-

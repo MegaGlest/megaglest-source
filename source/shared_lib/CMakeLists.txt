@@ -2,7 +2,7 @@
 # streflop
 
 # IMPORTANT: should come BEFORE finding packages
-IF(WANT_STREFLOP)
+IF(WANT_USE_STREFLOP)
 	ADD_SUBDIRECTORY(sources/streflop)
 ENDIF()
 
@@ -16,23 +16,6 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	MESSAGE(STATUS "Will try to build MegaGlest shared library")
 
 	INCLUDE (CheckIncludeFiles)
-
-	#Game options
-	option(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
-	option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
-	option(FORCE_LUA_5_1 "Force looking for LUA 5.1" OFF)
-	option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
-	option(FORCE_LUA_5_3 "Force looking for LUA 5.3" OFF)
-        OPTION(FORCE_EMBEDDED_LIBS "Force use of embedded library code." OFF)
-        option(DISABLE_IRCCLIENT "Disable libircclient support" OFF)
-
-        if(FORCE_EMBEDDED_LIBS)
-                MESSAGE(STATUS "Forcing use of embedded libraries")
-                option(FORCE_USE_EMBEDDED_IRCCLIENT "Use embedded to source code version of ircclient" ${FORCE_EMBEDDED_LIBS})
-        else()
-        	
-        	option(FORCE_USE_EMBEDDED_IRCCLIENT "Use embedded to source code version of ircclient" OFF)
-        endif()
 
 	IF(WIN32)
 		SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
@@ -62,14 +45,17 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
 	ENDIF()
 
-	FIND_PACKAGE(OpenSSL)
-	IF(OPENSSL_FOUND)
-	    INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
-	ELSE()
-	    MESSAGE(STATUS "**NOTE: OpenSSL is usually not required.")
+	IF(WANT_USE_OpenSSL)
+		FIND_PACKAGE(OpenSSL)
+		IF(OPENSSL_FOUND)
+		    INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+		ELSE()
+		    MESSAGE(STATUS "**NOTE: OpenSSL is usually not required.")
+		ENDIF()
 	ENDIF()
 
 	FIND_PACKAGE(CURL REQUIRED)
+	INCLUDE(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/CurlGetConfig.cmake)
 	INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
 	IF(UNIX)
 		IF(NOT OPENSSL_FOUND)
@@ -77,34 +63,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
 		ELSE()
 		    # mageia
-		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ssl)
+		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ${OPENSSL_SSL_LIBRARY})
 		ENDIF()
-	ENDIF()
-	# check libcurl version #
-	IF(WIN32)
-		file (READ ${PROJECT_SOURCE_DIR}${CURL_INCLUDE_DIR}/curl/curlver.h CURL_VERSION_H_CONTENTS)
-	ELSE()
-		file (READ ${CURL_INCLUDE_DIR}/curl/curlver.h CURL_VERSION_H_CONTENTS)
-	ENDIF()
-
-	string (REGEX MATCH "LIBCURL_VERSION_MAJOR[ \t]+([0-9]+)" LIBCURL_VERSION_MJ ${CURL_VERSION_H_CONTENTS})
-	string (REGEX MATCH "([0-9]+)" LIBCURL_VERSION_MJ ${LIBCURL_VERSION_MJ})
-	string (REGEX MATCH "LIBCURL_VERSION_MINOR[ \t]+([0-9]+)" LIBCURL_VERSION_MI ${CURL_VERSION_H_CONTENTS})
-	string (REGEX MATCH "([0-9]+)" LIBCURL_VERSION_MI ${LIBCURL_VERSION_MI})
-	string (REGEX MATCH "LIBCURL_VERSION_PATCH[ \t]+([0-9]+)" LIBCURL_VERSION_PT ${CURL_VERSION_H_CONTENTS})
-	string (REGEX MATCH "([0-9]+)" LIBCURL_VERSION_PT ${LIBCURL_VERSION_PT})
-	set (CURL_MAJOR_VERSION ${LIBCURL_VERSION_MJ})
-	set (CURL_MINOR_VERSION ${LIBCURL_VERSION_MI})
-	set (CURL_PATCH_VERSION ${LIBCURL_VERSION_PT})
-	include_regular_expression("^.*$")
-	# Setup package meta-data
-	set(CURL_VERSION ${CURL_MAJOR_VERSION}.${CURL_MINOR_VERSION}.${CURL_PATCH_VERSION})
-	message(STATUS "curl version=[${CURL_VERSION}]")
-	#IF( ${CURL_VERSION} VERSION_LESS 7.21.0)
-	IF( ${CURL_VERSION} VERSION_LESS 7.16.4)
-		message(STATUS "(please visit http://curl.haxx.se/libcurl/ to find a newer version)")	
-		#message(FATAL_ERROR " CURL version = [${CURL_VERSION}] we require AT LEAST [7.21.0]")
-		message(FATAL_ERROR " CURL version = [${CURL_VERSION}] we require AT LEAST [7.16.4]")
 	ENDIF()
 
 	FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
@@ -125,7 +85,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${X11_LIBRARIES})
 	ENDIF()
 
-        IF(WANT_XERCES)
+        IF(WANT_USE_XercesC)
 	        FIND_PACKAGE(XercesC REQUIRED)
 	        INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 	        IF(UNIX)
@@ -145,35 +105,20 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
         ENDIF()
 
-	IF(WANT_STATIC_LIBS)
-		OPTION(JPEG_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
-		OPTION(PNG_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
-	ENDIF()
-	IF(JPEG_STATIC)
-		SET(JPEG_NAMES libjpeg.a ${JPEG_NAMES})
-	ELSE()
-		SET(JPEG_NAMES libjpeg ${JPEG_NAMES})
-	ENDIF()
-
 	FIND_PACKAGE(JPEG REQUIRED)
 	INCLUDE_DIRECTORIES(${JPEG_INCLUDE_DIR})
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${JPEG_LIBRARY})
 	ENDIF()
-	
-	IF(PNG_STATIC)
-		SET(PNG_NAMES libpng.a ${PNG_NAMES})
-	ELSE()
-		SET(PNG_NAMES libpng ${PNG_NAMES})
-	ENDIF()
+
 	FIND_PACKAGE(PNG REQUIRED)
 	INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 	ENDIF()
 
-        OPTION(WANT_FONTCONFIG "use the library fontconfig" ON)
-	IF(WANT_FONTCONFIG)
+        OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
+	IF(WANT_USE_FontConfig)
 	        FIND_PACKAGE(FontConfig)
 	        IF(FONTCONFIG_FOUND)
                     MESSAGE(STATUS "**NOTE: FontConfig support was detected and enabled.")
@@ -185,62 +130,53 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	        ENDIF(FONTCONFIG_FOUND)
         ENDIF()
 
-	OPTION(USE_FTGL "Use FTGL for on-screen fonts (found on your system)" ON)
-	if(USE_FTGL)
-		ADD_DEFINITIONS(-DUSE_FTGL)
-
-		find_package( Freetype REQUIRED)
-		include_directories( ${FREETYPE_INCLUDE_DIRS} )
-	
-	endif(USE_FTGL)
-
+	OPTION(WANT_USE_FTGL "Use libFTGL for on-screen fonts (found on your system)" ON)
+	find_package( Freetype REQUIRED)
+	include_directories( ${FREETYPE_INCLUDE_DIRS} )
 	FIND_PACKAGE(FTGL)
-
-
-	IF(USE_FTGL)
+	IF(WANT_USE_FTGL)
 		if (FTGL_FOUND)
 		        MESSAGE(STATUS "**NOTE: FTGL font support was detected and enabled.")
-		else()
-		        MESSAGE(STATUS 
-			"**NOTE: Warning! FTGL has been enabled but not detected. Your compilation will probably break. Turn off FTGL support by setting USE_FTGL to false, or visit http://ftgl.wiki.sourceforge.net/ for help on installing FTGL.")
-		endif()
-	
-		ADD_DEFINITIONS(-DUSE_FTGL)
-	
-		#set(FTGL_INCUDE_DIR ${FTGL_INCLUDE_DIR} ${CMAKE_INCLUDE_PATH} ${OPENGL_INCLUDE_DIR})
-		#set(FTGL_LINK_DIRS ${FTGL_LIBRARY_DIRS} )
-		#set(FTGL_LINK_TARGETS ftgl freetype)
-	
-		INCLUDE_DIRECTORIES(${FTGL_INCLUDE_DIR})
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FTGL_LIBRARY})
 
+		        ADD_DEFINITIONS(-DUSE_FTGL)
+		        INCLUDE_DIRECTORIES(${FTGL_INCLUDE_DIR})
+		        IF(UNIX)
+			    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FTGL_LIBRARY})
+		        ENDIF()
+		else()
+		        MESSAGE("**NOTE: Warning! FTGL has been enabled but not detected. Your compilation will probably break. Turn off FTGL support by setting WANT_USE_FTGL to false, or visit http://ftgl.wiki.sourceforge.net/ for help on installing FTGL.")
+		endif()
 	ELSE()
 		IF(FTGL_FOUND)
-		        MESSAGE(STATUS "**NOTE:  Warning: FTGL font support was detected but NOT enabled. You can enable it by setting USE_FTGL=true")
+		        MESSAGE(STATUS "**NOTE:  Warning: FTGL font support was detected but NOT enabled. You can enable it by setting WANT_USE_FTGL=true")
 		ELSE()
 		        MESSAGE(STATUS "**NOTE:  Warning: FTGL font support was not detected. Visit http://ftgl.wiki.sourceforge.net/ for help on installing FTGL.")
 		ENDIF()
-	
-	ENDIF(USE_FTGL)
+	ENDIF()
 
-	FIND_PACKAGE(Freetype REQUIRED)
-	INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_PATH})
+	IF(NOT FREETYPE_FOUND)
+		FIND_PACKAGE(Freetype REQUIRED)
+		INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
+	ENDIF()
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FREETYPE_LIBRARY})
 	ENDIF()
 
 	FIND_PACKAGE(GLEW REQUIRED)
-	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_PATH})
+	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARIES})
 	ENDIF()
 
-        SET(LIBVLC_MIN_VERSION "1.1.0")
+	IF(VLC_MIN_VERSION_MG)
+		SET(LIBVLC_MIN_VERSION "${VLC_MIN_VERSION_MG}")
+	ELSE()
+		SET(LIBVLC_MIN_VERSION "1.1.0")
+	ENDIF()
 	FIND_PACKAGE(LIBVLC)
+        MESSAGE(STATUS "LIBVLC version: ${LIBVLC_VERSION} WANT_USE_VLC macro: ${WANT_USE_VLC}")
 
-        MESSAGE(STATUS "LIBVLC version: ${LIBVLC_VERSION} WITH_VLC macro: ${WITH_VLC}")
-
-        IF(LIBVLC_FOUND AND WITH_VLC AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
+        IF(LIBVLC_FOUND AND WANT_USE_VLC AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
                 MESSAGE(STATUS "**NOTE: LIBVLC found so videos are supported.")
 	        INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
 	        IF(UNIX)
@@ -256,35 +192,38 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		
         ELSE()
                 MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
-                
-                IF(WITH_VLC)
+
+                IF(WANT_USE_VLC)
 	                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
 		ELSE()
 			MESSAGE(STATUS "LIBVLC disabled so videos are NOT supported.")
 		ENDIF()
         ENDIF()
 
+        if(WANT_USE_FriBiDi)
+		find_package( FriBiDi )
+		if(FRIBIDI_FOUND)
+			add_definitions(-DHAVE_FRIBIDI)
 
-	find_package( FriBiDi )
-	if(ENABLE_FRIBIDI AND FRIBIDI_LIBRARIES)
-	        add_definitions(-DHAVE_FRIBIDI)
+			include_directories( ${FRIBIDI_INCLUDE_DIR} )
+			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
 
-        	include_directories( ${FRIBIDI_INCLUDE_DIR} )
-                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
-
-	elseif(ENABLE_FRIBIDI AND NOT FRIBIDI_LIBRARIES)
-		message("Could not find FriBiDi. Disabling FriBiDi support.")
+		else()
+			message("Could not find FriBiDi. Disabling FriBiDi support.")
+		endif()
 	endif()
 
-	find_package( GoogleBreakpad )
-	if(BREAKPAD_EXCEPTION_HANDLER_FOUND AND BREAKPAD_EXCEPTION_HANDLER_LIBRARIES)
-	        add_definitions(-DHAVE_GOOGLE_BREAKPAD)
+	if(WANT_USE_GoogleBreakpad)
+		find_package( GoogleBreakpad )
+		if(BREAKPAD_EXCEPTION_HANDLER_FOUND AND BREAKPAD_EXCEPTION_HANDLER_LIBRARIES)
+			add_definitions(-DHAVE_GOOGLE_BREAKPAD)
 
-        	#include_directories( ${BREAKPAD_EXCEPTION_HANDLER_INCLUDE_DIR} )
-                #SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES})
+			#include_directories( ${BREAKPAD_EXCEPTION_HANDLER_INCLUDE_DIR} )
+			#SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES})
 
-	else()
-		message("** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
+		else()
+			message(STATUS "** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
+		endif()
 	endif()
 
 	#########################################################################################
@@ -304,7 +243,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		util
 		xml)
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(DIRS_WITH_SRC
 			${DIRS_WITH_SRC}
 			streflop
@@ -312,16 +251,22 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
                         streflop/softfloat)
 	ENDIF()
 
-        IF(NOT FORCE_EMBEDDED_LIBS)
-        	FIND_PACKAGE(Miniupnpc)
+	OPTION(FORCE_EMBEDDED_LIBS "Force use of embedded libraries' code." OFF)
+	IF(FORCE_EMBEDDED_LIBS)
+		SET(FORCE_USE_EMBEDDED_Miniupnpc ON)
+	ELSE()
+		OPTION(FORCE_USE_EMBEDDED_Miniupnpc "Use embedded to source code version of miniupnpc" OFF)
+	ENDIF()
+	IF(NOT FORCE_USE_EMBEDDED_Miniupnpc)
+		FIND_PACKAGE(Miniupnpc)
 	ENDIF()
 
-	if(FORCE_EMBEDDED_LIBS OR NOT MINIUPNP_FOUND)
-                if(FORCE_EMBEDDED_LIBS)
-                        MESSAGE(STATUS "*** Using EMBEDDED miniupnpc since FORCE_EMBEDDED_LIBS specified [${FORCE_EMBEDDED_LIBS}]")
-                else()
-        		MESSAGE(STATUS "*** Using EMBEDDED miniupnpc since dev system does not have it... MINIUPNP_FOUND [${MINIUPNP_FOUND}]")
-                endif()
+	if(NOT MINIUPNP_FOUND)
+		if(NOT FORCE_USE_EMBEDDED_Miniupnpc)
+			MESSAGE(STATUS "*** Using EMBEDDED miniupnpc since dev system does not have it... MINIUPNP_FOUND [${MINIUPNP_FOUND}]")
+		else()
+			MESSAGE(STATUS "*** Using EMBEDDED miniupnpc because it was forced by option")
+		endif()
 
                 if (NOT WIN32)
                    add_definitions (-DMINIUPNPC_SET_SOCKET_TIMEOUT)
@@ -380,19 +325,26 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
         INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}xml/rapidxml )
         INCLUDE_DIRECTORIES("sources/")
 
-        IF(NOT DISABLE_IRCCLIENT)
+	OPTION(WANT_USE_Ircclient "Enable libircclient support" ON)
+	IF(FORCE_EMBEDDED_LIBS)
+		SET(FORCE_USE_EMBEDDED_Ircclient ON)
+	ELSE()
+		OPTION(FORCE_USE_EMBEDDED_Ircclient "Use embedded to source code version of ircclient" OFF)
+	ENDIF()
+
+        IF(WANT_USE_Ircclient)
 	        #IF(NOT WANT_STATIC_LIBS)
-		IF(NOT FORCE_USE_EMBEDDED_IRCCLIENT)
-			MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is: ${WANT_STATIC_LIBS} ...")
-			FIND_PACKAGE(Ircclient)
+		IF(NOT FORCE_USE_EMBEDDED_Ircclient)
+				MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is: ${WANT_STATIC_LIBS} ...")
+				FIND_PACKAGE(Ircclient)
 	        ENDIF()
 
-	        if(NOT IRCCLIENT_FOUND OR FORCE_USE_EMBEDDED_IRCCLIENT)
-			if(NOT FORCE_USE_EMBEDDED_IRCCLIENT)
-				MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
-			else()
-				MESSAGE(STATUS "*** Using EMBEDDED libircclient because it was forced by option 'FORCE_USE_EMBEDDED_IRCCLIENT'")
-			endif()
+	        if(NOT IRCCLIENT_FOUND OR FORCE_USE_EMBEDDED_Ircclient)
+				if(NOT FORCE_USE_EMBEDDED_Ircclient)
+					MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
+				else()
+					MESSAGE(STATUS "*** Using EMBEDDED libircclient because it was forced by option")
+				endif()
 		        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
 		        INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
 	        else()
@@ -507,28 +459,23 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
 
-	OPTION(BUILD_MEGAGLEST_UPNP_DEBUG "Build MegaGlest with UPNP DEBUG enabled" OFF)
-	IF(BUILD_MEGAGLEST_UPNP_DEBUG)
+	OPTION(MINIUPNP_DEBUG_BUILD "Build MegaGlest with UPNP DEBUG enabled" OFF)
+	MARK_AS_ADVANCED(MINIUPNP_DEBUG_BUILD)
+	IF(MINIUPNP_DEBUG_BUILD)
 		MESSAGE(STATUS "Will try to build MegaGlest shared library with DEBUG info for UPNP")
 		ADD_DEFINITIONS("-DDEBUG")
 	ENDIF()
 
 	IF(WIN32)
 	  TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
-
-	  IF(WANT_STREFLOP)
-	    TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
-          ENDIF()
-	  TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
-	ELSE()
-          IF(WANT_STREFLOP)
-	    TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
- 	  ENDIF()
-	  TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
-
 	ENDIF()
 
-	#IF(BUILD_MEGAGLEST_UPNP_DEBUG)
+	IF(WANT_USE_STREFLOP)
+		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+	ENDIF()
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
+
+	#IF(MINIUPNP_DEBUG_BUILD)
 		# REMOVE_DEFINITIONS("-DDEBUG")
 	#ENDIF()
 
