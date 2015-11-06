@@ -30,7 +30,7 @@ goto processBuildStageA
 
 :getDepFile
 ECHO Retrieving windows dependency archive...
-call .\wget.exe -c -O ..\..\source\%depfile% http://http://softcoder.megaglest.org/msvc/2015/%depfile%
+call .\wget.exe -c -O ..\..\source\%depfile% http://softcoder.megaglest.org/msvc/2015/%depfile%
 call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
