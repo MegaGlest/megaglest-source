@@ -14,5 +14,5 @@ else
 fi
 export PATH="$binary_dir_path:$PATH"
 
-exec "$binary_dir_path/megaglest"
+exec "$binary_dir_path/megaglest" "$@"
 exit "$?"
