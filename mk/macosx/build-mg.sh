@@ -61,6 +61,8 @@ CLANG_BIN_PATH="$(which clang 2>/dev/null)"
 CLANGPP_BIN_PATH="$(which clang++ 2>/dev/null)"
 GCC_BIN_PATH="/opt/local/bin/gcc"
 GCCPP_BIN_PATH="/opt/local/bin/g++"
+CMAKE_BIN_PATH="$(which cmake 2>/dev/null)"
+if [ "$CMAKE_BIN_PATH" = "" ]; then CMAKE_BIN_PATH="/opt/local/bin/cmake"; fi
 # ^ install latest (not beta) gcc from "mac ports" and then choose it as default gcc version by "port select ..."
 # ( ^ same situation is with wxwidgets )
 cd ${SCRIPTDIR}
@@ -198,10 +200,10 @@ if [ "$MAKE_ONLY" -eq "0" ]; then
 	fi
 	echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 	if [ "$USE_XCODE" -eq "1" ]; then
-		cmake -GXcode $EXTRA_CMAKE_OPTIONS ../../..
+		$CMAKE_BIN_PATH -GXcode $EXTRA_CMAKE_OPTIONS ../../..
 		if [ "$?" -ne "0" ]; then echo 'ERROR: CMAKE failed.' >&2; exit 1; fi
 	else
-		cmake —G"Unix Makefiles" $EXTRA_CMAKE_OPTIONS ../../..
+		$CMAKE_BIN_PATH —G"Unix Makefiles" $EXTRA_CMAKE_OPTIONS ../../..
 		if [ "$?" -ne "0" ]; then echo 'ERROR: CMAKE failed.' >&2; exit 1; fi
 	fi
 fi
