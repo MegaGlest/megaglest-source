@@ -101,10 +101,11 @@ bool ChatManager::textInput(std::string inputText) {
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
 	int maxpaste=0;
 	maxpaste=maxTextLenAllowed-text.length();
+	string textToAdd=inputText.substr (0,maxpaste);
 	if(editEnabled && (int)text.length() < maxTextLenAllowed) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		textCharLength.push_back(inputText.length());
-		this->text +=inputText.substr (0,maxpaste);
+		textCharLength.push_back(textToAdd.length());
+		this->text +=textToAdd;
 		updateAutoCompleteBuffer();
 		return true;
 	}
