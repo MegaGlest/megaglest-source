@@ -99,10 +99,12 @@ bool ChatManager::textInput(std::string inputText) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] inputText [%s]\n",__FILE__,__FUNCTION__,__LINE__,inputText.c_str());
 
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && (int)textCharLength.size() < maxTextLenAllowed) {
+	int maxpaste=0;
+	maxpaste=maxTextLenAllowed-text.length();
+	if(editEnabled && (int)text.length() < maxTextLenAllowed) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		textCharLength.push_back(inputText.length());
-		this->text +=inputText;
+		this->text +=inputText.substr (0,maxpaste);
 		updateAutoCompleteBuffer();
 		return true;
 	}

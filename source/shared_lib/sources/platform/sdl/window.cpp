@@ -341,6 +341,27 @@ bool Window::handleEvent() {
 					if(global_window) {
 						keyDownConsumed=global_window->eventSdlKeyDown(event.key);
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					switch (event.key.keysym.sym) {
+					case SDLK_v:
+						if (event.key.keysym.mod & KMOD_CTRL) {
+							/* Ctrl-V, paste form clipbord */
+							char *text = SDL_GetClipboardText();
+							if (*text) {
+								printf("Clipboard text: %s\n", text);
+								if(global_window->eventTextInput(text) == true) {
+									keyDownConsumed=true;
+								}
+							} else {
+								printf("Clipboard text is empty\n");
+							}
+							SDL_free(text);
+						}
+						break;
+					default:
+						break;
+					}
+
 					}
 
 					// Stop unprintable characters (ctrl+, alt+ and escape),
