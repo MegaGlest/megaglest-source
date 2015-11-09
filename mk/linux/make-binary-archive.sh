@@ -6,6 +6,7 @@
 
 # set this to non 0 to skip building the binary
 skipbinarybuild=0
+if [ "$1" = "-CI" ]; then skipbinarybuild=1; fi
 
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"

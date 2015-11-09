@@ -299,7 +299,7 @@ IF(BUILD_MEGAGLEST)
 		        ${TARGET_NAME} 
 		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN})
+	        IF(EXISTS ${HELP2MAN} AND NOT "${MEGAGLEST_MANPAGE_INSTALL_PATH}" STREQUAL "")
          		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
 		        # Installation of the program manpage file
