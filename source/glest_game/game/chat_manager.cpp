@@ -110,7 +110,7 @@ bool ChatManager::textInput(std::string inputText) {
 //		this->text +=textToAdd;
 
 		WString addText(textToAdd);
-		appendText(addText.cw_str(), false, false);
+		appendText(addText.cw_str(), true, true);
 
 		updateAutoCompleteBuffer();
 		return true;
