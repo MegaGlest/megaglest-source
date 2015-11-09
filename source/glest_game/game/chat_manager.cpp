@@ -104,7 +104,9 @@ bool ChatManager::textInput(std::string inputText) {
 	string textToAdd=inputText.substr (0,maxpaste);
 	if(editEnabled && (int)text.length() < maxTextLenAllowed) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		textCharLength.push_back(textToAdd.length());
+		for(unsigned int idx = 0; idx < textToAdd.size(); ++idx) {
+		  textCharLength.push_back(1);
+		}
 		this->text +=textToAdd;
 		updateAutoCompleteBuffer();
 		return true;
