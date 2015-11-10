@@ -69,6 +69,8 @@ private:
 	CustomInputCallbackInterface *customCB;
 	int maxCustomTextLength;
 
+	string getTextWithLengthCheck(string text, int currentLength, int maxLength);
+	int getTextByteLength();
 	void appendText(const wchar_t *addText, bool validateChars=true,bool addToAutoCompleteBuffer=true);
 	void deleteText(int deleteCount,bool addToAutoCompleteBuffer=true);
 	void updateAutoCompleteBuffer();
