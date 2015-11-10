@@ -30,7 +30,7 @@ mkdir -p "$APP_BIN_DIR"
 ./make-binary-archive.sh
 cp -r "$RELEASEDIR_ROOT/$BINARY_DIR/"* "$APP_GAME_DIR"
 ../linux/make-data-archive.sh
-cp -r "$RELEASEDIR_ROOT/$DATA_DIR/"* "$APP_GAME_DIR"; sleep 0.5s
+cp -r "$DATA_DIR/"* "$APP_GAME_DIR"; sleep 0.5s
 if [ -f "$APP_GAME_DIR/MegaGlest.sh" ]; then rm -f "$APP_GAME_DIR/MegaGlest.sh"; fi
 
 cp "$CURRENTDIR/build/mk/macosx/bundle_resources/Info.plist" "$APP_PLIST_DIR"

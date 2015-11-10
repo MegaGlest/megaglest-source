@@ -15,9 +15,7 @@ else
     CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 fi
 cd "$CURRENTDIR"
-if [ "$1" = "--show-result-path" ]; then
-    if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
-fi
+if [ "$1" != "" ] && [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
 VERSION=`./mg-version.sh --version`
 
 REPODIR="$CURRENTDIR/../../"

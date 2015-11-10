@@ -36,6 +36,7 @@ notifications:
       - "irc.freenode.org#megaglest"
     skip_join: true
     use_notice: true
+    on_success: change
     template:
       #- "[%{commit}: %{author}] %{message}"
       #- "%{build_url}"
