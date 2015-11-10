@@ -11,25 +11,36 @@ if [ "$1" = "-CI" ]; then skipbinarybuild=1; fi
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
 
+if [ "$1" = "-CI" ] || [ "$1" = "--show-result-path" ]; then
+    if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
+fi
+
 VERSION=`./mg-version.sh --version`
 kernel=`uname -s | tr '[A-Z]' '[a-z]'`
 architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
 
-RELEASENAME=megaglest-binary-$kernel-$architecture
-PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
-RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
 PROJDIR="$CURRENTDIR/"
 REPODIR="$CURRENTDIR/../../"
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
-    SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
     SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
-    echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"
 fi
+ARCHIVE_TYPE="tar.xz"
+SNAPSHOTNAME="mg-binary-$kernel-$architecture"
+SN_PACKAGE="$SNAPSHOTNAME-$VERSION-$SOURCE_BRANCH.$ARCHIVE_TYPE"
+RELEASENAME="megaglest-binary-$kernel-$architecture"
+PACKAGE="$RELEASENAME-$VERSION.$ARCHIVE_TYPE"
+if [ "$SOURCE_BRANCH" != "" ] && [ "$SOURCE_BRANCH" != "master" ] && [ "$(echo "$VERSION" | grep '\-dev$')" != "" ]; then
+    RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"
+fi
+RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
+if [ "$1" = "--show-result-path" ]; then echo "${RELEASEDIR_ROOT}/$PACKAGE"; exit 0; fi
 
 echo "Creating binary package in $RELEASEDIR"
+if [ "$SOURCE_BRANCH" != "" ]; then echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"; fi
 
 [[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
 mkdir -p "$RELEASEDIR"
@@ -71,7 +82,7 @@ cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest \
 
 cd "$CURRENTDIR/tools-for-standalone-client"
 cp megaglest-configure-desktop.sh "$RELEASEDIR/"
-if [ "$(echo "$VERSION" | grep -v '\-dev')" != "" ]; then
+if [ "$(echo "$VERSION" | grep -v '\-dev$')" != "" ]; then
     ./prepare-mini-update.sh --only_script; sleep 0.5s
     cp megaglest-mini-update.sh "$RELEASEDIR/"
     if [ -e "megaglest-mini-update.sh" ]; then rm -f "megaglest-mini-update.sh"; fi

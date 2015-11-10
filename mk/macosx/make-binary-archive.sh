@@ -9,27 +9,41 @@ LANG=C
 
 # set this to non 0 to skip building the binary
 skipbinarybuild=0
+if [ "$1" = "-CI" ]; then skipbinarybuild=1; fi
+
+CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
 
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
 
+if [ "$1" = "-CI" ] || [ "$1" = "--show-result-path" ]; then
+    if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
+fi
+
 VERSION="$(../linux/mg-version.sh --version)"
 kernel="macos"
-
-RELEASENAME="megaglest-binary-$kernel"
-PACKAGE="$RELEASENAME-$VERSION.tar.bz2"
-CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
-RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
 REPODIR="$CURRENTDIR/../../"
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
-    SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
     SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
-    echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"
 fi
 
+ARCHIVE_TYPE="tar.bz2"
+SNAPSHOTNAME="mg-binary-$kernel"
+SN_PACKAGE="$SNAPSHOTNAME-$VERSION-$SOURCE_BRANCH.$ARCHIVE_TYPE"
+RELEASENAME="megaglest-binary-$kernel"
+PACKAGE="$RELEASENAME-$VERSION.$ARCHIVE_TYPE"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
+
+if [ "$SOURCE_BRANCH" != "" ] && [ "$SOURCE_BRANCH" != "master" ] && [ "$(echo "$VERSION" | grep '\-dev$')" != "" ]; then
+    RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"
+fi
+RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
+if [ "$1" = "--show-result-path" ]; then echo "${RELEASEDIR_ROOT}/$PACKAGE"; exit 0; fi
+
 echo "Creating binary package in $RELEASEDIR"
+if [ "$SOURCE_BRANCH" != "" ]; then echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"; fi
 
 if [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
 mkdir -p "$RELEASEDIR"

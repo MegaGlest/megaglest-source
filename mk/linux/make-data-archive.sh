@@ -15,32 +15,51 @@ else
     CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 fi
 cd "$CURRENTDIR"
+if [ "$1" = "--show-result-path" ]; then
+    if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
+fi
 VERSION=`./mg-version.sh --version`
-RELEASENAME=megaglest-standalone-data
-PACKAGE="$RELEASENAME-$VERSION.tar.xz"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
-RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
+
 REPODIR="$CURRENTDIR/../../"
 REPO_DATADIR="$REPODIR/data/glest_game"
 if [ -f "$REPO_DATADIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPO_DATADIR"
     DATA_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
     DATA_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
-    echo "Detected parameters for data repository: branch=[$DATA_BRANCH], commit=$DATA_COMMIT"
+    DATA_HASH=$(git log -1 --format=%H)
 fi
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
-    SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
     SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
-    echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"
+    if [ "$DATA_HASH" = "" ]; then DATA_HASH=$(git submodule status "$REPO_DATADIR" | awk '{print $1}'; fi
 fi
-cd "$CURRENTDIR"
+ARCHIVE_TYPE="tar.xz"
+SNAPSHOTNAME="mg-data-universal"
+SN_PACKAGE="$SNAPSHOTNAME-$VERSION-$SOURCE_BRANCH.$ARCHIVE_TYPE"
+RELEASENAME="megaglest-standalone-data"
+PACKAGE="$RELEASENAME-$VERSION.$ARCHIVE_TYPE"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
+if [ "$SOURCE_BRANCH" != "" ] && [ "$SOURCE_BRANCH" != "master" ] && [ "$(echo "$VERSION" | grep '\-dev$')" != "" ]; then
+    RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"
+fi
+RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
+if [ "$1" = "--show-result-path" ]; then
+    if [ "$KERNEL" = "darwin" ]; then echo "$RELEASEDIR"; else echo "${RELEASEDIR_ROOT}/$PACKAGE"; fi; exit 0
+fi
 
-if [ "$KERNEL" != "darwin" ]; then
-    echo "Creating data package in $RELEASEDIR"
-else
-    echo "Creating data directory $RELEASEDIR"
+DATA_HASH_MEMORY="$RELEASEDIR_ROOT/data_memory"
+DATA_HASH_FILE="$DATA_HASH_MEMORY/$VERSION-$GIT_BRANCH.log"
+if [ ! -d "$DATA_HASH_MEMORY" ]; then mkdir -p "$DATA_HASH_MEMORY"; fi
+if [ "$DATA_HASH" != "" ]; then
+    if [ ! -e "$DATA_HASH_FILE" ] || [ "$(cat "$DATA_HASH_FILE" | grep "$DATA_HASH")" = "" ]; then echo "$DATA_HASH" > "$DATA_HASH_FILE"; else exit 0; fi
 fi
+
+cd "$CURRENTDIR"
+if [ "$DATA_BRANCH" != "" ]; then echo "Detected parameters for data repository: branch=[$DATA_BRANCH], commit=$DATA_COMMIT"; fi
+if [ "$SOURCE_BRANCH" != "" ]; then echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"; fi
+
+if [ "$KERNEL" != "darwin" ]; then echo "Creating data package in $RELEASEDIR"; else echo "Creating data directory $RELEASEDIR"; fi
 
 [[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
 mkdir -p "$RELEASEDIR"
