@@ -87,4 +87,5 @@ cd "$RELEASENAME"
 tar -cf - * | bzip2 -9 > "../$PACKAGE"
 cd "$CURRENTDIR"
 
+if [ "$1" = "-CI" ] && [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
 ls -lhA "${RELEASEDIR_ROOT}/$PACKAGE"

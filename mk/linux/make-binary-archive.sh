@@ -111,4 +111,5 @@ cd $RELEASEDIR
 tar -cf - * | xz > ../$PACKAGE
 cd $CURRENTDIR
 
+if [ "$1" = "-CI" ] && [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
 ls -la ${RELEASEDIR_ROOT}/$PACKAGE

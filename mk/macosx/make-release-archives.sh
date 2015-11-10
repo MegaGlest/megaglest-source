@@ -16,7 +16,7 @@ PACKAGE="$RELEASENAME-$VERSION.zip"
 PACKAGE2="$RELEASENAME-$VERSION.dmg"
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
-BINARY_DIR="megaglest-binary-$kernel"
+BINARY_DIR="$(./make-binary-archive.sh --show-result-path)"
 DATA_DIR="$(../linux/make-data-archive.sh --show-result-path)"
 APP_RES_DIR="$RELEASEDIR/MegaGlest.app/Contents/Resources"
 APP_BIN_DIR="$RELEASEDIR/MegaGlest.app/Contents/MacOS"
@@ -28,7 +28,7 @@ mkdir -p "$APP_GAME_DIR"
 mkdir -p "$APP_BIN_DIR"
 
 ./make-binary-archive.sh
-cp -r "$RELEASEDIR_ROOT/$BINARY_DIR/"* "$APP_GAME_DIR"
+cp -r "$BINARY_DIR/"* "$APP_GAME_DIR"
 ../linux/make-data-archive.sh
 cp -r "$DATA_DIR/"* "$APP_GAME_DIR"; sleep 0.5s
 if [ -f "$APP_GAME_DIR/MegaGlest.sh" ]; then rm -f "$APP_GAME_DIR/MegaGlest.sh"; fi

@@ -30,24 +30,26 @@ if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
     if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
     SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
-    if [ "$DATA_HASH" = "" ]; then DATA_HASH=$(git submodule status "$REPO_DATADIR" | awk '{print $1}'; fi
+    if [ "$DATA_HASH" = "" ]; then DATA_HASH=$(git submodule status "$REPO_DATADIR" | awk '{print $1}'); fi
 fi
-ARCHIVE_TYPE="tar.xz"
+classic_snapshot_for_tests=0
+if [ "$SOURCE_BRANCH" != "" ] && [ "$SOURCE_BRANCH" != "master" ] && [ "$(echo "$VERSION" | grep '\-dev$')" != "" ]; then
+    classic_snapshot_for_tests=1
+fi
+if [ "$classic_snapshot_for_tests" -eq "1" ]; then ARCHIVE_TYPE="7z"; else ARCHIVE_TYPE="tar.xz"; fi
 SNAPSHOTNAME="mg-data-universal"
 SN_PACKAGE="$SNAPSHOTNAME-$VERSION-$SOURCE_BRANCH.$ARCHIVE_TYPE"
 RELEASENAME="megaglest-standalone-data"
 PACKAGE="$RELEASENAME-$VERSION.$ARCHIVE_TYPE"
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
-if [ "$SOURCE_BRANCH" != "" ] && [ "$SOURCE_BRANCH" != "master" ] && [ "$(echo "$VERSION" | grep '\-dev$')" != "" ]; then
-    RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"
-fi
+if [ "$classic_snapshot_for_tests" -eq "1" ]; then RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"; fi
 RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
 if [ "$1" = "--show-result-path" ]; then
     if [ "$KERNEL" = "darwin" ]; then echo "$RELEASEDIR"; else echo "${RELEASEDIR_ROOT}/$PACKAGE"; fi; exit 0
 fi
 
 DATA_HASH_MEMORY="$RELEASEDIR_ROOT/data_memory"
-DATA_HASH_FILE="$DATA_HASH_MEMORY/$VERSION-$GIT_BRANCH.log"
+DATA_HASH_FILE="$DATA_HASH_MEMORY/$VERSION-$SOURCE_BRANCH.log"
 if [ ! -d "$DATA_HASH_MEMORY" ]; then mkdir -p "$DATA_HASH_MEMORY"; fi
 if [ "$DATA_HASH" != "" ]; then
     if [ ! -e "$DATA_HASH_FILE" ] || [ "$(cat "$DATA_HASH_FILE" | grep "$DATA_HASH")" = "" ]; then echo "$DATA_HASH" > "$DATA_HASH_FILE"; else exit 0; fi
@@ -111,8 +113,14 @@ if [ "$KERNEL" != "darwin" ]; then
     echo "creating data archive: $PACKAGE"
     [[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
     cd $RELEASEDIR
-    tar -cf - * | xz > ../$PACKAGE
+    if [ "$ARCHIVE_TYPE" = "7z" ] && [ "$(which 7za 2>/dev/null)" != "" ]; then
+	cd ..
+	7za a "$PACKAGE" "$RELEASEDIR" >/dev/null
+    else
+	tar -cf - * | xz > ../$PACKAGE
+    fi
     cd $CURRENTDIR
 
+    if [ "$1" = "-CI" ] && [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
     ls -la ${RELEASEDIR_ROOT}/$PACKAGE
 fi
