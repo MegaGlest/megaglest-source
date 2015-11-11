@@ -103,9 +103,10 @@ bool ChatManager::textInput(std::string inputText) {
 	//maxpaste = maxTextLenAllowed - text.length();
 	//maxpaste = maxTextLenAllowed - getTextByteLength();
 	//string textToAdd = inputText.substr (0,maxpaste);
-	string textToAdd = getTextWithLengthCheck(inputText,getTextByteLength(),maxTextLenAllowed);
 
-	if(editEnabled && (int)text.length() < maxTextLenAllowed && textToAdd.size() > 0) {
+	string textToAdd = getTextWithLengthCheck(inputText,textCharLength.size(),maxTextLenAllowed);
+
+	if(editEnabled && (int)textCharLength.size() < maxTextLenAllowed && textToAdd.size() > 0) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		WString addText(textToAdd);
@@ -119,50 +120,41 @@ bool ChatManager::textInput(std::string inputText) {
 
 string ChatManager::getTextWithLengthCheck(string addText, int currentLength, int maxLength) {
 
-	//printf("len check text [%s] curlen: %d maxlen: %d\n",addText.c_str(),currentLength,maxLength);
+	printf("len check text [%s] curlen: %d maxlen: %d\n",addText.c_str(),currentLength,maxLength);
 
 	string resultText = "";
 	if(addText.empty() == false) {
-		int bytesToAdd = 0;
+		int utf8CharsAdded = 0;
 		WString addTextW(addText);
 		const wchar_t *addTextPtr = addTextW.cw_str();
+		printf("wcslen(addTextPtr)=%d\n",(int)wcslen(addTextPtr));
 		for(unsigned int i = 0; i < wcslen(addTextPtr); ++i) {
 			wchar_t key = addTextPtr[i];
-			if(isAllowedInputTextKey(key) == true && key != 10) {
+			//if(isAllowedInputTextKey(key) == true && key != 10)
+			if(true)
+			{
 				char buf[4] = {0};
 				if (key < 0x80) {
-					bytesToAdd++;
-					//printf("#1 len check cur: %d max: %d\n",currentLength + bytesToAdd,maxLength);
-					if(currentLength + bytesToAdd > maxLength) {
-						break;
-					}
+					printf("#1 len check cur: %d max: %d\n",currentLength + utf8CharsAdded,maxLength);
 					buf[0] = key;
-
-					resultText += buf;
 				}
 				else if (key < 0x800) {
-					bytesToAdd+=2;
-					//printf("#2 len check cur: %d max: %d\n",currentLength + bytesToAdd,maxLength);
-					if(currentLength + bytesToAdd > maxLength) {
-						break;
-					}
+					printf("#2 len check cur: %d max: %d\n",currentLength + utf8CharsAdded,maxLength);
 					buf[0] = (0xC0 | key >> 6);
 					buf[1] = (0x80 | (key & 0x3F));
-
-					resultText += buf;
 				}
 				else {
-					bytesToAdd+=3;
-					//printf("#3 len check cur: %d max: %d\n",currentLength + bytesToAdd,maxLength);
-					if(currentLength + bytesToAdd > maxLength) {
-						break;
-					}
+					printf("#3 len check cur: %d max: %d\n",currentLength + utf8CharsAdded,maxLength);
 					buf[0] = (0xE0 | key >> 12);
 					buf[1] = (0x80 | (key >> 6 & 0x3F));
 					buf[2] = (0x80 | (key & 0x3F));
-
-					resultText += buf;
 				}
+				utf8CharsAdded++;
+				if(currentLength + utf8CharsAdded > maxLength) {
+					printf("break;");
+					break;
+				}
+				resultText += buf;
 			}
 			else {
 				//printf("len check char NOT ALLOWED at pos: %d\n",i);
