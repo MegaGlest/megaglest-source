@@ -1796,7 +1796,7 @@ NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int pl
 	}
 
 	data.messageType	= nmtText;
-	data.text			= text;
+	data.text			= text.substr(0,maxTextStringSize);
 	data.teamIndex		= teamIndex;
 	data.playerIndex 	= playerIndex;
 	data.targetLanguage = targetLanguage;
