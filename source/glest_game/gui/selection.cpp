@@ -226,9 +226,10 @@ bool Selection::assignGroup(int groupIndex, bool clearGroup,const UnitContainer 
 	if(pUnits != NULL) {
 		addUnits = pUnits;
 	}
+
 	for(unsigned int i = 0; i < addUnits->size(); ++i) {
 		if(false == addUnitToGroup(groupIndex,(*addUnits)[i])){
-			// don't try to add more, group is full
+			// don't try to add more, group is maybe full
 			return false;
 		}
 	}
@@ -236,7 +237,7 @@ bool Selection::assignGroup(int groupIndex, bool clearGroup,const UnitContainer 
 }
 
 /**
- * returns false if group is already full
+ * returns false if unit cannot be added
  */
 bool Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
@@ -255,7 +256,21 @@ bool Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 	if(alreadyExists){
 		return true;
 	}
-	else if(unit != NULL && !groupIsFull) {
+
+	// check for non Multiselect units
+	if((int)groups[groupIndex].size()>0 ){
+		if( !unit->getType()->getMultiSelect()){
+			//dont add single selection units to already filled group
+			return false;
+		}
+		Unit* unitInGroup=groups[groupIndex][0];
+		if( !unitInGroup->getType()->getMultiSelect()){
+			//dont add a unit to a group which has a single selection unit
+			return false;
+		}
+	}
+
+	if(unit != NULL && !groupIsFull) {
 		groups[groupIndex].push_back(unit);
 		return true;
 	}
