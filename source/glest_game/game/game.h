@@ -352,7 +352,10 @@ public:
 	virtual void addPerformanceCount(string key,int64 value);
 	bool getRenderInGamePerformance() const { return renderInGamePerformance; }
 	void switchPlayerToAIControl(int factionIndex);
+<<<<<<< HEAD
+=======
 	bool isHeadlessAdmin();
+>>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 
 private:
 	//render

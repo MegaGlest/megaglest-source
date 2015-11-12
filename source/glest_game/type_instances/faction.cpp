@@ -845,11 +845,16 @@ bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, Ne
 	}
 	else {
 		if(isNetworkGame == true) {
+<<<<<<< HEAD
+			if(role == nrServer || headlessAdmin == true) {
+				result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
+=======
 			if(headlessAdmin == true){
 				result = replacedByAI || getCpuControl() ;
 			}
 			else if(role == nrServer ) {
 				result = (replacedByAI || control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
+>>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 			}
 			else {
 				result = (control == ctNetworkCpuEasy ||control == ctNetworkCpu || control == ctNetworkCpuUltra || control == ctNetworkCpuMega);
