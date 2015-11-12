@@ -50,10 +50,6 @@ void Particle::saveGame(XmlNode *rootNode) {
 	particleNode->addAttribute("lastPos",lastPos.getString(), mapTagReplacements);
 //	Vec3f speed;
 	particleNode->addAttribute("speed",speed.getString(), mapTagReplacements);
-//	Vec3f speedUpRelative;
-	particleNode->addAttribute("speedUpRelative",floatToStr(speedUpRelative,6), mapTagReplacements);
-//	Vec3f speedUpConstant;
-	particleNode->addAttribute("speedUpConstant",speedUpConstant.getString(), mapTagReplacements);
 //	Vec3f accel;
 	particleNode->addAttribute("accel",accel.getString(), mapTagReplacements);
 //	Vec4f color;
@@ -74,10 +70,6 @@ void Particle::loadGame(const XmlNode *rootNode) {
 	lastPos = Vec3f::strToVec3(particleNode->getAttribute("lastPos")->getValue());
 	//	Vec3f speed;
 	speed = Vec3f::strToVec3(particleNode->getAttribute("speed")->getValue());
-	//	Vec3f speed;
-	speedUpRelative = particleNode->getAttribute("speedUpRelative")->getFloatValue();
-	//	Vec3f speed;
-	speedUpConstant = Vec3f::strToVec3(particleNode->getAttribute("speedUpConstant")->getValue());
 	//	Vec3f accel;
 	accel = Vec3f::strToVec3(particleNode->getAttribute("accel")->getValue());
 	//	Vec4f color;
@@ -296,16 +288,6 @@ void ParticleSystem::setParticleSize(float particleSize){
 void ParticleSystem::setSpeed(float speed){
 	this->speed= speed;
 	this->speed = truncateDecimal<float>(this->speed,6);
-}
-
-void ParticleSystem::setSpeedUpRelative(float speedUpRelative){
-	this->speedUpRelative= speedUpRelative;
-	this->speedUpRelative = truncateDecimal<float>(this->speedUpRelative,6);
-}
-
-void ParticleSystem::setSpeedUpConstant(float speedUpConstant){
-	this->speedUpConstant= speedUpConstant;
-	this->speedUpConstant = truncateDecimal<float>(this->speedUpConstant,6);
 }
 
 void ParticleSystem::setActive(bool active){
@@ -1132,7 +1114,6 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->lastPos= pos;
 	oldPosition= pos;
 	p->size= particleSize;
-	p->speedUpRelative= speedUpRelative;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	p->accel.x = truncateDecimal<float>(p->accel.x,6);
 	p->accel.y = truncateDecimal<float>(p->accel.y,6);
@@ -1247,8 +1228,6 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	} break;
 	default: throw megaglest_runtime_error("bad shape");
 	}
-	//need to do that down here because we need p->speed for it.
-	p->speedUpConstant= Vec3f(speedUpConstant)*p->speed;
 }
 
 void UnitParticleSystem::update(){
@@ -1320,8 +1299,6 @@ void UnitParticleSystem::updateParticle(Particle *p){
 		p->pos.z = truncateDecimal<float>(p->pos.z,6);
 	}
 	p->speed += p->accel;
-	p->speed += p->speedUpConstant;
-	p->speed=p->speed*(1+p->speedUpRelative);
 	p->speed.x = truncateDecimal<float>(p->speed.x,6);
 	p->speed.y = truncateDecimal<float>(p->speed.y,6);
 	p->speed.z = truncateDecimal<float>(p->speed.z,6);
@@ -2243,7 +2220,6 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->energy= maxParticleEnergy;
 	p->size= particleSize;
 	p->color= color;
-	p->speedUpRelative= speedUpRelative;
 
 	p->speed= Vec3f(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
 	        * random.randRange(-1.0f, 1.0f) + verticalSpreadB, horizontalSpreadA * random.randRange(-1.0f, 1.0f)
@@ -2267,7 +2243,6 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->accel.y = truncateDecimal<float>(p->accel.y,6);
 	p->accel.z = truncateDecimal<float>(p->accel.z,6);
 
-	p->speedUpConstant= Vec3f(speedUpConstant)*p->speed;
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){
@@ -2279,8 +2254,6 @@ void SplashParticleSystem::updateParticle(Particle *p){
 	p->pos.y = truncateDecimal<float>(p->pos.y,6);
 	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
-	p->speed += p->speedUpConstant;
-	p->speed=p->speed*(1+p->speedUpRelative);
 	p->speed= p->speed + p->accel;
 	p->speed.x = truncateDecimal<float>(p->speed.x,6);
 	p->speed.y = truncateDecimal<float>(p->speed.y,6);

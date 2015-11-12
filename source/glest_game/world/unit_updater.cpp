@@ -21,7 +21,6 @@
 #include "network_manager.h"
 #include "object.h"
 #include "particle_type.h"
-#include "projectile_type.h"
 #include "path_finder.h"
 #include "renderer.h"
 #include "sound.h"
@@ -128,17 +127,15 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 
 	//play skill sound
 	const SkillType *currSkill= unit->getCurrSkill();
-
-	for(SkillSoundList::const_iterator it= currSkill->getSkillSoundList()->begin(); it != currSkill->getSkillSoundList()->end(); ++it) {
-		float soundStartTime= (*it)->getStartTime();
+	if(currSkill->getSound() != NULL) {
+		float soundStartTime= currSkill->getSoundStartTime();
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
-				soundRenderer.playFx((*it)->getSoundContainer()->getRandSound(), unit->getCurrVector(), gameCamera->getPos());
+				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
 			}
 		}
 	}
-
 
 	if (currSkill->getShake()) {
 		float shakeStartTime = currSkill->getShakeStartTime();
@@ -189,24 +186,14 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		float attackStartTime = truncateDecimal<float>(ast->getAttackStartTime(),6);
 		float lastAnimProgress = truncateDecimal<float>(unit->getLastAnimProgressAsFloat(),6);
 		float animProgress = truncateDecimal<float>(unit->getAnimProgressAsFloat(),6);
-		bool startAttackParticleSystemNow = false;
-		if(ast->projectileTypes.empty() == true ){
-			startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
-		}
-		else {// start projectile attack
-			for(ProjectileTypes::const_iterator it= ast->projectileTypes.begin(); it != ast->projectileTypes.end(); ++it) {
-				attackStartTime= (*it)->getAttackStartTime();
-				startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
-				if(startAttackParticleSystemNow==true) break;
-			}
-		}
+		bool startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"attackStartTime = %f, lastAnimProgress = %f, animProgress = %f startAttackParticleSystemNow = %d",attackStartTime,lastAnimProgress,animProgress,startAttackParticleSystemNow);
 		unit->setNetworkCRCParticleLogInfo(szBuf);
 
 		if(startAttackParticleSystemNow == true) {
-			startAttackParticleSystem(unit,lastAnimProgress,animProgress);
+			startAttackParticleSystem(unit);
 		}
 	}
 
@@ -270,12 +257,55 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		else if(unit->getCommandSize() > 0) {
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
+				const CommandType *ct = command->getCommandType();
 
 				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
-				if (act != NULL && act->getAttackSkillType() != NULL
-						&& act->getAttackSkillType()->getSpawnUnit() != ""
-						&& act->getAttackSkillType()->getSpawnUnitCount() > 0) {
-					spawnAttack(unit,act->getAttackSkillType()->getSpawnUnit(),act->getAttackSkillType()->getSpawnUnitCount(),act->getAttackSkillType()->getSpawnUnitAtTarget());
+				if( act != NULL && act->getAttackSkillType() != NULL &&
+					act->getAttackSkillType()->getSpawnUnit() != "" && act->getAttackSkillType()->getSpawnUnitCount() > 0) {
+
+					const FactionType *ft= unit->getFaction()->getType();
+					const UnitType *spawnUnitType = ft->getUnitType(act->getAttackSkillType()->getSpawnUnit());
+					int spawnCount = act->getAttackSkillType()->getSpawnUnitCount();
+					for (int y=0; y < spawnCount; ++y) {
+						if(spawnUnitType->getMaxUnitCount() > 0) {
+							if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
+								break;
+							}
+						}
+						UnitPathInterface *newpath = NULL;
+						switch(this->game->getGameSettings()->getPathFinderType()) {
+							case pfBasic:
+								newpath = new UnitPathBasic();
+								break;
+							default:
+								throw megaglest_runtime_error("detected unsupported pathfinder type!");
+						}
+
+						Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
+								                Vec2i(0), spawnUnitType, unit->getFaction(),
+								                world->getMap(), CardinalDir::NORTH);
+						//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
+						if(!world->placeUnit(unit->getCenteredPos(), 10, spawned)) {
+							//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
+
+							// This will also cleanup newPath
+							delete spawned;
+							spawned = NULL;
+						}
+						else {
+							spawned->create();
+							spawned->born(ct);
+							world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
+							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
+							if(ct != NULL){
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								spawned->giveCommand(new Command(ct, unit->getMeetingPos()));
+							}
+							scriptManager->onUnitCreated(spawned);
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+						}
+					}
 				}
 			}
 		}
@@ -311,65 +341,6 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	return processUnitCommand;
-}
-
-void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos) {
-	if(spawnUnit != "" && spawnUnitcount > 0) {
-
-		const FactionType *ft= unit->getFaction()->getType();
-		const UnitType *spawnUnitType = ft->getUnitType(spawnUnit);
-		int spawnCount = spawnUnitcount;
-		for (int y=0; y < spawnCount; ++y) {
-			if(spawnUnitType->getMaxUnitCount() > 0) {
-				if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
-					break;
-				}
-			}
-			UnitPathInterface *newpath = NULL;
-			switch(this->game->getGameSettings()->getPathFinderType()) {
-				case pfBasic:
-					newpath = new UnitPathBasic();
-					break;
-				default:
-					throw megaglest_runtime_error("detected unsupported pathfinder type!");
-			}
-
-			Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
-					                Vec2i(0), spawnUnitType, unit->getFaction(),
-					                world->getMap(), CardinalDir::NORTH);
-			//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
-			bool placedSpawnUnit=false;
-			if(targetPos==Vec2i(-10,-10)) {
-				targetPos=unit->getTargetPos();
-			}
-			if(spawnUnitAtTarget) {
-				placedSpawnUnit=world->placeUnit(targetPos, 10, spawned);
-			} else {
-				placedSpawnUnit=world->placeUnit(unit->getCenteredPos(), 10, spawned);
-			}
-			if(!placedSpawnUnit) {
-				//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
-
-				// This will also cleanup newPath
-				delete spawned;
-				spawned = NULL;
-			}
-			else {
-				spawned->create();
-				spawned->born(NULL);
-				world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
-				const CommandType *ct= spawned->getType()->getFirstAttackCommand(unit->getTargetField());
-				if(ct == NULL){
-					ct= spawned->computeCommandType(targetPos,map->getCell(targetPos)->getUnit(unit->getTargetField()));
-				}
-				if(ct != NULL){
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					spawned->giveCommand(new Command(ct, targetPos));
-				}
-				scriptManager->onUnitCreated(spawned);
-			}
-		}
-	}
 }
 
 // ==================== progress commands ====================
@@ -2517,10 +2488,10 @@ void UnitUpdater::updateSwitchTeam(Unit *unit, int frameIndex) {
 // ==================== attack ====================
 
 void UnitUpdater::hit(Unit *attacker){
-	hit(attacker, dynamic_cast<const AttackSkillType*>(attacker->getCurrSkill()), attacker->getTargetPos(), attacker->getTargetField(),100);
+	hit(attacker, dynamic_cast<const AttackSkillType*>(attacker->getCurrSkill()), attacker->getTargetPos(), attacker->getTargetField());
 }
 
-void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField, int damagePercent){
+void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField){
 	//hit attack positions
 	if(ast != NULL && ast->getSplash()) {
 		char szBuf[8096]="";
@@ -2540,7 +2511,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 
 					float distance = pci.getPos().dist(targetPos);
 					distance = truncateDecimal<float>(distance,6);
-					damage(attacker, ast, attacked, distance,damagePercent);
+					damage(attacker, ast, attacked, distance);
 			  	}
 			}
 		}
@@ -2553,12 +2524,12 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 		attacker->addNetworkCRCDecHp(szBuf);
 
 		if(attacked != NULL) {
-			damage(attacker, ast, attacked, 0.f,damagePercent);
+			damage(attacker, ast, attacked, 0.f);
 		}
 	}
 }
 
-void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance, int damagePercent) {
+void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance) {
 	if(attacker == NULL) {
 		throw megaglest_runtime_error("attacker == NULL");
 	}
@@ -2584,7 +2555,6 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage *= damageMultiplier;
 	damage = truncateDecimal<float>(damage,6);
 
-	damage = (damage*damagePercent)/100;
 	if(damage < 1) {
 		damage= 1;
 	}
@@ -2601,37 +2571,6 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam(),attacked->getType()->getCountUnitDeathInStats(),attacked->getType()->getCountUnitKillInStats());
 		if(attacked->getType()->getCountKillForUnitUpgrade() == true){
 			attacker->incKills(attacked->getTeam());
-		}
-
-		// Perform resource looting iff the attack is from a different faction
-		if(attacker->getFaction() != attacked->getFaction()) {
-			int lootableResourceCount = attacked->getType()->getLootableResourceCount();
-			for(int i = 0; i < lootableResourceCount; i++) {
-				LootableResource resource = attacked->getType()->getLootableResource(i);
-			
-				// Figure out how much of the resource in question that the attacked unit's faction has
-				int factionTotalResource = 0;
-				for(int j = 0; j < attacked->getFaction()->getTechTree()->getResourceTypeCount(); j++) {
-					if(attacked->getFaction()->getTechTree()->getResourceType(j) == resource.getResourceType()) {
-						factionTotalResource = attacked->getFaction()->getResource(j)->getAmount();
-						break;
-					}
-				}
-			
-				if(resource.isNegativeAllowed()) {
-					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(factionTotalResource * resource.getLossFactionPercent() / 100));
-					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossValue());
-					attacker->getFaction()->incResourceAmount(resource.getResourceType(), factionTotalResource * resource.getAmountFactionPercent() / 100);
-					attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountValue());
-				}
-				// Can't take more resources than the faction has, otherwise we end up in the negatives
-				else {
-					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(std::min)(factionTotalResource * resource.getLossFactionPercent() / 100, factionTotalResource));
-					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(std::min)(resource.getLossValue(), factionTotalResource));
-					attacker->getFaction()->incResourceAmount(resource.getResourceType(), (std::min)(factionTotalResource * resource.getAmountFactionPercent() / 100, factionTotalResource));
-					attacker->getFaction()->incResourceAmount(resource.getResourceType(), (std::min)(resource.getAmountValue(), factionTotalResource));
-				}
-			}
 		}
 
 		switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -2653,18 +2592,18 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	//attacker->computeHp();
 }
 
-void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, float animProgress){
+void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	Renderer &renderer= Renderer::getInstance();
 
-	//const AttackSkillType *ast= dynamic_cast<const AttackSkillType*>(unit->getCurrSkill());
-	const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
+	ProjectileParticleSystem *psProj = 0;
 
+	const AttackSkillType *ast= dynamic_cast<const AttackSkillType*>(unit->getCurrSkill());
 	if(ast == NULL) {
 		throw megaglest_runtime_error("Start attack particle ast == NULL!");
 	}
-
+	ParticleSystemTypeProjectile *pstProj= ast->getProjParticleType();
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
-	bool hasProjectile = !ast->projectileTypes.empty();
+
 	Vec3f startPos= unit->getCurrVector();
 	Vec3f endPos= unit->getTargetVec();
 
@@ -2676,51 +2615,39 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, 
 		visible = true;
 	}
 
-	//for(ProjectileParticleSystemTypes::const_iterator pit= unit->getCurrSkill()->projectileParticleSystemTypes.begin(); pit != unit->getCurrSkill()->projectileParticleSystemTypes.end(); ++pit) {
-	for(ProjectileTypes::const_iterator pt= ast->projectileTypes.begin(); pt != ast->projectileTypes.end(); ++pt) {
-		bool startAttackParticleSystemNow = ((*pt)->getAttackStartTime() >= lastAnimProgress && (*pt)->getAttackStartTime() < animProgress);
-		if(startAttackParticleSystemNow){
-			ProjectileParticleSystem *psProj= (*pt)->getProjectileParticleSystemType()->create(unit);
-			psProj->setPath(startPos, endPos);
-			psProj->setObserver(new ParticleDamager(unit,(*pt), this, gameCamera));
-			psProj->setVisible(visible);
-			if(unit->getFaction()->getTexture()) {
-				psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-			}
-			renderer.manageParticleSystem(psProj, rsGame);
-			unit->addAttackParticleSystem(psProj);
-
-			if(pstSplash!=NULL){
-				SplashParticleSystem *psSplash= pstSplash->create(unit);
-				psSplash->setPos(endPos);
-				psSplash->setVisible(visible);
-				if(unit->getFaction()->getTexture()) {
-					psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-				}
-				renderer.manageParticleSystem(psSplash, rsGame);
-				unit->addAttackParticleSystem(psSplash);
-				psProj->link(psSplash);
-			}
+	//projectile
+	if(pstProj != NULL) {
+		psProj= pstProj->create(unit);
+		psProj->setPath(startPos, endPos);
+		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
+		psProj->setVisible(visible);
+		if(unit->getFaction()->getTexture()) {
+			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 		}
+		renderer.manageParticleSystem(psProj, rsGame);
+		unit->addAttackParticleSystem(psProj);
 	}
-
-	// if no projectile, still deal damage..
-	if(hasProjectile == false) {
+	else {
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"Unit hitting [startAttackParticleSystem] no proj");
 		unit->addNetworkCRCDecHp(szBuf);
+
 		hit(unit);
-		//splash
-		if(pstSplash != NULL) {
-			SplashParticleSystem *psSplash= pstSplash->create(unit);
-			psSplash->setPos(endPos);
-			psSplash->setVisible(visible);
-			if(unit->getFaction()->getTexture()) {
-				psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-			}
-			renderer.manageParticleSystem(psSplash, rsGame);
-			unit->addAttackParticleSystem(psSplash);
+	}
+
+	//splash
+	if(pstSplash != NULL) {
+		SplashParticleSystem *psSplash= pstSplash->create(unit);
+		psSplash->setPos(endPos);
+		psSplash->setVisible(visible);
+		if(unit->getFaction()->getTexture()) {
+			psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 		}
+		renderer.manageParticleSystem(psSplash, rsGame);
+		if(pstProj!=NULL){
+			psProj->link(psSplash);
+		}
+		unit->addAttackParticleSystem(psSplash);
 	}
 }
 
@@ -3277,10 +3204,9 @@ void UnitUpdater::loadGame(const XmlNode *rootNode) {
 //	class ParticleDamager
 // =====================================================
 
-ParticleDamager::ParticleDamager(Unit *attacker,const ProjectileType* projectileType, UnitUpdater *unitUpdater, const GameCamera *gameCamera){
+ParticleDamager::ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera){
 	this->gameCamera= gameCamera;
 	this->attackerRef= attacker;
-	this->projectileType= projectileType;
 	this->ast= static_cast<const AttackSkillType*>(attacker->getCurrSkill());
 	this->targetPos= attacker->getTargetPos();
 	this->targetField= attacker->getTargetField();
@@ -3297,44 +3223,16 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		snprintf(szBuf,8095,"Unit hitting [ParticleDamager::update] [%s] targetField = %d",targetPos.getString().c_str(),targetField);
 		attacker->addNetworkCRCDecHp(szBuf);
 
-		unitUpdater->hit(attacker, ast, targetPos, targetField, projectileType->getDamagePercentage());
+		unitUpdater->hit(attacker, ast, targetPos, targetField);
 
 		//char szBuf[8096]="";
 		//snprintf(szBuf,8095,"ParticleDamager::update attacker particleSystem before: %s\nafter: %s",auditBeforeHit.c_str(),particleSystem->toString().c_str());
 		//attacker->setNetworkCRCParticleObserverLogInfo(szBuf);
 
 		//play sound
-		// Try to use the sound form the projetileType
-		StaticSound *projSound=projectileType->getHitSound();
-		if(projSound == NULL){
-			// use the sound from the skill
-			projSound= ast->getProjSound();
-		}
+		StaticSound *projSound= ast->getProjSound();
 		if(particleSystem->getVisible() && projSound != NULL) {
 			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
-		}
-
-		//check for spawnattack
-		if(projectileType->getSpawnUnit()!="" && projectileType->getSpawnUnitcount()>0 ){
-			unitUpdater->spawnAttack(attacker,projectileType->getSpawnUnit(),projectileType->getSpawnUnitcount(),projectileType->getSpawnUnitAtTarget(),targetPos);
-		}
-
-		// check for shake and shake
-		if(projectileType->isShake()==true){
-			World *world=attacker->getFaction()->getWorld();
-			Map* map=world->getMap();
-			Game *game=world->getGame();
-
-			//Unit *attacked= map->getCell(targetPos)->getUnit(targetField);
-			Vec2i surfaceTargetPos=Map::toSurfCoords(targetPos);
-			bool visibility=(!projectileType->isShakeVisible())||(map->getSurfaceCell(surfaceTargetPos)->isVisible(world->getThisTeamIndex()) ||
-								(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true));
-
-			bool isInCameraView=(!projectileType->isShakeInCameraView()) || Renderer::getInstance().posInCellQuadCache(surfaceTargetPos).first;
-
-			if(visibility && isInCameraView) {
-				game->getGameCameraPtr()->shake( projectileType->getShakeDuration(), projectileType->getShakeIntensity(),projectileType->isShakeCameraDistanceAffected(),map->getSurfaceCell(surfaceTargetPos)->getVertex());
-			}
 		}
 	}
 	particleSystem->setObserver(NULL);

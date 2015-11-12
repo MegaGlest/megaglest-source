@@ -208,7 +208,6 @@ IF(BUILD_MEGAGLEST)
 	ENDIF()
 
 	IF(WIN32)
-		SET(CMAKE_CXX_FLAGS_NONE "${CMAKE_CXX_FLAGS_NONE} -Wl,-subsystem,console -mconsole")
 		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wl,-subsystem,console -mconsole")
 		SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,console -mconsole")
 		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wl,-subsystem,console -mconsole")

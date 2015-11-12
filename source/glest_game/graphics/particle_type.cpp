@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2010-2010 Titus Tscharntke
 //
-//	You can redistribute this code and/or modify it under
-//	the terms of the GNU General Public License as published
-//	by the Free Software Foundation; either version 2 of the
+//	You can redistribute this code and/or modify it under 
+//	the terms of the GNU General Public License as published 
+//	by the Free Software Foundation; either version 2 of the 
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -57,8 +57,6 @@ ParticleSystemType::ParticleSystemType() {
     size=0;
     sizeNoEnergy=0;
     speed=0;
-    speedUpRelative=0;
-    speedUpConstant=0;
 	gravity=0;
 	emissionRate=0;
 	energyMax=0;
@@ -109,8 +107,6 @@ void ParticleSystemType::copyAll(const ParticleSystemType &src) {
 	this->size				= src.size;
 	this->sizeNoEnergy		= src.sizeNoEnergy;
 	this->speed				= src.speed;
-	this->speedUpRelative	= src.speedUpRelative;
-	this->speedUpConstant	= src.speedUpConstant;
 	this->gravity			= src.gravity;
 	this->emissionRate		= src.emissionRate;
 	this->energyMax			= src.energyMax;
@@ -164,7 +160,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	else {
 		texture= NULL;
 	}
-
+	
 	//model
 	if(particleSystemNode->hasChild("model")){
 		const XmlNode *modelNode= particleSystemNode->getChild("model");
@@ -176,7 +172,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 			string path= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
 			model= renderer->newModel(rsGame,path, false, &loadedFileList, &parentLoader);
 			loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
-
+			
 			if(modelNode->hasChild("cycles")) {
 				modelCycle = modelNode->getChild("cycles")->getAttribute("value")->getFloatValue();
 				if(modelCycle < 0.0)
@@ -224,17 +220,6 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	const XmlNode *speedNode= particleSystemNode->getChild("speed");
 	speed= speedNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
 
-	//speedUp
-    if(particleSystemNode->hasChild("speedUp")){
-    	const XmlNode *speedUpNode= particleSystemNode->getChild("speedUp");
-    	if(speedUpNode->hasAttribute("relative")){
-    		speedUpRelative= speedUpNode->getAttribute("relative")->getFloatValue();
-    	}
-    	if(speedUpNode->hasAttribute("constant")){
-    		speedUpConstant= speedUpNode->getAttribute("constant")->getFloatValue();
-    	}
-    }
-
 	//gravity
 	const XmlNode *gravityNode= particleSystemNode->getChild("gravity");
 	gravity= gravityNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
@@ -250,7 +235,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	//speed
 	const XmlNode *energyVarNode= particleSystemNode->getChild("energy-var");
 	energyVar= energyVarNode->getAttribute("value")->getIntValue();
-
+	
 	//teamcolorNoEnergy
     if(particleSystemNode->hasChild("teamcolorNoEnergy")){
     	const XmlNode *teamcolorNoEnergyNode= particleSystemNode->getChild("teamcolorNoEnergy");
@@ -315,8 +300,6 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setColor(color);
 	ats->setColorNoEnergy(colorNoEnergy);
 	ats->setSpeed(speed);
-	ats->setSpeedUpRelative(speedUpRelative);
-	ats->setSpeedUpConstant(speedUpConstant);
 	ats->setGravity(gravity);
 	ats->setParticleSize(size);
 	ats->setSizeNoEnergy(sizeNoEnergy);
@@ -345,8 +328,6 @@ void ParticleSystemType::loadGame(const XmlNode *rootNode) {
 	size = particleSystemTypeNode->getAttribute("size")->getFloatValue();
 	sizeNoEnergy = particleSystemTypeNode->getAttribute("sizeNoEnergy")->getFloatValue();
 	speed = particleSystemTypeNode->getAttribute("speed")->getFloatValue();
-	speedUpRelative = particleSystemTypeNode->getAttribute("speedUpRelative")->getFloatValue();
-	speedUpConstant = particleSystemTypeNode->getAttribute("speedUpConstant")->getFloatValue();
 	gravity = particleSystemTypeNode->getAttribute("gravity")->getFloatValue();
 	emissionRate = particleSystemTypeNode->getAttribute("emissionRate")->getFloatValue();
 	energyMax = particleSystemTypeNode->getAttribute("energyMax")->getIntValue();
@@ -398,10 +379,6 @@ void ParticleSystemType::saveGame(XmlNode *rootNode) {
 	particleSystemTypeNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,6), mapTagReplacements);
 //	float speed;
 	particleSystemTypeNode->addAttribute("speed",floatToStr(speed,6), mapTagReplacements);
-//	float speedUpRelative;
-	particleSystemTypeNode->addAttribute("speedUpRelative",floatToStr(speedUpRelative,6), mapTagReplacements);
-//	float speedUpConstant;
-	particleSystemTypeNode->addAttribute("speedUpConstant",floatToStr(speedUpConstant,6), mapTagReplacements);
 //	float gravity;
 	particleSystemTypeNode->addAttribute("gravity",floatToStr(gravity,6), mapTagReplacements);
 //	float emissionRate;
@@ -464,7 +441,7 @@ void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const s
 			particleFileNode->setSuper(particleSystemNode);
 			particleSystemNode= particleFileNode;
 		}
-
+		
 		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList,parentLoader, techtreePath);
 
 		//trajectory values
@@ -558,7 +535,7 @@ void ParticleSystemTypeSplash::load(const XmlNode* particleFileNode, const strin
 		loadedFileList[path].push_back(make_pair(parentLoader,parentLoader));
 
 		const XmlNode *particleSystemNode= xmlTree.getRootNode();
-
+		
 		if(particleFileNode){
 			// immediate children in the particleFileNode will override the particleSystemNode
 			particleFileNode->setSuper(particleSystemNode);
@@ -570,7 +547,7 @@ void ParticleSystemTypeSplash::load(const XmlNode* particleFileNode, const strin
 		//emission rate fade
 		const XmlNode *emissionRateFadeNode= particleSystemNode->getChild("emission-rate-fade");
 		emissionRateFade= emissionRateFadeNode->getAttribute("value")->getFloatValue();
-
+		
 		//spread values
 		const XmlNode *verticalSpreadNode= particleSystemNode->getChild("vertical-spread");
 		verticalSpreadA= verticalSpreadNode->getAttribute("a")->getFloatValue(0.0f, 1.0f);

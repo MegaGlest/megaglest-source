@@ -156,7 +156,6 @@ private:
 	bool thisFaction;
 
 	bool factionDisconnectHandled;
-	bool replacedByAI;
 
 	bool cachingDisabled;
 	std::map<Vec2i,int> cacheResourceTargetList;
@@ -253,8 +252,6 @@ public:
 
 	inline bool getFactionDisconnectHandled() const { return factionDisconnectHandled;}
 	void setFactionDisconnectHandled(bool value) { factionDisconnectHandled=value;}
-	inline bool getReplacedByAI() const { return replacedByAI;}
-	void setReplacedByAI(bool value) { replacedByAI=value;}
 
     //get
 	const Resource *getResource(const ResourceType *rt,bool localFactionOnly=false) const;

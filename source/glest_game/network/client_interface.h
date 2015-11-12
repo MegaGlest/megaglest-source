@@ -141,7 +141,6 @@ public:
 	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note,int playerIndex);
 	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
 	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
-	virtual void sendNetworkMessageGameStats(Stats *stats);
 	//misc
 	virtual string getNetworkStatus() ;
 

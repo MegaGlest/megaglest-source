@@ -49,8 +49,6 @@ public:
 	Vec3f pos;
 	Vec3f lastPos;
 	Vec3f speed;
-	float speedUpRelative;
-	Vec3f speedUpConstant;
 	Vec3f accel;
 	Vec4f color;
 	float size;
@@ -149,8 +147,6 @@ protected:
 	int varParticleEnergy;
 	float particleSize;
 	float speed;
-	float speedUpRelative;
-	float speedUpConstant;
 	Vec3f factionColor;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
@@ -196,8 +192,6 @@ public:
 	void setVarParticleEnergy(int varParticleEnergy);
 	void setParticleSize(float particleSize);
 	void setSpeed(float speed);
-	void setSpeedUpRelative(float speedUpRelative);
-	void setSpeedUpConstant(float speedUpConstant);
 	virtual void setActive(bool active);
 	void setObserver(ParticleObserver *particleObserver);
 	virtual void setVisible(bool visible);

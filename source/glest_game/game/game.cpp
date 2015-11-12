@@ -175,7 +175,7 @@ Game::Game() : ProgramState(NULL) {
 		receivedTooEarlyInFrames[i]=-1;
 		framesNeededToWaitForServerMessage[i]=-1;
 	}
-	oldNumberOfWinners=-1;
+
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
 }
@@ -292,7 +292,6 @@ void Game::resetMembers() {
 		framesNeededToWaitForServerMessage[i]=-1;
 	}
 
-	oldNumberOfWinners=-1;
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
@@ -1382,11 +1381,7 @@ void Game::init(bool initForPreviewOnly) {
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		role 							= networkManager.getNetworkRole();
-<<<<<<< HEAD
 		bool headlessAdmin             = gameSettings.getMasterserver_admin();
-=======
-		bool headlessAdmin             = isHeadlessAdmin();
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 
 		masterController.clearSlaves(true);
 		deleteValues(aiInterfaces.begin(), aiInterfaces.end());
@@ -1595,11 +1590,7 @@ void Game::init(bool initForPreviewOnly) {
 	gameStarted = true;
 
 	if(this->headlessServerMode == true) {
-<<<<<<< HEAD
 		world.getStats()->setIsMasterserverMode(true);
-=======
-		world.getStats()->setIsHeadlessMode(true);
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 
 		printf("New game has started...\n");
 	}
@@ -1634,11 +1625,6 @@ void Game::init(bool initForPreviewOnly) {
 
 void Game::reInitGUI() {
 	gui.init(this);
-}
-
-bool Game::isHeadlessAdmin() {
-	if(isHeadlessMode()) return false;
-	return ( gameSettings.getMasterserver_admin_faction_index() == getWorld()->getThisFactionIndex() );
 }
 
 void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
@@ -1784,27 +1770,6 @@ void Game::processNetworkSynchChecksIfRequired() {
 	}
 }
 
-
-void Game::initAiInterfacesIfNeeded(int aiIndex){
-	if(aiInterfaces[aiIndex]==NULL){
-		masterController.clearSlaves(true);
-		std::vector<SlaveThreadControllerInterface *> slaveThreadList;
-		for(int i=0; i < world.getFactionCount(); ++i) {
-			Faction *faction= world.getFaction(i);
-			if(i==aiIndex) {
-				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
-				console.addLine("I am controlling client!!!!");
-			}
-			if(aiInterfaces[i]!=NULL){
-				slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
-			}
-		}
-		if(Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
-			masterController.setSlaves(slaveThreadList);
-		}
-	}
-}
-
 //update
 void Game::update() {
 	try {
@@ -1827,38 +1792,18 @@ void Game::update() {
 		Chrono chrono;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+		// a) Updates non dependent on speed
+
+		// set game stats for host
 		NetworkManager &networkManager	= NetworkManager::getInstance();
 		NetworkRole role 				= networkManager.getNetworkRole();
-<<<<<<< HEAD
 		bool headlessAdmin             = gameSettings.getMasterserver_admin();
-=======
-		bool headlessAdmin             = isHeadlessAdmin();
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 
 		if(role == nrServer) {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface(false);
 			if(server != NULL) {
-				if(this->headlessServerMode == true)
-					server->fillReceivedStats(world.getStats());
 				server->setGameStats(world.getStats());
 			}
-		} else if ((headlessAdmin == true)){
-			int currentNumberOfWinners=0;
-			for(int k = 0; k < world.getFactionCount(); ++k) {
-				if(this->getEndGameStats().getVictory(k)==true){
-					currentNumberOfWinners++;
-				}
-			}
-			//Whenever the win state of one Faction changes we need to send the stats to get proper end game stats. Else we send in cycle periods
-			if((currentNumberOfWinners!=oldNumberOfWinners) ||
-				(world.getFrameCount()
-						% (gameSettings.getNetworkFramePeriod() * 10 ) == 0)) {
-
-				ClientInterface *clientInterface = NetworkManager::getInstance().getClientInterface(false);
-				clientInterface->sendNetworkMessageGameStats(world.getStats());
-			}
-			oldNumberOfWinners=currentNumberOfWinners;
 		}
 
 		bool pendingQuitError = (quitPendingIndicator == true ||
@@ -1916,6 +1861,8 @@ void Game::update() {
 		}
 
 		chronoGamePerformanceCounts.start();
+		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+
 		if(role == nrClient && updateLoops == 1 && world.getFrameCount() >= (gameSettings.getNetworkFramePeriod() * 2) ) {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
@@ -2087,15 +2034,6 @@ void Game::update() {
 
 						addPerformanceCount("CalculateNetworkCRCSynchChecks",chronoGamePerformanceCounts.getMillis());
 
-						for(int j = 0; j < world.getFactionCount(); ++j) {
-							Faction *faction = world.getFaction(j);
-							// initialize AIinterfaces if needed.
-							if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role, headlessServerMode,headlessAdmin) == true &&
-								scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
-								initAiInterfacesIfNeeded(j);
-							}
-						}
-
 						const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
 						if(newThreadManager == true) {
 							int currentFrameCount = world.getFrameCount();
@@ -2109,7 +2047,6 @@ void Game::update() {
 
 							bool hasAIPlayer = false;
 							for(int j = 0; j < world.getFactionCount(); ++j) {
-<<<<<<< HEAD
 								Faction *faction = world.getFaction(j);
 
 								//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
@@ -2118,10 +2055,6 @@ void Game::update() {
 									scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
-=======
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
-								if(aiInterfaces[j]!=NULL){
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 									aiInterfaces[j]->signalWorkerThread(world.getFrameCount());
 									hasAIPlayer = true;
 								}
@@ -2146,12 +2079,8 @@ void Game::update() {
 										if(faction == NULL) {
 											throw megaglest_runtime_error("faction == NULL");
 										}
-<<<<<<< HEAD
 										if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin) == true &&
 											scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
-=======
-										if(aiInterfaces[j]!=NULL){
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 											if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
 												workThreadsFinished = false;
 												break;
@@ -3179,8 +3108,10 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 	if(role == nrServer && isNetworkGame == true &&
 			difftime((long int)time(NULL),lastNetworkPlayerConnectionCheck) >= NETWORK_PLAYER_CONNECTION_CHECK_SECONDS ) {
 		lastNetworkPlayerConnectionCheck = time(NULL);
+		Logger &logger= Logger::getInstance();
 		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 
+		bool newAIPlayerCreated = false;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			Faction *faction = world.getFaction(i);
 			if(	faction->getFactionDisconnectHandled() == false &&
@@ -3204,7 +3135,6 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					bool isPlayerObserver = false;
 					char szBuf[8096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
-<<<<<<< HEAD
 						if(!gameSettings.getMasterserver_admin()){
 							aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
@@ -3212,13 +3142,11 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 							logger.add(szBuf, true);
 							newAIPlayerCreated = true;
 						}
-=======
-						faction->setReplacedByAI(true);// this will cause an AI replacement
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 						commander.tryNetworkPlayerDisconnected(i);
 					}
 					else {
 						isPlayerObserver = true;
+
 					}
 
 					const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
@@ -3243,7 +3171,6 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 				}
 			}
 		}
-<<<<<<< HEAD
 
 		if(newAIPlayerCreated == true && Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
 			bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
@@ -3259,13 +3186,10 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 			}
 			masterController.setSlaves(slaveThreadList);
 		}
-=======
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 	}
 }
 void Game::switchPlayerToAIControl(int factionIndex){
 	Faction *faction = world.getFaction(factionIndex);
-<<<<<<< HEAD
 	if(aiInterfaces[factionIndex] == NULL && faction->getPersonalityType() != fpt_Observer && gameSettings.getMasterserver_admin()) {
 		Logger &logger= Logger::getInstance();
 		char szBuf[8096]="";
@@ -3293,11 +3217,6 @@ void Game::switchPlayerToAIControl(int factionIndex){
 			}
 			masterController.setSlaves(slaveThreadList);
 		}
-=======
-	if(faction->getFactionDisconnectHandled() &&faction->getPersonalityType() != fpt_Observer) {
-		faction->setFactionDisconnectHandled(true);
-		faction->setReplacedByAI(true);// this will cause an AI replacement
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 	}
 }
 
@@ -5121,11 +5040,7 @@ Stats Game::getEndGameStats() {
 	endStats = *(world.getStats());
 	//NetworkManager &networkManager= NetworkManager::getInstance();
 	if (this->headlessServerMode == true) {
-<<<<<<< HEAD
 		endStats.setIsMasterserverMode(true);
-=======
-		endStats.setIsHeadlessMode(true);
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 	}
 	return endStats;
 }

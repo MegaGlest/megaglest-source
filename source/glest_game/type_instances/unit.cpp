@@ -1951,32 +1951,13 @@ void Unit::born(const CommandType *ct) {
 
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;
-
-	
-	//set hp from start hp
-	checkItemInVault(&this->ep,this->ep);
-	if(type->getStartHpType() == UnitType::stValue) {
-		this->hp= type->getStartHpValue();
-	}
-	else {
-		this->hp= type->getTotalMaxHp(&totalUpgrade) * 100 / type->getStartHpPercentage();
-	}
-
+	this->hp= type->getMaxHp();
 	if(original_hp != this->hp) {
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->hp,this->hp);
-
-	//set ep from start ep
-	checkItemInVault(&this->ep,this->ep);
-	if(type->getStartEpType() == UnitType::stValue) {
-		this->ep= type->getStartEpValue();
-	}
-	else {
-		this->ep= type->getTotalMaxEp(&totalUpgrade) * 100 / type->getStartEpPercentage();
-	}
 }
 
 void Unit::kill() {
@@ -2630,15 +2611,7 @@ bool Unit::update() {
 		int64 heightFactor   = getHeightFactor(ANIMATION_SPEED_MULTIPLIER);
 		int64 speedDenominator = speedDivider *
 				game->getWorld()->getUpdateFps(this->getFactionIndex());
-		
-		// Override the animation speed for attacks that have upgraded the attack speed
-		int animSpeed = currSkill->getAnimSpeed();
-		if(currSkill->getClass() == scAttack) {
-			int animSpeedBoost = ((AttackSkillType *) currSkill)->getAnimSpeedBoost(&totalUpgrade);
-			animSpeed += animSpeedBoost;
-		}
-
-		int64 progressIncrease = (animSpeed * heightFactor) / speedDenominator;
+		int64 progressIncrease = (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 		// Ensure we increment at least a value of 1 of the action will be stuck infinitely
 		if(currSkill->getAnimSpeed() > 0 && heightFactor > 0 && progressIncrease == 0) {
 			progressIncrease = 1;
@@ -2960,7 +2933,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 				game->getScriptManager()->onUnitDied(this);
 
-				StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
+				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
 				if(sound != NULL &&
 					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
@@ -3058,7 +3031,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 			game->getScriptManager()->onUnitDied(this);
 
-			StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
+			StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
 			if(sound != NULL &&
 				(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 				 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
@@ -3130,7 +3103,7 @@ void Unit::tick() {
 						Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 						game->getScriptManager()->onUnitDied(this);
 					}
-					StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
+					StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
 					if(sound != NULL &&
 							(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 									(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
@@ -3169,7 +3142,7 @@ void Unit::tick() {
 					Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 					game->getScriptManager()->onUnitDied(this);
 				}
-				StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
+				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
 				if(sound != NULL &&
 					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {

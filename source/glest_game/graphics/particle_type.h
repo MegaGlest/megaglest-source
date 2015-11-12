@@ -65,8 +65,6 @@ protected:
 	float size;
 	float sizeNoEnergy;
 	float speed;
-	float speedUpRelative;
-	float speedUpConstant;
 	float gravity;
 	float emissionRate;
 	int energyMax;

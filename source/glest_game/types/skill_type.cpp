@@ -19,7 +19,6 @@
 #include "renderer.h"
 #include "particle_type.h"
 #include "unit_particle_type.h"
-#include "projectile_type.h"
 #include "tech_tree.h"
 #include "faction_type.h"
 #include "leak_dumper.h"
@@ -275,26 +274,11 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 }
 
 // =====================================================
-// 	class SkillSound
-// =====================================================
-SkillSound::SkillSound(){
-	startTime=0.0f;
-}
-SkillSound::~SkillSound()
-{
-	deleteValues(soundContainer.getSounds().begin(), soundContainer.getSounds().end());
-	startTime=0.0f;
-	//soundContainer
-}
-// =====================================================
 // 	class SkillType
 // =====================================================
 
 SkillType::~SkillType() {
-	while(!skillSoundList.empty()) {
-		    delete skillSoundList.back();
-			skillSoundList.pop_back();
-		}
+	deleteValues(sounds.getSounds().begin(), sounds.getSounds().end());
 	//remove unitParticleSystemTypes
 	while(!unitParticleSystemTypes.empty()) {
 		delete unitParticleSystemTypes.back();
@@ -504,18 +488,11 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				unitParticleSystemType->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 						loadedFileList,parentLoader,tt->getPath());
 
-				if (particleNode->getChild(i)->hasAttribute("start-time")) {
-					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
-					unitParticleSystemType->setStartTime(particleNode->getChild(i)->getAttribute("start-time")->getFloatValue());
-				} else if (particleNode->hasAttribute("start-time")) {
+				if(particleNode->getAttribute("start-time",false) != NULL) {
 					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
 					unitParticleSystemType->setStartTime(particleNode->getAttribute("start-time")->getFloatValue());
 				}
-
-				if (particleNode->getChild(i)->hasAttribute("end-time")) {
-					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
-					unitParticleSystemType->setEndTime(particleNode->getChild(i)->getAttribute("end-time")->getFloatValue());
-				} else if (particleNode->hasAttribute("end-time")) {
+				if(particleNode->getAttribute("end-time",false) != NULL) {
 					//printf("*NOTE particle system type has end-time [%f]\n",particleNode->getAttribute("end-time")->getFloatValue());
 					unitParticleSystemType->setEndTime(particleNode->getAttribute("end-time")->getFloatValue());
 				}
@@ -527,16 +504,11 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 
 	//sound
-	vector<XmlNode *> soundNodeList = sn->getChildList("sound");
-	for(unsigned int i = 0; i < soundNodeList.size(); ++i) {
-		const XmlNode *soundNode= soundNodeList[i];
+	if(sn->hasChild("sound")) {
+		const XmlNode *soundNode= sn->getChild("sound");
 		if(soundNode->getAttribute("enabled")->getBoolValue()) {
-			float soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-			SkillSound *skillSound = new SkillSound();
-			skillSound->setStartTime(soundStartTime);
-
-			skillSound->getSoundContainer()->resize((int)soundNode->getChildCount());
-			skillSoundList.push_back(skillSound);
+			soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
+			sounds.resize((int)soundNode->getChildCount());
 			for(int i = 0; i < (int)soundNode->getChildCount(); ++i) {
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
@@ -544,7 +516,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
 				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-				(*skillSound->getSoundContainer())[i]= sound;
+				sounds[i]= sound;
 			}
 		}
 	}
@@ -771,7 +743,7 @@ void SkillType::saveGame(XmlNode *rootNode) {
 //
 //    SoundContainer sounds;
 //	float soundStartTime;
-//	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,6), mapTagReplacements);
+	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,6), mapTagReplacements);
 //	RandomGen random;
 	skillTypeNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	AttackBoost attackBoost;
@@ -834,7 +806,7 @@ AttackSkillType::AttackSkillType() {
     splashRadius= 0;
     spawnUnit="";
     spawnUnitcount=0;
-    spawnUnitAtTarget=false;
+	projectileParticleSystemType= NULL;
 	splashParticleSystemType= NULL;
 
 	for(int i = 0; i < fieldCount; ++i) {
@@ -849,8 +821,8 @@ AttackSkillType::AttackSkillType() {
 }
 
 AttackSkillType::~AttackSkillType() {
-
-	deleteValues(projectileTypes.begin(), projectileTypes.end());
+	delete projectileParticleSystemType;
+	projectileParticleSystemType = NULL;
 
 	delete splashParticleSystemType;
 	splashParticleSystemType = NULL;
@@ -887,16 +859,11 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 
 	if (sn->hasChild("unit")) {
 		spawnUnit = sn->getChild("unit")->getAttribute("value")->getValue();
-		spawnUnitcount = sn->getChild("unit")->getAttribute("amount")->getIntValue();
-		if(sn->getChild("unit")->hasAttribute("spawnAtTarget")) {
-			spawnUnitAtTarget = sn->getChild("unit")->getAttribute("spawnAtTarget")->getBoolValue();
-		} else {
-			spawnUnitAtTarget = false;
-		}
+		spawnUnitcount
+				= sn->getChild("unit")->getAttribute("amount")->getIntValue();
 	} else {
 		spawnUnit = "";
 		spawnUnitcount = 0;
-		spawnUnitAtTarget = false;
 	}
 	//attack fields
 	const XmlNode *attackFieldsNode= sn->getChild("attack-fields");
@@ -914,81 +881,36 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		}
 	}
 
-	if(sn->hasChild("projectile")){
-		//projectile -- backward compatible old behaviour with only one projectile
-		const XmlNode *projectileNode= sn->getChild("projectile");
-		projectile= projectileNode->getAttribute("value")->getBoolValue();
-		if(projectile){
-			// create new projectile
-				ProjectileType *projectileType=new ProjectileType();
-				projectileTypes.push_back(projectileType);
-				projectileType->setAttackStartTime(attackStartTime);
-				projectileType->setDamagePercentage(100);
-			//proj particle
-			if(projectileNode->hasChild("particle")){
-				const XmlNode *particleNode= projectileNode->getChild("particle");
-				bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-				if(particleEnabled){
-					string path= particleNode->getAttribute("path")->getRestrictedValue();
-					ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
-					projectileParticleSystemType->load(particleNode, dir, currentPath + path,
-							&Renderer::getInstance(), loadedFileList, parentLoader,
-							tt->getPath());
-							loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
-							projectileType->setProjectileParticleSystemType(projectileParticleSystemType);
-				}
-			}
-			//proj sounds
-			const XmlNode *soundNode= projectileNode->getChild("sound");
-			if(soundNode->getAttribute("enabled")->getBoolValue()){
+	//projectile
+	const XmlNode *projectileNode= sn->getChild("projectile");
+	projectile= projectileNode->getAttribute("value")->getBoolValue();
+	if(projectile){
 
-				projSounds.resize((int)soundNode->getChildCount());
-				for(int i=0; i < (int)soundNode->getChildCount(); ++i){
-					const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-					string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
-					//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
-
-					StaticSound *sound= new StaticSound();
-					sound->load(path);
-					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-					projSounds[i]= sound;
-				}
-			}
-		}
-	}
-	else {
-		const XmlNode *projectilesNode= sn->getChild("projectiles");
-		vector<XmlNode *> projectilesNodeList = projectilesNode->getChildList("projectile");
-		int totalDamagePercentage=0;
-		for(unsigned int i = 0; i < projectilesNodeList.size(); ++i) {
-			const XmlNode *projectileNode= projectilesNodeList[i];
-			ProjectileType *projectileType=new ProjectileType();
-			projectileType->load(projectileNode,dir, tt->getPath(), loadedFileList, parentLoader);
-			totalDamagePercentage += projectileType->getDamagePercentage();
-			projectileTypes.push_back(projectileType);
-			projectile=true;
+		//proj particle
+		const XmlNode *particleNode= projectileNode->getChild("particle");
+		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+		if(particleEnabled){
+			string path= particleNode->getAttribute("path")->getRestrictedValue();
+			projectileParticleSystemType= new ParticleSystemTypeProjectile();
+			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
+					&Renderer::getInstance(), loadedFileList, parentLoader,
+					tt->getPath());
 		}
 
-		if(totalDamagePercentage!=100){
-			throw megaglest_runtime_error("Damages percentages of projectiles don't sum up to 100 %");
-		}
+		//proj sounds
+		const XmlNode *soundNode= projectileNode->getChild("sound");
+		if(soundNode->getAttribute("enabled")->getBoolValue()){
 
-		if(sn->hasChild("hitsound")==true){
-			//general hit sounds, individual ones can be set in projectiles
-			const XmlNode *soundNode= sn->getChild("hitsound");
-			if(soundNode->getAttribute("enabled")->getBoolValue()){
+			projSounds.resize((int)soundNode->getChildCount());
+			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
 
-				projSounds.resize((int)soundNode->getChildCount());
-				for(int i=0; i < (int)soundNode->getChildCount(); ++i){
-					const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-					string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
-					//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
-
-					StaticSound *sound= new StaticSound();
-					sound->load(path);
-					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-					projSounds[i]= sound;
-				}
+				StaticSound *sound= new StaticSound();
+				sound->load(path);
+				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+				projSounds[i]= sound;
 			}
 		}
 	}
@@ -1010,24 +932,6 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 					&Renderer::getInstance(),loadedFileList, parentLoader,
 					tt->getPath());
 		}
-	}
-}
-
-int AttackSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
-	int result = speed + totalUpgrade->getAttackSpeed(this);
-	result = max(0,result);
-	return result;
-}
-
-// Get the amount to boost the attack animation speed by (based on attack-speed upgrades)
-int AttackSkillType::getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const{
-	// Same calculation as in TotalUpgrade::sum, but bypassing the use of the value
-	// list (which is for the attack speed, not animation speed)
-	if(totalUpgrade->getAttackRangeIsMultiplier()) {
-		return animSpeed * (totalUpgrade->getAttackSpeed(NULL) / (double)100);
-	}
-	else {
-		return totalUpgrade->getAttackSpeed(NULL);
 	}
 }
 
@@ -1079,15 +983,12 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 	attackSkillTypeNode->addAttribute("spawnUnit",spawnUnit, mapTagReplacements);
 //	int spawnUnitcount;
 	attackSkillTypeNode->addAttribute("spawnUnitcount",intToStr(spawnUnitcount), mapTagReplacements);
-//	bool spawnUnitAtTarget;
-	attackSkillTypeNode->addAttribute("spawnUnitAtTarget",intToStr(spawnUnitAtTarget), mapTagReplacements);
 //    bool projectile;
 	attackSkillTypeNode->addAttribute("projectile",intToStr(projectile), mapTagReplacements);
 //    ParticleSystemTypeProjectile* projectileParticleSystemType;
-// save a skill_type ????
-	//	if(projectileParticleSystemType != NULL) {
-//		projectileParticleSystemType->saveGame(attackSkillTypeNode);
-//	}
+	if(projectileParticleSystemType != NULL) {
+		projectileParticleSystemType->saveGame(attackSkillTypeNode);
+	}
 //	SoundContainer projSounds;
 //
 //    bool splash;
@@ -1359,15 +1260,6 @@ void DieSkillType::saveGame(XmlNode *rootNode) {
 	XmlNode *dieSkillTypeNode = rootNode->addChild("DieSkillType");
 
 	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
-}
-
-StaticSound *DieSkillType::getSound() const{
-	if(skillSoundList.size()==0){
-		return NULL;
-	}
-	else {
-		return skillSoundList.front()->getSoundContainer()->getRandSound();
-	}
 }
 
 

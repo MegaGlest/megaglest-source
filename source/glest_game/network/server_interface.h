@@ -107,9 +107,6 @@ private:
 	Mutex *gameStatsThreadAccessor;
 	Stats *gameStats;
 
-	NetworkMessageGameStats networkMessageGameStats;
-	bool hasNetworkMessageGameStats;
-
 	bool clientsAutoPausedDueToLag;
 	Chrono clientsAutoPausedDueToLagTimer;
 	Chrono lastBroadcastCommandsTimer;
@@ -157,9 +154,6 @@ public:
 
     virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
     void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex, int lockedSlotIndex);
-
-	void setStatsNetworkMessage(NetworkMessageGameStats *networkStats);
-	void fillReceivedStats(Stats* stats);
 
     virtual void quitGame(bool userManuallyQuit);
     virtual string getNetworkStatus();

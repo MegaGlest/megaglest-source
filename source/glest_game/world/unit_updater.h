@@ -103,7 +103,6 @@ public:
 
 	//update skills
     bool updateUnit(Unit *unit);
-	void spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos=Vec2i(-10,-10));
 
     //update commands
     void updateUnitCommand(Unit *unit, int frameIndex);
@@ -142,9 +141,9 @@ public:
 private:
     //attack
     void hit(Unit *attacker);
-	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField, int damagePercent);
-	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance, int damagePercent);
-	void startAttackParticleSystem(Unit *unit, float lastAnimProgress, float animProgress);
+	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField);
+	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance);
+	void startAttackParticleSystem(Unit *unit);
 
 	//misc
     bool searchForResource(Unit *unit, const HarvestCommandType *hct);
@@ -170,14 +169,13 @@ class ParticleDamager: public ParticleObserver {
 public:
 	UnitReference attackerRef;
 	const AttackSkillType* ast;
-	const ProjectileType* projectileType;
 	UnitUpdater *unitUpdater;
 	const GameCamera *gameCamera;
 	Vec2i targetPos;
 	Field targetField;
 
 public:
-	ParticleDamager(Unit *attacker, const ProjectileType *projectileType, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
+	ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
 	virtual void update(ParticleSystem *particleSystem);
 
 	virtual void saveGame(XmlNode *rootNode);

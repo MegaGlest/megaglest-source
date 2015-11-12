@@ -800,31 +800,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						}
 						break;
 
-						case nmtGameStats:
-						{
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtMarkCell gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
-
-							if(gotIntro == true) {
-								NetworkMessageGameStats networkMessageGameStats;
-								if(receiveMessage(&networkMessageGameStats)) {
-									this->serverInterface->setStatsNetworkMessage(&networkMessageGameStats);
-								}
-								else {
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
-									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
-									close();
-									return;
-								}
-							}
-							else {
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
-								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
-								close();
-								return;
-							}
-						}
-						break;
-
 						//command list
 						case nmtCommandList: {
 

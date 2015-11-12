@@ -27,7 +27,6 @@
 #include "factory.h"
 #include "sound_container.h"
 #include "particle.h"
-#include "projectile_type.h"
 #include "upgrade_type.h"
 #include "leak_dumper.h"
 
@@ -75,7 +74,6 @@ enum SkillClass{
 };
 
 typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
-typedef list<ProjectileType*> ProjectileTypes;
 // =====================================================
 // 	class SkillType
 //
@@ -125,29 +123,8 @@ public:
 	int toHp;
 };
 
-// =====================================================
-// 	class SkillSound
-// 	holds the start time and a SoundContainer
-// =====================================================
-
-class SkillSound{
-private:
-	SoundContainer soundContainer;
-	float startTime;
-
-public:
-	SkillSound();
-	~SkillSound();
-
-	SoundContainer *getSoundContainer() 	{return &soundContainer;}
-	float getStartTime() const 	{return startTime;}
-	void setStartTime(float value)  	{startTime=value;}
-};
-
-typedef list<SkillSound*> SkillSoundList;
-
 class SkillType {
-
+    
 protected:
     SkillClass skillClass;
 	string name;
@@ -178,7 +155,8 @@ protected:
     vector<Model *> animations;
     vector<AnimationAttributes> animationAttributes;
 
-    SkillSoundList skillSoundList;
+    SoundContainer sounds;
+	float soundStartTime;
 	RandomGen random;
 	AttackBoost attackBoost;
 
@@ -217,13 +195,13 @@ public:
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
 	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;
+	StaticSound *getSound() const		{return sounds.getRandSound();}
+	float getSoundStartTime() const		{return soundStartTime;}
 
 	float getShakeStartTime() const		{return shakeStartTime;}
 	bool getShake() const	{return shake;}
     int getShakeIntensity() const	{return shakeIntensity;}
     int getShakeDuration() const	{return shakeDuration;}
-
-    const SkillSoundList * getSkillSoundList()	const	{return &skillSoundList;}
 
 	bool getShakeSelfEnabled() const	{return shakeSelfEnabled;}
 	bool getShakeSelfVisible() const	{return shakeSelfVisible;}
@@ -280,8 +258,6 @@ public:
 // ===============================
 
 class AttackSkillType: public SkillType{
-public:
-	ProjectileTypes projectileTypes;
 private:
     int attackStrength;
     int attackVar;
@@ -292,9 +268,8 @@ private:
 
 	string spawnUnit;
 	int spawnUnitcount;
-	bool spawnUnitAtTarget;
     bool projectile;
-    //ParticleSystemTypeProjectile* projectileParticleSystemType;
+    ParticleSystemTypeProjectile* projectileParticleSystemType;
 	SoundContainer projSounds;
 	
     bool splash;
@@ -319,10 +294,10 @@ public:
 	inline float getAttackStartTime() const			{return attackStartTime;}
 	inline string getSpawnUnit() const					{return spawnUnit;}
 	inline int getSpawnUnitCount() const				{return spawnUnitcount;}
-	inline bool getSpawnUnitAtTarget() const			{return spawnUnitAtTarget;}
 
 	//get proj
 	inline bool getProjectile() const									{return projectile;}
+	inline ParticleSystemTypeProjectile * getProjParticleType() const	{return projectileParticleSystemType;}
 	inline StaticSound *getProjSound() const							{return projSounds.getRandSound();}
 
 	//get splash
@@ -334,8 +309,6 @@ public:
 	//misc
 	int getTotalAttackStrength(const TotalUpgrade *totalUpgrade) const;
 	int getTotalAttackRange(const TotalUpgrade *totalUpgrade) const;
-	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
-	virtual int getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const;
 
 	virtual void saveGame(XmlNode *rootNode);
 };
@@ -474,7 +447,6 @@ public:
 	virtual string toString(bool translatedValue) const;
 
 	virtual void saveGame(XmlNode *rootNode);
-	StaticSound *getSound() const;
 };
 
 // ===============================

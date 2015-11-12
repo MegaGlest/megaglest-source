@@ -233,8 +233,6 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setColor(color);
 	ups->setColorNoEnergy(colorNoEnergy);
 	ups->setSpeed(speed);
-	ups->setSpeedUpRelative(speedUpRelative);
-	ups->setSpeedUpConstant(speedUpConstant);
 	ups->setGravity(gravity);
 	ups->setParticleSize(size);
 	ups->setSizeNoEnergy(sizeNoEnergy);

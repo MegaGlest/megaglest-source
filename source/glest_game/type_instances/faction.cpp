@@ -481,7 +481,6 @@ void Faction::init() {
 	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;
 	factionDisconnectHandled=false;
-	replacedByAI=false;
 	workerThread = NULL;
 
 	world=NULL;
@@ -845,16 +844,8 @@ bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, Ne
 	}
 	else {
 		if(isNetworkGame == true) {
-<<<<<<< HEAD
 			if(role == nrServer || headlessAdmin == true) {
 				result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
-=======
-			if(headlessAdmin == true){
-				result = replacedByAI || getCpuControl() ;
-			}
-			else if(role == nrServer ) {
-				result = (replacedByAI || control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
->>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 			}
 			else {
 				result = (control == ctNetworkCpuEasy ||control == ctNetworkCpu || control == ctNetworkCpuUltra || control == ctNetworkCpuMega);
@@ -1221,7 +1212,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 							world->getStats()->die(unit->getFactionIndex(),unit->getType()->getCountUnitDeathInStats());
 							scriptManager->onUnitDied(unit);
 						}
-						StaticSound *sound= static_cast<const DieSkillType *>(unit->getType()->getFirstStOfClass(scDie))->getSound();
+						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
 						if(sound != NULL &&
 							(thisFaction == true || world->showWorldForPlayer(world->getThisTeamIndex()) == true)) {
 							SoundRenderer::getInstance().playFx(sound);

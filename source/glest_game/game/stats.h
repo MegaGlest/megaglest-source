@@ -71,7 +71,7 @@ private:
 	int framesToCalculatePlaytime;
 	int maxConcurrentUnitCount;
 	int totalEndGameConcurrentUnitCount;
-	bool isHeadlessMode;
+	bool isMasterserverMode;
 	string techName;
 
 public:
@@ -86,7 +86,7 @@ public:
 		framesToCalculatePlaytime		= 0;
 		maxConcurrentUnitCount			= 0;
 		totalEndGameConcurrentUnitCount	= 0;
-		isHeadlessMode				= false;
+		isMasterserverMode				= false;
 		//techName						= "";
 	}
 
@@ -96,9 +96,6 @@ public:
 	string getDescription() const	{return description;}
 	int getThisFactionIndex() const	{return thisFactionIndex;}
 	int getFactionCount() const		{return factionCount;}
-
-	// full acccess needed to set stats when received from controlling client
-	PlayerStats* getPlayerStats(int factionIndex) {return &(playerStats[factionIndex]);}
 
 	float getWorldTimeElapsed() const 				{return worldTimeElapsed;}
 	int getFramesPlayed() const 					{return framesPlayed; }
@@ -126,8 +123,8 @@ public:
 	void setTimePlayerLeft(int factionIndex, int value) 	{playerStats[factionIndex].timePlayerLeft = value; }
 
 
-	bool getIsHeadlessMode() const							{ return isHeadlessMode; }
-	void setIsHeadlessMode(bool value) 						{ isHeadlessMode = value; }
+	bool getIsMasterserverMode() const							{ return isMasterserverMode; }
+	void setIsMasterserverMode(bool value) 						{ isMasterserverMode = value; }
 
 	void setDescription(const string& description)							{this->description = description;}
 	void setWorldTimeElapsed(float value)  				{this->worldTimeElapsed = value;}

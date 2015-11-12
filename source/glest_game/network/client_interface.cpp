@@ -1839,13 +1839,6 @@ void ClientInterface::sendHighlightCellMessage(Vec2i targetPos, int factionIndex
 	sendMessage(&networkMessageHighlightCell);
 }
 
-void ClientInterface::sendNetworkMessageGameStats(Stats *stats) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex);
-
-	NetworkMessageGameStats networkMessageGameStats(stats);
-	sendMessage(&networkMessageGameStats);
-}
-
 void ClientInterface::sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) {
 	string humanPlayerName = getHumanPlayerName();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] humanPlayerName = [%s] playerIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,humanPlayerName.c_str(),playerIndex);

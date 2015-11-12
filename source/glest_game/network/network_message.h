@@ -14,7 +14,6 @@
 
 #include "socket.h"
 #include "game_constants.h"
-#include "stats.h"
 #include "network_types.h"
 #include "byte_order.h"
 #include <map>
@@ -29,7 +28,6 @@ using Shared::Platform::int16;
 namespace Glest{ namespace Game{
 
 class GameSettings;
-class Stats;
 
 enum NetworkMessageType {
 	nmtInvalid,
@@ -51,7 +49,6 @@ enum NetworkMessageType {
 	nmtMarkCell,
 	nmtUnMarkCell,
 	nmtHighlightCell,
-	nmtGameStats,
 
 	nmtCount
 };
@@ -1110,63 +1107,6 @@ public:
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
-};
-#pragma pack(pop)
-
-
-// =====================================================
-//	class NetworkMessageGameStats
-//
-//	Send the Stats of current game to the Headless Server
-// =====================================================
-#pragma pack(push, 1)
-class NetworkMessageGameStats: public NetworkMessage {
-private:
-
-private:
-	// =====================================================
-	// 	struct to send Stats to server
-
-	struct Data{
-		int8 messageType;
-
-		int8 victory[GameConstants::maxPlayers];
-		int32 kills[GameConstants::maxPlayers];
-		int32 enemykills[GameConstants::maxPlayers];
-		int32 deaths[GameConstants::maxPlayers];
-		int32 unitsProduced[GameConstants::maxPlayers];
-		int32 resourcesHarvested[GameConstants::maxPlayers];
-
-		int32 maxConcurrentUnitCount;
-		int32 totalEndGameConcurrentUnitCount;
-	};
-	void toEndian();
-	void fromEndian();
-
-private:
-	Data data;
-
-protected:
-	virtual const char * getPackedMessageFormat() const;
-	virtual unsigned int getPackedSize();
-	virtual void unpackMessage(unsigned char *buf);
-	virtual unsigned char * packMessage();
-
-public:
-	NetworkMessageGameStats();
-	NetworkMessageGameStats(Stats *stats);
-
-	virtual size_t getDataSize() const { return sizeof(Data); }
-
-	void copyToGameStats(Stats *stats);
-	void setDataFromNetworkStats(NetworkMessageGameStats *networkStats);
-
-
-	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket);
-
-protected:
-	Data* getData()  { return &data; }
 };
 #pragma pack(pop)
 
