@@ -153,9 +153,6 @@ void Properties::processTextLine(bool is_utf8_language, char *lineBuffer) {
 
 	//process line if it it not a comment
 	if(lineBuffer != NULL && lineBuffer[0] != ';' && lineBuffer[0] != '#') {
-		//wstring wstr = lineBuffer;
-		//line.assign(wstr.begin(),wstr.end());
-
 		// gracefully handle win32 \r\n line endings
 		size_t len= strlen(lineBuffer);
 		if(len > 0 && lineBuffer[len-1] == '\r') {
