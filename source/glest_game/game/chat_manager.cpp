@@ -99,19 +99,12 @@ bool ChatManager::textInput(std::string inputText) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] inputText [%s]\n",__FILE__,__FUNCTION__,__LINE__,inputText.c_str());
 
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	//int maxpaste = 0;
-	//maxpaste = maxTextLenAllowed - text.length();
-	//maxpaste = maxTextLenAllowed - getTextByteLength();
-	//string textToAdd = inputText.substr (0,maxpaste);
-
 	string textToAdd = getTextWithLengthCheck(inputText,textCharLength.size(),maxTextLenAllowed);
 
 	if(editEnabled && (int)textCharLength.size() < maxTextLenAllowed && textToAdd.size() > 0) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		WString addText(textToAdd);
-		appendText(addText.cw_str(), true, true);
-
+		appendText(textToAdd, true, true);
 		updateAutoCompleteBuffer();
 		return true;
 	}
@@ -119,60 +112,20 @@ bool ChatManager::textInput(std::string inputText) {
 }
 
 string ChatManager::getTextWithLengthCheck(string addText, int currentLength, int maxLength) {
-
-	printf("len check text [%s] curlen: %d maxlen: %d\n",addText.c_str(),currentLength,maxLength);
-
 	string resultText = "";
 	if(addText.empty() == false) {
 		int utf8CharsAdded = 0;
-		WString addTextW(addText);
-		const wchar_t *addTextPtr = addTextW.cw_str();
-		printf("wcslen(addTextPtr)=%d\n",(int)wcslen(addTextPtr));
-		for(unsigned int i = 0; i < wcslen(addTextPtr); ++i) {
-			wchar_t key = addTextPtr[i];
-			//if(isAllowedInputTextKey(key) == true && key != 10)
-			if(true)
-			{
-				char buf[4] = {0};
-				if (key < 0x80) {
-					printf("#1 len check cur: %d max: %d\n",currentLength + utf8CharsAdded,maxLength);
-					buf[0] = key;
-				}
-				else if (key < 0x800) {
-					printf("#2 len check cur: %d max: %d\n",currentLength + utf8CharsAdded,maxLength);
-					buf[0] = (0xC0 | key >> 6);
-					buf[1] = (0x80 | (key & 0x3F));
-				}
-				else {
-					printf("#3 len check cur: %d max: %d\n",currentLength + utf8CharsAdded,maxLength);
-					buf[0] = (0xE0 | key >> 12);
-					buf[1] = (0x80 | (key >> 6 & 0x3F));
-					buf[2] = (0x80 | (key & 0x3F));
-				}
-				utf8CharsAdded++;
-				if(currentLength + utf8CharsAdded > maxLength) {
-					printf("break;");
-					break;
-				}
-				resultText += buf;
+		for(unsigned int index = 0; index < addText.size(); ) {
+			int len = getUTF8_Width(&addText[index]);
+			utf8CharsAdded++;
+			if(currentLength + utf8CharsAdded > maxLength) {
+				break;
 			}
-			else {
-				//printf("len check char NOT ALLOWED at pos: %d\n",i);
-			}
+			resultText += addText.substr(index,len);
+			index += len;
 		}
 	}
-	//printf("len check resultText: %s\n",resultText.c_str());
 	return resultText;
-}
-
-int ChatManager::getTextByteLength() {
-	int byteLength = 0;
-	if(text.empty() == false && textCharLength.empty() == false) {
-		for(unsigned int i = 0; i < textCharLength.size(); ++i) {
-			byteLength+= textCharLength[i];
-		}
-	}
-	return byteLength;
 }
 
 void ChatManager::keyDown(SDL_KeyboardEvent key) {
@@ -389,8 +342,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 					else {
 						//printf("ADD: currentAutoCompleteName [%s] autoCompleteResult [%s] text [%s]\n",currentAutoCompleteName.c_str(),autoCompleteResult.c_str(),text.c_str());
 					}
-					WString addText(autoCompleteResult);
-					appendText(addText.cw_str(), false, false);
+					appendText(autoCompleteResult, false, false);
 				}
 			}
 		}
@@ -462,37 +414,16 @@ void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
 
 }
 
-void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool addToAutoCompleteBuffer) {
-	for(unsigned int i = 0; i < wcslen(addText); ++i) {
-		wchar_t key = addText[i];
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("appendText key [%d]\n\n",(int)key);
+void ChatManager::appendText(string addText, bool validateChars, bool addToAutoCompleteBuffer) {
 
-		if(validateChars == false ||
-			(isAllowedInputTextKey(key) == true && key != 10)) {
-			char buf[4] = {0};
-			if (key < 0x80) {
-				buf[0] = key;
-				textCharLength.push_back(1);
-				//printf("1 char, textCharLength = %d\n",textCharLength.size());
-			}
-			else if (key < 0x800) {
-				buf[0] = (0xC0 | key >> 6);
-				buf[1] = (0x80 | (key & 0x3F));
-				textCharLength.push_back(2);
-				//printf("2 char, textCharLength = %d\n",textCharLength.size());
-			}
-			else {
-				buf[0] = (0xE0 | key >> 12);
-				buf[1] = (0x80 | (key >> 6 & 0x3F));
-				buf[2] = (0x80 | (key & 0x3F));
-				textCharLength.push_back(3);
-				//printf("3 char, textCharLength = %d\n",textCharLength.size());
-			}
-			text += buf;
+	for(unsigned int index = 0; index < addText.size(); ) {
+		int len = getUTF8_Width(&addText[index]);
+		textCharLength.push_back(len);
+		text += addText.substr(index,len);
+		index += len;
 
-			if(addToAutoCompleteBuffer == true) {
-				updateAutoCompleteBuffer();
-			}
+		if(addToAutoCompleteBuffer == true) {
+			updateAutoCompleteBuffer();
 		}
 	}
 }

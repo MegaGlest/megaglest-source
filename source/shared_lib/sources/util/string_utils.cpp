@@ -309,6 +309,31 @@ namespace Shared { namespace Util {
 		return result;
 	}
 
+	int getUTF8_Width(const char *str) {
+		int ewidth = 0;
+		const unsigned char *s = (const unsigned char *)str;
+		if (!str) {
+			return 0;
+		}
+		if(*s <= 0x7F) {
+			ewidth = 0;
+		}
+		else if (0xC2 <= *s && *s <= 0xDF) {
+			ewidth = 1;
+		}
+		else if (0xE0 <= *s && *s <= 0xEF) {
+			ewidth = 2;
+		}
+		else if (0xF0 <= *s && *s <= 0xF4) {
+			ewidth = 3;
+		}
+		else {
+			ewidth = 0;
+		}
 
+		for ( ; *s && ewidth > 0; s++, ewidth--);
+
+		return s - (const unsigned char *)str + 1;
+	}
 
 }}

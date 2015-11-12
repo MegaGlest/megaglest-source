@@ -64,6 +64,8 @@ namespace Shared { namespace Util {
 	void strrev_utf8(std::string &p);
 	bool is_string_all_ascii(std::string str);
 
+	int getUTF8_Width(const char *str);
+
 }}
 
 #endif // _SHARED_UTIL_W_STRING_H__
