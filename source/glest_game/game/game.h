@@ -218,6 +218,8 @@ private:
 	bool networkPauseGameForLaggedClientsRequested;
 	bool networkResumeGameForLaggedClientsRequested;
 
+	int oldNumberOfWinners;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool headlessServerMode);
@@ -350,6 +352,10 @@ public:
 	virtual void addPerformanceCount(string key,int64 value);
 	bool getRenderInGamePerformance() const { return renderInGamePerformance; }
 	void switchPlayerToAIControl(int factionIndex);
+<<<<<<< HEAD
+=======
+	bool isHeadlessAdmin();
+>>>>>>> 02ee59518c139fdf8059440493de934dba4d32a2
 
 private:
 	//render
@@ -407,6 +413,8 @@ private:
 	std::map<int, int> getTeamsAlive();
 
 	virtual bool clientLagHandler(int slotIndex,bool networkPauseGameForLaggedClients);
+
+	void initAiInterfacesIfNeeded(int aiIndex);
 };
 
 }}//end namespace

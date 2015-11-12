@@ -101,6 +101,14 @@ using namespace Shared::Graphics::Gl;
 using namespace Shared::Xml;
 using namespace Shared;
 
+/**
+ * @namespace Glest
+ * Namespace used for all %Glest related code.
+ */
+/**
+ * @namespace Game
+ * Namespace used for game related code.
+ */
 namespace Glest { namespace Game {
 
 static string tempDataLocation 			= getUserHome();

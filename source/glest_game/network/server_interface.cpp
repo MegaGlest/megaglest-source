@@ -91,6 +91,7 @@ ServerInterface::ServerInterface(bool publishEnabled, ClientLagCallbackInterface
 	lastGlobalLagCheckTime			= 0;
 	masterserverAdminRequestLaunch	= false;
 	lastListenerSlotCheckTime		= 0;
+	hasNetworkMessageGameStats=false;
 
 	// This is an admin port listening only on the localhost intended to
 	// give current connection status info
@@ -1849,6 +1850,14 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 				}
 				break;
 
+			case nmtGameStats:
+				{
+				discard = true;
+				NetworkMessageGameStats networkMessageGameStats;
+				connectionSlot->receiveMessage(&networkMessageGameStats);
+				}
+				break;
+
 			case nmtSynchNetworkGameData:
 				{
 				discard = true;
@@ -2241,6 +2250,22 @@ void ServerInterface::sendUnMarkCellMessage(Vec2i targetPos, int factionIndex, i
 	broadcastMessage(&networkMessageMarkCell, -1, lockedSlotIndex);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void ServerInterface::setStatsNetworkMessage(NetworkMessageGameStats *networkStats) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId); // softcoder should I use another mutex here, networkAccessMutex is maybe too global? (titi)
+	hasNetworkMessageGameStats=true;
+	networkMessageGameStats.setDataFromNetworkStats(networkStats);
+}
+
+void ServerInterface::fillReceivedStats(Stats* stats) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId); // softcoder should I use another mutex here, networkAccessMutex is maybe too global? (titi)
+	if(hasNetworkMessageGameStats==true){
+		hasNetworkMessageGameStats=false;
+		networkMessageGameStats.copyToGameStats(stats);
+	}
 }
 
 void ServerInterface::quitGame(bool userManuallyQuit) {
@@ -2920,7 +2945,7 @@ std::map<string,string> ServerInterface::publishToMasterserverStats() {
 		publishToServerInfo["framesToCalculatePlaytime"] 		= intToStr(gameStats->getFramesToCalculatePlaytime());
 		publishToServerInfo["maxConcurrentUnitCount"] 			= intToStr(gameStats->getMaxConcurrentUnitCount());
 		publishToServerInfo["totalEndGameConcurrentUnitCount"] 	= intToStr(gameStats->getTotalEndGameConcurrentUnitCount());
-		publishToServerInfo["isHeadlessServer"] 				= intToStr(gameStats->getIsMasterserverMode());
+		publishToServerInfo["isHeadlessServer"] 				= intToStr(gameStats->getIsHeadlessMode());
 
 		for(int factionIndex = 0; factionIndex < gameStats->getFactionCount(); ++factionIndex) {
 			publishToServerInfo["factionIndex_" + intToStr(factionIndex)] 		= intToStr(factionIndex);

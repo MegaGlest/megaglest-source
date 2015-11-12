@@ -64,6 +64,45 @@ public:
 };
 
 // ===============================
+// 	class LootResource
+//
+///	Stores information about a lootable resource. Lootable resources are stolen by the attacker on death.
+// ===============================
+
+class LootableResource {
+private:
+	const ResourceType *type;
+	int amountValue;
+	int amountFactionPercent;
+	int lossValue;
+	int lossFactionPercent;
+	bool negativeAllowed;
+
+public:
+	const ResourceType* getResourceType() const {return type;}
+	void setResourceType(const ResourceType *type) {this->type=type;}
+
+	int getAmountValue() const {return amountValue;}
+	void setAmountValue(int amountValue) {this->amountValue=amountValue;}
+
+	int getAmountFactionPercent() const {return amountFactionPercent;}
+	void setAmountFactionPercent(int amountPercentage) {this->amountFactionPercent=amountPercentage;}
+
+	int getLossValue() const {return lossValue;}
+	void setLossValue(int lossValue) {this->lossValue=lossValue;}
+
+	int getLossFactionPercent() const {return lossFactionPercent;}
+	void setLossFactionPercent(int lossPercentage) {this->lossFactionPercent=lossPercentage;}
+
+	bool isNegativeAllowed() const {return negativeAllowed;}
+	void setNegativeAllowed(bool negativeAllowed) {this->negativeAllowed=negativeAllowed;}
+
+	bool operator==(const LootableResource& other) {
+		return type == other.getResourceType();
+	}
+};
+
+// ===============================
 // 	class UnitType
 //
 ///	A unit or building type
@@ -92,6 +131,11 @@ public:
 		pCount
 	};
 
+	enum StartType {
+		stValue,
+		stPercentage
+	};
+
 	static const char *propertyNames[];
 	DamageParticleSystemTypes damageParticleSystemTypes;
 private:
@@ -99,13 +143,20 @@ private:
     typedef vector<CommandType*> CommandTypes;
     typedef vector<Resource> StoredResources;
 	typedef vector<Level> Levels;
+	typedef vector<LootableResource> LootableResources;
 
 private:
 	//basic
 	int id;
 	int maxHp;
+    int startHpValue;
+    int startHpPercentage;
+	StartType startHpType;
 	int hpRegeneration;
     int maxEp;
+    int startEpValue;
+    int startEpPercentage;
+	StartType startEpType;
 	int epRegeneration;
 	int maxUnitCount;
 
@@ -120,6 +171,7 @@ private:
 	bool light;
     Vec3f lightColor;
     bool multiSelect;
+    bool commandable;
     int sight;
     int size;							//size in cells
     int renderSize;						//size to render in cells
@@ -140,6 +192,7 @@ private:
     CommandTypes commandTypes;
     StoredResources storedResources;
 	Levels levels;
+	LootableResources lootableResources;
 
 	//meeting point
 	bool meetingPoint;
@@ -178,8 +231,14 @@ public:
     inline int getId() const									{return id;}
     inline int getMaxHp() const								{return maxHp;}
     inline int getHpRegeneration() const						{return hpRegeneration;}
+    inline int getStartHpValue() const						{return startHpValue;}
+    inline int getStartHpPercentage() const						{return startHpPercentage;}
+    inline StartType getStartHpType() const						{return startHpType;}
     inline int getMaxEp() const								{return maxEp;}
     inline int getEpRegeneration() const						{return epRegeneration;}
+    inline int getStartEpValue() const						{return startEpValue;}
+    inline int getStartEpPercentage() const						{return startEpPercentage;}
+    inline StartType getStartEpType() const						{return startEpType;}
     inline int getMaxUnitCount() const							{return maxUnitCount;}
     inline bool getField(Field field) const					{return fields[field];}
     inline Field getField() const								{return field;}
@@ -197,12 +256,15 @@ public:
 	inline bool getRotationAllowed() const						{return rotationAllowed;}
 	inline Vec3f getLightColor() const							{return lightColor;}
 	inline bool getMultiSelect() const							{return multiSelect;}
+	inline bool isCommandable() const							{return commandable;}
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
 	inline int getRenderSize() const								{return renderSize;}
 	int getHeight() const								{return height;}
 	int getStoredResourceCount() const					{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
+	int getLootableResourceCount() const					{return lootableResources.size();}
+	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	inline bool getMeetingPoint() const						{return meetingPoint;}
 	inline bool getCountUnitDeathInStats() const				{return countUnitDeathInStats;}
