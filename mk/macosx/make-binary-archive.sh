@@ -65,7 +65,7 @@ if [ -e "$RELEASEDIR/glest.ico" ]; then rm "$RELEASEDIR/glest.ico"; fi
 #cp bundle_resources/*.icns "$RELEASEDIR"
 cp {../shared/,}*.ini "$RELEASEDIR"
 if [ -e "$RELEASEDIR/glest-dev.ini" ]; then rm "$RELEASEDIR/glest-dev.ini"; fi
-cp megaglest bundle_resources/MegaGlest.sh "$RELEASEDIR"
+cp megaglest ../linux/start_megaglest_gameserver bundle_resources/MegaGlest.sh "$RELEASEDIR"
 
 if [ -e "megaglest_editor" ]; then
 	cp megaglest_editor "$RELEASEDIR"

@@ -308,6 +308,11 @@ IF(BUILD_MEGAGLEST)
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
+		IF(NOT WIN32)
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/linux/start_megaglest_gameserver"
+				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		ENDIF()
 		INSTALL(FILES
 			"${PROJECT_SOURCE_DIR}/mk/shared/glestkeys.ini"
 			"${PROJECT_SOURCE_DIR}/mk/shared/servers.ini"

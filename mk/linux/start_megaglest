@@ -10,14 +10,19 @@ LANG=C
 SCRIPTLOCATION="$(readlink -f "$0")"
 GAMEDIR="$(dirname "$SCRIPTLOCATION")"
 ARCHITECTURE="$(uname -m | tr '[A-Z]' '[a-z]')"
-BugReport1="'https://github.com/MegaGlest/megaglest-source/issues'"
-BugReport2="'https://forum.megaglest.org/index.php?board=23.0'"
+BugReportEngine="https://github.com/MegaGlest/megaglest-source/issues"
+BugReportBoth="https://forum.megaglest.org/index.php?board=23.0"
+# -------
+# useful for mods
+BugReportBoth2="$BugReportBoth"
+BugReportData="https://github.com/MegaGlest/megaglest-data/issues"
+EXC_BINARY="megaglest"
+SHORT_GAME_NAME="megaglest"
+# -------
 LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""
 if [ ! -d "$GAMEDIR/$LIBDIR" ]; then mkdir "$GAMEDIR/$LIBDIR"; fi
-if [ "$1" = "--tool-editor" ]; then OperatingMode="--tool-editor"
-elif [ "$1" = "--tool-g3dviewer" ]; then OperatingMode="--tool-g3dviewer"
-elif [ "$1" = "--tool-buginfo" ]; then OperatingMode="--tool-buginfo"
-else OperatingMode="--game"; fi
+if [ "$1" = "--tool-editor" ] || [ "$1" = "--tool-g3dviewer" ] || [ "$1" = "--tool-buginfo" ];
+then OperatingMode="$1"; else OperatingMode="--game"; fi
 BeginTime="$(date +"%s")"
 if [ "$(which lsb_release 2>/dev/null)" != "" ]; then
     OS_INFO_P="$(which lsb_release) -d"
@@ -42,10 +47,10 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     ||    If for some reason you see an error related with library, then you should try install this library
     || in your linux. Hints with full names and with default versions of just detected missing libraries you
     || see below.
-    || You can also perform mini update by launch 'megaglest-mini-update.sh' script, which may solve tiny problems.
+    || You can also perform mini update by launch '${SHORT_GAME_NAME}-mini-update.sh' script, which may solve tiny problems.
     || If it is other problem or after your tries it still doesn't work then please report a bug
-    || here: $BugReport1
-    || or here: $BugReport2."
+    || here: '$BugReportEngine',
+    || or here: '$BugReportBoth'."
     LibsWarnings="$LibsWarnings
     ||
     || Found LDCONFIG variable [$LDconfigType][$LDCONFIG]...
@@ -60,11 +65,9 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	ArchSortLibs="yes"
     fi
     if [ "$OperatingMode" = "--game" ]; then
-	ldd_target="$GAMEDIR/megaglest"
-    elif [ "$OperatingMode" = "--tool-editor" ]; then
-	ldd_target="$GAMEDIR/megaglest_editor"
-    elif [ "$OperatingMode" = "--tool-g3dviewer" ]; then
-	ldd_target="$GAMEDIR/megaglest_g3dviewer"
+	ldd_target="$GAMEDIR/$EXC_BINARY"
+    else
+	ldd_target="$GAMEDIR/$2"
     fi
     c_required_libs="$(ldd "$ldd_target")"
 
@@ -108,9 +111,9 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	    if [ "$SO_WANTED_LIB" != "$SO_LIB_PATTERN" ]; then
 		LibsWarnings="$LibsWarnings
 		||  new library link [.../$LIBDIR/$SO_WANTED_LIB2] pointed to [$hasSO]."
-		ln -f -s $hasSO $SO_LINKED_LIB
+		ln -f -s "$hasSO" "$SO_LINKED_LIB"
 	    else
-		if [ -e "$SO_LINKED_LIB" ]; then rm -f $SO_LINKED_LIB; fi
+		if [ -e "$SO_LINKED_LIB" ]; then rm -f "$SO_LINKED_LIB"; fi
 		if [ "$(echo "$c_required_libs" | grep "$SO_LIB_PATTERN[ \t]*=>[ \t]*not found")" != "" ]; then
 		    #rare exception
 		    LibsWarnings="$LibsWarnings
@@ -257,15 +260,16 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     #fi
 
     checkLibsStatus "$libs_list"
-    if [ -f "$GAMEDIR/megaglest-configure-desktop.sh" ]; then
-	$GAMEDIR/megaglest-configure-desktop.sh
-	rm -f $GAMEDIR/megaglest-configure-desktop.sh
+    if [ -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh" ]; then
+	"$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
+	rm -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
     fi
 else
     ExitStatus="$2"
     LibsWarnings="$3"
     BeginTime="$4"
     ErrorTime="$5"
+    BinaryToCheck="$6"
 fi
 if [ "$OperatingMode" = "--game" ]; then
     if [ -d "$GAMEDIR/$LIBDIR" ]; then
@@ -274,30 +278,42 @@ if [ "$OperatingMode" = "--game" ]; then
 		export VLC_PLUGIN_PATH="${GAMEDIR}/${LIBDIR}/vlc"
 	fi
     fi
-    $GAMEDIR/megaglest $@
+    "$GAMEDIR/$EXC_BINARY" $@
     ExitStatus="$?"
+
+    BinaryToCheck="$EXC_BINARY"
+    ErrorTime="$(date +"%s")"
 fi
 if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$OperatingMode" = "--tool-g3dviewer" ]; then
-    if [ "$OperatingMode" = "--game" ]; then ErrorTime="$(date +"%s")"; fi
-    DiffTime="$(($ErrorTime-$BeginTime))"
-    if [ "$DiffTime" -le "15" ]; then
-	echo "$LibsWarnings" | sed 's/^[\t ]*||//g' >&2; echo
-	if [ "$IgnoredLibs" != "" ]; then
-	    echo "... and as information useful only for game developers, List of ignored libs:" >&2
-	    echo "$IgnoredLibs" >&2; echo
+    if [ "$(echo "$@" | grep "^[ \t]*--help[ \t]*$")" = "" ] && [ "$(echo "$@" | grep "^[ \t]*-h[ \t]*$")" = "" ]; then
+	DiffTime="$(($ErrorTime-$BeginTime))"
+	if [ "$DiffTime" -le "15" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
+	    echo "$LibsWarnings" | sed 's/^[\t ]*||//g' >&2; echo
+	    if [ "$IgnoredLibs" != "" ]; then
+		echo "... and as information useful only for game developers, List of ignored libs:" >&2
+		echo "$IgnoredLibs" >&2; echo
+	    fi
+	else
+	    BugReportInfo="$BugReportInfo
+	    || OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]
+	    ||
+	    || If you see an unknown error then please report a bug
+	    || here: '$BugReportBoth2',
+	    || or if you think that bug is related with game engine here:
+	    || '$BugReportEngine'"
+	    if [ "$BugReportData" != "" ] && [ "$BugReportData" != "$BugReportBoth2" ] && [ "$BugReportData" != "$BugReportEngine" ] ; then
+		BugReportInfo="$BugReportInfo,
+		|| or if you think that bug is related with game data here:
+		|| '$BugReportData'."
+	    else
+		BugReportInfo="$BugReportInfo."
+	    fi
+	    echo "$BugReportInfo" | sed 's/^[\t ]*||//g' >&2; echo
 	fi
-    else
-	BugReportInfo="$BugReportInfo
-	|| OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]
-	||
-	|| If you see an unknown error then please report a bug
-	|| here: $BugReport1
-	|| or here: $BugReport2."
-	echo "$BugReportInfo" | sed 's/^[\t ]*||//g' >&2; echo
+	#if [ "$OperatingMode" = "--game" ] && [ -f "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
+	    #echo "... attempt to perform mini update, which may solve tiny problems:" >&2
+	    #"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"
+	#fi
     fi
-    #if [ "$OperatingMode" = "--game" ] && [ -f "$GAMEDIR/megaglest-mini-update.sh" ]; then
-	#echo "... attempt to perform mini update, which may solve tiny problems:" >&2
-	#$GAMEDIR/megaglest-mini-update.sh
-    #fi
 fi
-exit $ExitStatus
+exit "$ExitStatus"
