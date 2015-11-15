@@ -31,7 +31,7 @@ const char *mailString				= " http://bugs.megaglest.org";
 
 // !! Use minor versions !!  Only major and minor version control compatibility!
 // typical version numbers look like this: v3.11-beta1.0   v3.12-dev   v3.12.0
-// don't forget to update mk/linux/mg-version.sh
+// don't forget to update source/version.txt
 const string glestVersionString 	= "v3.12-dev";
 const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
 
@@ -198,9 +198,9 @@ string getNetworkVersionGITString() {
 
 string getCompileDateTime() {
 	static string result = "";
-	if(result == "") {
-		result = string(__DATE__) + " " + string(__TIME__);
-	}
+//	if(result == "") {
+//		result = string(__DATE__) + " " + string(__TIME__);
+//	}
 	return result;
 }
 
@@ -209,9 +209,10 @@ string getNetworkPlatformFreeVersionString() {
 }
 
 string getAboutString1(int i) {
+	//case 1: return "Built: " + string(__DATE__) + " " + GIT_Rev;
 	switch(i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
-	case 1: return "Built: " + string(__DATE__) + " " + GIT_Rev;
+	case 1: return GIT_Rev;
 	case 2: return "Copyright 2001-2010 The Glest Team";
 	case 3: return "Copyright 2010-2015 The MegaGlest Team";
 	}

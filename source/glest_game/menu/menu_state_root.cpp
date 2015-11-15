@@ -58,7 +58,8 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	}
 	else {
 		labelVersion.init(buttonXPosition, yPos);
-		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	yPos-=55;
@@ -174,7 +175,8 @@ void MenuStateRoot::reloadUI() {
 		labelVersion.setText(glestVersionString);
 	}
 	else {
-		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	buttonNewGame.setText(lang.getString("NewGame"));

@@ -216,13 +216,11 @@ IF(BUILD_MEGAGLEST)
 	ENDFOREACH(DIR)
 
 	# Force the version and date/time stamp file to be touched so the compile stamp is always right
-	IF(UNIX)
-	add_custom_command(
-	  OUTPUT mg.tmp
-	  COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
-	add_custom_target(run ALL
-	    DEPENDS mg.tmp)
-	ENDIF()
+#	IF(UNIX)
+#		add_custom_command(OUTPUT mg.tmp
+#			COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
+#		add_custom_target(run ALL DEPENDS mg.tmp)
+#	ENDIF()
 
 	IF(WIN32)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-subsystem,console -mconsole")
