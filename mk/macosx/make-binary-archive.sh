@@ -16,7 +16,7 @@ CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
 
-if [ "$1" = "-CI" ] || [ "$1" = "--show-result-path" ]; then
+if [ "$1" = "-CI" ] || [ "$1" = "-" ] || [ "$1" = "--show-result-path" ]; then
     if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
 fi
 
@@ -87,5 +87,7 @@ cd "$RELEASENAME"
 tar -cf - * | bzip2 -9 > "../$PACKAGE"
 cd "$CURRENTDIR"
 
-if [ "$1" = "-CI" ] && [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
+if [ "$1" = "-CI" ] || [ "$1" = "-" ]; then
+	if [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
+fi
 ls -lhA "${RELEASEDIR_ROOT}/$PACKAGE"
