@@ -45,6 +45,10 @@ PATHS
 find_path(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h 
         HINTS ${PC_LIBVLC_INCLUDEDIR} ${PC_LIBVLC_INCLUDE_DIRS})
 
+if (NOT LIBVLC_FIND_QUIETLY)
+    message(STATUS "Found LibVLC include-dir path: [${LIBVLC_INCLUDE_DIR}]")
+endif (NOT LIBVLC_FIND_QUIETLY)
+
 # dream on libvlc doesn't support static linking
 set(LIBVLC_LIB_NAMES vlc libvlc)
 set(LIBVLC_LIB_CORE_NAMES vlccore libvlccore)
@@ -65,6 +69,11 @@ PATHS
     c:/msys/local/lib
 )
 find_library(LIBVLC_LIBRARY NAMES ${LIBVLC_LIB_NAMES})
+
+if (NOT LIBVLC_FIND_QUIETLY)
+    message(STATUS "Found LibVLC library path: [${LIBVLC_LIBRARY}]")
+endif (NOT LIBVLC_FIND_QUIETLY)
+
 find_library(LIBVLCCORE_LIBRARY NAMES ${LIBVLC_LIB_CORE_NAMES}
 HINTS "$ENV{LIBVLC_LIBRARY_PATH}" ${PC_LIBVLC_LIBDIR} ${PC_LIBVLC_LIBRARY_DIRS}
 PATHS
@@ -73,6 +82,10 @@ PATHS
     c:/msys/local/lib
 )
 find_library(LIBVLCCORE_LIBRARY NAMES ${LIBVLC_LIB_CORE_NAMES})
+
+if (NOT LIBVLC_FIND_QUIETLY)
+    message(STATUS "Found LibVLCcore library path: [${LIBVLCCORE_LIBRARY}]")
+endif (NOT LIBVLC_FIND_QUIETLY)
 
 set(LIBVLC_VERSION ${PC_LIBVLC_VERSION})
 if (NOT LIBVLC_VERSION)
@@ -90,7 +103,6 @@ if (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
 endif (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
 
 if (LIBVLC_FOUND)
-
     if(LIBVLC_VERSION STRLESS "2.0.0")
 	set(LIBVLC_VERSION_PRE_V2 TRUE)
     ENDIF()
@@ -99,9 +111,6 @@ if (LIBVLC_FOUND)
     ENDIF()
 
     if (NOT LIBVLC_FIND_QUIETLY)
-        message(STATUS "Found LibVLC include-dir path: ${LIBVLC_INCLUDE_DIR}")
-        message(STATUS "Found LibVLC library path:${LIBVLC_LIBRARY}")
-        message(STATUS "Found LibVLCcore library path:${LIBVLCCORE_LIBRARY}")
         message(STATUS "Found LibVLC version: ${LIBVLC_VERSION} (searched for: ${LIBVLC_MIN_VERSION})")
     endif (NOT LIBVLC_FIND_QUIETLY)
 else (LIBVLC_FOUND)
