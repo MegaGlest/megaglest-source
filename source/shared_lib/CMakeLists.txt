@@ -191,8 +191,6 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		ENDIF()
 		
         ELSE()
-                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
-
                 IF(WANT_USE_VLC)
 	                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
 		ELSE()
