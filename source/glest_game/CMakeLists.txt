@@ -215,12 +215,12 @@ IF(BUILD_MEGAGLEST)
 		ENDIF(APPLE)
 	ENDFOREACH(DIR)
 
-	# Force the version and date/time stamp file to be touched so the compile stamp is always right
-#	IF(UNIX)
-#		add_custom_command(OUTPUT mg.tmp
-#			COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
-#		add_custom_target(run ALL DEPENDS mg.tmp)
-#	ENDIF()
+	# Force the git revision stamp (${GIT_COMMIT_COUNT}.${GIT_SHA1}) file to be touched so the compile stamp is always right
+	IF(UNIX AND GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
+		add_custom_command(OUTPUT mg.tmp
+			COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
+		add_custom_target(run ALL DEPENDS mg.tmp)
+	ENDIF()
 
 	IF(WIN32)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-subsystem,console -mconsole")
