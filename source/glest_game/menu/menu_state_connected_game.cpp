@@ -4903,7 +4903,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				labelPlayerNames[slot].setEditable(false);
 			}
 
-			if(i >= gameSettings->getFactionCount()) {
+			if(i >= mapInfo.players) {
 				if( gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
 					continue;
 				}
