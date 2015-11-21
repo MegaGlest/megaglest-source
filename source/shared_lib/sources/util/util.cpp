@@ -454,8 +454,9 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 		// Get the current time.
 	//    time_t curtime = time (NULL);
 		// Convert it to local time representation.
-		struct tm *loctime = localtime (&debugTime);
-		strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+		//struct tm *loctime = localtime (&debugTime);
+		std::tm loctime = threadsafe_localtime(debugTime);
+		strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
     }
 /*
     va_list argList;

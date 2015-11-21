@@ -3092,9 +3092,10 @@ std::string ServerInterface::DumpStatsToLog(bool dumpToStringOnly) const {
 			if(slot->isConnected() == true) {
 
 				time_t connectTime 	= slot->getConnectedTime();
-				struct tm *loctime 	= localtime (&connectTime);
+				//struct tm *loctime 	= localtime (&connectTime);
+				struct tm loctime = threadsafe_localtime(connectTime);
 				char szBuf[8096]	= "";
-				strftime(szBuf,100,"%Y-%m-%d %H:%M:%S",loctime);
+				strftime(szBuf,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 				const int HOURS_IN_DAY 		= 24;
 				const int MINUTES_IN_HOUR 	= 60;

@@ -6460,20 +6460,22 @@ string Game::saveGame(string name, string path) {
 	Config &config= Config::getInstance();
 	// auto name file if using saved file pattern string
 	if(name == GameConstants::saveGameFilePattern) {
-		time_t curTime = time(NULL);
-	    struct tm *loctime = localtime (&curTime);
+		//time_t curTime = time(NULL);
+	    //struct tm *loctime = localtime (&curTime);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 	    char szBuf2[100]="";
-	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
+	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",&loctime);
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,name.c_str(),szBuf2);
 		name = szBuf;
 	}
 	else if(name == GameConstants::saveGameFileAutoTestDefault) {
-		time_t curTime = time(NULL);
-	    struct tm *loctime = localtime (&curTime);
+		//time_t curTime = time(NULL);
+	    //struct tm *loctime = localtime (&curTime);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 	    char szBuf2[100]="";
-	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
+	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",&loctime);
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,name.c_str(),szBuf2);
@@ -6504,10 +6506,11 @@ string Game::saveGame(string name, string path) {
 		XmlNode *rootNodeReplay = xmlTreeSaveGame.getRootNode();
 
 		//std::map<string,string> mapTagReplacements;
-		time_t now = time(NULL);
-		struct tm *loctime = localtime (&now);
+		//time_t now = time(NULL);
+		//struct tm *loctime = localtime (&now);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 		char szBuf[4096]="";
-		strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+		strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",&loctime);
 
 		rootNodeReplay->addAttribute("version",glestVersionString, mapTagReplacements);
 		rootNodeReplay->addAttribute("timestamp",szBuf, mapTagReplacements);
@@ -6533,10 +6536,11 @@ string Game::saveGame(string name, string path) {
 	XmlNode *rootNode = xmlTree.getRootNode();
 
 	std::map<string,string> mapTagReplacements;
-	time_t now = time(NULL);
-    struct tm *loctime = localtime (&now);
+	//time_t now = time(NULL);
+    //struct tm *loctime = localtime (&now);
+	struct tm loctime = threadsafe_localtime(systemtime_now());
     char szBuf[4096]="";
-    strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+    strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",&loctime);
 
 	rootNode->addAttribute("version",glestVersionString, mapTagReplacements);
 	rootNode->addAttribute("timestamp",szBuf, mapTagReplacements);
