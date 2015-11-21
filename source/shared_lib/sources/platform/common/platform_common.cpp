@@ -31,6 +31,12 @@
 
 #endif
 
+#if __cplusplus > 199711L
+#include <chrono>
+#else
+#include <time.h>
+#endif
+
 #ifdef WIN32
  #define S_ISDIR(mode) (((mode) & _S_IFDIR) == _S_IFDIR)
 #elif defined(__GNUC__)
@@ -117,8 +123,12 @@ tm threadsafe_localtime(const time_t &time) {
 
 // extracting std::time_t from std:chrono for "now"
 time_t systemtime_now() {
+#if __cplusplus > 199711L
 	system_time_point system_now = std::chrono::system_clock::now();
 	return std::chrono::system_clock::to_time_t(system_now);
+#else
+	return time(NULL);
+#endif
 }
 
 

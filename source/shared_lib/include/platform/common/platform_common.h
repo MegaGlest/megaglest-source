@@ -25,7 +25,7 @@
 #include <utility>
 #include <SDL.h>
 #include <map>
-#include <chrono>
+//#include <chrono>
 #include "leak_dumper.h"
 
 #if (defined WIN32) && !(defined snprintf)
@@ -91,7 +91,7 @@ public:
     virtual void ShellCommandOutput_CallbackEvent(string cmd,char *output,void *userdata) = 0;
 };
 
-typedef std::chrono::time_point<std::chrono::system_clock> system_time_point;
+//typedef std::chrono::time_point<std::chrono::system_clock> system_time_point;
 tm threadsafe_localtime(const time_t &time);
 // extracting std::time_t from std:chrono for "now"
 time_t systemtime_now();
