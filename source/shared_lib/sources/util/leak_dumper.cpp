@@ -35,10 +35,11 @@ void AllocRegistry::dump(const char *path) {
 	int leakCount=0;
 	size_t leakBytes=0;
 
-	time_t debugTime = time(NULL);
-	struct tm *loctime = localtime (&debugTime);
+	//time_t debugTime = time(NULL);
+	//struct tm *loctime = localtime (&debugTime);
+	struct tm loctime = threadsafe_localtime(systemtime_now());
 	char szBuf2[100]="";
-	strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+	strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 #ifdef WIN32
 	FILE* f= _wfopen(utf8_decode(path).c_str(), L"wt");

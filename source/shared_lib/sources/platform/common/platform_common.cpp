@@ -102,6 +102,26 @@ int ScreenHeight = 600;
 
 }
 
+/*
+	A thread safe localtime proxy
+*/
+tm threadsafe_localtime(const time_t &time) {
+	tm tm_snapshot;
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+	localtime_s(&tm_snapshot, &time);
+#else
+	localtime_r(&time, &tm_snapshot); // POSIX  
+#endif
+	return tm_snapshot;
+}
+
+// extracting std::time_t from std:chrono for "now"
+time_t systemtime_now() {
+	system_time_point system_now = std::chrono::system_clock::now();
+	return std::chrono::system_clock::to_time_t(system_now);
+}
+
+
 // =====================================
 //          PerformanceTimer
 // =====================================
@@ -786,9 +806,10 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				value = crcValue;
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
-			        struct tm *loctime = localtime (&refreshDate);
+			        //struct tm *loctime = localtime (&refreshDate);
+					struct tm loctime = threadsafe_localtime(refreshDate);
 			        char szBuf1[100]="";
-			        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+			        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,
 							"=-=-=-=- READ CACHE for Cache file [%s] refreshDate = %ld [%s], crcValue = %u\n",
@@ -796,19 +817,20 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				}
 			}
 			else {
-				time_t now = time(NULL);
-		        struct tm *loctime = localtime (&now);
+				//time_t now = time(NULL);
+		        //struct tm *loctime = localtime (&now);
+				struct tm loctime = threadsafe_localtime(systemtime_now());
 		        char szBuf1[100]="";
-		        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+		        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
-		        loctime = localtime (&refreshDate);
+		        loctime = threadsafe_localtime(refreshDate);
 		        char szBuf2[100]="";
-		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,
 							"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %u\n",
-							crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
+							crcCacheFile.c_str(), systemtime_now(), szBuf1, refreshDate, szBuf2, crcValue);
 				}
 			}
 		}
@@ -844,9 +866,10 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
 	    time_t now = time(NULL);
 		time_t refreshDate = now + (REFRESH_CRC_DAY_SECONDS * offset);
 
-        struct tm *loctime = localtime (&refreshDate);
+        //struct tm *loctime = localtime (&refreshDate);
+		struct tm loctime = threadsafe_localtime(refreshDate);
         char szBuf1[100]="";
-        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 		string writeGameVer = Shared::PlatformByteOrder::toCommonEndian(gameVersion);
 		string writeGameGITVersion = Shared::PlatformByteOrder::toCommonEndian(gameGITVersion);
@@ -904,9 +927,10 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 	uint32 crcValue = 0;
 	pair<bool,time_t> crcResult = hasCachedFileCRCValue(crcCacheFile, crcValue);
 	if(crcResult.first == true) {
-        struct tm *loctime = localtime (&crcResult.second);
+        //struct tm *loctime = localtime (&crcResult.second);
+		struct tm loctime = threadsafe_localtime(crcResult.second);
         char szBuf1[100]="";
-        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);
 		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);

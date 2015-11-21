@@ -2334,10 +2334,11 @@ void Renderer::renderClock() {
 	}
 
 	if(config.getBool("InGameLocalClock","true") == true) {
-		time_t nowTime = time(NULL);
-		struct tm *loctime = localtime(&nowTime);
+		//time_t nowTime = time(NULL);
+		//struct tm *loctime = localtime(&nowTime);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 		char szBuf2[100]="";
-		strftime(szBuf2,100,"%H:%M",loctime);
+		strftime(szBuf2,100,"%H:%M",&loctime);
 
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";

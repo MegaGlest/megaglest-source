@@ -588,10 +588,11 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 #endif
 
 		if(logFile.is_open() == true) {
-			time_t curtime = time (NULL);
-			struct tm *loctime = localtime (&curtime);
+			//time_t curtime = time (NULL);
+			//struct tm *loctime = localtime (&curtime);
+			struct tm loctime = threadsafe_localtime(systemtime_now());
 			char szBuf2[100]="";
-			strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+			strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 			logFile << "[" << szBuf2 << "] Runtime Error information:"  << std::endl;
 			logFile << "======================================================"  << std::endl;
