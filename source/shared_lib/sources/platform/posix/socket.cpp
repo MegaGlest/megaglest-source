@@ -1703,7 +1703,7 @@ bool Socket::isReadable(bool lockMutex) {
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
-		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
+		//safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
 	}
 
 	if(isSocketValid() == false) return false;
