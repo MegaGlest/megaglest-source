@@ -12,74 +12,35 @@
 # To install the installer silently you may run it like this:
 # ./megaglest-installer.run --noprompt --i-agree-to-all-licenses --destination /home/softcoder/megaglest-temp-test --noreadme --ui=stdio
 
-# below is the branch to build and installer from.
-
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
 
-megaglest_release_folder=""
-#megaglest_release_folder="trunk"
-#megaglest_release_folder="release-3.3.5.1"
-
-CURRENTDIR="$(dirname $(readlink -f $0))"
-REPODIR="$CURRENTDIR/../../../../"
+CURRENTDIR="$(dirname "$(readlink -f "$0")")"
+cd "$CURRENTDIR"
 
 # below describe various folder paths relative to the installer root folder
-#megaglest_project_root=../../../../../
-megaglest_project_root=../../../../
-megaglest_data_path=${megaglest_project_root}${megaglest_release_folder}/data/glest_game/
-megaglest_linux_path=${megaglest_project_root}${megaglest_release_folder}/mk/linux/
-megaglest_shared_path=${megaglest_project_root}${megaglest_release_folder}/mk/shared/
-megaglest_linux_masterserverpath=${megaglest_project_root}${megaglest_release_folder}/source/masterserver/
-megaglest_linux_toolspath=${megaglest_project_root}${megaglest_release_folder}/source/tools/
+megaglest_linux_path="$CURRENTDIR/../.."
+BINARY_DIR="$($megaglest_linux_path/make-binary-archive.sh --show-result-path2)"
+DATA_DIR="$($megaglest_linux_path/make-data-archive.sh --show-result-path2)"
 
-VERSION=`$CURRENTDIR/${megaglest_linux_path}/mg-version.sh --version`
+VERSION=`$megaglest_linux_path/mg-version.sh --version`
 kernel=`uname -s | tr '[A-Z]' '[a-z]'`
 architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
 mg_installer_bin_name=MegaGlest-Installer-${VERSION}_${architecture}_${kernel}.run
-#echo $mg_installer_bin_name
-#exit 1
 
-if which zip >/dev/null; then
-    echo Compression tool 'zip' exists
-else
-    echo Compression tool 'zip' DOES NOT EXIST on this system, please install it
-    exit 1
+if [ "$(which zip 2>/dev/null)" = "" ]; then
+    echo "Compression tool 'zip' DOES NOT EXIST on this system, please install it"; exit 1
 fi
-
-if which xz >/dev/null; then
-    echo Compression tool 'xz' exists
-else
-    echo Compression tool 'xz' DOES NOT EXIST on this system, please install it
-    exit 1
+if [ "$(which xz 2>/dev/null)" = "" ]; then
+    echo "Compression tool 'xz' DOES NOT EXIST on this system, please install it"; exit 1
 fi
-
-if which tar >/dev/null; then
-    echo Compression tool 'tar' exists
-else
-    echo Compression tool 'tar' DOES NOT EXIST on this system, please install it
-    exit 1
+if [ "$(which tar 2>/dev/null)" = "" ]; then
+    echo "Compression tool 'tar' DOES NOT EXIST on this system, please install it"; exit 1
 fi
 
 # Below is the name of the archive to create and tack onto the installer.
 # *NOTE: The filename's extension is of critical importance as the installer
 # does a patch on extension to figure out how to decompress!
-#
-# static const MojoArchiveType archives[] =
-# {
-#    { "zip", MojoArchive_createZIP, true },
-#    { "tar", MojoArchive_createTAR, true },
-#    { "tar.gz", MojoArchive_createTAR, true },
-#    { "tar.bz2", MojoArchive_createTAR, true },
-#    { "tgz", MojoArchive_createTAR, true },
-#    { "tbz2", MojoArchive_createTAR, true },
-#    { "tb2", MojoArchive_createTAR, true },
-#    { "tbz", MojoArchive_createTAR, true },
-#    { "uz2", MojoArchive_createUZ2, false },
-#    { "pck", MojoArchive_createPCK, true },
-#    { "tar.xz", MojoArchive_createTAR, true },
-#    { "txz", MojoArchive_createTAR, true },
-# };
 #
 #megaglest_archiver_app_data='tar -cf - * | xz > mgdata.tar.xz'
 megaglest_archivefilename_data="mgdata.tar.xz"
@@ -93,7 +54,7 @@ megaglest_archivefilename="mgpkg.zip"
 
 # Grab the version #
 #
-echo "Linux project root path [$CURRENTDIR/${megaglest_linux_path}]"
+echo "Linux project root path [$megaglest_linux_path]"
 
 echo "About to build Installer for $VERSION"
 # Stop if anything produces an error.
@@ -118,8 +79,8 @@ APPNAME="MegaGlest Installer"
 #  dependencies from leaking in.
 # You may not care about this at all. In which case, just use the
 #  CC=gcc and CXX=g++ lines instead.
-CC=/usr/bin/gcc
-CXX=/usr/bin/g++
+CC="$( which gcc 2>/dev/null )"
+CXX="$( which g++ 2>/dev/null )"
 #CC=/opt/crosstool/gcc-3.3.6-glibc-2.3.5/i686-unknown-linux-gnu/i686-unknown-linux-gnu/bin/gcc
 #CXX=/opt/crosstool/gcc-3.3.6-glibc-2.3.5/i686-unknown-linux-gnu/i686-unknown-linux-gnu/bin/g++
 
@@ -160,6 +121,7 @@ else
 fi
 
 # Clean up previous run, build fresh dirs for Base Archive.
+cd "$CURRENTDIR"
 rm -rf image ${mg_installer_bin_name} ${megaglest_archivefilename}
 mkdir image
 mkdir image/guis
@@ -169,94 +131,22 @@ mkdir image/meta
 
 # This next section copies live data from the MegaGlest directories
 if [ $REPACKONLY -eq 0 ]; then
-
-	rm -rf data
-	mkdir data
-	mkdir data/blender
-
-	INSTALL_ROOTDIR=$CURRENTDIR/
-	INSTALLDATADIR="${INSTALL_ROOTDIR}data/"
-
-	# Now copy all megaglest binaries
-	echo Copying live MegaGlest binary files...
-
-	cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest" ${INSTALLDATADIR}
-	cp "$CURRENTDIR/$megaglest_linux_path/glest.ini" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.png" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_shared_path/glestkeys.ini" $INSTALLDATADIR
-        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_mapeditor" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_editor" ${INSTALLDATADIR}
-        cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_g3dviewer" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_g3dviewer" ${INSTALLDATADIR}
-	cp "$CURRENTDIR/$megaglest_shared_path/servers.ini" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/makedeps_folder.sh" $INSTALL_ROOTDIR
-
-	if [ "$(echo "$VERSION" | grep -v '\-dev')" != "" ]; then
-	    cd "$CURRENTDIR/$megaglest_linux_path/tools-for-standalone-client"
-	    ./prepare-mini-update.sh --only_script; sleep 0.5s
-	    cp megaglest-mini-update.sh $INSTALLDATADIR
-	    if [ -e "megaglest-mini-update.sh" ]; then rm -f "megaglest-mini-update.sh"; fi
-	fi
-
-	# Now copy all blender related files
-	echo Copying blender modelling MegaGlest files...
-
-        mkdir -p "${INSTALLDATADIR}blender/"
-	cp "$CURRENTDIR/$megaglest_linux_toolspath/glexemel/"*.py "${INSTALLDATADIR}blender/"
 	cd "$CURRENTDIR"
+	INSTALLDATADIR="data"
+	rm -rf $INSTALLDATADIR
+	mkdir $INSTALLDATADIR
 
-	# Now copy all glest data
-	echo Copying live MegaGlest data files...
+	echo Copying MegaGlest binary files...
+	$megaglest_linux_path/make-binary-archive.sh --installer
+	cd "$BINARY_DIR"
+	cp -r * "$CURRENTDIR/$INSTALLDATADIR"
 
-	cp "$CURRENTDIR/$megaglest_shared_path/megaglest.ico" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest-uninstall.ico" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_shared_path/g3dviewer.ico" ${INSTALLDATADIR}
-	cp "$CURRENTDIR/$megaglest_shared_path/editor.ico" ${INSTALLDATADIR}
+	echo Copying MegaGlest data files...
+	$megaglest_linux_path/make-data-archive.sh --installer
+	cd "$DATA_DIR"
+	cp -r * "$CURRENTDIR/$INSTALLDATADIR"
 
-	mkdir -p "$INSTALLDATADIR/data/"
-        cd "${INSTALLDATADIR}/data/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:data | tar x
-        cd "$CURRENTDIR"
-
-	mkdir -p "$INSTALLDATADIR/docs/"
-        cd "${INSTALLDATADIR}/docs/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:docs | tar x
-        git archive --remote ${REPODIR} HEAD:docs | tar x
-        cd "$CURRENTDIR"
-	
-	mkdir -p "$INSTALLDATADIR/maps/"
-        cd "${INSTALLDATADIR}/maps/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:maps | tar x
-        cd "$CURRENTDIR"
-
-	mkdir -p "$INSTALLDATADIR/scenarios/"
-        cd "${INSTALLDATADIR}/scenarios/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:scenarios | tar x
-        cd "$CURRENTDIR"
-
-	mkdir -p "$INSTALLDATADIR/techs/"
-        cd "${INSTALLDATADIR}/techs/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:techs | tar x
-        cd "$CURRENTDIR"
-
-	mkdir -p "$INSTALLDATADIR/tilesets/"
-        cd "${INSTALLDATADIR}/tilesets/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:tilesets | tar x
-        cd "$CURRENTDIR"
-
-	mkdir -p "$INSTALLDATADIR/tutorials/"
-        cd "${INSTALLDATADIR}/tutorials/"
-        git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
-        cd "$CURRENTDIR"
-
-	# Copy shared lib dependencies for megaglest
-	cd data
-	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh megaglest"
-	$copyGlestDeptsCmd
-	if [ -e "${INSTALL_ROOTDIR}makedeps_folder.sh" ]; then rm -f "${INSTALL_ROOTDIR}makedeps_folder.sh"; fi
-
-	cd ..
+	cd "$CURRENTDIR"
 fi
 
 if [ ! -d data/docs ]; then
@@ -271,6 +161,7 @@ fi
 # Build MojoSetup binaries from scratch.
 # YOU ALWAYS NEED THE LUA PARSER IF YOU WANT UNINSTALL SUPPORT!
 #cd mojosetup
+cd "$CURRENTDIR"
 rm -rf cmake-build
 mkdir cmake-build
 cd cmake-build

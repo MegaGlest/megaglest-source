@@ -22,13 +22,15 @@ REPODIR="$CURRENTDIR/../../"
 REPO_DATADIR="$REPODIR/data/glest_game"
 if [ -f "$REPO_DATADIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPO_DATADIR"
-    DATA_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    DATA_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"
+    # on macos are problems with more advanced using awk ^
     DATA_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
     DATA_HASH=$(git log -1 --format=%H)
 fi
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
-    if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
+    if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"; fi
+    # on macos are problems with more advanced using awk ^
     SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
     if [ "$DATA_HASH" = "" ]; then DATA_HASH=$(git submodule status "$REPO_DATADIR" | awk '{print $1}'); fi
 fi
@@ -44,9 +46,8 @@ PACKAGE="$RELEASENAME-$VERSION.$ARCHIVE_TYPE"
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 if [ "$classic_snapshot_for_tests" -eq "1" ]; then RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"; fi
 RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
-if [ "$1" = "--show-result-path" ]; then
-    if [ "$KERNEL" = "darwin" ]; then echo "$RELEASEDIR"; else echo "${RELEASEDIR_ROOT}/$PACKAGE"; fi; exit 0
-fi
+if [ "$1" = "--show-result-path" ]; then echo "${RELEASEDIR_ROOT}/$PACKAGE"; exit 0
+elif [ "$1" = "--show-result-path2" ]; then echo "${RELEASEDIR_ROOT}/$RELEASENAME"; exit 0; fi
 
 DATA_HASH_MEMORY="$RELEASEDIR_ROOT/data_memory"
 DATA_HASH_FILE="$DATA_HASH_MEMORY/$VERSION-$SOURCE_BRANCH.log"
@@ -59,7 +60,7 @@ cd "$CURRENTDIR"
 if [ "$DATA_BRANCH" != "" ]; then echo "Detected parameters for data repository: branch=[$DATA_BRANCH], commit=$DATA_COMMIT"; fi
 if [ "$SOURCE_BRANCH" != "" ]; then echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"; fi
 
-if [ "$KERNEL" != "darwin" ]; then echo "Creating data package in $RELEASEDIR"; else echo "Creating data directory $RELEASEDIR"; fi
+if [ "$1" != "--installer" ]; then echo "Creating data package in $RELEASEDIR"; else echo "Creating data directory $RELEASEDIR"; fi
 
 [[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
 mkdir -p "$RELEASEDIR"
@@ -109,7 +110,7 @@ cd "$CURRENTDIR"
 # END
 
 cd "$CURRENTDIR"
-if [ "$KERNEL" != "darwin" ]; then
+if [ "$1" != "--installer" ]; then
     echo "creating data archive: $PACKAGE"
     [[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
     cd $RELEASEDIR
@@ -121,6 +122,6 @@ if [ "$KERNEL" != "darwin" ]; then
     fi
     cd $CURRENTDIR
 
-    if [ "$1" = "-CI" ] && [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
     ls -la ${RELEASEDIR_ROOT}/$PACKAGE
 fi
+if [ "$1" = "-CI" ] && [ -d "$RELEASEDIR" ]; then rm -rf "$RELEASEDIR"; fi
