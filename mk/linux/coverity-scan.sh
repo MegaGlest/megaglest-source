@@ -89,7 +89,7 @@ ls -la ${FILENAME}.tar.gz
 echo "Running curl to upload analysis file..."
 # echo "curl --progress-bar --insecure --form \"project=${PROJECT}\" --form \"token=${TOKEN}\" --form \"email=${EMAIL}\" --form \"version=${VERSION}\" --form \"description=${DESCRIPTION}\" --form \"file=@${FILENAME}.tar.gz\" https://scan5.coverity.com/cgi-bin/upload.py"
 # exit 1
-curl --progress-bar --insecure --form "project=${PROJECT}" --form "token=${TOKEN}" --form "email=${EMAIL}" --form "version=${VERSION}" --form "description=${DESCRIPTION}" --form "file=@${FILENAME}.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py | tee -a "coverity-scan.log" ; test ${PIPESTATUS[0]} -eq 0
+curl --progress-bar --insecure --form "token=${TOKEN}" --form "email=${EMAIL}" --form "version=${VERSION}" --form "description=${DESCRIPTION}" --form "file=@${FILENAME}.tar.gz" "https://scan.coverity.com/builds?project=${PROJECT}" | tee -a "coverity-scan.log" ; test ${PIPESTATUS[0]} -eq 0
 
 echo "CURL returned: $?"
 
