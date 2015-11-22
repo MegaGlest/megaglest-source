@@ -24,7 +24,8 @@ if [ -f "$REPO_DATADIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPO_DATADIR"
     DATA_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"
     # on macos are problems with more advanced using awk ^
-    DATA_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    DATA_COMMIT_NR="$(git rev-list HEAD --count)"
+    DATA_COMMIT="$(echo "[$DATA_COMMIT_NR.$(git log -1 --format=%h)]")"
     DATA_HASH=$(git log -1 --format=%H)
 fi
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
@@ -53,7 +54,15 @@ DATA_HASH_MEMORY="$RELEASEDIR_ROOT/data_memory"
 DATA_HASH_FILE="$DATA_HASH_MEMORY/$VERSION-$SOURCE_BRANCH.log"
 if [ ! -d "$DATA_HASH_MEMORY" ]; then mkdir -p "$DATA_HASH_MEMORY"; fi
 if [ "$DATA_HASH" != "" ]; then
-    if [ ! -e "$DATA_HASH_FILE" ] || [ "$(cat "$DATA_HASH_FILE" | grep "$DATA_HASH")" = "" ]; then echo "$DATA_HASH" > "$DATA_HASH_FILE"; else exit 0; fi
+    if [ ! -e "$DATA_HASH_FILE" ]; then
+	echo "$DATA_HASH $DATA_COMMIT_NR" > "$DATA_HASH_FILE"
+    elif [ "$(cat "$DATA_HASH_FILE" | grep "$DATA_HASH")" = "" ]; then
+	DATA_COMMIT_PREV_NR="$(cat "$DATA_HASH_FILE" | head -1 | awk '{print $2}')"
+	if [ "$DATA_COMMIT_PREV_NR" != "" ] && [ "$DATA_COMMIT_NR" -lt "$DATA_COMMIT_PREV_NR" ]; then
+	    echo " warning: Detected older git revision of data than previously, $DATA_COMMIT_NR < $DATA_COMMIT_PREV_NR."
+	fi
+	echo "$DATA_HASH $DATA_COMMIT_NR" > "$DATA_HASH_FILE"
+    else exit 0; fi
 fi
 
 cd "$CURRENTDIR"
