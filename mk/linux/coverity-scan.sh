@@ -55,6 +55,8 @@ VERSION=${GITBRANCH}.${GITVERSION_REV}.${GITVERSION_SHA1}
 # Included from shared functions
 detect_system
 
+hoatname=$(hostname)
+
 #DESCRIPTION=${distribution}-${release}-${architecture}_${hostname}
 DESCRIPTION=${GITBRANCH}.${GITVERSION_SHA1}.${distribution}-${architecture}.${hostname}
 FILENAME=${PROJECT}.${DESCRIPTION}
