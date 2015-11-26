@@ -48,42 +48,50 @@ const char * getDialogCommand() {
 
 	file = popen("which zenity","r");
 	//printf("File #1 [%p]\n",file);
-	if (fgets(file_string, 100, file) != NULL ) {
-		pclose(file);
-		return "zenity";
-	}
-	else if (file != NULL) {
-		pclose(file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "zenity";
+		}
+		else {
+			pclose(file);
+		}
 	}
 
 	file = popen("which kdialog","r");
 	//printf("File #2 [%p]\n",file);
-	if (fgets(file_string, 100, file) != NULL ) {
-		pclose(file);
-		return "kdialog";
-	}
-	else if (file != NULL) {
-		pclose(file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "kdialog";
+		}
+		else {
+			pclose(file);
+		}
 	}
 
 	file = popen("which yad","r");
 	//printf("File #3 [%p]\n",file);
-	if (fgets(file_string, 100, file) != NULL ) {
-		pclose(file);
-		return "yad";
-	}
-	else if (file != NULL) {
-		pclose(file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "yad";
+		}
+		else {
+			pclose(file);
+		}
 	}
 
 	file = popen("which gdialog","r");
 	//printf("File #4 [%p]\n",file);
-	if (fgets(file_string, 100, file) != NULL ) {
-		pclose(file);
-		return "gdialog";
-	}
-	else if (file != NULL) {
-		pclose(file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "gdialog";
+		}
+		else {
+			pclose(file);
+		}
 	}
 
 	return NULL;

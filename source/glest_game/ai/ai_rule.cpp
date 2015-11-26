@@ -1371,30 +1371,33 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						}
 						// a good producer is found, lets choose a warrior production
 						vector<int> productionCommandIndexes;
-						const UnitType *ut=aiInterface->getMyUnit(bestIndex)->getType();
-						for(int j=0; j<ut->getCommandTypeCount(); ++j){
-							const CommandType *ct= ut->getCommandType(j);
+						if(bestIndex >= 0) {
+							const UnitType *ut=aiInterface->getMyUnit(bestIndex)->getType();
+							for(int j=0; j<ut->getCommandTypeCount(); ++j){
+								const CommandType *ct= ut->getCommandType(j);
 
-							//if the command is produce
-							if(ct->getClass()==ccProduce) {
-								const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
-								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
-								{//this can produce a warrior
-									productionCommandIndexes.push_back(j);
+								//if the command is produce
+								if(ct->getClass()==ccProduce) {
+									const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
+									if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
+									{//this can produce a warrior
+										productionCommandIndexes.push_back(j);
+									}
 								}
 							}
-						}
-						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, (int)productionCommandIndexes.size()-1)];
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-						if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-						if(aiInterface->isLogLevelEnabled(4) == true) {
-							char szBuf[8096]="";
-							snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-							aiInterface->printLog(4, szBuf);
-						}
+							int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, (int)productionCommandIndexes.size()-1)];
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
+							if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
+							if(aiInterface->isLogLevelEnabled(4) == true) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
+								aiInterface->printLog(4, szBuf);
+							}
+
+							aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
+						}
 					}
 					else
 					{// do it like normal CPU
