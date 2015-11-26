@@ -293,7 +293,6 @@ bool Window::handleEvent() {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("KD mod = %d : %d\n",event.key.keysym.mod,SDL_GetModState());
 					event.key.keysym.mod = SDL_GetModState();
 //#endif
-					keystate = event.key.keysym;
 
 					string keyName = SDL_GetKeyName(event.text.text[0]);
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
@@ -323,7 +322,6 @@ bool Window::handleEvent() {
 						}
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
-
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_TEXTINPUT ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					break;
@@ -337,6 +335,7 @@ bool Window::handleEvent() {
 					//printf("In SDL_KEYDOWN\n");
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+					keystate = event.key.keysym;
 					bool keyDownConsumed=false;
 					if(global_window) {
 						keyDownConsumed=global_window->eventSdlKeyDown(event.key);
@@ -377,8 +376,6 @@ bool Window::handleEvent() {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("KD mod = %d : %d\n",event.key.keysym.mod,SDL_GetModState());
 					event.key.keysym.mod = SDL_GetModState();
 //#endif
-					keystate = event.key.keysym;
-
 					string keyName = SDL_GetKeyName(event.key.keysym.sym);
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
@@ -435,8 +432,6 @@ bool Window::handleEvent() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] scancode [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode);
 
 					if(global_window) {
-						//char key = getKey(event.key.keysym,true);
-						//key = tolower(key);
 						global_window->eventKeyUp(event.key);
 					}
 
@@ -1269,41 +1264,7 @@ bool Window::isKeyStateModPressed(int mod) {
 }
 
 wchar_t Window::extractLastKeyPressed() {
-	wchar_t c = SDLK_UNKNOWN;
-	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(keystate.sym > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keystate.sym,keystate.mod);
-
-		c = keystate.sym;
-//		if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
-//			c = SDLKey(c & 0xFF);
-//		}
-
-		//c = toupper(c);
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d] c = [%lc]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF),c);
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] #1 (c & 0xFF) [%d] c = [%lc]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF),c);
-	}
-	if(c == SDLK_UNKNOWN) {
-		c = keystate.sym;
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d][%lc]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
-
-	//c = (SDLKey)(c & 0xFF);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
-
-	string pressKeyName = SDL_GetKeyName((SDL_Keycode)c);
-	//string inputKeyName = SDL_GetKeyName(keystate.sym);
-
-	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",
-	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
-
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] pressed key [%d - %s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c,pressKeyName.c_str());
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] pressed key [%d - %s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c,pressKeyName.c_str());
-
-	return c;
+	return keystate.sym;
 }
 
 }}//end namespace

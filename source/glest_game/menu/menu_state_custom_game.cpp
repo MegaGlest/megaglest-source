@@ -1079,10 +1079,11 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         else {
         	string advanceToItemStartingWith = "";
         	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-        		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
-//        		string hehe=lastKey;
-//        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
-        		advanceToItemStartingWith =  lastKey;
+				const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
+//				string helpString = "";
+//				helpString = lastKey;
+//				printf("lastKey = '%s'\n",helpString.c_str());
+				advanceToItemStartingWith =  lastKey;
         	}
 
         	if(mapPreviewTexture != NULL) {
