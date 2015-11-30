@@ -288,15 +288,12 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	else if(selection.isCommandable()) {
 		if(prepared) {
 			Vec2i targetPos=game->getMouseCellPos();
-			if(prepared || (game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true )) {
-				givePreparedDefaultOrders(x, y);
-			}
+			givePreparedDefaultOrders(x, y);
 		}
 		else {
 			Vec2i targetPos=game->getMouseCellPos();
-			if(prepared || (game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true)) {
+			if(game->isValidMouseCellPos() &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				giveDefaultOrders(x, y);
 			}
 		}
