@@ -247,7 +247,7 @@ void Thread::start() {
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
 	if(base_thread) base_thread->setStarted(true);
-	string uniqueId =  base_thread->getUniqueID();
+	string uniqueId =  (base_thread ? base_thread->getUniqueID() : "new_base_thread_prev_null");
 	thread = SDL_CreateThread(beginExecution, uniqueId.c_str(), this);
 	if(thread == NULL) {
 		if(base_thread) base_thread->setStarted(false);
