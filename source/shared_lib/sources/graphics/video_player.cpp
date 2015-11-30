@@ -69,7 +69,9 @@ std::string getRegKey(const std::string& location, const std::string& name){
 #endif
 
 const string HTTP_PREFIX 					= "http";
+#ifdef HAS_LIBVLC
 const double MAX_VIDEO_START_MILLISECONDS	= 10.0;
+#endif
 
 class ctx {
 public:

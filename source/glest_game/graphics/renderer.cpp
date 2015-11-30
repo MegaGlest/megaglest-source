@@ -41,7 +41,7 @@ namespace Glest { namespace Game{
 uint32 Renderer::SurfaceData::nextUniqueId = 1;
 bool Renderer::renderText3DEnabled = true;
 
-const float SKIP_INTERPOLATION_DISTANCE = 20.0f;
+//const float SKIP_INTERPOLATION_DISTANCE = 20.0f;
 const string DEFAULT_CHAR_FOR_WIDTH_CALC = "V";
 
 enum PROJECTION_TO_INFINITY {
