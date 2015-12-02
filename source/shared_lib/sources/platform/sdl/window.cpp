@@ -911,91 +911,64 @@ bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input,vector<int> mo
 	bool result = (c == compareKey);
 	//printf("result = %d input = %d compare = %d\n",result,c,compareKey);
 
-	if(result == false) {
-		if(compareKey == SDLK_RETURN) {
-			result = (c == SDLK_KP_ENTER);
-		}
-		else if(compareKey == SDLK_KP_ENTER) {
-			result = (c == SDLK_RETURN);
-		}
-		else if(compareKey == SDLK_ASTERISK) {
-			result = (c == SDLK_KP_MULTIPLY);
-		}
-		else if(compareKey == SDLK_KP_MULTIPLY) {
-			result = (c == SDLK_ASTERISK);
-		}
-		else if(compareKey == SDLK_BACKSPACE) {
-			result = (c == SDLK_DELETE);
-		}
-		else if( compareKey >= SDLK_0 && compareKey <= SDLK_9) {
-			switch(compareKey) {
-				case SDLK_0:
-					result = (c == SDLK_KP_0);
-					break;
-				case SDLK_1:
-					result = (c == SDLK_KP_1);
-					break;
-				case SDLK_2:
-					result = (c == SDLK_KP_2);
-					break;
-				case SDLK_3:
-					result = (c == SDLK_KP_3);
-					break;
-				case SDLK_4:
-					result = (c == SDLK_KP_4);
-					break;
-				case SDLK_5:
-					result = (c == SDLK_KP_5);
-					break;
-				case SDLK_6:
-					result = (c == SDLK_KP_6);
-					break;
-				case SDLK_7:
-					result = (c == SDLK_KP_7);
-					break;
-				case SDLK_8:
-					result = (c == SDLK_KP_8);
-					break;
-				case SDLK_9:
-					result = (c == SDLK_KP_9);
-					break;
-			}
-		}
-		else if(compareKey >= SDLK_KP_0 && compareKey <= SDLK_KP_9) {
-			switch(compareKey) {
-				case SDLK_KP_0:
-					result = (c == SDLK_0);
-					break;
-				case SDLK_KP_1:
-					result = (c == SDLK_1);
-					break;
-				case SDLK_KP_2:
-					result = (c == SDLK_2);
-					break;
-				case SDLK_KP_3:
-					result = (c == SDLK_3);
-					break;
-				case SDLK_KP_4:
-					result = (c == SDLK_4);
-					break;
-				case SDLK_KP_5:
-					result = (c == SDLK_5);
-					break;
-				case SDLK_KP_6:
-					result = (c == SDLK_6);
-					break;
-				case SDLK_KP_7:
-					result = (c == SDLK_7);
-					break;
-				case SDLK_KP_8:
-					result = (c == SDLK_8);
-					break;
-				case SDLK_KP_9:
-					result = (c == SDLK_9);
-					break;
-			}
-		}
-	}
+//	if(result == false) {
+//		if(compareKey == SDLK_RETURN) {
+//			result = (c == SDLK_KP_ENTER);
+//		}
+//		else if(compareKey == SDLK_KP_ENTER) {
+//			result = (c == SDLK_RETURN);
+//		}
+//		else if(compareKey == SDLK_ASTERISK) {
+//			result = (c == SDLK_KP_MULTIPLY);
+//		}
+//		else if(compareKey == SDLK_KP_MULTIPLY) {
+//			result = (c == SDLK_ASTERISK);
+//		}
+//		else if(compareKey == SDLK_BACKSPACE) {
+//			result = (c == SDLK_DELETE);
+//		}
+//		else if (compareKey == SDLK_0) {
+//			result = (c == SDLK_KP_0);
+//		} else if (compareKey == SDLK_1) {
+//			result = (c == SDLK_KP_1);
+//		} else if (compareKey == SDLK_2) {
+//			result = (c == SDLK_KP_2);
+//		} else if (compareKey == SDLK_3) {
+//			result = (c == SDLK_KP_3);
+//		} else if (compareKey == SDLK_4) {
+//			result = (c == SDLK_KP_4);
+//		} else if (compareKey == SDLK_5) {
+//			result = (c == SDLK_KP_5);
+//		} else if (compareKey == SDLK_6) {
+//			result = (c == SDLK_KP_6);
+//		} else if (compareKey == SDLK_7) {
+//			result = (c == SDLK_KP_7);
+//		} else if (compareKey == SDLK_8) {
+//			result = (c == SDLK_KP_8);
+//		} else if (compareKey == SDLK_9) {
+//			result = (c == SDLK_KP_9);
+//		} else if (compareKey == SDLK_KP_0) {
+//			result = (c == SDLK_0);
+//		} else if (compareKey == SDLK_KP_1) {
+//			result = (c == SDLK_1);
+//		} else if (compareKey == SDLK_KP_2) {
+//			result = (c == SDLK_2);
+//		} else if (compareKey == SDLK_KP_3) {
+//			result = (c == SDLK_3);
+//		} else if (compareKey == SDLK_KP_4) {
+//			result = (c == SDLK_4);
+//		} else if (compareKey == SDLK_KP_5) {
+//			result = (c == SDLK_5);
+//		} else if (compareKey == SDLK_KP_6) {
+//			result = (c == SDLK_6);
+//		} else if (compareKey == SDLK_KP_7) {
+//			result = (c == SDLK_7);
+//		} else if (compareKey == SDLK_KP_8) {
+//			result = (c == SDLK_8);
+//		} else if (compareKey == SDLK_KP_9) {
+//			result = (c == SDLK_9);
+//		}
+//	}
 
 	if(result == true) {
 		//printf("input.keysym.mod = %d\n",input.keysym.mod);
