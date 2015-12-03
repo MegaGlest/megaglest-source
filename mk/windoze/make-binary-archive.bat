@@ -64,8 +64,8 @@ set custom_sevenZ_params=
 if not "%SEVENZ_MG_COMPRESS_PARAMS%." == "." set custom_sevenZ_params=%SEVENZ_MG_COMPRESS_PARAMS%
 echo custom_sevenZ_params [%custom_sevenZ_params%] ...
 
-if "%mg_arch%" == "%mg_WIN32_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "release-data\%PACKAGE%" megaglest.exe megaglest_g3dviewer.exe megaglest_editor.exe  libvlc.dll libvlccore.dll lua plugins 7z.exe 7z.dll xml2g.exe openal32.dll g2xml.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
-if "%mg_arch%" == "%mg_WIN64_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "release-data\%PACKAGE%" megaglestx64.exe megaglest_g3dviewerx64.exe megaglest_editorx64.exe  7z.exe 7z.dll xml2gx64.exe openal64.dll g2xmlx64.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
+if "%mg_arch%" == "%mg_WIN32_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "release-data\%PACKAGE%" megaglest.exe megaglest_g3dviewer.exe megaglest_editor.exe 7z.exe 7z.dll xml2g.exe openal32.dll g2xml.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
+if "%mg_arch%" == "%mg_WIN64_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "release-data\%PACKAGE%" megaglestx64.exe megaglest_g3dviewerx64.exe megaglest_editorx64.exe 7z.exe 7z.dll xml2gx64.exe openal64.dll g2xmlx64.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
 
 dir "release-data\%PACKAGE%"
 cd /d "%~dp0"
