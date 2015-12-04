@@ -112,6 +112,7 @@ Config::Config() {
 	fileName.second 			= "";
 	fileNameParameter.first 	= "";
 	fileNameParameter.second 	= "";
+	custom_path_parameter       = "";
 }
 
 bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path) {
@@ -159,6 +160,7 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 	cfgType 					= type;
 	fileName 					= file;
 	fileNameParameter 			= file;
+	custom_path_parameter 		= custom_path;
 
     if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
     	fileName.first = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.first;
@@ -330,7 +332,7 @@ void Config::reload() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgType.first,cfgType.second);
-	Config newconfig(type, std::make_pair(fileNameParameter.first,fileNameParameter.second), std::make_pair(true,false));
+	Config newconfig(type, std::make_pair(fileNameParameter.first,fileNameParameter.second), std::make_pair(true,false), custom_path_parameter);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

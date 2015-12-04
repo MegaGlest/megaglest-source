@@ -51,6 +51,7 @@ private:
 	std::pair<string,string> fileNameParameter;
 	std::pair<string,string> fileName;
 	std::pair<bool,bool> fileLoaded;
+	string custom_path_parameter;
 
 	static map<ConfigType,Config> configList;
 

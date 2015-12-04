@@ -322,7 +322,10 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(userProperties.empty() == false) {
-			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+        	Config &config = Config::getInstance();
+			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+					std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
+					std::pair<bool,bool>(true,false),config.getString("GlestKeysIniPath",""));
 			string userKeysFile = configKeys.getFileName(true);
 	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
 	        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
@@ -574,6 +577,13 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 				label->setText(keyName);
 
 				pair<string,string> &nameValuePair = mergedProperties[hotkeyIndex];
+
+				// Need to distinguish numeric keys to be translated to real keys
+				// from these ACTUAL sdl keys so surround in quotes.
+				if(keyName.size() == 1 && keyName[0] >= '0' && keyName[0] <= '9') {
+					keyName = "'" + keyName + "'";
+				}
+
 				bool isNewUserKeyEntry = true;
 				for(int i = 0; i < (int)userProperties.size(); ++i) {
 					string hotKeyName = userProperties[i].first;
@@ -617,5 +627,6 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
         hotkeyChar = SDLK_UNKNOWN;
     }
 }
+
 
 }}//end namespace
