@@ -229,7 +229,11 @@ void MenuStateAbout::render() {
 		if(customModTexture == NULL) {
 			string customModCreditsTextureFile = Config::getInstance().getString("CustomModCreditsTextureFile","");
 			if(customModCreditsTextureFile != "") {
-				customModTexture = Renderer::findTexture(customModCreditsTextureFile);
+				string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+				if(data_path != ""){
+					endPathWithSlash(data_path);
+				}
+				customModTexture = Renderer::findTexture(data_path + customModCreditsTextureFile);
 			}
 		}
 
