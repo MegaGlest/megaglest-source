@@ -156,104 +156,130 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     # or [num] what mean "any number with one or more digits".
     # Last word should have length at least 6 chars, but use longer if string is too much common.
 
-    # ignored: linux-vdso.so*, linux-gate.so*, ld-linux-*.so*
-    libs_list="/libSDL-1.2.so.0/libSDL-1.[num].so/libSDL-[0-9].[num].so/libSDL-/|/
-    /libpthread.so.0/libpthread.so/libpthread/|/
+    # ignored: linux-vdso.so*, linux-gate.so*, ld-linux-*.so*, libpthread.so*, libpulsecommon-*.so, libresolv.so*
+    libs_list="/libSDL2-2.0.so.0/libSDL2-2.[num].so/libSDL2-[0-9].[num].so/libSDL2-/|/
     /libGLU.so.1/libGLU.so/|/
     /libGL.so.1/libGL.so/|/
-    /libSM.so.6/libSM.so/|/
-    /libICE.so.6/libICE.so/|/
     /libX11.so.6/libX11.so/|/
-    /libXext.so.6/libXext.so/libXext/|/
     /libidn.so.11/libidn.so/|/
+    /librtmp.so.0/librtmp.so/|/
+    /libgcrypt.so.11/libgcrypt.so.1[0-9]/libgcrypt.so/libgcrypt/|/
+    /libgnutls.so.26/libgnutls.so.2[0-9]/libgnutls.so/libgnutls/|/
+    /libgssapi_krb5.so.2/libgssapi_krb[0-9].so/libgssapi_krb[num].so/libgssapi_krb/|/
     /liblber-2.4.so.2/liblber-2.[num].so/liblber-[0-9].[num].so/liblber-/liblber/|/
     /libldap_r-2.4.so.2/libldap_r-2.[num].so/libldap_r-[0-9].[num].so/libldap_r-/libldap_r/|/
-    /librt.so.1/librt.so/|/
-    /libgssapi_krb5.so.2/libgssapi_krb[0-9].so/libgssapi_krb[num].so/libgssapi_krb/|/
     /libz.so.1/libz.so/|/
-    /libgnutls.so.26/libgnutls.so.2[0-9]/libgnutls.so/libgnutls/|/
-    /libgcrypt.so.11/libgcrypt.so.1[0-9]/libgcrypt.so/libgcrypt/|/
     /libdl.so.2/libdl.so/|/
     /libfontconfig.so.1/libfontconfig.so/libfontconfig/|/
-    /libfreetype.so.6/libfreetype.so/libfreetype/|/
-    /libglib-2.0.so.0/libglib-2.[num].so/libglib-[0-9].[num].so/libglib-[0-9]/libglib-/|/
-    /libstdc++.so.6/libstdc++.so/libstdc++/|/
+    /libfreetype.so.6/libfreetype.so/|/
+    /libfribidi.so.0/libfribidi.so/libfribidi/|/
     /libm.so.6/libm.so/|/
-    /libgcc_s.so.1/libgcc_s.so/libgcc_s/|/
+    /libstdc++.so.6/libstdc++.so/|/
+    /libgcc_s.so.1/libgcc_s.so/|/
     /libc.so.6/libc.so/|/
+    /libasound.so.2/libasound.so/|/
     /libpulse-simple.so.0/libpulse-simple.so/libpulse-simple/|/
     /libpulse.so.0/libpulse.so/|/
-    /libdirectfb-1.2.so.0/libdirectfb-1.[num].so/libdirectfb-[0-9].[num].so/libdirectfb-/libdirectfb/|/
-    /libfusion-1.2.so.0/libfusion-1.[num].so/libfusion-[0-9].[num].so/libfusion-/libfusion/|/
-    /libdirect-1.2.so.0/libdirect-1.[num].so/libdirect-[0-9].[num].so/libdirect-/|/
+    /libXext.so.6/libXext.so/libXext/|/
+    /libXcursor.so.1/libXcursor.so/libXcursor/|/
+    /libXinerama.so.1/libXinerama.so/libXinerama/|/
+    /libXi.so.6/libXi.so/|/
+    /libXrandr.so.2/libXrandr.so/libXrandr/|/
+    /libXss.so.1/libXss.so/|/
     /libXxf86vm.so.1/libXxf86vm.so/libXxf86vm/|/
+    /libwayland-egl.so.1/libwayland-egl.so/libwayland-egl/|/
+    /libwayland-client.so.0/libwayland-client.so/libwayland-client/|/
+    /libwayland-cursor.so.0/libwayland-cursor.so/libwayland-cursor/|/
+    /libxkbcommon.so.0/libxkbcommon.so/libxkbcommon/|/
+    /librt.so.1/librt.so/|/
+    /libglapi.so.0/libglapi.so/libglapi/|/
     /libXdamage.so.1/libXdamage.so/libXdamage/|/
     /libXfixes.so.3/libXfixes.so/libXfixes/|/
-    /libdrm.so.2/libdrm.so/|/
-    /libuuid.so.1/libuuid.so/libuuid/|/
+    /libX11-xcb.so.1/libX11-xcb.so/libX11-xcb/|/
+    /libxcb-glx.so.0/libxcb-glx.so/libxcb-glx/|/
+    /libxcb-dri2.so.0/libxcb-dri2.so/libxcb-dri2/|/
+    /libxcb-dri3.so.0/libxcb-dri3.so/libxcb-dri3/|/
+    /libxcb-present.so.0/libxcb-present.so/libxcb-present/|/
+    /libxcb-sync.so.1/libxcb-sync.so/libxcb-sync/|/
     /libxcb.so.1/libxcb.so/|/
-    /libvorbis.so.0/libvorbis.so/|/
-    /libogg.so.0/libogg.so/libogg/|/
-    /libresolv.so.2/libresolv.so/libresolv/|/
-    /libsasl2.so.2/libsasl[0-9].so/libsasl/|/
+    /libxshmfence.so.1/libxshmfence.so/libxshmfence/|/
+    /libdrm.so.2/libdrm.so/|/
+    /libgpg-error.so.0/libgpg-error.so/libgpg-error/|/
+    /libtasn1.so.6/libtasn1.so/libtasn[num].so/libtasn[0-9]/libtasn/|/
+    /libp11-kit.so.0/libp11-kit.so/libp11-kit/|/
     /libkrb5.so.3/libkrb[0-9].so.[num]/libkrb[num].so/|/
     /libk5crypto.so.3/libk[0-9]crypto.so/libk[num]crypto/|/
     /libcom_err.so.2/libcom_err.so/libcom_err/|/
     /libkrb5support.so.0/libkrb[0-9]support.so/libkrb[num]support/|/
-    /libkeyutils.so.1/libkeyutils.so/libkeyutils/|/
-    /libtasn1.so.3/libtasn1.so/libtasn[num].so/libtasn[0-9]/libtasn/|/
-    /libgpg-error.so.0/libgpg-error.so/libgpg-error/|/
-    /libexpat.so.1/libexpat.so/libexpat/|/
-    /libpcre.so.3/libpcre.so/|/
-    /libXtst.so.6/libXtst.so/libXtst/|/
+    /libsasl2.so.2/libsasl[0-9].so/libsasl/|/
+    /libgssapi.so.3/libgssapi.so/|/
+    /libexpat.so.1/libexpat.so/|/
+    /libpng12.so.0/libpng1[0-9].so/libpng[num].so/libpng[0-9]/|/
+    /libjson-c.so.2/libjson-c.so/libjson-c/|/
+    /libdbus-1.so.3/libdbus-[0-9].so/libdbus-[num]/|/
+    /libXrender.so.1/libXrender.so/libXrender/|/
+    /libffi.so.6/libffi.so/|/
     /libXau.so.6/libXau.so/|/
     /libXdmcp.so.6/libXdmcp.so/libXdmcp/|/
-    /libwrap.so.0/libwrap.so/libwrap/|/
-    /libsndfile.so.1/libsndfile.so/libsndfile/|/
-    /libdbus-1.so.3/libdbus-[0-9].so/libdbus-[num]/libdbus-/|/
-    /libXi.so.6/libXi.so/|/
+    /libkeyutils.so.1/libkeyutils.so/libkeyutils/|/
+    /libheimntlm.so.0/libheimntlm.so/libheimntlm/|/
+    /libkrb5.so.26/libkrb[0-9].so.[num]/libkrb[num].so/|/
+    /libasn1.so.8/libasn1.so/libasn[num].so/|/
+    /libhcrypto.so.4/libhcrypto.so/libhcrypto/|/
+    /libroken.so.18/libroken.so/libroken/|/
+    /libwrap.so.0/libwrap.so/|/
+    /libsndfile.so.1/libsndfile.so/|/
+    /libasyncns.so.0/libasyncns.so/libasyncns/|/
+    /libwind.so.0/libwind.so/|/
+    /libheimbase.so.1/libheimbase.so/libheimbase/|/
+    /libhx509.so.5/libhx509.so/libhx509/|/
+    /libsqlite3.so.0/libsqlite3.so/|/
+    /libcrypt.so.1/libcrypt.so/|/
     /libnsl.so.1/libnsl.so/|/
     /libFLAC.so.8/libFLAC.so/|/
     /libvorbisenc.so.2/libvorbisenc.so/libvorbisenc/|/
-    /librtmp.so.0/librtmp.so/librtmp/|/
-    /libjpeg.so.62/libjpeg.so.6[0-9]/libjpeg.so/libjpeg/|/
-    /libcurl.so.4/libcurl.so/libcurl/|/
-    /libxerces-c-3.1.so/libxerces-c-3.[num].so/libxerces-c-[0-9].[num].so/libxerces-c-[0-9]/libxerces-c-/|/
-    /libicudata.so.40/libicudata.so.4[0-9]/libicudata.so/libicudata/|/
-    /libicuuc.so.40/libicuuc.so.4[0-9]/libicuuc.so/libicuuc/|/
-    /libGLEW.so.1.5/libGLEW.so.1.[num]/libGLEW.so/libGLEW/|/
-    /liblua5.1.so.0/liblua5.[num].so/liblua[0-9].[num].so/liblua[0-9]/liblua/|/
-    /libftgl.so.2/libftgl.so/libftgl/|/
-    /libircclient.so.1/libircclient.so/libircclient/|/
-    /libminiupnpc.so.5/libminiupnpc.so/libminiupnpc/|/
-    /libxml2.so.2/libxml2.so/libxml[0-9].so/libxml[num].so/libxml[0-9]/|/
-    /libfribidi.so.0/libfribidi.so/libfribidi/|/
-    /libattr.so.1/libattr.so/libattr/|/
-    /libX11-xcb.so.1/libX11-xcb.so/libX11-xcb/|/
-    /libcap.so.2/libcap.so/|/
-    /libasound.so.2/libasound.so/libasound/|/
-    /libcaca.so.0/libcaca.so/|/
-    /libts-0.0.so.0/libts-0.[num].so/libts-[0-9].[num].so/libts-/|/
-    /libglapi.so.0/libglapi.so/libglapi/|/
-    /libxcb-glx.so.0/libxcb-glx.so/libxcb-glx/|/
-    /libp11-kit.so.0/libp11-kit.so/libp11-kit/|/
-    /libjson.so.0/libjson.so/|/
-    /libslang.so.2/libslang.so/libslang/|/
-    /libncursesw.so.5/libncursesw.so/libncursesw/|/
-    /libtinfo.so.5/libtinfo.so/libtinfo/|/
-    /libasyncns.so.0/libasyncns.so/libasyncns/|/
-    /libpng15.so.15/libpng1[0-9].so/libpng[num].so/libpng[0-9]/libpng/|/"
+    /libvorbis.so.0/libvorbis.so/|/
+    /libogg.so.0/libogg.so/|/
+    /libGLEW.so.1.10/libGLEW.so.1.[num]/libGLEW.so/|/"
     if [ "$OperatingMode" = "--game" ]; then
 	libs_list="$libs_list
 	/libopenal.so.1/libopenal.so/libopenal/|/
-	/libvlccore.so.5/libvlccore.so/libvlccore/|/
-	/libvlc.so.5/libvlc.so/|/
-	/libvorbisfile.so.3/libvorbisfile.so/libvorbisfile/|/"
+	/libvlccore.so.7/libvlccore.so/libvlccore/|/
+	/libvlc.so.5/libvlc.so/|/"
     else
 	libs_list="$libs_list
-	/libwx_gtk2u_core-2.8.so.0/libwx_gtk2u_core-2.[num].so/libwx_gtk2u_core-[0-9]/libwx_gtk[0-9]u_core-/libwx_gtk[0-9]u_core/|/
-	/libwx_baseu-2.8.so.0/libwx_baseu-2.[num].so/libwx_baseu-[0-9]/libwx_baseu-/|/
-	/libwx_gtk2u_gl-2.8.so.0/libwx_gtk2u_gl-2.[num].so/libwx_gtk[0-9]u_gl-/libwx_gtk[0-9]u_gl/|/"
+	/libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/libwx_gtk2u_core-[0-9]/libwx_gtk[0-9]u_core-/libwx_gtk[0-9]u_core/|/
+	/libwx_baseu-3.0.so.0/libwx_baseu-3.[num].so/libwx_baseu-[0-9]/libwx_baseu-/|/
+	/libwx_gtk2u_gl-3.0.so.0/libwx_gtk2u_gl-3.[num].so/libwx_gtk[0-9]u_gl-/libwx_gtk[0-9]u_gl/|/
+	/libgtk-x11-2.0.so.0/libgtk-x11-2.[num].so/libgtk-x11-[0-9].[num].so/libgtk-x11-[0-9]/libgtk-x11/|/
+	/libgdk-x11-2.0.so.0/libgdk-x11-2.[num].so/libgdk-x11-[0-9].[num].so/libgdk-x11-[0-9]/libgdk-x11/|/
+	/libpangocairo-1.0.so.0/libpangocairo-1.[num].so/libpangocairo-[0-9].[num].so/libpangocairo-[0-9]/libpangocairo/|/
+	/libgdk_pixbuf-2.0.so.0/libgdk_pixbuf-2.[num].so/libgdk_pixbuf-[0-9].[num].so/libgdk_pixbuf-[0-9]/|/
+	/libcairo.so.2/libcairo.so/|/
+	/libpango-1.0.so.0/libpango-1.[num].so/libpango-[0-9].[num].so/libpango-[0-9]/libpango-/|/
+	/libgobject-2.0.so.0/libgobject-2.[num].so/libgobject-[0-9].[num].so/libgobject-[0-9]/libgobject/|/
+	/libglib-2.0.so.0/libglib-2.[num].so/libglib-[0-9].[num].so/libglib-[0-9]/libglib-/|/
+	/libSM.so.6/libSM.so/|/
+	/libjpeg.so.8/libjpeg.so.[0-9]/libjpeg.so/|/
+	/libtiff.so.5/libtiff.so/|/
+	/libgmodule-2.0.so.0/libgmodule-2.[num].so/libgmodule-[0-9].[num].so/libgmodule-[0-9]/libgmodule/|/
+	/libatk-1.0.so.0/libatk-1.[num].so/libatk-[0-9].[num].so/libatk-[0-9]/|/
+	/libgio-2.0.so.0/libgio-2.[num].so/libgio-[0-9].[num].so/libgio-[0-9]/|/
+	/libpangoft2-1.0.so.0/libpangoft2-1.[num].so/libpangoft2-[0-9]/libpangoft2-/libpangoft/|/
+	/libXcomposite.so.1/libXcomposite.so/libXcomposite/|/
+	/libpixman-1.so.0/libpixman-1.so/libpixman-[0-9].so/libpixman/|/
+	/libxcb-shm.so.0/libxcb-shm.so/libxcb-shm/|/
+	/libxcb-render.so.0/libxcb-render.so/|/
+	/libthai.so.0/libthai.so/|/
+	/libpcre.so.3/libpcre.so/|/
+	/libICE.so.6/libICE.so/|/
+	/libuuid.so.1/libuuid.so/|/
+	/liblzma.so.5/liblzma.so/|/
+	/libjbig.so.0/libjbig.so/|/
+	/libselinux.so.1/libselinux.so/|/
+	/libharfbuzz.so.0/libharfbuzz.so/|/
+	/libdatrie.so.1/libdatrie.so/|/
+	/libgraphite2.so.3/libgraphite2.so/libgraphite[0-9].so/|/"
     fi
     #if [ "$ARCHITECTURE" = "x86_64" ]; then
     #else
