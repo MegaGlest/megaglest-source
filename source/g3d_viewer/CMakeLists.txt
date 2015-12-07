@@ -10,10 +10,10 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	IF(UNIX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		IF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.7 OR NOT "${CMAKE_CXX_COMPILER_VERSION}")
 			ADD_DEFINITIONS("-std=gnu++0x")
-		ELSE()
+		ELSEIF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5.1)
 			ADD_DEFINITIONS("-std=c++11")
 		ENDIF()
-		# Required at least on bsd and macos, on linux most likely not but we probably want to see same output on
+		# Was required at least on bsd and macos, on linux most likely not but we probably want to see same output on
 		# linux too, e.g. deprecation warnings especially when newer than c++11 "standard" is on the way.
 	ENDIF()
 
@@ -31,20 +31,26 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARIES})
 	ENDIF()
 
-	IF(NOT WIN32)
-                IF(WANT_USE_XercesC)
-		        FIND_PACKAGE(XercesC REQUIRED)
-		        INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
+	IF(WANT_USE_XercesC)
+		FIND_PACKAGE(XercesC REQUIRED)
+		INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
+		IF(UNIX)
 		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
-                ENDIF()
+		ENDIF()
+	ENDIF()
 
-		# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
-		FIND_PACKAGE(wxWidgets COMPONENTS core base gl REQUIRED)
+	# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
+	# Optimal order most likely is gl > core > base, in some cases it may do difference.
+	FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS gl core base)
+	IF(UNIX)
 		# wxWidgets include (this will do all the magic to configure everything)
-		include( ${wxWidgets_USE_FILE} )
+		INCLUDE( ${wxWidgets_USE_FILE} )
+
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
 		MESSAGE(STATUS " wxWidgets: ${wxWidgets_INCLUDE_DIRS} ;/;  ${wxWidgets_LIBRARIES}")
-	ELSE()
+	ENDIF()
+
+	IF(WIN32)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxpng-2.8-i586-mingw32msvc.a)
