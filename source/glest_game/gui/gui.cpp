@@ -651,6 +651,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 							if(ctype != NULL && ctype->getClass() == ccAttack) {
 								if(ctype != NULL && unit->getFaction()->reqsOk(ctype)) {
 									posDisplay=cmdTypeIdNext;
+									ct = display.getCommandType(posDisplay);
 									break;
 								}
 							}
