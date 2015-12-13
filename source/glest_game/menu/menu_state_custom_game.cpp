@@ -376,13 +376,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowNativeLanguageTechtree.setValue(false);
 
 	// Network Scenario
-	int scenarioX=800;
-	int scenarioY=140;
+	int scenarioX=xoffset+700;
+	int scenarioY=aPos;
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX+30, scenarioY);
+    labelScenario.init(scenarioX, aHeadPos);
     labelScenario.setText(lang.getString("Scenario"));
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX, scenarioY-30,190);
+    listBoxScenario.init(scenarioX+30, scenarioY,190);
     checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
     checkBoxScenario.init(scenarioX, scenarioY);
     checkBoxScenario.setValue(false);

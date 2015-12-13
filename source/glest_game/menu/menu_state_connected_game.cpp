@@ -332,6 +332,21 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	checkBoxAllowNativeLanguageTechtree.setEditable(false);
 	checkBoxAllowNativeLanguageTechtree.setEnabled(false);
 
+	// Network Scenario
+	int scenarioX=xoffset+700;
+	int scenarioY=aPos;
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(scenarioX, aHeadPos);
+    labelScenario.setText(lang.getString("Scenario"));
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(scenarioX+30, scenarioY,190);
+    listBoxScenario.setEditable(false);
+    listBoxScenario.setEnabled(false);
+    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    checkBoxScenario.init(scenarioX, scenarioY);
+    checkBoxScenario.setValue(false);
+    checkBoxScenario.setEditable(false);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	xoffset=5;
@@ -498,16 +513,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int initialTechSelection = setupTechList("",true);
 	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
-	int scenarioX=800;
-	int scenarioY=140;
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX+30, scenarioY);
-    labelScenario.setText(lang.getString("Scenario"));
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX, scenarioY-30,190);
-    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX, scenarioY);
-    checkBoxScenario.setValue(false);
 
     //scenario listbox
     vector<string> resultsScenarios;
