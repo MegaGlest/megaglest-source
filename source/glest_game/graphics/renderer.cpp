@@ -2206,6 +2206,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	Lang &lang= Lang::getInstance();
 
 	if(chatManager->getEditEnabled()) {
+		Vec4f color=Vec4f(0.0f,0.0f,0.0f,0.6f);
 		string text="";
 
 		if(chatManager->isInCustomInputMode() == true) {
@@ -2229,6 +2230,25 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 			// white shadowed is default ( in the menu for example )
 			fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 		}
+
+		// render Background
+		int x=chatManager->getXPos();
+		int y=chatManager->getYPos()-6;
+		int h=22;
+		int w=830;
+
+    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+    	glEnable(GL_BLEND);
+
+    	glColor4f(color.x, color.y, color.z, color.w) ;
+
+    	glBegin(GL_TRIANGLE_STRIP);
+    		glVertex2i(x, y);
+    		glVertex2i(x, y+h);
+    		glVertex2i(x+w, y);
+    		glVertex2i(x+w, y+h);
+    	glEnd();
+    	glPopAttrib();
 
 		if(renderText3DEnabled == true) {
 			renderTextShadow3D(
