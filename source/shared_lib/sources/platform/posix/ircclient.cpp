@@ -665,22 +665,23 @@ std::vector<string> IRCThread::GetIRCConnectedNickList(string target, bool waitF
 
 bool IRCThread::isConnected(bool mutexLockRequired) {
     bool ret = false;
+    if(this->getQuitStatus() == false) {
+		MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+		if(mutexLockRequired == true) {
+			safeMutex.setMutex(&mutexIRCSession);
+		}
+		bool validSession = (ircSession != NULL);
+		safeMutex.ReleaseLock();
 
-	MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-	if(mutexLockRequired == true) {
-		safeMutex.setMutex(&mutexIRCSession);
-	}
-	bool validSession = (ircSession != NULL);
-	safeMutex.ReleaseLock();
-
-    if(validSession == true) {
+		if(validSession == true) {
 #if !defined(DISABLE_IRCCLIENT)
-    	MutexSafeWrapper safeMutex1(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-    	if(mutexLockRequired == true) {
-    		safeMutex1.setMutex(&mutexIRCSession);
-    	}
-        ret = (irc_is_connected(ircSession) != 0);
-        safeMutex1.ReleaseLock();
+			MutexSafeWrapper safeMutex1(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+			if(mutexLockRequired == true) {
+				safeMutex1.setMutex(&mutexIRCSession);
+			}
+			ret = (irc_is_connected(ircSession) != 0);
+			safeMutex1.ReleaseLock();
+		}
 #endif
     }
 
