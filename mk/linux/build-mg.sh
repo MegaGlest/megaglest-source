@@ -145,11 +145,15 @@ detect_system
 echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
 
+if [ "$release" = "rolling" ] && [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+	echo 'Turning ON dynamic LIBS ...'
+	WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
+fi
+
 if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FONTCONFIG=OFF"
 fi
 
-if [ "$release" != "rolling" ]; then
 case $distribution in
 	Debian)
 		case $release in
@@ -207,16 +211,12 @@ case $distribution in
 		;;
 
 	Arch)
-		echo 'Turning ON dynamic LIBS ...'
-		WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
+		if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+			echo 'Turning ON dynamic LIBS ...'
+			WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
+		fi
 		;;
 esac
-else
-	echo 'Turning ON dynamic LIBS ...'
-	WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
-fi
-
-#exit 1;
 
 # If, in the configuration section on top of this script, the user has 
 # indicated they want to use clang in favor of the default of GCC, use clang.
