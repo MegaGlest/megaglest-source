@@ -911,21 +911,22 @@ bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input,vector<int> mo
 	bool result = (c == compareKey);
 	//printf("result = %d input = %d compare = %d\n",result,c,compareKey);
 
-//	if(result == false) {
-//		if(compareKey == SDLK_RETURN) {
-//			result = (c == SDLK_KP_ENTER);
-//		}
-//		else if(compareKey == SDLK_KP_ENTER) {
-//			result = (c == SDLK_RETURN);
-//		}
+	if(result == false) {
+		if(compareKey == SDLK_RETURN) {
+			result = (c == SDLK_KP_ENTER);
+		}
+		else if(compareKey == SDLK_KP_ENTER) {
+			result = (c == SDLK_RETURN);
+		}
+		else if(compareKey == SDLK_BACKSPACE) {
+			result = (c == SDLK_DELETE);
+		}
+	}
 //		else if(compareKey == SDLK_ASTERISK) {
 //			result = (c == SDLK_KP_MULTIPLY);
 //		}
 //		else if(compareKey == SDLK_KP_MULTIPLY) {
 //			result = (c == SDLK_ASTERISK);
-//		}
-//		else if(compareKey == SDLK_BACKSPACE) {
-//			result = (c == SDLK_DELETE);
 //		}
 //		else if (compareKey == SDLK_0) {
 //			result = (c == SDLK_KP_0);
