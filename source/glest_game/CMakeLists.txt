@@ -306,7 +306,7 @@ IF(BUILD_MEGAGLEST)
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
-		IF(NOT WIN32)
+		IF(UNIX)
 			INSTALL(FILES
 				"${PROJECT_SOURCE_DIR}/mk/linux/start_megaglest_gameserver"
 				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
@@ -339,38 +339,12 @@ IF(BUILD_MEGAGLEST)
 			ENDIF()
 		ENDIF()
 
-		# Installation of data files from outside normal data folder
-		#INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
-		#  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
-		#  OPTIONAL REGEX "/.git" EXCLUDE)
-
-	        #MESSAGE(STATUS "**Source package detected git folder structure.")
-
-		IF(NOT APPLE)
-			# Installation of the program desktop file
-			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop"
-				DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
-		ENDIF()
-
-		# Installation of the program desktop icon file
 		INSTALL(FILES
 			"${PROJECT_SOURCE_DIR}/mk/shared/megaglest.ico"
-			DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-		IF(UNIX AND NOT APPLE)
+			DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		IF(UNIX AND APPLE AND NOT WANT_SINGLE_INSTALL_DIRECTORY)
 			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
-				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-		ELSEIF(UNIX AND APPLE)
-			IF(NOT WANT_SINGLE_INSTALL_DIRECTORY)
-				INSTALL(FILES
-					"${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns"
-					DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-			ENDIF()
-		ELSE()
-			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
+				"${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns"
 				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 		ENDIF()
 	ENDIF()

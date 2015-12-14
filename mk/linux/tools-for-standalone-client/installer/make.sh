@@ -147,6 +147,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	cp -r * "$CURRENTDIR/$INSTALLDATADIR"
 
 	cd "$CURRENTDIR"
+	cp megaglest-uninstall.ico "$CURRENTDIR/$INSTALLDATADIR"
 fi
 
 if [ ! -d data/docs ]; then

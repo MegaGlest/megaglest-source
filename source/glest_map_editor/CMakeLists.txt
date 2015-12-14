@@ -194,21 +194,5 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	        INSTALL(FILES 
                   "${PROJECT_SOURCE_DIR}/mk/shared/editor.ico"
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-
-			IF(UNIX AND NOT APPLE)
-				# Installation of the program desktop file
-				SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor.desktop)
-
-				INSTALL(FILES
-					"${MG_DESKTOP_FILE}"
-					DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
-
-				IF(NOT BUILD_MEGAGLEST)
-					INSTALL(FILES
-						"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
-						"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
-						DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-				ENDIF()
-			ENDIF()
         ENDIF()
 ENDIF()

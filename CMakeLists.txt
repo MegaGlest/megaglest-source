@@ -406,61 +406,39 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 
+IF(NOT DEFINED CPACK_GENERATOR)
+	SET(CPACK_GENERATOR "DEB")
+ENDIF()
 # CPack configuration shared accross platforms
 SET(CPACK_PACKAGE_NAME ${PKG_NAME})
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
+IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/others/megaglest-long-description.txt.in")
+	FILE(READ "${PROJECT_SOURCE_DIR}/data/glest_game/others/megaglest-long-description.txt.in" MEGAGLEST_LONG_DESCRIPTION)
+	SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${MEGAGLEST_LONG_DESCRIPTION}")
+ELSE()
+	SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
+ENDIF()
 SET(CPACK_PACKAGE_VENDOR "megaglest.org")
 #SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
 #SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "megaglest")
+SET(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 SET(CPACK_PACKAGE_VERSION "${MEGAGLEST_VERSION}")
 SET(CPACK_PACKAGE_VERSION_MAJOR "${VER_MAJOR}")
 SET(CPACK_PACKAGE_VERSION_MINOR "${VER_MINOR}")
 SET(CPACK_PACKAGE_VERSION_PATCH "${VER_PATCH}")
 
-
-# Debian specific generator options
-IF(NOT DEFINED CPACK_GENERATOR)
-	SET(CPACK_GENERATOR "DEB")
+IF("${CPACK_GENERATOR}" STREQUAL "DEB")
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mark Vejvoda") #required
-	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "
-	 libcurl4-gnutls-dev | libcurl4-nss-dev,
-	 libfontconfig1-dev,
-	 libftgl-dev,
-	 libglew-dev,
-	 libircclient-dev,
-	 libjpeg-dev,
-	 liblua5.1-0-dev,
-	 libminiupnpc-dev,
-	 libogg-dev,
-	 libopenal-dev,
-	 libpng12-dev,
-	 libsdl1.2-dev,
-	 libvlc-dev,
-	 libvorbis-dev,
-	 libwxgtk2.9-dev,
-	 libxerces-c2-dev,
-	 libxml2-dev,
-	 libz-dev,
-	 libfribidi-dev")
-	# FIXME ^ cpack configuration should be fixed and tested
-
-	#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
-	#if(DPKG_PROGRAM)
-	#  execute_process(
-	#    COMMAND ${DPKG_PROGRAM} --print-architecture
-	#    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-	#    OUTPUT_STRIP_TRAILING_WHITESPACE
-	#  )
-	#endif(DPKG_PROGRAM)
-ENDIF(NOT DEFINED CPACK_GENERATOR)
-
-IF(CPACK_GENERATOR STREQUAL "NSIS")
+	SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
+	SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+	SET(CPACK_DEBIAN_PACKAGE_SUGGESTS "p7zip-full")
+ENDIF()
+IF("${CPACK_GENERATOR}" STREQUAL "NSIS")
 	SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
 	SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
 	SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
-ENDIF(CPACK_GENERATOR STREQUAL "NSIS")
+ENDIF()
 
 INCLUDE(CPack)
 

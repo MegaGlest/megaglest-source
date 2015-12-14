@@ -25,6 +25,7 @@ architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
 PROJDIR="$CURRENTDIR/"
 REPODIR="$CURRENTDIR/../../"
+REPO_DATADIR="$REPODIR/data/glest_game"
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
     if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
@@ -76,10 +77,12 @@ fi
 cd $PROJDIR
 echo "copying binaries ..."
 cp -r lib/* "$RELEASEDIR/lib"
-cp {../shared/,}*.ico {../shared/,}*.ini "$RELEASEDIR/"
+cp ../shared/*.ico {../shared/,}*.ini "$RELEASEDIR/"
 if [ -e "$RELEASEDIR/glest-dev.ini" ]; then rm -f "$RELEASEDIR/glest-dev.ini"; fi
+cd $REPO_DATADIR/others/icons
 cp *.bmp *.png *.xpm "$RELEASEDIR/"
-if [ "$1" != "--installer" ]; then cp *.desktop "$RELEASEDIR/"; fi
+if [ "$1" != "--installer" ]; then cd $REPO_DATADIR/others/desktop; cp *.desktop "$RELEASEDIR/"; fi
+cd $PROJDIR
 cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest \
 	start_megaglest_mapeditor start_megaglest_g3dviewer \
 	start_megaglest_gameserver "$RELEASEDIR/"
