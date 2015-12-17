@@ -1795,7 +1795,11 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 		// delay the start a bit, so clients have more room to get messages
 		// This is to ensure clients don't start ahead of the server and thus
 		// constantly freeze because they are waiting for the server to catch up
+#ifdef WIN32
+		sleep(20);
+#else
 		sleep(120);
+#endif
 	}
 
 	// This triggers LAG update packets to begin as required
