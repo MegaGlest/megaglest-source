@@ -1700,28 +1700,13 @@ bool Socket::isReadable(bool lockMutex) {
 
 	fd_set set;
 	FD_ZERO(&set);
-
-	if(isSocketValid() == false) return false;
+	FD_SET(sock, &set);
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
 		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
 	}
-	FD_SET(sock, &set);
-
-	int i = 0;
-	{
-    	//MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
-    	//if(this->inSocketDestructor == true) {
-    	//	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
-    	//	return false;
-    	//}
-    	//inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
-    	//safeMutexSocketDestructorFlag.ReleaseLock();
-
-		//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
-		i= select((int)sock + 1, &set, NULL, NULL, &tv);
-	}
+	int i = select((int)sock + 1, &set, NULL, NULL, &tv);
 	safeMutex.ReleaseLock();
 
 	if(i < 0) {
@@ -1733,7 +1718,6 @@ bool Socket::isReadable(bool lockMutex) {
 	//if(result == false) {
 	//	SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] i = %d sock = %d\n",__FILE__,__FUNCTION__,__LINE__,i,sock);
 	//}
-
 	return result;
 }
 
@@ -1746,35 +1730,20 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 	}
 	else {
 		tv.tv_sec= 0;
-		//tv.tv_usec= 1;
 		tv.tv_usec= 0;
 	}
 
 	fd_set set;
 	FD_ZERO(&set);
-
-	if(isSocketValid() == false) return false;
+	FD_SET(sock, &set);
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
 		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
 	}
-	FD_SET(sock, &set);
-
-	int i = 0;
-	{
-    	//MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
-    	//if(this->inSocketDestructor == true) {
-    	//	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
-    	//	return false;
-    	//}
-    	//inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
-    	//safeMutexSocketDestructorFlag.ReleaseLock();
-
-		//MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
-		i = select((int)sock + 1, NULL, &set, NULL, &tv);
-	}
+	int i = select((int)sock + 1, NULL, &set, NULL, &tv);
 	safeMutex.ReleaseLock();
+
 	bool result = false;
 	if(i < 0 ) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
