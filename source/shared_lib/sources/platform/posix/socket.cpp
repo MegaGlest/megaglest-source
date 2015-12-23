@@ -1701,12 +1701,12 @@ bool Socket::isReadable(bool lockMutex) {
 	fd_set set;
 	FD_ZERO(&set);
 
+	if(isSocketValid() == false) return false;
+
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
-		//safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
+		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
 	}
-
-	if(isSocketValid() == false) return false;
 	FD_SET(sock, &set);
 
 	int i = 0;
@@ -1722,6 +1722,8 @@ bool Socket::isReadable(bool lockMutex) {
 		//MutexSafeWrapper safeMutex(&dataSynchAccessorRead,CODE_AT_LINE);
 		i= select((int)sock + 1, &set, NULL, NULL, &tv);
 	}
+	safeMutex.ReleaseLock();
+
 	if(i < 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
 		printf("In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
@@ -1751,11 +1753,12 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 	fd_set set;
 	FD_ZERO(&set);
 
+	if(isSocketValid() == false) return false;
+
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
 		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
 	}
-	if(isSocketValid() == false) return false;
 	FD_SET(sock, &set);
 
 	int i = 0;
@@ -1771,6 +1774,7 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 		//MutexSafeWrapper safeMutex(&dataSynchAccessorWrite,CODE_AT_LINE);
 		i = select((int)sock + 1, NULL, &set, NULL, &tv);
 	}
+	safeMutex.ReleaseLock();
 	bool result = false;
 	if(i < 0 ) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
