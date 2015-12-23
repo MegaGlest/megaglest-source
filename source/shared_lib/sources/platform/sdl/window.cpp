@@ -430,6 +430,7 @@ bool Window::handleEvent() {
 					keystate = event.key.keysym;
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] scancode [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode);
+					//printf("In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] scancode [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode);
 
 					if(global_window) {
 						global_window->eventKeyUp(event.key);

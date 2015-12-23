@@ -547,14 +547,19 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 
     		string keyName = "";
 			//if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
-			keyName = SDL_GetKeyName(hotkeyChar);
+
+    		keyName = SDL_GetKeyName(key.keysym.sym);
+    		if(StartsWith(keyName,"Keypad ") == false) {
+    			keyName = SDL_GetKeyName(hotkeyChar);
+    			key.keysym.sym = hotkeyChar;
+    		}
 			//}
-			key.keysym.sym = hotkeyChar;
+			//key.keysym.sym = hotkeyChar;
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
 
 			//SDLKey keysym = SDLK_UNKNOWN;
-			if(keyName == "unknown key" || keyName == "") {
+//			if(keyName == "unknown key" || keyName == "") {
 //				Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 //				keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
 //
@@ -568,7 +573,7 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 //					key = keysym;
 //				}
 //				keyName = SDL_GetKeyName(keysym);
-			}
+//			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
 
@@ -580,9 +585,12 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 
 				// Need to distinguish numeric keys to be translated to real keys
 				// from these ACTUAL sdl keys so surround in quotes.
+				//printf("KeyUp #1 keyName [%s]\n", keyName.c_str());
+
 				if(keyName.size() == 1 && keyName[0] >= '0' && keyName[0] <= '9') {
 					keyName = "'" + keyName + "'";
 				}
+				//printf("KeyUp #2 keyName [%s]\n", keyName.c_str());
 
 				bool isNewUserKeyEntry = true;
 				for(int i = 0; i < (int)userProperties.size(); ++i) {
