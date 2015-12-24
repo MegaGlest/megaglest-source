@@ -1700,12 +1700,12 @@ bool Socket::isReadable(bool lockMutex) {
 
 	fd_set set;
 	FD_ZERO(&set);
-	FD_SET(sock, &set);
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
 		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
 	}
+	FD_SET(sock, &set);
 	int i = select((int)sock + 1, &set, NULL, NULL, &tv);
 	safeMutex.ReleaseLock();
 
@@ -1735,12 +1735,12 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 
 	fd_set set;
 	FD_ZERO(&set);
-	FD_SET(sock, &set);
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
 		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
 	}
+	FD_SET(sock, &set);
 	int i = select((int)sock + 1, NULL, &set, NULL, &tv);
 	safeMutex.ReleaseLock();
 
