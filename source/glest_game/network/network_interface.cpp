@@ -128,7 +128,7 @@ NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds)
         //peek message type
 		int dataSize = socket->getDataToRead();
 		if(dataSize >= (int)sizeof(messageType)) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize);
 
 			int iPeek = socket->peek(&messageType, sizeof(messageType));
 
