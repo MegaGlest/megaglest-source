@@ -872,7 +872,7 @@ void ClientInterface::updateLobby() {
         	//printf("#1 Got new game setup playerIndex = %d!\n",playerIndex);
 
             NetworkMessageLaunch networkMessageLaunch;
-            if(receiveMessage(&networkMessageLaunch)) {
+            if(receiveMessage(&networkMessageLaunch, networkMessageType)) {
             	this->setLastPingInfoToNow();
 
             	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
@@ -1232,7 +1232,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					//printf("#2 Got new game setup playerIndex = %d!\n",playerIndex);
 
 					NetworkMessageLaunch networkMessageLaunch;
-					if(receiveMessage(&networkMessageLaunch)) {
+					if(receiveMessage(&networkMessageLaunch,networkMessageType)) {
 
 						if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

@@ -1406,18 +1406,22 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	else if(bytesReceived < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN)	{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
+		Chrono chronoElapsed(true);
 		const int MAX_RECV_WAIT_SECONDS = 3;
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
 	    		(difftime((long int)time(NULL),tStartTimer) <= MAX_RECV_WAIT_SECONDS)) {
 	        if(isConnected() == false) {
-                int iErr = getLastSocketError();
+	        	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] Socket is NOT connected!\n",__FILE__,__FUNCTION__,__LINE__);
+
+	        	int iErr = getLastSocketError();
                 disconnectSocket();
 
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while receiving socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str());
 	            break;
 	        }
-	        else if(Socket::isReadable(true) == true) {
+	        //else if(Socket::isReadable(true) == true) {
+	        else {
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
 //	        		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1426,17 +1430,37 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 //	        	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
-	        	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
-                bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
-				lastSocketError = getLastSocketError();
-                safeMutex.ReleaseLock();
+				//if(chronoElapsed.getMillis() % 2 == 0) {
+				//	sleep(0);
+				//}
+				if(Socket::isReadable(true) == true) {
+					MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
-                if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived);
+					//SafeSocketBlockToggleWrapper safeBlock(this, true);
+					errno = 0;
+					bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
+					lastSocketError = getLastSocketError();
+					//safeBlock.Restore();
+					safeMutex.ReleaseLock();
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d, lastSocketError = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,lastSocketError,(int)dataSize);
+					printf("In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d, lastSocketError = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,lastSocketError,(int)dataSize);
+				}
+				else {
+					if(chronoElapsed.getMillis() % 3 == 0) {
+						sleep(1);
+					}
+					else {
+						sleep(0);
+					}
+				}
 	        }
 	    }
 	}
 
 	if(bytesReceived <= 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] bytesReceived = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived);
+
 	    int iErr = getLastSocketError();
 	    disconnectSocket();
 
@@ -1524,14 +1548,14 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		if(isSocketValid() == true)	{
 //			Chrono recvTimer(true);
-			//SafeSocketBlockToggleWrapper safeUnblock(this, false);
+			SafeSocketBlockToggleWrapper safeUnblock(this, false);
 			errno = 0;
 			err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 			lastSocketError = getLastSocketError();
 			if(pLastSocketError != NULL) {
 				*pLastSocketError = lastSocketError;
 			}
-			//safeUnblock.Restore();
+			safeUnblock.Restore();
 
 //			if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //				printf("#1 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());
@@ -1588,14 +1612,14 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	        	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
 //	        	Chrono recvTimer(true);
-	        	//SafeSocketBlockToggleWrapper safeUnblock(this, false);
+	        	SafeSocketBlockToggleWrapper safeUnblock(this, false);
 	        	errno = 0;
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 				lastSocketError = getLastSocketError();
 				if(pLastSocketError != NULL) {
 					*pLastSocketError = lastSocketError;
 				}
-				//safeUnblock.Restore();
+				safeUnblock.Restore();
 
 //                if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //    				printf("#2 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());

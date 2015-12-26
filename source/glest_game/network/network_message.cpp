@@ -246,9 +246,8 @@ void NetworkMessage::dump_packet(string label, const void* data, int dataSize, b
 // =====================================================
 //	class NetworkMessageIntro
 // =====================================================
-
 NetworkMessageIntro::NetworkMessageIntro() {
-	data.messageType= -1;
+	messageType= -1;
 	data.sessionId=	  -1;
 	data.playerIndex= -1;
 	data.gameState	= nmgstInvalid;
@@ -265,7 +264,7 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 										const string &playerLanguage,
 										int gameInProgress, const string &playerUUID,
 										const string &platform) {
-	data.messageType	= nmtIntro;
+	messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
 	data.name			= name;
@@ -291,13 +290,13 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 		packedData.ftpPort = 0;
 		packedData.gameInProgress = 0;
 		packedData.gameState = 0;
-		packedData.messageType = nmtIntro;
+		messageType = nmtIntro;
 		packedData.playerIndex = 0;
 		packedData.sessionId = 0;
 
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.sessionId,
 				packedData.versionString.getBuffer(),
 				packedData.name.getBuffer(),
@@ -316,7 +315,7 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s] about to unpack...\n",__FUNCTION__);
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.sessionId,
 			data.versionString.getBuffer(),
 			data.name.getBuffer(),
@@ -336,7 +335,7 @@ unsigned char * NetworkMessageIntro::packMessage() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s] about to pack...\n",__FUNCTION__);
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.sessionId,
 			data.versionString.getBuffer(),
 			data.name.getBuffer(),
@@ -352,7 +351,7 @@ unsigned char * NetworkMessageIntro::packMessage() {
 }
 
 string NetworkMessageIntro::toString() const {
-	string result = "messageType = " + intToStr(data.messageType);
+	string result = "messageType = " + intToStr(messageType);
 	result += " sessionId = " + intToStr(data.sessionId);
 	result += " versionString = " + data.versionString.getString();
 	result += " name = " + data.name.getString();
@@ -372,6 +371,9 @@ bool NetworkMessageIntro::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = this->getNetworkMessageType();
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -394,10 +396,11 @@ bool NetworkMessageIntro::receive(Socket* socket) {
 
 void NetworkMessageIntro::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
-	assert(data.messageType == nmtIntro);
+	assert(messageType == nmtIntro);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -412,7 +415,7 @@ void NetworkMessageIntro::send(Socket* socket) {
 void NetworkMessageIntro::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.sessionId = Shared::PlatformByteOrder::toCommonEndian(data.sessionId);
 		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
 		data.gameState = Shared::PlatformByteOrder::toCommonEndian(data.gameState);
@@ -425,7 +428,7 @@ void NetworkMessageIntro::toEndian() {
 void NetworkMessageIntro::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.sessionId = Shared::PlatformByteOrder::fromCommonEndian(data.sessionId);
 		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
 		data.gameState = Shared::PlatformByteOrder::fromCommonEndian(data.gameState);
@@ -441,14 +444,14 @@ void NetworkMessageIntro::fromEndian() {
 // =====================================================
 
 NetworkMessagePing::NetworkMessagePing(){
-	data.messageType = nmtPing;
+	messageType = nmtPing;
 	data.pingFrequency = 0;
 	data.pingTime = 0;
 	pingReceivedLocalTime = 0;
 }
 
 NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
-	data.messageType= nmtPing;
+	messageType= nmtPing;
 	data.pingFrequency= pingFrequency;
 	data.pingTime= pingTime;
 	pingReceivedLocalTime=0;
@@ -462,12 +465,12 @@ unsigned int NetworkMessagePing::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
-		packedData.messageType = 0;
+		messageType = 0;
 		packedData.pingFrequency = 0;
 		packedData.pingTime = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.pingFrequency,
 				packedData.pingTime);
 		delete [] buf;
@@ -476,7 +479,7 @@ unsigned int NetworkMessagePing::getPackedSize() {
 }
 void NetworkMessagePing::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.pingFrequency,
 			&data.pingTime);
 }
@@ -484,7 +487,7 @@ void NetworkMessagePing::unpackMessage(unsigned char *buf) {
 unsigned char * NetworkMessagePing::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.pingFrequency,
 			data.pingTime);
 	return buf;
@@ -494,6 +497,9 @@ bool NetworkMessagePing::receive(Socket* socket){
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = this->getNetworkMessageType();
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -510,10 +516,11 @@ bool NetworkMessagePing::receive(Socket* socket){
 
 void NetworkMessagePing::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtPing\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	assert(data.messageType==nmtPing);
+	assert(messageType == nmtPing);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -528,7 +535,7 @@ void NetworkMessagePing::send(Socket* socket) {
 void NetworkMessagePing::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.pingFrequency = Shared::PlatformByteOrder::toCommonEndian(data.pingFrequency);
 		data.pingTime = Shared::PlatformByteOrder::toCommonEndian(data.pingTime);
 	}
@@ -536,7 +543,7 @@ void NetworkMessagePing::toEndian() {
 void NetworkMessagePing::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.pingFrequency = Shared::PlatformByteOrder::fromCommonEndian(data.pingFrequency);
 		data.pingTime = Shared::PlatformByteOrder::fromCommonEndian(data.pingTime);
 	}
@@ -547,12 +554,12 @@ void NetworkMessagePing::fromEndian() {
 // =====================================================
 
 NetworkMessageReady::NetworkMessageReady() {
-	data.messageType= nmtReady;
+	messageType = nmtReady;
 	data.checksum= 0;
 }
 
 NetworkMessageReady::NetworkMessageReady(uint32 checksum) {
-	data.messageType= nmtReady;
+	messageType = nmtReady;
 	data.checksum= checksum;
 }
 
@@ -565,10 +572,10 @@ unsigned int NetworkMessageReady::getPackedSize() {
 	if(result == 0) {
 		Data packedData;
 		packedData.checksum = 0;
-		packedData.messageType = 0;
+		messageType = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.checksum);
 		delete [] buf;
 	}
@@ -576,14 +583,14 @@ unsigned int NetworkMessageReady::getPackedSize() {
 }
 void NetworkMessageReady::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.checksum);
 }
 
 unsigned char * NetworkMessageReady::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.checksum);
 	return buf;
 }
@@ -592,6 +599,9 @@ bool NetworkMessageReady::receive(Socket* socket){
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = this->getNetworkMessageType();
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -607,10 +617,11 @@ bool NetworkMessageReady::receive(Socket* socket){
 
 void NetworkMessageReady::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtReady\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	assert(data.messageType==nmtReady);
+	assert(messageType == nmtReady);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -624,14 +635,14 @@ void NetworkMessageReady::send(Socket* socket) {
 void NetworkMessageReady::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.checksum = Shared::PlatformByteOrder::toCommonEndian(data.checksum);
 	}
 }
 void NetworkMessageReady::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.checksum = Shared::PlatformByteOrder::fromCommonEndian(data.checksum);
 	}
 }
@@ -641,7 +652,7 @@ void NetworkMessageReady::fromEndian() {
 // =====================================================
 
 NetworkMessageLaunch::NetworkMessageLaunch() {
-	data.messageType=-1;
+	messageType=-1;
 	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		data.factionNameList[i] = "";
 		data.factionCRCList[i] = 0;
@@ -653,7 +664,7 @@ NetworkMessageLaunch::NetworkMessageLaunch() {
 }
 
 NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType) {
-	data.messageType=messageType;
+	this->messageType = messageType;
 
     data.mapCRC     = gameSettings->getMapCRC();
     data.tilesetCRC = gameSettings->getTilesetCRC();
@@ -819,7 +830,7 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 		packedData.mapCRC = 0;
 		packedData.masterserver_admin = 0;
 		packedData.masterserver_admin_factionIndex = 0;
-		packedData.messageType = 0;
+		messageType = 0;
 		packedData.networkAllowNativeLanguageTechtree = 0;
 		packedData.networkFramePeriod = 0;
 		packedData.networkPauseGameForLaggedClients = 0;
@@ -830,7 +841,7 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.description.getBuffer(),
 				packedData.map.getBuffer(),
 				packedData.tileset.getBuffer(),
@@ -985,7 +996,7 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 }
 void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			data.description.getBuffer(),
 			data.map.getBuffer(),
 			data.tileset.getBuffer(),
@@ -1139,7 +1150,7 @@ void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 unsigned char * NetworkMessageLaunch::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.description.getBuffer(),
 			data.map.getBuffer(),
 			data.tileset.getBuffer(),
@@ -1291,6 +1302,12 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 	return buf;
 }
 
+bool NetworkMessageLaunch::receive(Socket* socket, NetworkMessageType type) {
+	bool result = receive(socket);
+	messageType = type;
+	return result;
+}
+
 bool NetworkMessageLaunch::receive(Socket* socket) {
 	//printf("Receive NetworkMessageLaunch\n");
 	bool result = false;
@@ -1340,15 +1357,16 @@ void NetworkMessageLaunch::send(Socket* socket) {
 	//	printf("Send index: %d resource multiplier index: %d sizeof(data): %d\n",i,data.resourceMultiplierIndex[i],sizeof(data));
 	//}
 
-	if(data.messageType == nmtLaunch) {
+	if(messageType == nmtLaunch) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.messageType);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,messageType);
 	}
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -1362,7 +1380,7 @@ void NetworkMessageLaunch::send(Socket* socket) {
 void NetworkMessageLaunch::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		for(int i= 0; i < GameConstants::maxPlayers; ++i){
 			data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatuses[i]);
 			data.factionCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionCRCList[i]);
@@ -1401,7 +1419,7 @@ void NetworkMessageLaunch::toEndian() {
 void NetworkMessageLaunch::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		for(int i= 0; i < GameConstants::maxPlayers; ++i){
 			data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatuses[i]);
 			data.factionCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionCRCList[i]);
@@ -1442,7 +1460,7 @@ void NetworkMessageLaunch::fromEndian() {
 // =====================================================
 
 NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount) {
-	data.header.messageType= nmtCommandList;
+	data.messageType = nmtCommandList;
 	data.header.frameCount= frameCount;
 	data.header.commandCount= 0;
 	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
@@ -1467,7 +1485,7 @@ unsigned int NetworkMessageCommandList::getPackedSizeHeader() {
 		init(packedData);
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormatHeader(),
-				packedData.header.messageType,
+				packedData.messageType,
 				packedData.header.commandCount,
 				packedData.header.frameCount,
 				packedData.header.networkPlayerFactionCRC[0],
@@ -1484,7 +1502,7 @@ unsigned int NetworkMessageCommandList::getPackedSizeHeader() {
 }
 void NetworkMessageCommandList::unpackMessageHeader(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormatHeader(),
-			&data.header.messageType,
+			&data.messageType,
 			&data.header.commandCount,
 			&data.header.frameCount,
 			&data.header.networkPlayerFactionCRC[0],
@@ -1500,7 +1518,7 @@ void NetworkMessageCommandList::unpackMessageHeader(unsigned char *buf) {
 unsigned char * NetworkMessageCommandList::packMessageHeader() {
 	unsigned char *buf = new unsigned char[getPackedSizeHeader()+1];
 	pack(buf, getPackedMessageFormatHeader(),
-			data.header.messageType,
+			data.messageType,
 			data.header.commandCount,
 			data.header.frameCount,
 			data.header.networkPlayerFactionCRC[0],
@@ -1606,6 +1624,10 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data.header, commandListHeaderSize, true);
+		if(result == true) {
+			data.messageType = this->getNetworkMessageType();
+		}
+
 		//printf("!!! =====> IN Network hdr cmd get frame: %d data.header.commandCount: %u\n",data.header.frameCount,data.header.commandCount);
 	}
 	else {
@@ -1618,7 +1640,7 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	fromEndianHeader();
 
 	if(result == true) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.commandCount,data.header.frameCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.messageType,data.header.commandCount,data.header.frameCount);
 
 		//printf("!!! =====> IN Network cmd get frame: %d data.header.commandCount: %u\n",data.header.frameCount,data.header.commandCount);
 
@@ -1673,9 +1695,9 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 }
 
 void NetworkMessageCommandList::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.messageType);
 
-	assert(data.header.messageType==nmtCommandList);
+	assert(data.messageType == nmtCommandList);
 	uint16 totalCommand = data.header.commandCount;
 	toEndianHeader();
 
@@ -1683,6 +1705,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 	//bool result = false;
 	if(useOldProtocol == true) {
 		//printf("<===== OUT Network hdr cmd type: frame: %d totalCommand: %u [%u]\n",data.header.frameCount,totalCommand,data.header.commandCount);
+		NetworkMessage::send(socket, &data.messageType, sizeof(data.messageType));
 		NetworkMessage::send(socket, &data.header, commandListHeaderSize);
 	}
 	else {
@@ -1723,7 +1746,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
-                extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.frameCount,data.header.commandCount);
+                extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.messageType,data.header.frameCount,data.header.commandCount);
 
         if (totalCommand > 0) {
             for(int idx = 0 ; idx < totalCommand; ++idx) {
@@ -1733,7 +1756,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
                         extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
             }
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END of loop, nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,totalCommand,data.header.messageType);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END of loop, nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,totalCommand,data.messageType);
         }
 	}
 }
@@ -1741,7 +1764,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 void NetworkMessageCommandList::toEndianHeader() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
 		data.header.commandCount = Shared::PlatformByteOrder::toCommonEndian(data.header.commandCount);
 		data.header.frameCount = Shared::PlatformByteOrder::toCommonEndian(data.header.frameCount);
 		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
@@ -1752,7 +1775,7 @@ void NetworkMessageCommandList::toEndianHeader() {
 void NetworkMessageCommandList::fromEndianHeader() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
 		data.header.commandCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.commandCount);
 		data.header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.frameCount);
 		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
@@ -1795,7 +1818,7 @@ NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int pl
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 
-	data.messageType	= nmtText;
+	messageType	= nmtText;
 	data.text			= text.substr(0,maxTextStringSize);
 	data.teamIndex		= teamIndex;
 	data.playerIndex 	= playerIndex;
@@ -1816,12 +1839,12 @@ unsigned int NetworkMessageText::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
-		packedData.messageType = nmtText;
+		messageType = nmtText;
 		packedData.playerIndex = 0;
 		packedData.teamIndex = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.text.getBuffer(),
 				packedData.teamIndex,
 				packedData.playerIndex,
@@ -1832,7 +1855,7 @@ unsigned int NetworkMessageText::getPackedSize() {
 }
 void NetworkMessageText::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			data.text.getBuffer(),
 			&data.teamIndex,
 			&data.playerIndex,
@@ -1842,7 +1865,7 @@ void NetworkMessageText::unpackMessage(unsigned char *buf) {
 unsigned char * NetworkMessageText::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.text.getBuffer(),
 			data.teamIndex,
 			data.playerIndex,
@@ -1854,6 +1877,9 @@ bool NetworkMessageText::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = this->getNetworkMessageType();
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -1873,10 +1899,11 @@ bool NetworkMessageText::receive(Socket* socket) {
 void NetworkMessageText::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtText\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType==nmtText);
+	assert(messageType == nmtText);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -1890,7 +1917,7 @@ void NetworkMessageText::send(Socket* socket) {
 void NetworkMessageText::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.teamIndex = Shared::PlatformByteOrder::toCommonEndian(data.teamIndex);
 		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
 	}
@@ -1898,7 +1925,7 @@ void NetworkMessageText::toEndian() {
 void NetworkMessageText::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.teamIndex = Shared::PlatformByteOrder::fromCommonEndian(data.teamIndex);
 		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
 	}
@@ -1909,7 +1936,7 @@ void NetworkMessageText::fromEndian() {
 // =====================================================
 
 NetworkMessageQuit::NetworkMessageQuit(){
-	data.messageType= nmtQuit;
+	messageType = nmtQuit;
 }
 
 const char * NetworkMessageQuit::getPackedMessageFormat() const {
@@ -1919,31 +1946,31 @@ const char * NetworkMessageQuit::getPackedMessageFormat() const {
 unsigned int NetworkMessageQuit::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
-		Data packedData;
-		packedData.messageType = 0;
-		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		//Data packedData;
+		messageType = 0;
+		unsigned char *buf = new unsigned char[sizeof(messageType)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType);
+				messageType);
 		delete [] buf;
 	}
 	return result;
 }
 void NetworkMessageQuit::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType);
+			&messageType);
 }
 
 unsigned char * NetworkMessageQuit::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType);
+			messageType);
 	return buf;
 }
 
 bool NetworkMessageQuit::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
-		result = NetworkMessage::receive(socket, &data, sizeof(data),true);
+		result = NetworkMessage::receive(socket, &messageType, sizeof(messageType),true);
 	}
 	else {
 		//fromEndian();
@@ -1961,11 +1988,11 @@ bool NetworkMessageQuit::receive(Socket* socket) {
 void NetworkMessageQuit::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtQuit\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType==nmtQuit);
+	assert(messageType == nmtQuit);
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &data, sizeof(data));
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -1978,13 +2005,13 @@ void NetworkMessageQuit::send(Socket* socket) {
 void NetworkMessageQuit::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 	}
 }
 void NetworkMessageQuit::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 	}
 }
 
@@ -1994,7 +2021,7 @@ void NetworkMessageQuit::fromEndian() {
 
 NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings)
 {
-	data.header.messageType= nmtSynchNetworkGameData;
+	data.messageType= nmtSynchNetworkGameData;
 
 	if(gameSettings == NULL) {
 		throw std::runtime_error("gameSettings == NULL");
@@ -2113,7 +2140,7 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeHeader() {
 		Data packedData;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormatHeader(),
-				packedData.header.messageType,
+				packedData.messageType,
 				packedData.header.map.getBuffer(),
 				packedData.header.tileset.getBuffer(),
 				packedData.header.tech.getBuffer(),
@@ -2127,7 +2154,7 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeHeader() {
 }
 void NetworkMessageSynchNetworkGameData::unpackMessageHeader(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormatHeader(),
-			&data.header.messageType,
+			&data.messageType,
 			data.header.map.getBuffer(),
 			data.header.tileset.getBuffer(),
 			data.header.tech.getBuffer(),
@@ -2140,7 +2167,7 @@ void NetworkMessageSynchNetworkGameData::unpackMessageHeader(unsigned char *buf)
 unsigned char * NetworkMessageSynchNetworkGameData::packMessageHeader() {
 	unsigned char *buf = new unsigned char[getPackedSizeHeader()+1];
 	pack(buf, getPackedMessageFormatHeader(),
-			data.header.messageType,
+			data.messageType,
 			data.header.map.getBuffer(),
 			data.header.tileset.getBuffer(),
 			data.header.tech.getBuffer(),
@@ -2211,14 +2238,18 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameData\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	data.header.techCRCFileCount = 0;
-	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
+	bool result = NetworkMessage::receive(socket, &data.header, HeaderSize, true);
 	fromEndianHeader();
+	if(result == true) {
+		data.messageType = nmtSynchNetworkGameData;
+	}
+
 	if(result == true && data.header.techCRCFileCount > 0) {
 		data.header.map.nullTerminate();
 		data.header.tileset.nullTerminate();
 		data.header.tech.nullTerminate();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.messageType,data.header.techCRCFileCount);
 
 
 
@@ -2262,7 +2293,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameData\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.header.messageType==nmtSynchNetworkGameData);
+	assert(data.messageType == nmtSynchNetworkGameData);
 	uint32 totalFileCount = data.header.techCRCFileCount;
 	toEndianHeader();
 	NetworkMessage::send(socket, &data, HeaderSize);
@@ -2294,7 +2325,7 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
 void NetworkMessageSynchNetworkGameData::toEndianHeader() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
 		data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
 		data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
 		data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
@@ -2304,7 +2335,7 @@ void NetworkMessageSynchNetworkGameData::toEndianHeader() {
 void NetworkMessageSynchNetworkGameData::fromEndianHeader() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
 		data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
 		data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
 		data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
@@ -2335,7 +2366,7 @@ void NetworkMessageSynchNetworkGameData::fromEndianDetail() {
 
 NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStatus(uint32 mapCRC, uint32 tilesetCRC, uint32 techCRC, vector<std::pair<string,uint32> > &vctFileList)
 {
-	data.header.messageType= nmtSynchNetworkGameDataStatus;
+	data.messageType= nmtSynchNetworkGameDataStatus;
 
     data.header.tilesetCRC     = tilesetCRC;
     data.header.techCRC        = techCRC;
@@ -2411,7 +2442,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 	data.header.techCRCFileCount = 0;
 
-	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
+	bool result = NetworkMessage::receive(socket, &data.header, HeaderSize, true);
 	if(result == true && data.header.techCRCFileCount > 0) {
 		fromEndianHeader();
 		// Here we loop possibly multiple times
@@ -2454,7 +2485,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameDataStatus, data.header.techCRCFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.techCRCFileCount);
 
-	assert(data.header.messageType==nmtSynchNetworkGameDataStatus);
+	assert(data.messageType == nmtSynchNetworkGameDataStatus);
 	uint32 totalFileCount = data.header.techCRCFileCount;
 	toEndianHeader();
 	NetworkMessage::send(socket, &data, HeaderSize);
@@ -2488,7 +2519,7 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataStatus::toEndianHeader() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
 		data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
 		data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
 		data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
@@ -2499,7 +2530,7 @@ void NetworkMessageSynchNetworkGameDataStatus::toEndianHeader() {
 void NetworkMessageSynchNetworkGameDataStatus::fromEndianHeader() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
 		data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
 		data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
 		data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
@@ -2531,7 +2562,7 @@ void NetworkMessageSynchNetworkGameDataStatus::fromEndianDetail() {
 NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDataFileCRCCheck(
 		uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName)
 {
-	data.messageType= nmtSynchNetworkGameDataFileCRCCheck;
+	messageType= nmtSynchNetworkGameDataFileCRCCheck;
 
     data.totalFileCount = totalFileCount;
     data.fileIndex      = fileIndex;
@@ -2549,12 +2580,12 @@ unsigned int NetworkMessageSynchNetworkGameDataFileCRCCheck::getPackedSize() {
 		Data packedData;
 		packedData.fileCRC = 0;
 		packedData.fileIndex = 0;
-		packedData.messageType = nmtSynchNetworkGameDataFileCRCCheck;
+		messageType = nmtSynchNetworkGameDataFileCRCCheck;
 		packedData.totalFileCount = 0;
 
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.totalFileCount,
 				packedData.fileIndex,
 				packedData.fileCRC,
@@ -2565,7 +2596,7 @@ unsigned int NetworkMessageSynchNetworkGameDataFileCRCCheck::getPackedSize() {
 }
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.totalFileCount,
 			&data.fileIndex,
 			&data.fileCRC,
@@ -2575,7 +2606,7 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::unpackMessage(unsigned char
 unsigned char * NetworkMessageSynchNetworkGameDataFileCRCCheck::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.totalFileCount,
 			data.fileIndex,
 			data.fileCRC,
@@ -2604,10 +2635,11 @@ bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileCRCCheck\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType==nmtSynchNetworkGameDataFileCRCCheck);
+	assert(messageType == nmtSynchNetworkGameDataFileCRCCheck);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -2621,7 +2653,7 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.totalFileCount = Shared::PlatformByteOrder::toCommonEndian(data.totalFileCount);
 		data.fileIndex = Shared::PlatformByteOrder::toCommonEndian(data.fileIndex);
 		data.fileCRC = Shared::PlatformByteOrder::toCommonEndian(data.fileCRC);
@@ -2631,7 +2663,7 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::toEndian() {
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.totalFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.totalFileCount);
 		data.fileIndex = Shared::PlatformByteOrder::fromCommonEndian(data.fileIndex);
 		data.fileCRC = Shared::PlatformByteOrder::fromCommonEndian(data.fileCRC);
@@ -2642,7 +2674,7 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::fromEndian() {
 // =====================================================
 
 NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFileGet(const string fileName) {
-	data.messageType= nmtSynchNetworkGameDataFileGet;
+	messageType= nmtSynchNetworkGameDataFileGet;
     data.fileName       = fileName;
 }
 
@@ -2654,10 +2686,10 @@ unsigned int NetworkMessageSynchNetworkGameDataFileGet::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
-		packedData.messageType = nmtSynchNetworkGameDataFileGet;
+		messageType = nmtSynchNetworkGameDataFileGet;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.fileName.getBuffer());
 		delete [] buf;
 	}
@@ -2665,14 +2697,14 @@ unsigned int NetworkMessageSynchNetworkGameDataFileGet::getPackedSize() {
 }
 void NetworkMessageSynchNetworkGameDataFileGet::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			data.fileName.getBuffer());
 }
 
 unsigned char * NetworkMessageSynchNetworkGameDataFileGet::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.fileName.getBuffer());
 	return buf;
 }
@@ -2698,9 +2730,10 @@ bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileGet\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType==nmtSynchNetworkGameDataFileGet);
+	assert(messageType == nmtSynchNetworkGameDataFileGet);
 	toEndian();
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -2714,13 +2747,13 @@ void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
 void NetworkMessageSynchNetworkGameDataFileGet::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 	}
 }
 void NetworkMessageSynchNetworkGameDataFileGet::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 	}
 }
 
@@ -2730,7 +2763,7 @@ void NetworkMessageSynchNetworkGameDataFileGet::fromEndian() {
 // =====================================================
 
 SwitchSetupRequest::SwitchSetupRequest() {
-	data.messageType= nmtSwitchSetupRequest;
+	messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName="";
 	data.currentSlotIndex=-1;
 	data.toSlotIndex=-1;
@@ -2745,7 +2778,7 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
 										int8 toFactionIndex,int8 toTeam,string networkPlayerName,
 										int8 networkPlayerStatus, int8 flags,
 										string language) {
-	data.messageType= nmtSwitchSetupRequest;
+	messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName=selectedFactionName;
 	data.currentSlotIndex=currentFactionIndex;
 	data.toSlotIndex=toFactionIndex;
@@ -2765,7 +2798,7 @@ unsigned int SwitchSetupRequest::getPackedSize() {
 	if(result == 0) {
 		Data packedData;
 		packedData.currentSlotIndex = 0;
-		packedData.messageType = nmtSwitchSetupRequest;
+		messageType = nmtSwitchSetupRequest;
 		packedData.networkPlayerStatus = 0;
 		packedData.switchFlags = 0;
 		packedData.toSlotIndex = 0;
@@ -2773,7 +2806,7 @@ unsigned int SwitchSetupRequest::getPackedSize() {
 
 		unsigned char *buf = new unsigned char[sizeof(Data)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.selectedFactionName.getBuffer(),
 				packedData.currentSlotIndex,
 				packedData.toSlotIndex,
@@ -2788,7 +2821,7 @@ unsigned int SwitchSetupRequest::getPackedSize() {
 }
 void SwitchSetupRequest::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			data.selectedFactionName.getBuffer(),
 			&data.currentSlotIndex,
 			&data.toSlotIndex,
@@ -2802,7 +2835,7 @@ void SwitchSetupRequest::unpackMessage(unsigned char *buf) {
 unsigned char * SwitchSetupRequest::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.selectedFactionName.getBuffer(),
 			data.currentSlotIndex,
 			data.toSlotIndex,
@@ -2817,7 +2850,12 @@ unsigned char * SwitchSetupRequest::packMessage() {
 bool SwitchSetupRequest::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
+
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = nmtSwitchSetupRequest;
+		}
+
 	}
 	else {
 		//fromEndian();
@@ -2839,12 +2877,13 @@ bool SwitchSetupRequest::receive(Socket* socket) {
 }
 
 void SwitchSetupRequest::send(Socket* socket) {
-	assert(data.messageType==nmtSwitchSetupRequest);
+	assert(messageType == nmtSwitchSetupRequest);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -2858,7 +2897,7 @@ void SwitchSetupRequest::send(Socket* socket) {
 void SwitchSetupRequest::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.currentSlotIndex = Shared::PlatformByteOrder::toCommonEndian(data.currentSlotIndex);
 		data.toSlotIndex = Shared::PlatformByteOrder::toCommonEndian(data.toSlotIndex);
 		data.toTeam = Shared::PlatformByteOrder::toCommonEndian(data.toTeam);
@@ -2869,7 +2908,7 @@ void SwitchSetupRequest::toEndian() {
 void SwitchSetupRequest::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.currentSlotIndex = Shared::PlatformByteOrder::fromCommonEndian(data.currentSlotIndex);
 		data.toSlotIndex = Shared::PlatformByteOrder::fromCommonEndian(data.toSlotIndex);
 		data.toTeam = Shared::PlatformByteOrder::fromCommonEndian(data.toTeam);
@@ -2882,7 +2921,7 @@ void SwitchSetupRequest::fromEndian() {
 //	class PlayerIndexMessage
 // =====================================================
 PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex) {
-	data.messageType= nmtPlayerIndexMessage;
+	messageType = nmtPlayerIndexMessage;
 	data.playerIndex=playerIndex;
 }
 
@@ -2894,11 +2933,11 @@ unsigned int PlayerIndexMessage::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
-		packedData.messageType = 0;
+		messageType = 0;
 		packedData.playerIndex = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.playerIndex);
 		delete [] buf;
 	}
@@ -2906,14 +2945,14 @@ unsigned int PlayerIndexMessage::getPackedSize() {
 }
 void PlayerIndexMessage::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.playerIndex);
 }
 
 unsigned char * PlayerIndexMessage::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.playerIndex);
 	return buf;
 }
@@ -2922,6 +2961,10 @@ bool PlayerIndexMessage::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = nmtPlayerIndexMessage;
+		}
+
 	}
 	else {
 		//fromEndian();
@@ -2937,10 +2980,11 @@ bool PlayerIndexMessage::receive(Socket* socket) {
 }
 
 void PlayerIndexMessage::send(Socket* socket) {
-	assert(data.messageType==nmtPlayerIndexMessage);
+	assert(messageType == nmtPlayerIndexMessage);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -2955,14 +2999,14 @@ void PlayerIndexMessage::send(Socket* socket) {
 void PlayerIndexMessage::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
 	}
 }
 void PlayerIndexMessage::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
 	}
 }
@@ -2972,7 +3016,7 @@ void PlayerIndexMessage::fromEndian() {
 // =====================================================
 NetworkMessageLoadingStatus::NetworkMessageLoadingStatus(uint32 status)
 {
-	data.messageType= nmtLoadingStatusMessage;
+	messageType = nmtLoadingStatusMessage;
 	data.status=status;
 }
 
@@ -2984,11 +3028,11 @@ unsigned int NetworkMessageLoadingStatus::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
-		packedData.messageType = 0;
+		messageType = 0;
 		packedData.status = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.status);
 		delete [] buf;
 	}
@@ -2996,14 +3040,14 @@ unsigned int NetworkMessageLoadingStatus::getPackedSize() {
 }
 void NetworkMessageLoadingStatus::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.status);
 }
 
 unsigned char * NetworkMessageLoadingStatus::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.status);
 	return buf;
 }
@@ -3012,6 +3056,9 @@ bool NetworkMessageLoadingStatus::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = nmtLoadingStatusMessage;
+		}
 	}
 	else {
 		//fromEndian();
@@ -3027,10 +3074,11 @@ bool NetworkMessageLoadingStatus::receive(Socket* socket) {
 }
 
 void NetworkMessageLoadingStatus::send(Socket* socket) {
-	assert(data.messageType==nmtLoadingStatusMessage);
+	assert(messageType == nmtLoadingStatusMessage);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -3044,14 +3092,14 @@ void NetworkMessageLoadingStatus::send(Socket* socket) {
 void NetworkMessageLoadingStatus::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.status = Shared::PlatformByteOrder::toCommonEndian(data.status);
 	}
 }
 void NetworkMessageLoadingStatus::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.status = Shared::PlatformByteOrder::fromCommonEndian(data.status);
 	}
 }
@@ -3065,7 +3113,7 @@ NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, c
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 
-	data.messageType	= nmtMarkCell;
+	messageType	= nmtMarkCell;
 	data.text			= text;
 	data.targetX		= target.x;
 	data.targetY		= target.y;
@@ -3088,14 +3136,14 @@ unsigned int NetworkMessageMarkCell::getPackedSize() {
 	if(result == 0) {
 		Data packedData;
 		packedData.factionIndex = 0;
-		packedData.messageType = nmtMarkCell;
+		messageType = nmtMarkCell;
 		packedData.playerIndex = 0;
 		packedData.targetX = 0;
 		packedData.targetY = 0;
 
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.targetX,
 				packedData.targetY,
 				packedData.factionIndex,
@@ -3107,7 +3155,7 @@ unsigned int NetworkMessageMarkCell::getPackedSize() {
 }
 void NetworkMessageMarkCell::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.targetX,
 			&data.targetY,
 			&data.factionIndex,
@@ -3119,7 +3167,7 @@ void NetworkMessageMarkCell::unpackMessage(unsigned char *buf) {
 unsigned char * NetworkMessageMarkCell::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.targetX,
 			data.targetY,
 			data.factionIndex,
@@ -3133,6 +3181,9 @@ bool NetworkMessageMarkCell::receive(Socket* socket){
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = nmtMarkCell;
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -3150,10 +3201,11 @@ bool NetworkMessageMarkCell::receive(Socket* socket){
 void NetworkMessageMarkCell::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType == nmtMarkCell);
+	assert(messageType == nmtMarkCell);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -3167,7 +3219,7 @@ void NetworkMessageMarkCell::send(Socket* socket) {
 void NetworkMessageMarkCell::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
 		data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
 		data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
@@ -3177,7 +3229,7 @@ void NetworkMessageMarkCell::toEndian() {
 void NetworkMessageMarkCell::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
 		data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
 		data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
@@ -3190,14 +3242,14 @@ void NetworkMessageMarkCell::fromEndian() {
 // =====================================================
 
 NetworkMessageUnMarkCell::NetworkMessageUnMarkCell() {
-	data.messageType = nmtUnMarkCell;
+	messageType = nmtUnMarkCell;
 	data.targetX		= 0;
 	data.targetY		= 0;
 	data.factionIndex 	= 0;
 }
 
 NetworkMessageUnMarkCell::NetworkMessageUnMarkCell(Vec2i target, int factionIndex) {
-	data.messageType	= nmtUnMarkCell;
+	messageType	= nmtUnMarkCell;
 	data.targetX		= target.x;
 	data.targetY		= target.y;
 	data.factionIndex 	= factionIndex;
@@ -3218,12 +3270,12 @@ unsigned int NetworkMessageUnMarkCell::getPackedSize() {
 	if(result == 0) {
 		Data packedData;
 		packedData.factionIndex = 0;
-		packedData.messageType = 0;
+		messageType = 0;
 		packedData.targetX = 0;
 		packedData.targetY = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.targetX,
 				packedData.targetY,
 				packedData.factionIndex);
@@ -3233,7 +3285,7 @@ unsigned int NetworkMessageUnMarkCell::getPackedSize() {
 }
 void NetworkMessageUnMarkCell::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.targetX,
 			&data.targetY,
 			&data.factionIndex);
@@ -3243,7 +3295,7 @@ void NetworkMessageUnMarkCell::unpackMessage(unsigned char *buf) {
 unsigned char * NetworkMessageUnMarkCell::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.targetX,
 			data.targetY,
 			data.factionIndex);
@@ -3255,6 +3307,9 @@ bool NetworkMessageUnMarkCell::receive(Socket* socket){
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = nmtUnMarkCell;
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -3271,10 +3326,11 @@ bool NetworkMessageUnMarkCell::receive(Socket* socket){
 void NetworkMessageUnMarkCell::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtUnMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType == nmtUnMarkCell);
+	assert(messageType == nmtUnMarkCell);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -3288,7 +3344,7 @@ void NetworkMessageUnMarkCell::send(Socket* socket) {
 void NetworkMessageUnMarkCell::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
 		data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
 		data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
@@ -3297,7 +3353,7 @@ void NetworkMessageUnMarkCell::toEndian() {
 void NetworkMessageUnMarkCell::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
 		data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
 		data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
@@ -3309,14 +3365,14 @@ void NetworkMessageUnMarkCell::fromEndian() {
 // =====================================================
 
 NetworkMessageHighlightCell::NetworkMessageHighlightCell() {
-	data.messageType	= nmtHighlightCell;
+	messageType	= nmtHighlightCell;
 	data.targetX		= 0;
 	data.targetY		= 0;
 	data.factionIndex 	= 0;
 }
 
 NetworkMessageHighlightCell::NetworkMessageHighlightCell(Vec2i target, int factionIndex) {
-	data.messageType	= nmtHighlightCell;
+	messageType	= nmtHighlightCell;
 	data.targetX		= target.x;
 	data.targetY		= target.y;
 	data.factionIndex 	= factionIndex;
@@ -3331,12 +3387,12 @@ unsigned int NetworkMessageHighlightCell::getPackedSize() {
 	if(result == 0) {
 		Data packedData;
 		packedData.factionIndex = 0;
-		packedData.messageType = 0;
+		messageType = 0;
 		packedData.targetX = 0;
 		packedData.targetY = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
-				packedData.messageType,
+				messageType,
 				packedData.targetX,
 				packedData.targetY,
 				packedData.factionIndex);
@@ -3346,7 +3402,7 @@ unsigned int NetworkMessageHighlightCell::getPackedSize() {
 }
 void NetworkMessageHighlightCell::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
-			&data.messageType,
+			&messageType,
 			&data.targetX,
 			&data.targetY,
 			&data.factionIndex);
@@ -3356,7 +3412,7 @@ void NetworkMessageHighlightCell::unpackMessage(unsigned char *buf) {
 unsigned char * NetworkMessageHighlightCell::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
 	pack(buf, getPackedMessageFormat(),
-			data.messageType,
+			messageType,
 			data.targetX,
 			data.targetY,
 			data.factionIndex);
@@ -3368,6 +3424,9 @@ bool NetworkMessageHighlightCell::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		if(result == true) {
+			messageType = nmtHighlightCell;
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -3383,10 +3442,11 @@ bool NetworkMessageHighlightCell::receive(Socket* socket) {
 void NetworkMessageHighlightCell::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	assert(data.messageType == nmtHighlightCell);
+	assert(messageType == nmtHighlightCell);
 	toEndian();
 
 	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		NetworkMessage::send(socket, &data, sizeof(data));
 	}
 	else {
@@ -3400,7 +3460,7 @@ void NetworkMessageHighlightCell::send(Socket* socket) {
 void NetworkMessageHighlightCell::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::toCommonEndian(messageType);
 		data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
 		data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
 		data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
@@ -3409,7 +3469,7 @@ void NetworkMessageHighlightCell::toEndian() {
 void NetworkMessageHighlightCell::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		messageType = Shared::PlatformByteOrder::fromCommonEndian(messageType);
 		data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
 		data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
 		data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
