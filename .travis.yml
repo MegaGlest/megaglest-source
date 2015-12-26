@@ -23,8 +23,8 @@ before_install:
   - sudo apt-get update -qq # UPDATE REPOS
   #- sudo apt-get upgrade -qq # UPGRADE SYSTEM TO LATEST PATCH LEVEL
   - sudo apt-get install -y -qq
-  - sudo ./.travis-before_install.sh
   - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL OUR DEPENDENCIES
+  - sudo ./.travis-before_install.sh
 
 script:
 # ALL THE BUILD COMMANDS HERE
