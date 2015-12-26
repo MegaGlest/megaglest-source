@@ -1385,20 +1385,13 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
-//    	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
-//    	if(this->inSocketDestructor == true) {
-//    		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
-//    		return -1;
-//    	}
-//    	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
-//    	safeMutexSocketDestructorFlag.ReleaseLock();
-
 		MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 		if(isSocketValid() == true)	{
 			bytesReceived = recv(sock, reinterpret_cast<char*>(data), dataSize, 0);
 		}
 	    safeMutex.ReleaseLock();
 	}
+
 	int lastSocketError = getLastSocketError();
 	if(bytesReceived < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR READING SOCKET DATA error while sending socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&lastSocketError).c_str());
@@ -1422,17 +1415,6 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	        }
 	        //else if(Socket::isReadable(true) == true) {
 	        else {
-//	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
-//	        	if(this->inSocketDestructor == true) {
-//	        		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
-//	        		return -1;
-//	        	}
-//	        	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
-//	        	safeMutexSocketDestructorFlag.ReleaseLock();
-
-				//if(chronoElapsed.getMillis() % 2 == 0) {
-				//	sleep(0);
-				//}
 				if(Socket::isReadable(true) == true) {
 					MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
@@ -1444,7 +1426,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 					safeMutex.ReleaseLock();
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d, lastSocketError = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,lastSocketError,(int)dataSize);
-					printf("In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d, lastSocketError = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,lastSocketError,(int)dataSize);
+					//printf("In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d, lastSocketError = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,lastSocketError,(int)dataSize);
 				}
 				else {
 					if(chronoElapsed.getMillis() % 3 == 0) {
