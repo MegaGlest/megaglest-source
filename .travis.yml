@@ -30,7 +30,7 @@ before_install:
   - if [ "$GCC_VERSION" != "native" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
   # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
   - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main'; fi
-  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-${LLVM_VERSION} main'; fi
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-${LLVM_VERSION} main"; fi
   # http://llvm.org/apt/
   - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -; fi
   - sudo apt-get update -qq # UPDATE REPOS
