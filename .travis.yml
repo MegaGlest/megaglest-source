@@ -1,17 +1,15 @@
 # https://docs.travis-ci.com/user/customizing-the-build/
 language: cpp
 
+sudo: required
+
 compiler:
   - gcc
   - clang
 
 env:
-  - GCC_VERSION="5"
-  - GCC_VERSION="native"
-  - LLVM_VERSION="3.7"
-  - LLVM_VERSION="3.6"
-  - LLVM_VERSION="3.5"
-  - LLVM_VERSION="native"
+  - GCC_VERSION="5" LLVM_VERSION="3.7"
+  - GCC_VERSION="native" LLVM_VERSION="native"
 
 matrix:
   #include:
@@ -39,7 +37,7 @@ before_install:
   - sudo apt-get install -y -qq
   - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then sudo apt-get install -qq gcc-${GCC_VERSION} g++-${GCC_VERSION}; fi
   - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
-  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install libclang-${LLVM_VERSION}-dev clang-${LLVM_VERSION}; fi
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install clang-${LLVM_VERSION}; fi
   - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then export CXX="clang++-${LLVM_VERSION}" CC="clang-${LLVM_VERSION}"; fi
   - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL OUR DEPENDENCIES
   - $CXX --version
