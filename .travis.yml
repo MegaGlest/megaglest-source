@@ -61,7 +61,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install clang-${LLVM_VERSION}; fi
   - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then export CXX="clang++-${LLVM_VERSION}" CC="clang-${LLVM_VERSION}"; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo mk/linux/setupBuildDeps.sh --quiet; fi # INSTALL OUR DEPENDENCIES
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install pkg-config sdl2 lua jpeg libpng freetype ftgl libogg glew libvorbis cppunit fribidi miniupnpc wxmac; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit fribidi miniupnpc wxmac; fi
   - $CXX --version
   - cmake --version
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ./.travis-before_install.sh; fi
