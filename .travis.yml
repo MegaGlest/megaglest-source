@@ -35,8 +35,8 @@ matrix:
     - os: osx
       compiler: clang
       env: LLVM_VERSION="3.7" # missing compiler by brew
-  allow_failures:
-    - os: osx # remove when native clang will work
+  #allow_failures:
+  #  - os: osx
 
 git:
   submodules: false
