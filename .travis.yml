@@ -1,9 +1,17 @@
-# http://docs.travis-ci.com/user/build-configuration/
+# https://docs.travis-ci.com/user/customizing-the-build/
 language: cpp
 
 compiler:
   - gcc
   - clang
+
+env:
+  - GCC_VERSION="5"
+  - GCC_VERSION="native"
+  - LLVM_VERSION="3.7"
+  - LLVM_VERSION="3.6"
+  - LLVM_VERSION="3.5"
+  - LLVM_VERSION="native"
 
 matrix:
   #include:
@@ -11,6 +19,7 @@ matrix:
   #  - compiler: clang
   allow_failures:
     - compiler: clang
+    #- env: LLVM_VERSION=3.5
 
 git:
   submodules: false
@@ -20,10 +29,20 @@ git:
 #    - master
 
 before_install:
+  - if [ "$GCC_VERSION" != "native" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
+  # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main'; fi
+  # http://llvm.org/apt/
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -; fi
   - sudo apt-get update -qq # UPDATE REPOS
   #- sudo apt-get upgrade -qq # UPGRADE SYSTEM TO LATEST PATCH LEVEL
   - sudo apt-get install -y -qq
+  - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then sudo apt-get install -qq gcc-${GCC_VERSION} g++-${GCC_VERSION}; fi
+  - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install libclang-${LLVM_VERSION}-dev clang-${LLVM_VERSION}; fi
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then export CXX="clang++-${LLVM_VERSION}" CC="clang-${LLVM_VERSION}"; fi
   - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL OUR DEPENDENCIES
+  - $CXX --version
   - sudo ./.travis-before_install.sh
 
 script:
