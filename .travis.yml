@@ -3,21 +3,36 @@ language: cpp
 
 sudo: required
 
+os:
+  - linux
+  - osx
+
 compiler:
   - gcc
   - clang
 
 env:
-  - GCC_VERSION="5" LLVM_VERSION="3.7"
-  - GCC_VERSION="native" LLVM_VERSION="native"
+  - GCC_VERSION="5"
+  - GCC_VERSION="native"
+  - LLVM_VERSION="3.7"
+  - LLVM_VERSION="native"
 
 matrix:
-  #include:
-  #  - compiler: gcc
-  #  - compiler: clang
-  allow_failures:
+  exclude:
+    - compiler: gcc
+      env: LLVM_VERSION="3.7"
+    - compiler: gcc
+      env: LLVM_VERSION="native"
     - compiler: clang
-    #- env: LLVM_VERSION=3.5
+      env: GCC_VERSION="5"
+    - compiler: clang
+      env: GCC_VERSION="native"
+    - compiler: clang
+      env: LLVM_VERSION="native" # broken compiler
+    - os: osx
+      compiler: gcc # broken compiler
+    - os: osx
+      compiler: clang # missing configuration here
 
 git:
   submodules: false
