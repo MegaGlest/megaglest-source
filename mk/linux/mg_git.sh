@@ -12,7 +12,7 @@ usage() {
 
 case $1 in 
 
-  pull ) 
+  pull|status|branch ) 
     echo '==> Running "git '"$1"'" on main repository...'
     cd $(dirname $0)
     git $1
