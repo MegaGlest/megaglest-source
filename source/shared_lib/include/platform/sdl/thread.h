@@ -134,16 +134,16 @@ private:
 public:
 	Mutex(string ownerId="");
 	~Mutex();
-	void setOwnerId(string ownerId) {
+	inline void setOwnerId(string ownerId) {
 		if(this->ownerId != ownerId) {
 			this->ownerId = ownerId;
 		}
 	}
 	void p();
 	void v();
-	int getRefCount() const { return refCount; }
+	inline int getRefCount() const { return refCount; }
 
-	SDL_mutex* getMutex() { return mutex; }
+	inline SDL_mutex* getMutex() { return mutex; }
 };
 
 class MutexSafeWrapper {
@@ -167,18 +167,18 @@ public:
 		ReleaseLock();
 	}
 
-    void setMutex(Mutex *mutex,string ownerId="") {
+    inline void setMutex(Mutex *mutex,string ownerId="") {
 		this->mutex = mutex;
 		if(this->ownerId != ownerId) {
 			this->ownerId = ownerId;
 		}
 		Lock();
     }
-    bool isValidMutex() const {
+    inline bool isValidMutex() const {
         return(this->mutex != NULL);
     }
 
-	void Lock() {
+    inline void Lock() {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
             if(this->ownerId != "") {
@@ -207,7 +207,7 @@ public:
             #endif
 		}
 	}
-	void ReleaseLock(bool keepMutex=false,bool deleteMutexOnRelease=false) {
+    inline void ReleaseLock(bool keepMutex=false,bool deleteMutexOnRelease=false) {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
             if(this->ownerId != "") {
