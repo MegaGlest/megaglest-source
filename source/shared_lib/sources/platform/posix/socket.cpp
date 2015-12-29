@@ -1702,7 +1702,7 @@ void Socket::setBlock(bool block, PLATFORM_SOCKET socket) {
 	}
 }
 
-bool Socket::isReadable(bool lockMutex) {
+inline bool Socket::isReadable(bool lockMutex) {
     if(isSocketValid() == false) return false;
 
     struct timeval tv;
@@ -1712,10 +1712,11 @@ bool Socket::isReadable(bool lockMutex) {
 	fd_set set;
 	FD_ZERO(&set);
 
-	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
-	if(lockMutex == true) {
-		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
-	}
+	Mutex *lockMutexObj = (lockMutex == true ? dataSynchAccessorRead : NULL);
+	MutexSafeWrapper safeMutex(lockMutexObj,CODE_AT_LINE);
+	//if(lockMutex == true) {
+	//	safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
+	//}
 	FD_SET(sock, &set);
 	int i = select((int)sock + 1, &set, NULL, NULL, &tv);
 	safeMutex.ReleaseLock();
@@ -1732,7 +1733,7 @@ bool Socket::isReadable(bool lockMutex) {
 	return result;
 }
 
-bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
+inline bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
     if(isSocketValid() == false) return false;
 
 	struct timeval tv;
@@ -1747,10 +1748,12 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 	fd_set set;
 	FD_ZERO(&set);
 
-	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
-	if(lockMutex == true) {
-		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
-	}
+	Mutex *lockMutexObj = (lockMutex == true ? dataSynchAccessorWrite : NULL);
+	MutexSafeWrapper safeMutex(lockMutexObj,CODE_AT_LINE);
+//	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
+//	if(lockMutex == true) {
+//		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
+//	}
 	FD_SET(sock, &set);
 	int i = select((int)sock + 1, NULL, &set, NULL, &tv);
 	safeMutex.ReleaseLock();
