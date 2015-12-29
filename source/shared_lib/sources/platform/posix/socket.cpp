@@ -1052,7 +1052,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
 
 bool Socket::hasDataToRead()
 {
-	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
+	//MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
     return Socket::hasDataToRead(sock) ;
 }
 
@@ -1095,7 +1095,7 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
 }
 
 bool Socket::hasDataToReadWithWait(int waitMicroseconds) {
-	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
+	//MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
     return Socket::hasDataToReadWithWait(sock,waitMicroseconds) ;
 }
 
@@ -1429,12 +1429,12 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 					//printf("In [%s::%s Line: %d] #2 EAGAIN during receive, trying again returned: %d, lastSocketError = %d, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,lastSocketError,(int)dataSize);
 				}
 				else {
-					if(chronoElapsed.getMillis() % 3 == 0) {
-						sleep(1);
-					}
-					else {
-						sleep(0);
-					}
+					//if(chronoElapsed.getMillis() % 3 == 0) {
+					//	sleep(1);
+					//}
+					//else {
+					sleep(0);
+					//}
 				}
 	        }
 	    }
@@ -1525,19 +1525,19 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 //    	safeMutexSocketDestructorFlag.ReleaseLock();
 
 		//MutexSafeWrapper safeMutex(&dataSynchAccessor,CODE_AT_LINE + "_" + intToStr(sock) + "_" + intToStr(dataSize));
-		MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
+		//MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		if(isSocketValid() == true)	{
 //			Chrono recvTimer(true);
-			SafeSocketBlockToggleWrapper safeUnblock(this, false);
+			//SafeSocketBlockToggleWrapper safeUnblock(this, false);
 			errno = 0;
 			err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 			lastSocketError = getLastSocketError();
 			if(pLastSocketError != NULL) {
 				*pLastSocketError = lastSocketError;
 			}
-			safeUnblock.Restore();
+			//safeUnblock.Restore();
 
 //			if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //				printf("#1 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());
@@ -1548,7 +1548,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 //			}
 		}
-	    safeMutex.ReleaseLock();
+	    //safeMutex.ReleaseLock();
 
 	    //printf("Peek #1 err = %d\n",err);
 
@@ -1580,7 +1580,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	            break;
 	        }
 */
-	        if(Socket::isReadable(true) == true) {
+	        //if(Socket::isReadable(true) == true) {
 
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
@@ -1591,17 +1591,17 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 //	        	safeMutexSocketDestructorFlag.ReleaseLock();
 
 	        	//MutexSafeWrapper safeMutex(&dataSynchAccessor,CODE_AT_LINE + "_" + intToStr(sock) + "_" + intToStr(dataSize));
-	        	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
+	        	//MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
 //	        	Chrono recvTimer(true);
-	        	SafeSocketBlockToggleWrapper safeUnblock(this, false);
+	        	//SafeSocketBlockToggleWrapper safeUnblock(this, false);
 	        	errno = 0;
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 				lastSocketError = getLastSocketError();
 				if(pLastSocketError != NULL) {
 					*pLastSocketError = lastSocketError;
 				}
-				safeUnblock.Restore();
+				//safeUnblock.Restore();
 
 //                if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //    				printf("#2 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());
@@ -1609,14 +1609,17 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 				//printf("Socket peek delayed checking for sock = %d err = %d\n",sock,err);
 
-                safeMutex.ReleaseLock();
+                //safeMutex.ReleaseLock();
 
+                if(err <= 0) {
+                	sleep(0);
+                }
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 EAGAIN during peek, trying again returned: %d\n",__FILE__,__FUNCTION__,__LINE__,err);
-	        }
-	        else {
+	        //}
+	        //else {
 	        	//printf("Socket peek delayed [NOT READABLE] checking for sock = %d err = %d\n",sock,err);
-	        }
+	        //}
 	    }
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -1709,7 +1712,7 @@ bool Socket::isReadable(bool lockMutex) {
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
-		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
+		//safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
 	}
 	FD_SET(sock, &set);
 	int i = select((int)sock + 1, &set, NULL, NULL, &tv);
@@ -1744,7 +1747,7 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 
 	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 	if(lockMutex == true) {
-		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
+		//safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
 	}
 	FD_SET(sock, &set);
 	int i = select((int)sock + 1, NULL, &set, NULL, &tv);

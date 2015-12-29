@@ -32,7 +32,7 @@ namespace Glest{ namespace Game{
 //	class NetworkInterface
 // =====================================================
 
-const int NetworkInterface::readyWaitTimeout= 99000;	// 99 seconds to 0 looks good on the screen
+const int NetworkInterface::readyWaitTimeout= 180000;	// 3 minutes
 
 bool NetworkInterface::allowGameDataSynchCheck  = false;
 bool NetworkInterface::allowDownloadDataSynch   = false;
@@ -170,13 +170,15 @@ NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds) {
         //peek message type
 		//int dataSize = socket->getDataToRead();
 		//if(dataSize >= (int)sizeof(messageType)) {
-		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize);
+			//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize);
+    		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] before recv\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-			//int iPeek = socket->peek(&messageType, sizeof(messageType));
-			//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
-
-			int bytesReceived = socket->receive(&messageType, sizeof(messageType), true);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,bytesReceived,messageType,sizeof(messageType));
+//			int iPeek = socket->peek(&messageType, sizeof(messageType));
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
+//			if(iPeek > 0) {
+				int bytesReceived = socket->receive(&messageType, sizeof(messageType), true);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,bytesReceived,messageType,sizeof(messageType));
+			//}
     	//}
 		//else {
 		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
