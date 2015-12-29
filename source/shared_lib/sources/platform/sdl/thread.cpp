@@ -421,12 +421,12 @@ public:
 
 	void Lock() {
 		if(mutex != NULL && *mutex != NULL) {
-			SDL_mutexP(*mutex);
+			SDL_LockMutex(*mutex);
 		}
 	}
 	void ReleaseLock(bool keepMutex=false) {
 		if(mutex != NULL && *mutex != NULL) {
-			SDL_mutexV(*mutex);
+			SDL_UnlockMutex(*mutex);
 
 			if(keepMutex == false) {
 				mutex = NULL;

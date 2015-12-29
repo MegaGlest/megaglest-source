@@ -140,12 +140,12 @@ public:
 		}
 	}
 	inline void p() {
-		SDL_mutexP(mutex);
+		SDL_LockMutex(mutex);
 		refCount++;
 	}
 	inline void v() {
 		refCount--;
-		SDL_mutexV(mutex);
+		SDL_UnlockMutex(mutex);
 	}
 	inline int getRefCount() const { return refCount; }
 
