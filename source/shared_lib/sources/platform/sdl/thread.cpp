@@ -513,53 +513,53 @@ Mutex::~Mutex() {
 //	}
 }
 
-void Mutex::p() {
-	if(mutex == NULL) {
-
-		string stack = PlatformExceptionHandler::getStackTrace();
-
-		char szBuf[8096]="";
-		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s] stack: %s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str(),stack.c_str());
-		throw megaglest_runtime_error(szBuf);
-	}
-	std::auto_ptr<Chrono> chronoLockPerf;
-	if(debugMutexLock == true) {
-		chronoLockPerf.reset(new Chrono());
-		chronoLockPerf->start();
-	}
+/*
+inline void Mutex::p() {
+//	if(mutex == NULL) {
+//		string stack = PlatformExceptionHandler::getStackTrace();
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s] stack: %s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str(),stack.c_str());
+//		throw megaglest_runtime_error(szBuf);
+//	}
+//	std::auto_ptr<Chrono> chronoLockPerf;
+//	if(debugMutexLock == true) {
+//		chronoLockPerf.reset(new Chrono());
+//		chronoLockPerf->start();
+//	}
 
 //	maxRefCount = max(maxRefCount,refCount+1);
 	SDL_mutexP(mutex);
 	refCount++;
 
-	if(debugMutexLock == true) {
-		if(chronoLockPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
-			printf("\n**WARNING possible mutex lock detected ms [%lld] Last ownerid: [%s]\n",(long long int)chronoLockPerf->getMillis(),lastownerId.c_str());
-		}
-		chronoPerf->start();
-	}
+//	if(debugMutexLock == true) {
+//		if(chronoLockPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
+//			printf("\n**WARNING possible mutex lock detected ms [%lld] Last ownerid: [%s]\n",(long long int)chronoLockPerf->getMillis(),lastownerId.c_str());
+//		}
+//		chronoPerf->start();
+//	}
 }
 
-void Mutex::v() {
-	if(mutex == NULL) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
-		throw megaglest_runtime_error(szBuf);
-	}
+inline void Mutex::v() {
+//	if(mutex == NULL) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+//		throw megaglest_runtime_error(szBuf);
+//	}
 	refCount--;
 
-	if(debugMutexLock == true) {
-		lastownerId = ownerId;
-		if(chronoPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
-			printf("About to get stacktrace for stuck mutex ...\n");
-			string oldLastownerId = lastownerId;
-			lastownerId = PlatformExceptionHandler::getStackTrace();
-
-			printf("\n**WARNING possible mutex lock (on unlock) detected ms [%lld] Last ownerid: [%s]\noldLastownerId: [%s]\n",(long long int)chronoPerf->getMillis(),lastownerId.c_str(),oldLastownerId.c_str());
-		}
-	}
+//	if(debugMutexLock == true) {
+//		lastownerId = ownerId;
+//		if(chronoPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
+//			printf("About to get stacktrace for stuck mutex ...\n");
+//			string oldLastownerId = lastownerId;
+//			lastownerId = PlatformExceptionHandler::getStackTrace();
+//
+//			printf("\n**WARNING possible mutex lock (on unlock) detected ms [%lld] Last ownerid: [%s]\noldLastownerId: [%s]\n",(long long int)chronoPerf->getMillis(),lastownerId.c_str(),oldLastownerId.c_str());
+//		}
+//	}
 	SDL_mutexV(mutex);
 }
+*/
 
 // =====================================================
 //	class Semaphore

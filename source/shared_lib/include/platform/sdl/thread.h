@@ -139,8 +139,14 @@ public:
 			this->ownerId = ownerId;
 		}
 	}
-	void p();
-	void v();
+	inline void p() {
+		SDL_mutexP(mutex);
+		refCount++;
+	}
+	inline void v() {
+		refCount--;
+		SDL_mutexV(mutex);
+	}
 	inline int getRefCount() const { return refCount; }
 
 	inline SDL_mutex* getMutex() { return mutex; }
