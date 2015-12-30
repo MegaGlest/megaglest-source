@@ -1641,7 +1641,8 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 		//printf("Peek #3 err = %d\n",err);
 		//lastSocketError = getLastSocketError();
 		if(mustGetData == true || lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
-			//printf("** #2 Socket peek error for sock = %d err = %d lastSocketError = %d mustGetData = %d\n",sock,err,lastSocketError,mustGetData);
+			printf("** #2 Socket peek error for sock = %d err = %d lastSocketError = %d mustGetData = %d\n",sock,err,lastSocketError,mustGetData);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTING SOCKET for socket [%d], err = %d, dataSize = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,err,dataSize,getLastSocketErrorFormattedText(&iErr).c_str());
 
 			int iErr = lastSocketError;
 			disconnectSocket();
@@ -1809,6 +1810,11 @@ bool Socket::isConnected() {
 		//	((err == 0 || err == -1) && peekDataBytes == 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 		if((err < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) || (err == 0 && peekDataBytes != 0)) {
 			//printf("IsConnected socket has disconnected sock = %d err = %d lastSocketError = %d\n",sock,err,lastSocketError);
+			if(err == 0) {
+				printf("IsConnected socket has disconnected sock = %d err = %d lastSocketError = %d\n",sock,err,lastSocketError);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
+			}
+
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			return false;
