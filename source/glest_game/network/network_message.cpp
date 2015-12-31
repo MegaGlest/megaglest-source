@@ -18,6 +18,7 @@
 #include "platform_util.h"
 #include "config.h"
 #include "network_protocol.h"
+#include "compression_utils.h"
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
@@ -682,7 +683,8 @@ void NetworkMessageReady::fromEndian() {
 // =====================================================
 
 NetworkMessageLaunch::NetworkMessageLaunch() {
-	messageType=-1;
+	messageType = -1;
+	compressedLength = 0;
 	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		data.factionNameList[i] = "";
 		data.factionCRCList[i] = 0;
@@ -695,6 +697,7 @@ NetworkMessageLaunch::NetworkMessageLaunch() {
 
 NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType) {
 	this->messageType = messageType;
+	compressedLength = 0;
 
     data.mapCRC     = gameSettings->getMapCRC();
     data.tilesetCRC = gameSettings->getTilesetCRC();
@@ -1342,7 +1345,46 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	//printf("Receive NetworkMessageLaunch\n");
 	bool result = false;
 	if(useOldProtocol == true) {
-		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		//printf("UnCompressed launch packet before read compressed size\n");
+		result = NetworkMessage::receive(socket, &compressedLength, sizeof(compressedLength), true);
+		//printf("UnCompressed launch packet after read compressed size: %d\n",compressedLength);
+
+		if(result == true && compressedLength > 0) {
+			//printf("UnCompressed launch packet before: %u after: %d\n",compressedLength,(int)getDataSize());
+
+			unsigned char *compressedMessage = new unsigned char[compressedLength+1];
+			memset(compressedMessage,0,compressedLength+1);
+
+			result = NetworkMessage::receive(socket, compressedMessage, compressedLength, true);
+			//printf("UnCompressed launch packet READ returned: %d\n",result);
+
+			if(result == true) {
+				//printf("UnCompressed launch packet before decompress\n");
+
+//				printf("\n");
+//				const unsigned char *buf = static_cast<const unsigned char *>(compressedMessage);
+//				for(unsigned int index = 0; index < (unsigned int)compressedLength; ++index) {
+//					printf("%u[%X][%d] ",index,buf[index],buf[index]);
+//					if(index % 10 == 0) {
+//						printf("\n");
+//					}
+//				}
+//				printf("\n");
+
+				unsigned long buffer_size = compressedLength;
+				std::pair<unsigned char *,unsigned long> decompressedBuffer =
+						Shared::CompressionUtil::extractMemoryToMemory(compressedMessage, buffer_size, maxNetworkMessageSize);
+				unsigned char *decompressed_buffer = decompressedBuffer.first;
+				memcpy(&data,decompressed_buffer,decompressedBuffer.second);
+				delete [] decompressed_buffer;
+
+				//printf("SUCCESS UnCompressed launch packet before: %u after: %lu\n",compressedLength,decompressedBuffer.second);
+			}
+		}
+		else if(result == true) {
+			//printf("Normal launch packet detected (uncompressed)\n");
+			result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+		}
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
@@ -1380,6 +1422,20 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	return result;
 }
 
+unsigned char * NetworkMessageLaunch::getData() {
+	unsigned char *buffer = new unsigned char[getDataSize()];
+	memcpy(buffer,&data,getDataSize());
+	return buffer;
+}
+
+std::pair<unsigned char *,unsigned long> NetworkMessageLaunch::getCompressedMessage() {
+	unsigned char *buffer = this->getData();
+	std::pair<unsigned char *,unsigned long> result =
+			Shared::CompressionUtil::compressMemoryToMemory(buffer,getDataSize());
+	delete [] buffer;
+	return result;
+}
+
 void NetworkMessageLaunch::send(Socket* socket) {
 	//printf("Sending NetworkMessageLaunch\n");
 
@@ -1396,8 +1452,28 @@ void NetworkMessageLaunch::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data), messageType);
+		////NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		//NetworkMessage::send(socket, &data, sizeof(data), messageType);
+
+		std::pair<unsigned char *,unsigned long> compressionResult = getCompressedMessage();
+		compressedLength = compressionResult.second;
+		//printf("Compressed launch packet before: %d after: %lu\n",(int)getDataSize(),compressionResult.second);
+
+//		printf("\n");
+//		const unsigned char *buf = static_cast<const unsigned char *>(compressionResult.first);
+//		for(unsigned int index = 0; index < (unsigned int)compressionResult.second; ++index) {
+//			printf("%u[%X][%d] ",index,buf[index],buf[index]);
+//			if(index % 10 == 0) {
+//				printf("\n");
+//			}
+//		}
+//		printf("\n");
+
+		NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &compressedLength, sizeof(compressedLength));
+		NetworkMessage::send(socket, compressionResult.first, compressionResult.second);
+		delete [] compressionResult.first;
+		//printf("Compressed launch packet SENT\n");
 	}
 	else {
 		unsigned char *buf = packMessage();

@@ -49,6 +49,7 @@ enum NetworkMessageType {
 	nmtMarkCell,
 	nmtUnMarkCell,
 	nmtHighlightCell,
+//	nmtCompressedPacket,
 
 	nmtCount
 };
@@ -62,6 +63,7 @@ enum NetworkGameStateType {
 };
 
 static const int maxLanguageStringSize= 60;
+static const int maxNetworkMessageSize= 20000;
 
 // =====================================================
 //	class NetworkMessage
@@ -113,6 +115,7 @@ public:
 
 	virtual void send(Socket* socket) = 0;
 	virtual size_t getDataSize() const = 0;
+	virtual unsigned char * getData() { return NULL; }
 
 	virtual NetworkMessageType getNetworkMessageType() const = 0;
 
@@ -313,7 +316,8 @@ private:
 private:
 
 	int8 messageType;
-	struct Data{
+	uint32 compressedLength;
+	struct Data {
 		NetworkString<maxStringSize> description;
 		NetworkString<maxSmallStringSize> map;
 		NetworkString<maxSmallStringSize> tileset;
@@ -364,7 +368,7 @@ private:
 	};
 	void toEndian();
 	void fromEndian();
-
+	std::pair<unsigned char *,unsigned long> getCompressedMessage();
 private:
 	Data data;
 
@@ -379,6 +383,7 @@ public:
 	NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
+	virtual unsigned char * getData();
 
 	virtual NetworkMessageType getNetworkMessageType() const {
 		return nmtLaunch;
@@ -1202,7 +1207,6 @@ public:
 	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
-
 
 }}//end namespace
 
