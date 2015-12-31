@@ -87,6 +87,36 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 	}
 }
 
+void NetworkMessage::send(Socket* socket, const void* data, int dataSize, int8 messageType) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,socket,data,dataSize);
+
+	if(socket != NULL) {
+		int msgTypeSize = sizeof(messageType);
+		int fullMsgSize = dataSize + msgTypeSize;
+
+		char *out_buffer = new char[fullMsgSize];
+		memcpy(out_buffer,&messageType,msgTypeSize);
+		memcpy(&out_buffer[msgTypeSize],(const char *)data,dataSize);
+
+		dump_packet("\nOUTGOING PACKET:\n",out_buffer, fullMsgSize, true);
+		int sendResult = socket->send(out_buffer, fullMsgSize);
+		if(sendResult != fullMsgSize) {
+			delete [] out_buffer;
+			if(socket != NULL && socket->isSocketValid() == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,fullMsgSize);
+				throw megaglest_runtime_error(szBuf);
+			}
+			else {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			}
+		}
+		else {
+			delete [] out_buffer;
+		}
+	}
+}
+
 void NetworkMessage::resetNetworkPacketStats() {
 	NetworkMessage::statsTimer.stop();
 	NetworkMessage::lastSend.stop();
@@ -400,8 +430,8 @@ void NetworkMessageIntro::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data),messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -520,8 +550,8 @@ void NetworkMessagePing::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -621,8 +651,8 @@ void NetworkMessageReady::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -1366,8 +1396,8 @@ void NetworkMessageLaunch::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -1705,8 +1735,8 @@ void NetworkMessageCommandList::send(Socket* socket) {
 	//bool result = false;
 	if(useOldProtocol == true) {
 		//printf("<===== OUT Network hdr cmd type: frame: %d totalCommand: %u [%u]\n",data.header.frameCount,totalCommand,data.header.commandCount);
-		NetworkMessage::send(socket, &data.messageType, sizeof(data.messageType));
-		NetworkMessage::send(socket, &data.header, commandListHeaderSize);
+		//NetworkMessage::send(socket, &data.messageType, sizeof(data.messageType));
+		NetworkMessage::send(socket, &data.header, commandListHeaderSize, data.messageType);
 	}
 	else {
 		//NetworkMessage::send(socket, &data.header, commandListHeaderSize);
@@ -1903,8 +1933,8 @@ void NetworkMessageText::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -2639,8 +2669,8 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -2733,8 +2763,8 @@ void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
 	assert(messageType == nmtSynchNetworkGameDataFileGet);
 	toEndian();
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -2883,8 +2913,8 @@ void SwitchSetupRequest::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -2984,8 +3014,8 @@ void PlayerIndexMessage::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -3078,8 +3108,8 @@ void NetworkMessageLoadingStatus::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -3205,8 +3235,8 @@ void NetworkMessageMarkCell::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -3330,8 +3360,8 @@ void NetworkMessageUnMarkCell::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();
@@ -3446,8 +3476,8 @@ void NetworkMessageHighlightCell::send(Socket* socket) {
 	toEndian();
 
 	if(useOldProtocol == true) {
-		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &data, sizeof(data));
+		//NetworkMessage::send(socket, &messageType, sizeof(messageType));
+		NetworkMessage::send(socket, &data, sizeof(data), messageType);
 	}
 	else {
 		unsigned char *buf = packMessage();

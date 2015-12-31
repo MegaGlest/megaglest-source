@@ -122,6 +122,7 @@ protected:
 	//bool peek(Socket* socket, void* data, int dataSize);
 	bool receive(Socket* socket, void* data, int dataSize,bool tryReceiveUntilDataSizeMet);
 	void send(Socket* socket, const void* data, int dataSize);
+	void send(Socket* socket, const void* data, int dataSize, int8 messageType);
 
 	virtual const char * getPackedMessageFormat() const = 0;
 	virtual unsigned int getPackedSize() = 0;
