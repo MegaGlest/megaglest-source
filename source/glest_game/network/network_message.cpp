@@ -50,7 +50,7 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataReceived,dataSize);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataReceived,dataSize);
 
-			if(socket != NULL && socket->getSocketId() > 0) {
+			if(socket != NULL && socket->isSocketValid() == true) {
 				throw megaglest_runtime_error("Error receiving NetworkMessage, dataReceived = " + intToStr(dataReceived) + ", dataSize = " + intToStr(dataSize));
 			}
 			else {
@@ -75,7 +75,7 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 		dump_packet("\nOUTGOING PACKET:\n",data, dataSize, true);
 		int sendResult = socket->send(data, dataSize);
 		if(sendResult != dataSize) {
-			if(socket != NULL && socket->getSocketId() > 0) {
+			if(socket != NULL && socket->isSocketValid() == true) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,dataSize);
 				throw megaglest_runtime_error(szBuf);

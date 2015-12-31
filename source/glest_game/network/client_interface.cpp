@@ -1887,7 +1887,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 
 		msg = getNextMessageType(waitMicroseconds);
 		if(msg == nmtInvalid) {
-			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
+			if(getSocket() == NULL || (chrono.getMillis() % 250 == 0 && isConnected() == false)) {
 				if(getQuit() == false) {
 					//throw megaglest_runtime_error("Disconnected");
 					//sendTextMessage("Server has Disconnected.",-1);

@@ -1819,6 +1819,7 @@ bool Socket::isConnected() {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			return false;
 		}
+		if (isSocketValid() == false) return false;
 	}
 
 	//otherwise the socket is connected

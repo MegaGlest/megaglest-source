@@ -184,6 +184,9 @@ NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds) {
 		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
 		//}
 
+		if (socket->isSocketValid() == false) {
+			return nmtInvalid;
+		}
         //sanity check new message type
         if(messageType < 0 || messageType >= nmtCount) {
         	if(getConnectHasHandshaked() == true) {
