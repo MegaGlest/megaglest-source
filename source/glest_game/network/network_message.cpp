@@ -1349,7 +1349,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 		result = NetworkMessage::receive(socket, &compressedLength, sizeof(compressedLength), true);
 		//printf("UnCompressed launch packet after read compressed size: %d\n",compressedLength);
 
-		if(result == true && compressedLength > 0) {
+		if(result == true && compressedLength > 0 && socket != NULL && socket->isSocketValid()) {
 			//printf("UnCompressed launch packet before: %u after: %d\n",compressedLength,(int)getDataSize());
 
 			unsigned char *compressedMessage = new unsigned char[compressedLength+1];
@@ -1358,7 +1358,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 			result = NetworkMessage::receive(socket, compressedMessage, compressedLength, true);
 			//printf("UnCompressed launch packet READ returned: %d\n",result);
 
-			if(result == true) {
+			if(result == true && socket != NULL && socket->isSocketValid()) {
 				//printf("UnCompressed launch packet before decompress\n");
 
 //				printf("\n");
@@ -1380,6 +1380,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 
 				//printf("SUCCESS UnCompressed launch packet before: %u after: %lu\n",compressedLength,decompressedBuffer.second);
 			}
+			delete [] compressedMessage;
 		}
 		else if(result == true) {
 			//printf("Normal launch packet detected (uncompressed)\n");
@@ -1470,8 +1471,12 @@ void NetworkMessageLaunch::send(Socket* socket) {
 //		printf("\n");
 
 		NetworkMessage::send(socket, &messageType, sizeof(messageType));
-		NetworkMessage::send(socket, &compressedLength, sizeof(compressedLength));
-		NetworkMessage::send(socket, compressionResult.first, compressionResult.second);
+		if(socket != NULL && socket->isSocketValid()) {
+			NetworkMessage::send(socket, &compressedLength, sizeof(compressedLength));
+			if(socket != NULL && socket->isSocketValid()) {
+				NetworkMessage::send(socket, compressionResult.first, compressionResult.second);
+			}
+		}
 		delete [] compressionResult.first;
 		//printf("Compressed launch packet SENT\n");
 	}

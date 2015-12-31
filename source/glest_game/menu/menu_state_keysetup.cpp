@@ -545,10 +545,10 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
     	if(hotkeyChar != 0) {
     		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar,key.keysym.sym);
 
-    		string keyName = "";
+    		//string keyName = "";
 			//if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
 
-    		keyName = SDL_GetKeyName(key.keysym.sym);
+    		string keyName = SDL_GetKeyName(key.keysym.sym);
     		if(StartsWith(keyName,"Keypad ") == false) {
     			keyName = SDL_GetKeyName(hotkeyChar);
     			key.keysym.sym = hotkeyChar;

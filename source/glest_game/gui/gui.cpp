@@ -346,7 +346,7 @@ void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 void Gui::groupKey(int groupIndex) {
 	if(isKeyDown(vkControl)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
-		bool allAssigned=true;
+//		bool allAssigned=true;
 		bool clearGroup=!isKeyDown(vkShift);
 //		if(!clearGroup){
 //			Unit* unit=selection.getFrontUnit();
@@ -354,7 +354,7 @@ void Gui::groupKey(int groupIndex) {
 //				return;
 //			}
 //		}
-		allAssigned=selection.assignGroup(groupIndex,clearGroup);
+		bool allAssigned=selection.assignGroup(groupIndex,clearGroup);
 		if(!allAssigned){
 			console->addStdMessage("GroupAssignFailed");
 		}

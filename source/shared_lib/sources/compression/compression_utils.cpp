@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "conversion.h"
+#include "platform_util.h"
 #include "util.h"
 
 using namespace Shared::Util;
@@ -335,6 +336,11 @@ std::pair<unsigned char *,unsigned long> compressMemoryToMemory(unsigned char *i
 
 	//printf("compress2 start size: %lu\n",input_len);
 	int result = compress2(compressed_buffer, &compressed_buffer_len, decompressed_buffer, input_len, compressionLevel);
+	if(result != Z_OK) {
+		string msg = string("Invalid compress2 return value: ") + intToStr(result);
+		throw megaglest_runtime_error(msg.c_str());
+	}
+
 	//printf("compress2 returned: %d start size: %lu end size: %lu\n",result,input_len,compressed_buffer_len);
 	delete [] decompressed_buffer;
 
@@ -352,7 +358,12 @@ std::pair<unsigned char *,unsigned long> extractMemoryToMemory(unsigned char *in
 	memcpy(compressed_buffer,input,input_len);
 
 	//printf("#2uncompress start size: %lu\n",input_len);
+	//int result = uncompress(decompressed_buffer, &decompressed_buffer_len, compressed_buffer, input_len);
 	int result = uncompress(decompressed_buffer, &decompressed_buffer_len, compressed_buffer, input_len);
+	if(result != Z_OK) {
+		string msg = string("Invalid uncompress return value: ") + intToStr(result);
+		throw megaglest_runtime_error(msg.c_str());
+	}
 	//printf("uncompress returned: %d start size: %lu end size: %lu\n",result,input_len,decompressed_buffer_len);
 	delete [] compressed_buffer;
 
