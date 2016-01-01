@@ -1571,6 +1571,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 		//printf("Peek #2 err = %d\n",err);
 
+		Chrono chronoElapsed(true);
 		const int MAX_PEEK_WAIT_SECONDS = 3;
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
@@ -1583,7 +1584,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	            break;
 	        }
 */
-	        if(Socket::isReadable(true) == true) {
+	        if(Socket::isReadable(true) == true || chronoElapsed.getMillis() % 100 == 0) {
 
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
@@ -1614,7 +1615,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
                 safeMutex.ReleaseLock();
 
-                if(err <= 0) {
+                if(err == 0 || err == PLATFORM_SOCKET_TRY_AGAIN) {
                 	sleep(0);
                 }
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
