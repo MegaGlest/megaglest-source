@@ -126,6 +126,7 @@ protected:
 	bool receive(Socket* socket, void* data, int dataSize,bool tryReceiveUntilDataSizeMet);
 	void send(Socket* socket, const void* data, int dataSize);
 	void send(Socket* socket, const void* data, int dataSize, int8 messageType);
+	void send(Socket* socket, const void* data, int dataSize, int8 messageType, uint32 compressedLength);
 
 	virtual const char * getPackedMessageFormat() const = 0;
 	virtual unsigned int getPackedSize() = 0;

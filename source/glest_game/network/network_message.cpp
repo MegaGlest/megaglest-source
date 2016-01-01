@@ -93,11 +93,43 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize, int8 m
 
 	if(socket != NULL) {
 		int msgTypeSize = sizeof(messageType);
-		int fullMsgSize = dataSize + msgTypeSize;
+		int fullMsgSize = msgTypeSize + dataSize;
 
 		char *out_buffer = new char[fullMsgSize];
 		memcpy(out_buffer,&messageType,msgTypeSize);
 		memcpy(&out_buffer[msgTypeSize],(const char *)data,dataSize);
+
+		dump_packet("\nOUTGOING PACKET:\n",out_buffer, fullMsgSize, true);
+		int sendResult = socket->send(out_buffer, fullMsgSize);
+		if(sendResult != fullMsgSize) {
+			delete [] out_buffer;
+			if(socket != NULL && socket->isSocketValid() == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error sending NetworkMessage, sendResult = %d, dataSize = %d",sendResult,fullMsgSize);
+				throw megaglest_runtime_error(szBuf);
+			}
+			else {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			}
+		}
+		else {
+			delete [] out_buffer;
+		}
+	}
+}
+
+void NetworkMessage::send(Socket* socket, const void* data, int dataSize, int8 messageType, uint32 compressedLength) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,socket,data,dataSize);
+
+	if(socket != NULL) {
+		int msgTypeSize = sizeof(messageType);
+		int compressedSize = sizeof(compressedLength);
+		int fullMsgSize = msgTypeSize + compressedSize + dataSize;
+
+		char *out_buffer = new char[fullMsgSize];
+		memcpy(out_buffer,&messageType,msgTypeSize);
+		memcpy(&out_buffer[msgTypeSize],&compressedLength,compressedSize);
+		memcpy(&out_buffer[msgTypeSize+compressedSize],(const char *)data,dataSize);
 
 		dump_packet("\nOUTGOING PACKET:\n",out_buffer, fullMsgSize, true);
 		int sendResult = socket->send(out_buffer, fullMsgSize);
@@ -1344,10 +1376,21 @@ bool NetworkMessageLaunch::receive(Socket* socket, NetworkMessageType type) {
 bool NetworkMessageLaunch::receive(Socket* socket) {
 	//printf("Receive NetworkMessageLaunch\n");
 	bool result = false;
+
+	Chrono chrono;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+
 	if(useOldProtocol == true) {
+
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		//printf("UnCompressed launch packet before read compressed size\n");
 		result = NetworkMessage::receive(socket, &compressedLength, sizeof(compressedLength), true);
 		//printf("UnCompressed launch packet after read compressed size: %d\n",compressedLength);
+
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		if(result == true && compressedLength > 0 && socket != NULL && socket->isSocketValid()) {
 			//printf("UnCompressed launch packet before: %u after: %d\n",compressedLength,(int)getDataSize());
@@ -1357,6 +1400,9 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 
 			result = NetworkMessage::receive(socket, compressedMessage, compressedLength, true);
 			//printf("UnCompressed launch packet READ returned: %d\n",result);
+
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 			if(result == true && socket != NULL && socket->isSocketValid()) {
 				//printf("UnCompressed launch packet before decompress\n");
@@ -1374,17 +1420,30 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 				unsigned long buffer_size = compressedLength;
 				std::pair<unsigned char *,unsigned long> decompressedBuffer =
 						Shared::CompressionUtil::extractMemoryToMemory(compressedMessage, buffer_size, maxNetworkMessageSize);
+
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				unsigned char *decompressed_buffer = decompressedBuffer.first;
 				memcpy(&data,decompressed_buffer,decompressedBuffer.second);
 				delete [] decompressed_buffer;
 
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				//printf("SUCCESS UnCompressed launch packet before: %u after: %lu\n",compressedLength,decompressedBuffer.second);
 			}
 			delete [] compressedMessage;
+
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 		}
 		else if(result == true) {
 			//printf("Normal launch packet detected (uncompressed)\n");
 			result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 		}
 	}
 	else {
@@ -1395,6 +1454,9 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 		delete [] buf;
 	}
 	fromEndian();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	data.description.nullTerminate();
 	data.map.nullTerminate();
@@ -1415,6 +1477,8 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	data.scenario.nullTerminate();
 
 	data.gameUUID.nullTerminate();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//for(int i= 0; i < GameConstants::maxPlayers; ++i){
 	//	printf("Receive index: %d resource multiplier index: %d sizeof(data): %d\n",i,data.resourceMultiplierIndex[i],sizeof(data));
@@ -1470,6 +1534,7 @@ void NetworkMessageLaunch::send(Socket* socket) {
 //		}
 //		printf("\n");
 
+/*
 		NetworkMessage::send(socket, &messageType, sizeof(messageType));
 		if(socket != NULL && socket->isSocketValid()) {
 			NetworkMessage::send(socket, &compressedLength, sizeof(compressedLength));
@@ -1477,6 +1542,8 @@ void NetworkMessageLaunch::send(Socket* socket) {
 				NetworkMessage::send(socket, compressionResult.first, compressionResult.second);
 			}
 		}
+*/
+		NetworkMessage::send(socket, compressionResult.first, compressionResult.second, messageType, compressedLength);
 		delete [] compressionResult.first;
 		//printf("Compressed launch packet SENT\n");
 	}
