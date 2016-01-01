@@ -1872,19 +1872,40 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 
 }
 
+unsigned char * NetworkMessageCommandList::getData() {
+	int headerSize = sizeof(data.header);
+	uint16 totalCommand = data.header.commandCount;
+	int detailSize = (sizeof(NetworkCommand) * totalCommand);
+	int fullBufferSize = headerSize + detailSize;
+
+	unsigned char *buffer = new unsigned char[fullBufferSize];
+	memcpy(buffer,&data.header,headerSize);
+	memcpy(&buffer[headerSize],&data.commands[0],detailSize);
+	return buffer;
+}
+
 void NetworkMessageCommandList::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.messageType);
 
 	assert(data.messageType == nmtCommandList);
 	uint16 totalCommand = data.header.commandCount;
 	toEndianHeader();
+	toEndianDetail(totalCommand);
 
 	unsigned char *buf = NULL;
 	//bool result = false;
 	if(useOldProtocol == true) {
 		//printf("<===== OUT Network hdr cmd type: frame: %d totalCommand: %u [%u]\n",data.header.frameCount,totalCommand,data.header.commandCount);
 		//NetworkMessage::send(socket, &data.messageType, sizeof(data.messageType));
-		NetworkMessage::send(socket, &data.header, commandListHeaderSize, data.messageType);
+
+		//NetworkMessage::send(socket, &data.header, commandListHeaderSize, data.messageType);
+		unsigned char *send_buffer = getData();
+		int headerSize = sizeof(data.header);
+		uint16 totalCommand = data.header.commandCount;
+		int detailSize = (sizeof(NetworkCommand) * totalCommand);
+		int fullBufferSize = headerSize + detailSize;
+		NetworkMessage::send(socket, send_buffer, fullBufferSize, data.messageType);
+		delete [] send_buffer;
 	}
 	else {
 		//NetworkMessage::send(socket, &data.header, commandListHeaderSize);
@@ -1896,7 +1917,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 
 	if(totalCommand > 0) {
 		//printf("\n#2 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
-		toEndianDetail(totalCommand);
+		//toEndianDetail(totalCommand);
 		//printf("\n#3 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
 
 		//bool result = false;
@@ -1904,7 +1925,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 //			if(data.commands[0].getNetworkCommandType() == nctPauseResume) {
 //				printf("<===== OUT Network cmd type: %d [%d] frame: %d totalCommand: %u [%u]\n",data.commands[0].getNetworkCommandType(),nctPauseResume,data.header.frameCount,totalCommand,data.header.commandCount);
 //			}
-			NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
+			//NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
 		}
 		else {
 			buf = packMessageDetail(totalCommand);

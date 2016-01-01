@@ -466,6 +466,7 @@ public:
 	NetworkMessageCommandList(int32 frameCount= -1);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
+	virtual unsigned char * getData();
 
 	virtual NetworkMessageType getNetworkMessageType() const {
 		return nmtCommandList;
