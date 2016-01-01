@@ -474,12 +474,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
 	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
-	labelAllowInGameJoinPlayer.init(xoffset+410, 670, 80);
+	labelAllowInGameJoinPlayer.init(50, networkPos - 30, 80);
 	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
 	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
 	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
-	checkBoxAllowInGameJoinPlayer.init(xoffset+612, 670);
+	checkBoxAllowInGameJoinPlayer.init(20, networkPos - 30);
 	checkBoxAllowInGameJoinPlayer.setValue(false);
 	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
@@ -507,11 +507,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	// Network Pause for lagged clients
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
-	labelNetworkPauseGameForLaggedClients.init(labelAllowInGameJoinPlayer.getX(), networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(labelAllowTeamResourceSharing.getX(), networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
 	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
-	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowInGameJoinPlayer.getX(), networkHeadPos);
+	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowTeamResourceSharing.getX(), networkHeadPos);
 	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
 
 	//list boxes
