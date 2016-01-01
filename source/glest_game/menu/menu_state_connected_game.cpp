@@ -2934,6 +2934,9 @@ void MenuStateConnectedGame::update() {
 			labelWaitingForPlayers.setVisible(false);
 		}
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		if(difftime((long int)time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -2973,6 +2976,10 @@ void MenuStateConnectedGame::update() {
 			pingCount++;
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		buttonDisconnect.setText(lang.getString("Disconnect"));
 
 		if(clientInterface->getAllowDownloadDataSynch() == false) {
@@ -2983,6 +2990,9 @@ void MenuStateConnectedGame::update() {
             }
 
             label = label + ", " + clientInterface->getVersionString();
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
             if(clientInterface->getAllowGameDataSynchCheck() == false &&
             	displayedGamesettings.getTileset() != "" &&
@@ -3298,6 +3308,9 @@ void MenuStateConnectedGame::update() {
                 }
             }
 
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false) {
                 label = label + " -synch mismatch for:";
@@ -3354,6 +3367,10 @@ void MenuStateConnectedGame::update() {
             }
 
             labelStatus.setText(label);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		}
 		else {
 		    string label = lang.getString("ConnectedToServer");
@@ -3361,6 +3378,9 @@ void MenuStateConnectedGame::update() {
             if(!clientInterface->getServerName().empty()) {
                 label = label + " " + clientInterface->getServerName();
             }
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false) {
@@ -3418,6 +3438,9 @@ void MenuStateConnectedGame::update() {
 
 				const GameSettings *receivedGameSettings= clientInterface->getGameSettings();
 
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",displayedGamesettings.getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),displayedGamesettings.getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
 				if ( difftime((long int)time(NULL),noReceiveTimer) < 3 || difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) < HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS){
 					// copy my current settings in UI to displayedSettings;
@@ -3471,8 +3494,15 @@ void MenuStateConnectedGame::update() {
 					// do nothing
 					setupUIFromGameSettings(&displayedGamesettings, errorOnMissingData);
 				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
 			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 			// check if we are joining an in progress game
 			if( clientInterface->getJoinGameInProgress() == true &&
@@ -3518,6 +3548,9 @@ void MenuStateConnectedGame::update() {
 					return;
 				}
 			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 			//update lobby
 			clientInterface= NetworkManager::getInstance().getClientInterface();
@@ -3588,6 +3621,9 @@ void MenuStateConnectedGame::update() {
 						modHttpServerThread = NULL;
 					}
 
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
                     if(ftpClientThread != NULL) {
 						ftpClientThread->setCallBackObject(NULL);
 						ftpClientThread->signalQuit();
@@ -3606,6 +3642,9 @@ void MenuStateConnectedGame::update() {
                     }
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                     launchingNewGame = true;
 
@@ -3627,6 +3666,9 @@ void MenuStateConnectedGame::update() {
                 		gameSettings.setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
                     }
 
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					program->setState(new Game(program, &gameSettings,false));
 					return;
 				}
@@ -3634,6 +3676,9 @@ void MenuStateConnectedGame::update() {
 
 			//call the chat manager
 			chatManager.updateNetwork();
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 			//console732
             console.update();
@@ -3660,7 +3705,8 @@ void MenuStateConnectedGame::update() {
     			soundConnectionCount = currentConnectionCount;
 			}
 
-
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 		}
 		catch(const runtime_error &ex) {
 			char szBuf[8096]="";
