@@ -68,6 +68,7 @@ namespace Shared{ namespace Platform{
 bool Socket::disableNagle = false;
 int Socket::DEFAULT_SOCKET_SENDBUF_SIZE = -1;
 int Socket::DEFAULT_SOCKET_RECVBUF_SIZE = -1;
+string Socket::host_name = "";
 
 int Socket::broadcast_portno    = 61357;
 int ServerSocket::ftpServerPort = 61358;
@@ -1827,19 +1828,18 @@ bool Socket::isConnected() {
 }
 
 string Socket::getHostName()  {
-	static string host = "";
-	if(host == "") {
+	if(Socket::host_name == "") {
 		const int strSize= 257;
 		char hostname[strSize]="";
 		int result = gethostname(hostname, strSize);
 		if(result == 0) {
-			host = (hostname[0] != '\0' ? hostname : "");
+			Socket::host_name = (hostname[0] != '\0' ? hostname : "");
 		}
 		else {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,result,getLastSocketErrorText());
 		}
 	}
-	return host;
+	return Socket::host_name;
 }
 
 string Socket::getIp() {
