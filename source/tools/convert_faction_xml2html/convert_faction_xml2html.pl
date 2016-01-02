@@ -170,8 +170,9 @@ $me =~ s/^.+\///;
 our $footer=$cfg->val( 'style', 'footer');
 our $map_legend = $cfg->val('style', 'map_legend');
 
-$footer =~ s/VAR_CREATED_BY/<I><A HREF=\"http:\/\/rupp.de\/glest\/\">$me<\/A><\/I>, version: <I>$version<\/I>, using config-file:  <I>$cfg_file<\/I>, on: <I>$now_string<\/I> /;
-
+#$footer =~ s/VAR_CREATED_BY/<I><A HREF=\"http:\/\/rupp.de\/glest\/\">$me<\/A><\/I>, version: <I>$version<\/I>, using config-file:  <I>$cfg_file<\/I>, on: <I>$now_string<\/I> /;
+# ^ timestamp should be in the one common footer
+$footer =~ s/VAR_CREATED_BY/<I><A HREF=\"http:\/\/rupp.de\/glest\/\">$me<\/A><\/I>, version: <I>$version<\/I>, using config-file:  <I>$cfg_file<\/I>/;
 
 our $level_hp = $cfg->val('all', 'level_hp');
 our $level_ep = $cfg->val('all', 'level_ep');
