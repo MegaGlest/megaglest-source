@@ -52,6 +52,7 @@ private:
 	std::pair<string,string> fileName;
 	std::pair<bool,bool> fileLoaded;
 	string custom_path_parameter;
+    string serverTitle;
 
 	static map<ConfigType,Config> configList;
 
@@ -117,6 +118,9 @@ public:
     SDL_Keycode translateStringToSDLKey(const string &value) const;
 
 	string toString();
+
+	string getServerTitle() {return serverTitle;}
+	void setServerTitle(string name) {serverTitle=name;}
 
 	static string getCustomRuntimeProperty(string key) 				{ return customRuntimeProperties[key]; }
 	static void setCustomRuntimeProperty(string key, string value) 	{ customRuntimeProperties[key] = value; }

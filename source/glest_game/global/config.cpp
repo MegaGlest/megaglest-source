@@ -113,6 +113,7 @@ Config::Config() {
 	fileNameParameter.first 	= "";
 	fileNameParameter.second 	= "";
 	custom_path_parameter       = "";
+	serverTitle                  = "";
 }
 
 bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path) {

@@ -461,12 +461,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelGameName.init(20+checkBoxPublishServer.getW()+5, networkPos,200);
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	if(this->headlessServerMode == false) {
-		labelGameName.setText(defaultPlayerName+"'s game");
-	}
-	else {
-		labelGameName.setText("headless ("+defaultPlayerName+")");
-	}
+	labelGameName.setText(createGameName());
 	labelGameName.setEditable(true);
 	labelGameName.setMaxEditWidth(20);
 	labelGameName.setMaxEditRenderWidth(200);
@@ -735,6 +730,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 }
 
+string MenuStateCustomGame::createGameName(string controllingPlayer){
+	Config &config = Config::getInstance();
+	if(config.getServerTitle()!="" && controllingPlayer == ""){
+		return config.getServerTitle();
+	}
+	else if (this->headlessServerMode == true) {
+		if (controllingPlayer != "") {
+			return controllingPlayer + " controls";
+		} else {
+			return "Headless (" + defaultPlayerName + ")";
+		}
+	} else {
+		return defaultPlayerName+"'s game";
+	}
+}
+
 void MenuStateCustomGame::reloadUI() {
 	Lang &lang= Lang::getInstance();
     Config &config = Config::getInstance();
@@ -809,12 +820,8 @@ void MenuStateCustomGame::reloadUI() {
 
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	if(this->headlessServerMode == false) {
-		labelGameName.setText(defaultPlayerName+"'s game");
-	}
-	else {
-		labelGameName.setText("headless ("+defaultPlayerName+")");
-	}
+
+	labelGameName.setText(createGameName());
 
 	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
@@ -3854,7 +3861,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 						clientConnectedTime = serverInterface->getSlot(i,true)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i,true)->getSessionKey());
 						gameSettings->setMasterserver_admin_faction_index(serverInterface->getSlot(i,true)->getPlayerIndex());
-						labelGameName.setText(serverInterface->getSlot(i,true)->getName()+" controls");
+						labelGameName.setText(createGameName(serverInterface->getSlot(i,true)->getName()));
 						//printf("slot = %d, admin key [%d] slot connected time[" MG_SIZE_T_SPECIFIER "] clientConnectedTime [" MG_SIZE_T_SPECIFIER "]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
 					}
 					if(serverInterface->getSlot(i,true)->getSessionKey() == gameSettings->getMasterserver_admin()){
@@ -3878,7 +3885,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 						clientConnectedTime = serverInterface->getSlot(i,true)->getConnectedTime();
 						gameSettings->setMasterserver_admin(serverInterface->getSlot(i,true)->getSessionKey());
 						gameSettings->setMasterserver_admin_faction_index(serverInterface->getSlot(i,true)->getPlayerIndex());
-						labelGameName.setText(serverInterface->getSlot(i,true)->getName()+" controls");
+						labelGameName.setText(createGameName(serverInterface->getSlot(i,true)->getName()));
 						//printf("slot = %d, admin key [%d] slot connected time[" MG_SIZE_T_SPECIFIER "] clientConnectedTime [" MG_SIZE_T_SPECIFIER "]\n",i,gameSettings->getMasterserver_admin(),serverInterface->getSlot(i)->getConnectedTime(),clientConnectedTime);
 					}
 					if(serverInterface->getSlot(i,true)->getSessionKey() == gameSettings->getMasterserver_admin()){
@@ -3890,7 +3897,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 		if(masterserver_admin_found == false)
 		{
-			labelGameName.setText("Headless: "+defaultPlayerName);
+			labelGameName.setText(createGameName());
 		}
 	}
 
