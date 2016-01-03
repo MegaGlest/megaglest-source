@@ -214,7 +214,7 @@ string getAboutString1(int i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return GIT_Rev;
 	case 2: return "Copyright 2001-2010 The Glest Team";
-	case 3: return "Copyright 2010-2015 The MegaGlest Team";
+	case 3: return "Copyright 2010-2016 The MegaGlest Team";
 	}
 	return "";
 }
