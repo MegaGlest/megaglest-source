@@ -57,6 +57,7 @@ public:
 	virtual void eventActivate(bool active);
 	virtual void eventResize(SizeState sizeState);
 	virtual void eventClose();
+	virtual void eventWindowEvent(SDL_WindowEvent event);
 
 	virtual void render();
 	void toggleLanguage(string language);

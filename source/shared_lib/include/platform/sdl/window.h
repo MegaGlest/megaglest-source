@@ -215,6 +215,7 @@ protected:
 	virtual void eventClose() {};
 	virtual void eventDestroy() {};
 	virtual void eventToggleFullScreen(bool isFullscreen) {};
+	virtual void eventWindowEvent(SDL_WindowEvent event) {}
 
 private:
 	/// needed to detect double clicks

@@ -462,7 +462,35 @@ bool Window::handleEvent() {
 //						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
 //						showCursor(willShowCursor);
 //					}
-					showCursor(false);
+
+					//printf("In SDL_WINDOWEVENT, event.window.event: %d\n",event.window.event);
+
+					/*
+					switch(event.window.event) {
+						case SDL_WINDOWEVENT_ENTER:
+							printf("In SDL_WINDOWEVENT_ENTER\n");
+							showCursor(true);
+							break;
+						case SDL_WINDOWEVENT_LEAVE:
+							printf("In SDL_WINDOWEVENT_LEAVE\n");
+							showCursor(false);
+							break;
+						case SDL_WINDOWEVENT_FOCUS_GAINED:
+							printf("SDL_WINDOWEVENT_FOCUS_GAINED\n");
+							showCursor(true);
+							break;
+						case SDL_WINDOWEVENT_FOCUS_LOST:
+							printf("SDL_WINDOWEVENT_FOCUS_LOST\n");
+							showCursor(false);
+							break;
+					}
+					*/
+					//showCursor(false);
+
+					if(global_window) {
+						global_window->eventWindowEvent(event.window);
+					}
+
 				}
 				break;
 			}

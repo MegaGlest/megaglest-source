@@ -60,7 +60,7 @@ namespace Glest{ namespace Game{
 // 	class Text
 // =====================================================
 
-Text::Text(const string &text, const Vec2i &pos, int time, Font2D *font, Font3D *font3D) {
+IntroText::IntroText(const string &text, const Vec2i &pos, int time, Font2D *font, Font3D *font3D) {
 	this->text= text;
 	this->pos= pos;
 	this->time= time;
@@ -69,7 +69,7 @@ Text::Text(const string &text, const Vec2i &pos, int time, Font2D *font, Font3D 
 	this->font3D = font3D;
 }
 
-Text::Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time) {
+IntroText::IntroText(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time) {
 	this->pos= pos;
 	this->size= size;
 	this->time= time;
@@ -322,7 +322,7 @@ Intro::Intro(Program *program):
 					textureHeight = strToInt(lang.getString(introTagTextureHeightName,"",true));
 				}
 
-				texts.push_back(new Text(logoTexture, Vec2i(w/2-(textureWidth/2), h/2-(textureHeight/2)), Vec2i(textureWidth, textureHeight), displayTime));
+				texts.push_back(new IntroText(logoTexture, Vec2i(w/2-(textureWidth/2), h/2-(textureHeight/2)), Vec2i(textureWidth, textureHeight), displayTime));
 			}
 			// This is a line of text
 			else {
@@ -385,7 +385,7 @@ Intro::Intro(Program *program):
 					}
 
 				}
-				texts.push_back(new Text(lineText, Vec2i(textX, textY), displayTime, font,font3d));
+				texts.push_back(new IntroText(lineText, Vec2i(textX, textY), displayTime, font,font3d));
 			}
 		}
 		else {
@@ -496,7 +496,7 @@ Intro::Intro(Program *program):
 				textureStartTime = strToInt(lang.getString("IntroTextureStartMilliseconds","",true));
 			}
 
-			texts.push_back(new Text(tex, texPlacement, Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), textureStartTime +(showMiscTime*(i+1))));
+			texts.push_back(new IntroText(tex, texPlacement, Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), textureStartTime +(showMiscTime*(i+1))));
 		}
 	}
 
@@ -682,7 +682,7 @@ void Intro::render() {
 	renderer.reset2d();
 
 	for(int i = 0; i < (int)texts.size(); ++i) {
-		Text *text= texts[i];
+		IntroText *text= texts[i];
 
 		int difTime= 1000 * timer / GameConstants::updateFps - text->getTime();
 

@@ -48,7 +48,7 @@ namespace Glest{ namespace Game{
 //	class Text
 // =====================================================
 
-class Text {
+class IntroText {
 private:
 	string text;
 	Vec2i pos;
@@ -59,8 +59,8 @@ private:
 	const Texture2D *texture;
 
 public:
-	Text(const string &text, const Vec2i &pos, int time, Font2D *font, Font3D *font3D);
-	Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time);
+	IntroText(const string &text, const Vec2i &pos, int time, Font2D *font, Font3D *font3D);
+	IntroText(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int time);
 
 	const string &getText() const		{return text;}
 	Font2D *getFont() 					{return font;}
@@ -85,7 +85,7 @@ private:
 	static int disapearTime;
 
 private:
-	vector<Text *> texts;
+	vector<IntroText *> texts;
 	int timer;
 	int mouse2d;
 

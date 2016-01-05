@@ -1716,6 +1716,9 @@ bool isCursorShowing() {
 }
 
 void showCursor(bool b) {
+	//printf("In showCursor, b: %d, isCursorShowing(): %d\n",b,isCursorShowing());
+
+
 	if(isCursorShowing() == b) {
 		return;
 	}

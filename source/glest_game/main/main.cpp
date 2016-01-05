@@ -81,6 +81,7 @@
 #include "network_protocol.h"
 #include "conversion.h"
 #include "gen_uuid.h"
+//#include "intro.h"
 #include "leak_dumper.h"
 
 #if defined(WIN32)
@@ -1325,6 +1326,76 @@ void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+}
+
+void MainWindow::eventWindowEvent(SDL_WindowEvent event) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.event);
+    if(program == NULL) {
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
+    }
+
+//    if(program->getState() != NULL && dynamic_cast<Intro *>(program->getState()) != NULL) {
+//    	printf("In eventWindowEvent skip\n");
+//    	return;
+//    }
+    //Renderer &renderer= Renderer::getInstance();
+    switch(event.event) {
+		case SDL_WINDOWEVENT_ENTER:
+		{
+			//printf("In SDL_WINDOWEVENT_ENTER\n");
+//			bool showCursorState = Window::lastShowMouseState;
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+		case SDL_WINDOWEVENT_LEAVE:
+		{
+			//printf("In SDL_WINDOWEVENT_LEAVE\n");
+//			bool showCursorState = false;
+//			int state = SDL_ShowCursor(SDL_QUERY);
+//			if(state == SDL_DISABLE) {
+//				showCursorState = true;
+//			}
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		{
+			//printf("SDL_WINDOWEVENT_FOCUS_GAINED\n");
+//			bool showCursorState = Window::lastShowMouseState;
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+		{
+			//printf("SDL_WINDOWEVENT_FOCUS_LOST\n");
+//			bool showCursorState = false;
+//			int state = SDL_ShowCursor(SDL_QUERY);
+//			if(state == SDL_DISABLE) {
+//				showCursorState = true;
+//			}
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.event);
 }
 
 void MainWindow::eventActivate(bool active) {
@@ -4786,6 +4857,7 @@ int glestMain(int argc, char** argv) {
 		::Shared::Platform::PlatformContextGl::charSet = config.getInt("FONT_CHARSET",intToStr(::Shared::Platform::PlatformContextGl::charSet).c_str());
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
+			//showWindowCursorState = false;
 		}
 		if(config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str()) >= 0) {
 			SystemFlags::DEFAULT_HTTP_TIMEOUT = config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str());
@@ -5645,6 +5717,7 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    showCursor(true);
+	    //showWindowCursorState = true;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
