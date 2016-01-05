@@ -292,6 +292,7 @@ private:
 			ServerInterface *& serverInterface, int startIndex, int endIndex,
 			bool onlyNetworkUnassigned);
 
+	string createGameName(string controllingPlayer="");
 	void reloadUI();
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void processScenario();

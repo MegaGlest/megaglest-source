@@ -4107,6 +4107,29 @@ int glestMain(int argc, char** argv) {
 		}
     }
 
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER_TITLE]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SERVER_TITLE]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SERVER_TITLE]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			Config &config = Config::getInstance();
+			string serverTitle = paramPartTokens[1];
+			printf("Forcing serverTitle[%s]\n",serverTitle.c_str());
+
+			config.setServerTitle(serverTitle);
+		}
+        else {
+            printf("\nInvalid missing server title specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+
+            return 1;
+        }
+	}
+
 	PlatformExceptionHandler::application_binary= executable_path(argv[0],true);
 	mg_app_name = GameConstants::application_name;
 	mailStringSupport = mailString;
