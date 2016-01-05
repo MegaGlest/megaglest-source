@@ -143,6 +143,15 @@ public:
 		SDL_LockMutex(mutex);
 		refCount++;
 	}
+	// Returns return 0, SDL_MUTEX_TIMEDOUT, or -1 on error;
+	// call SDL_GetError() for more information.
+	inline int TryLock(int millisecondsToWait=0) {
+		int result = SDL_TryLockMutex(mutex);
+		if(result == 0) {
+			refCount++;
+		}
+		return result;
+	}
 	inline void v() {
 		refCount--;
 		SDL_UnlockMutex(mutex);
@@ -180,6 +189,14 @@ public:
 		}
 		Lock();
     }
+    inline int setMutexAndTryLock(Mutex *mutex,string ownerId="") {
+		this->mutex = mutex;
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
+		return this->mutex->TryLock();
+    }
+
     inline bool isValidMutex() const {
         return(this->mutex != NULL);
     }
@@ -213,6 +230,39 @@ public:
             #endif
 		}
 	}
+
+    inline int TryLock(int millisecondsToWait=0) {
+		if(this->mutex != NULL) {
+		    #ifdef DEBUG_MUTEXES
+            if(this->ownerId != "") {
+                printf("TryLocking Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
+            }
+            #endif
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+    		chrono.start();
+#endif
+
+			int result = this->mutex->TryLock(millisecondsToWait);
+			if(result == 0 && this->mutex != NULL) {
+				this->mutex->setOwnerId(ownerId);
+			}
+
+#ifdef DEBUG_PERFORMANCE_MUTEXES
+			if(chrono.getMillis() > 5) printf("In [%s::%s Line: %d] MUTEX LOCK took msecs: %lld, this->mutex->getRefCount() = %d ownerId [%s]\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),this->mutex->getRefCount(),ownerId.c_str());
+			chrono.start();
+#endif
+
+            #ifdef DEBUG_MUTEXES
+            if(this->ownerId != "") {
+                printf("Locked Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
+            }
+            #endif
+
+            return result;
+		}
+	}
+
     inline void ReleaseLock(bool keepMutex=false,bool deleteMutexOnRelease=false) {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES

@@ -545,7 +545,9 @@ void IRCThread::disconnect() {
         if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Quitting Channel\n");
 
         MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
-        irc_disconnect(ircSession);
+        if(ircSession != NULL) {
+        	irc_disconnect(ircSession);
+        }
         safeMutex1.ReleaseLock();
 
         BaseThread::signalQuit();
@@ -570,7 +572,9 @@ void IRCThread::signalQuit() {
         if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Quitting Channel\n");
 
         MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
-        irc_cmd_quit(ircSession, "MG Bot is closing!");
+        if(ircSession != NULL) {
+        	irc_cmd_quit(ircSession, "MG Bot is closing!");
+        }
         safeMutex1.ReleaseLock();
 		hasJoinedChannel = false;
     }
@@ -598,7 +602,10 @@ void IRCThread::SendIRCCmdMessage(string target, string msg) {
 
 #if !defined(DISABLE_IRCCLIENT)
     	MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
-        int ret = irc_cmd_msg (ircSession, target.c_str(), msg.c_str());
+    	int ret = 0;
+    	if(ircSession != NULL) {
+    		ret = irc_cmd_msg (ircSession, target.c_str(), msg.c_str());
+    	}
         safeMutex1.ReleaseLock();
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending IRC command to [%s] cmd [%s] ret = %d\n",__FILE__,__FUNCTION__,__LINE__,target.c_str(),msg.c_str(),ret);
@@ -667,20 +674,28 @@ bool IRCThread::isConnected(bool mutexLockRequired) {
     bool ret = false;
     if(this->getQuitStatus() == false) {
 		MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+		int lockStatus = 0;
 		if(mutexLockRequired == true) {
-			safeMutex.setMutex(&mutexIRCSession);
+			lockStatus = safeMutex.setMutexAndTryLock(&mutexIRCSession);
 		}
-		bool validSession = (ircSession != NULL);
-		safeMutex.ReleaseLock();
+		bool validSession = (lockStatus == SDL_MUTEX_TIMEDOUT || (lockStatus == 0 && ircSession != NULL));
+		if(mutexLockRequired == true && lockStatus == 0) {
+			safeMutex.ReleaseLock();
+		}
 
 		if(validSession == true) {
 #if !defined(DISABLE_IRCCLIENT)
 			MutexSafeWrapper safeMutex1(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-			if(mutexLockRequired == true) {
-				safeMutex1.setMutex(&mutexIRCSession);
+			if(ircSession != NULL) {
+				lockStatus = 0;
+				if(mutexLockRequired == true) {
+					lockStatus = safeMutex1.setMutexAndTryLock(&mutexIRCSession);
+				}
+				ret = (lockStatus == SDL_MUTEX_TIMEDOUT || (lockStatus == 0 && irc_is_connected(ircSession) != 0));
 			}
-			ret = (irc_is_connected(ircSession) != 0);
-			safeMutex1.ReleaseLock();
+			if(mutexLockRequired == true && lockStatus == 0) {
+				safeMutex1.ReleaseLock();
+			}
 		}
 #endif
     }
