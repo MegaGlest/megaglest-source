@@ -732,8 +732,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 string MenuStateCustomGame::createGameName(string controllingPlayer){
 	Config &config = Config::getInstance();
-	if(config.getServerTitle()!="" && controllingPlayer == ""){
-		return config.getServerTitle();
+	string serverTitle=config.getString("ServerTitle","");
+
+	if(serverTitle!="" && controllingPlayer == ""){
+		return serverTitle;
 	}
 	else if (this->headlessServerMode == true) {
 		if (controllingPlayer != "") {
