@@ -4141,6 +4141,47 @@ int glestMain(int argc, char** argv) {
     // DEbug testing threads
     //Thread::setEnableVerboseMode(true);
 
+	PlatformExceptionHandler::application_binary= executable_path(argv[0],true);
+	mg_app_name = GameConstants::application_name;
+	mailStringSupport = mailString;
+    SystemFlags::ENABLE_THREADED_LOGGING = false;
+    disableBacktrace = false;
+	bool foundInvalidArgs = false;
+	preCacheThread=NULL;
+
+	Properties::setApplicationPath(executable_path(argv[0]));
+	Properties::setApplicationDataPath(executable_path(argv[0]));
+	Properties::setGameVersion(glestVersionString);
+
+    ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
+
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
+        disableBacktrace = true;
+    }
+    PlatformExceptionHandler::disableBacktrace= disableBacktrace;
+
+#if defined(CUSTOM_DATA_INSTALL_PATH)
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
+#endif
+
+	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
+	for(int idx = 1; idx < argc; ++idx) {
+		if( hasCommandArgument(knownArgCount, (char **)&GAME_ARGS[0], argv[idx], NULL, 0, true) == false) {
+			foundInvalidArgs = true;
+			printf("\nInvalid argument: %s",argv[idx]);
+		}
+	}
+
+	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_HELP]) == true ||
+		foundInvalidArgs == true) {
+
+		printParameterHelp(argv[0],foundInvalidArgs);
+		return 2;
+	}
+
+
+
+
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	//isMasterServerModeEnabled = true;
     	//Window::setMasterserverMode(isMasterServerModeEnabled);
@@ -4201,43 +4242,7 @@ int glestMain(int argc, char** argv) {
         }
 	}
 
-	PlatformExceptionHandler::application_binary= executable_path(argv[0],true);
-	mg_app_name = GameConstants::application_name;
-	mailStringSupport = mailString;
-    SystemFlags::ENABLE_THREADED_LOGGING = false;
-    disableBacktrace = false;
-	bool foundInvalidArgs = false;
-	preCacheThread=NULL;
 
-	Properties::setApplicationPath(executable_path(argv[0]));
-	Properties::setApplicationDataPath(executable_path(argv[0]));
-	Properties::setGameVersion(glestVersionString);
-
-    ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
-
-    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
-        disableBacktrace = true;
-    }
-    PlatformExceptionHandler::disableBacktrace= disableBacktrace;
-
-#if defined(CUSTOM_DATA_INSTALL_PATH)
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
-#endif
-
-	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
-	for(int idx = 1; idx < argc; ++idx) {
-		if( hasCommandArgument(knownArgCount, (char **)&GAME_ARGS[0], argv[idx], NULL, 0, true) == false) {
-			foundInvalidArgs = true;
-			printf("\nInvalid argument: %s",argv[idx]);
-		}
-	}
-
-	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_HELP]) == true ||
-		foundInvalidArgs == true) {
-
-		printParameterHelp(argv[0],foundInvalidArgs);
-		return 2;
-	}
 
 #ifdef WIN32
 	SocketManager winSockManager;
