@@ -4233,7 +4233,7 @@ int glestMain(int argc, char** argv) {
 			string serverTitle = paramPartTokens[1];
 			printf("Forcing serverTitle[%s]\n",serverTitle.c_str());
 
-			config.setServerTitle(serverTitle);
+			config.setString("ServerTitle",serverTitle,true);
 		}
         else {
             printf("\nInvalid missing server title specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
