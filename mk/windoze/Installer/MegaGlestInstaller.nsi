@@ -228,28 +228,28 @@ Section "${APNAME} (required)"
   
   File "..\libvlccore.dll"
   File "..\libvlc.dll"
-  File /r /x .svn /x mydata "..\plugins"
-  File /r /x .svn /x mydata "..\lua"
+  File /r /x .git /x .svn /x mydata "..\plugins"
+  File /r /x .git /x .svn /x mydata "..\lua"
   
   SetOutPath "$INSTDIR\blender\"
-  File "..\\xml2g.exe"
+  File "..\xml2g.exe"
   File "..\g2xml.exe"
-  File /r /x .svn /x mydata "..\..\..\source\tools\glexemel\*.*"
+  File /r /x .git /x .svn /x mydata /x g2xml /x xml2g "..\..\..\source\tools\glexemel\*.*"
   SetOutPath $INSTDIR
 
-  File /r /x .svn /x mydata /x cegui "..\..\..\data\glest_game\data"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\techs"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
+  File /r /x .git /x .svn /x mydata /x cegui "..\..\..\data\glest_game\data"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\docs"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\maps"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\techs"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
 
   SetOutPath "$INSTDIR\docs\"
-  File /r /x .svn /x mydata "..\..\..\docs\*.*"
+  File /r /x .git /x .svn /x mydata "..\..\..\docs\*.*"
   
   SetOutPath "$INSTDIR\data\core\misc_textures\flags"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\data\core\misc_textures\flags\*.*"
+  File /r /x .git /x .svn /x mydata "..\..\..\data\glest_game\data\core\misc_textures\flags\*.*"
   SetOutPath $INSTDIR
 
   ; Write the installation path into the registry
