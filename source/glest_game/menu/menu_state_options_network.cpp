@@ -523,18 +523,6 @@ void MenuStateOptionsNetwork::saveConfig(){
 
 	config.save();
 
-    SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-    soundRenderer.stopAllSounds();
-    program->stopSoundSystem();
-    soundRenderer.init(program->getWindow());
-    soundRenderer.loadConfig();
-    soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
-    program->startSoundSystem();
-
-    if(CoreData::getInstance().hasMainMenuVideoFilename() == false) {
-    	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
-    }
-
 	Renderer::getInstance().loadConfig();
 	console.addLine(lang.getString("SettingsSaved"));
 }
