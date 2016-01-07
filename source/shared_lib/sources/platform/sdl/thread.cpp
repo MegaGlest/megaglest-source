@@ -436,7 +436,7 @@ public:
 };
 
 const bool debugMutexLock 						= false;
-const int debugMutexLockMillisecondThreshold 	= 2000;
+//const int debugMutexLockMillisecondThreshold 	= 2000;
 
 Mutex::Mutex(string ownerId) {
 	this->isStaticMutexListMutex 	= false;

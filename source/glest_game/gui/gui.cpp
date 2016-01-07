@@ -287,7 +287,7 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	}
 	else if(selection.isCommandable()) {
 		if(prepared) {
-			Vec2i targetPos=game->getMouseCellPos();
+			//Vec2i targetPos=game->getMouseCellPos();
 			givePreparedDefaultOrders(x, y);
 		}
 		else {
