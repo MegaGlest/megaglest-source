@@ -393,14 +393,53 @@ bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
 		// using the environment variable: MEGAGLEST_SOUND_DEVICE
 		char *deviceName = getenv("MEGAGLEST_SOUND_DEVICE");
 		device = alcOpenDevice(deviceName);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) {
+			std::ostringstream os;
+			if (alcIsExtensionPresent (NULL, (const ALCchar *) "ALC_ENUMERATION_EXT") == AL_TRUE) {
+				const char *s = (const char *) alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+				while (*s != '\0') {
+					os << "OpenAL available device: " << s << std::endl;
+					while (*s++ != '\0')
+						;
+				}
+			}
+			else {
+				os << "OpenAL device enumeration isn't available." << std::endl;
+			}
+
+			// Print default device name
+			os << "OpenAL default device: "
+			   << (const char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER)
+			   << std::endl;
+
+			// Print current device name
+			if (device) {
+				os << "OpenAL current device: "
+				   << (const char *)alcGetString(device, ALC_DEVICE_SPECIFIER)
+				   << std::endl;
+			}
+
+			SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d] OpenAL device info [%s]\n",__FILE__,__FUNCTION__,__LINE__,os.str().c_str());
+			printf("OpenAL device info:\n%s\n",os.str().c_str());
+		}
+
 		if(device == 0) {
 			//printOpenALInfo();
 			throw std::runtime_error("Couldn't open audio device.");
 		}
 
-		int attributes[] = { 0 };
-		context = alcCreateContext(device, attributes);
+		//int attributes[] = { 0 };
+		//context = alcCreateContext(device, attributes);
+		context = alcCreateContext(device, 0);
 		checkAlcError("Couldn't create audio context: ");
+
+		if(context == NULL) {
+			alcCloseDevice(device);
+			device = NULL;
+			throw std::runtime_error("Couldn't create an audio context (NULL).");
+		}
+
 		alcMakeContextCurrent(context);
 		checkAlcError("Couldn't select audio context: ");
 
