@@ -252,7 +252,8 @@ double NetworkInterface::getLastPingLag() {
 
 void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
-	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
+	//SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
 
     if(closeSocket == true && getSocket() != NULL) {
         close();
