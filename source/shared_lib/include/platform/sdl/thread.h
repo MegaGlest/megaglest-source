@@ -261,6 +261,7 @@ public:
 
             return result;
 		}
+		return 0;
 	}
 
     inline void ReleaseLock(bool keepMutex=false,bool deleteMutexOnRelease=false) {
