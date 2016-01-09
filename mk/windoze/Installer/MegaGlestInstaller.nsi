@@ -68,6 +68,10 @@ Function .onInit
     InitPluginsDir
 FunctionEnd
 
+Function un.onInit
+    InitPluginsDir
+FunctionEnd
+
 Function myGUIInit
   SetOutPath '$PLUGINSDIR'
   File megaglestinstallscreen.jpg
@@ -304,19 +308,18 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\${APNAME}"
   CreateDirectory "$APPDATA\megaglest"
   CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-
-  ${If} ${FileExists}  "$INSTDIR\megaglest.exe"
-    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
-    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
-    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
-  ${ElseIf} ${FileExists}  "$INSTDIR\megaglestx64.exe"
-    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglestx64.exe" "" "$INSTDIR\megaglestx64.exe" 0 "" "" "${APNAME}"
-    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editorx64.exe" "" "$INSTDIR\megaglest_editorx64.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
-    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewerx64.exe" "" "$INSTDIR\megaglest_g3dviewerx64.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
-  ${EndIf}
-
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Main.lnk" "$INSTDIR" "" "" 0 "" "" "This folder is the ${APNAME} installation folder"
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} User Data.lnk" "$APPDATA\megaglest" "" "" 0 "" "" "This folder contains downloaded data (such as mods) and your personal ${APNAME} configuration"
+
+  ${If} ${FileExists}  "$INSTDIR\megaglest.exe"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
+  ${ElseIf} ${FileExists}  "$INSTDIR\megaglestx64.exe"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewerx64.exe" "" "$INSTDIR\megaglest_g3dviewerx64.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editorx64.exe" "" "$INSTDIR\megaglest_editorx64.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglestx64.exe" "" "$INSTDIR\megaglestx64.exe" 0 "" "" "${APNAME}"
+  ${EndIf}
 
 SectionEnd
 
