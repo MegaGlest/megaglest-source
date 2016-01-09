@@ -85,8 +85,7 @@ cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/docs/"
 cd "$RELEASEDIR/docs/"
 git archive --remote ${REPODIR}/data/glest_game/ HEAD:docs | tar x
-git archive --remote ${REPODIR} HEAD:docs/ CHANGELOG.txt | tar x
-git archive --remote ${REPODIR} HEAD:docs/ README.txt | tar x
+git archive --remote ${REPODIR} HEAD:docs | tar x
 
 cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/maps/"
