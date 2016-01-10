@@ -178,7 +178,6 @@ cmake \
     -DMOJOSETUP_INPUT_XZ=TRUE \
     -DMOJOSETUP_BUILD_LUAC=TRUE \
     -DMOJOSETUP_GUI_GTKPLUS2=TRUE \
-    -DMOJOSETUP_GUI_GTKPLUS2_STATIC=TRUE \
     -DMOJOSETUP_GUI_NCURSES=TRUE \
     -DMOJOSETUP_GUI_NCURSES_STATIC=TRUE \
     -DMOJOSETUP_GUI_STDIO=TRUE \
@@ -220,8 +219,9 @@ for feh in *.so *.dll *.dylib ; do
 done
 
 # Compile the Lua scripts, put them in the base archive.
-for feh in ../scripts/*.lua ; do
-    ./mojoluac $LUASTRIPOPT -o ../image/scripts/${feh}c $feh
+for feh in ../mojosetup/scripts/*.lua ; do
+    feh_b="$(basename $feh)"
+    ./mojoluac $LUASTRIPOPT -o ../image/scripts/${feh_b}c $feh
 done
 
 # Don't want the example config...use our's instead.
@@ -235,20 +235,22 @@ rm -f ../image/scripts/app_localization.luac
 # Fill in the rest of the Base Archive...
 cd ..
 
-# Compress the main data archive
-cd data
-#${megaglest_archiver_app_data} ${megaglest_archivefilename_data}
-tar -cf - * | xz > ../$megaglest_archivefilename_data
-# now remove everything except for the docs folder and the data archive
 shopt -s extglob
-rm -rf !(docs|$megaglest_archivefilename_data)
-# now remove everything in the docs except files listed in config.lua
-cd docs
-rm -rf !(gnu_gpl_*.txt|cc-by-sa-*-unported.txt|README.txt)
-cd ..
+if [ $REPACKONLY -eq 0 ]; then
+    # Compress the main data archive
+    cd data
+    #${megaglest_archiver_app_data} ${megaglest_archivefilename_data}
+    tar -cf - * | xz > ../$megaglest_archivefilename_data
+    # now remove everything except for the docs folder and the data archive
+    rm -rf !(docs|${megaglest_archivefilename_data})
+    # now remove everything in the docs except files listed in config.lua
+    cd docs
+    rm -rf !(gnu_gpl_*.txt|cc-by-sa-*-unported.txt|README.txt)
+    cd ..
 
-cd ..
-mv -f $megaglest_archivefilename_data data/
+    cd ..
+    mv -f $megaglest_archivefilename_data data/
+fi
 
 cp -R data/* image/data/
 cp meta/* image/meta/
