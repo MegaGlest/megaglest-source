@@ -5828,15 +5828,29 @@ int glestMain(int argc, char** argv) {
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 		if( Config::getInstance().getString("FactorySound","") != "None" &&
 			soundRenderer.isVolumeTurnedOff() == false) {
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			for(;chronoshutdownFadeSound.getMillis() <= shutdownFadeSoundMilliseconds;) {
 				sleep(10);
 			}
 		}
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		BaseThread::shutdownAndWait(soundThreadManager);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		delete soundThreadManager;
 		soundThreadManager = NULL;
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return 0;
 }
