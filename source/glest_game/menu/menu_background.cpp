@@ -151,9 +151,9 @@ void MenuBackground::createRainParticleSystem() {
 
 	if(rps == NULL) {
 		rps= new RainParticleSystem();
-		rps->setSpeed(8.f/GameConstants::updateFps);
-		rps->setEmissionRate(5);
-		rps->setWind(-90.f, 3.f/GameConstants::updateFps);
+		rps->setSpeed(12.f/GameConstants::updateFps);
+		rps->setEmissionRate(25);
+		rps->setWind(-90.f, 4.f/GameConstants::updateFps);
 		rps->setPos(Vec3f(0.f, 25.f, 0.f));
 		rps->setColor(Vec4f(1.f, 1.f, 1.f, 0.2f));
 		rps->setRadius(30.f);
