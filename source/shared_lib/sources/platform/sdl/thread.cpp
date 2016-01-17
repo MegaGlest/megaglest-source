@@ -242,14 +242,24 @@ std::vector<Thread *> Thread::getThreadList() {
 }
 
 void Thread::start() {
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	currentState = thrsStarting;
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
 	if(base_thread) base_thread->setStarted(true);
 	string uniqueId =  (base_thread ? base_thread->getUniqueID() : "new_base_thread_prev_null");
+
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
 	thread = SDL_CreateThread(beginExecution, uniqueId.c_str(), this);
+
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
 	if(thread == NULL) {
+		if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
 		if(base_thread) base_thread->setStarted(false);
 
 		char szBuf[8096]="";
@@ -257,6 +267,7 @@ void Thread::start() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
 	//printf("In Thread::start Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 }
 
