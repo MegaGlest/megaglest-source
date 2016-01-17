@@ -250,7 +250,7 @@ public:
 	PixelBufferWrapper(int pboCount,int bufferSize);
 	~PixelBufferWrapper();
 
-	static Pixmap2D *getPixelBufferFor(int x,int y,int w,int h, int colorComponents);
+	Pixmap2D *getPixelBufferFor(int x,int y,int w,int h, int colorComponents);
 	static void begin();
 	static void end();
 	static bool getIsPBOEnable() { return isPBOEnabled; }
@@ -259,8 +259,10 @@ private:
 	static bool isPBOEnabled;
 	static int index;
 	static vector<uint32> pboIds;
+	int bufferSize;
 
 	void cleanup();
+	void addBuffersToPixelBuf(int pboCount);
 };
 
 class BaseColorPickEntity {

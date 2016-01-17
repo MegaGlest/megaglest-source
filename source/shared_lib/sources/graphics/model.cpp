@@ -1760,6 +1760,7 @@ int PixelBufferWrapper::index 			= 0;
 vector<unsigned int> PixelBufferWrapper::pboIds;
 
 PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
+	this->bufferSize = bufferSize;
 	//if(isGlExtensionSupported("GL_ARB_pixel_buffer_object") == true &&
 	if(GLEW_ARB_pixel_buffer_object) {
 		PixelBufferWrapper::isPBOEnabled = true;
@@ -1769,6 +1770,7 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 		//glGenBuffersARB(pboCount, (GLuint*)&pboIds[0]);
 		//
 
+		/*
 		for(int i = 0; i < pboCount; ++i) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
 
@@ -1780,7 +1782,23 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 			glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
 		}
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+		*/
+		addBuffersToPixelBuf(pboCount);
 	}
+}
+
+void PixelBufferWrapper::addBuffersToPixelBuf(int pboCount) {
+	for(int i = 0; i < pboCount; ++i) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
+
+		pboIds.push_back(0);
+		glGenBuffersARB(1, (GLuint*)&pboIds[i]);
+		// create pixel buffer objects, you need to delete them when program exits.
+		// glBufferDataARB with NULL pointer reserves only memory space.
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i]);
+		glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
+	}
+	glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 }
 
 Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int colorComponents) {
@@ -1791,6 +1809,13 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 	    // "nextIndex" is used to process pixels in the other PBO
 	    index = (index + 1) % 2;
 
+	    // Check for out of range
+	    if(index >= (int)pboIds.size()) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Error / Warning in [%s::%s] on line: %d pixel buffer out of range, index: %d size: %d, attempting to expand buffer...\n",__FILE__,__FUNCTION__,__LINE__,index, (int)pboIds.size());
+			//throw megaglest_runtime_error(szBuf);
+			addBuffersToPixelBuf((index - pboIds.size()) + 1);
+	    }
 	    // pbo index used for next frame
 	    //int nextIndex = (index + 1) % 2;
 
