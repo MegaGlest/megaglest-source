@@ -103,8 +103,13 @@ public:
 			BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
 			if(base_thread != NULL &&
 					(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
+				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+
 				base_thread->signalQuit();
 				sleep(10);
+
+				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+
 				if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
 
 					if(Thread::getEnableVerboseMode()) printf("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$ cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,base_thread->getUniqueID().c_str());
@@ -191,7 +196,9 @@ bool Thread::isThreadExecuteCompleteStatus() {
 	return (currentState == thrsExecuteComplete);
 }
 Thread::~Thread() {
-	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
+	string uniqueId =  (base_thread ? base_thread->getUniqueID() : "new_base_thread_prev_null");
+	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p uniqueId [%s]\n",__LINE__,this,thread,uniqueId.c_str());
 
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	if(thread != NULL) {
@@ -216,6 +223,7 @@ Thread::~Thread() {
 			//SDL_KillThread(thread);
 		}
 		else {
+			if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p uniqueId [%s]\n",__LINE__,this,thread,uniqueId.c_str());
 			SDL_WaitThread(thread, NULL);
 		}
 		thread = NULL;
@@ -255,7 +263,7 @@ void Thread::start() {
 
 	thread = SDL_CreateThread(beginExecution, uniqueId.c_str(), this);
 
-	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p uniqueId [%s]\n",__LINE__,thread,uniqueId.c_str());
 
 	if(thread == NULL) {
 		if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
