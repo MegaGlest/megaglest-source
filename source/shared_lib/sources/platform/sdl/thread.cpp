@@ -304,14 +304,21 @@ int Thread::beginExecution(void* data) {
 	if(thread->threadObjectValid() == true) {
 		safeMutex.Lock();
 		thread->currentState = thrsExecuteAutoClean;
-		safeMutex.ReleaseLock(true);
+		safeMutex.ReleaseLock();
 		thread->queueAutoCleanThread();
 	}
 
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
-	safeMutex.Lock();
-	thread->currentState = thrsExecuteComplete;
-	safeMutex.ReleaseLock();
+	MutexSafeWrapper safeMutex2(thread->mutexthreadAccessor);
+
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+	if(thread->threadObjectValid() == true) {
+		if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+		thread->currentState = thrsExecuteComplete;
+	}
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+	safeMutex2.ReleaseLock();
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
 
 	return 0;
 }
