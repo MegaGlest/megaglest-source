@@ -22,9 +22,10 @@ WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
+COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:defhl:mnx" option; do
+while getopts "c:defhl:mnwx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -44,7 +45,7 @@ while getopts "c:defhl:mnx" option; do
         ;;
         h)
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
+                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
@@ -53,6 +54,7 @@ while getopts "c:defhl:mnx" option; do
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
+                echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
                 echo "       -h   : Display this help usage"
@@ -69,6 +71,10 @@ while getopts "c:defhl:mnx" option; do
         ;;
         n)
            MAKE_ONLY=1
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        w)
+           COMPILATION_WITHOUT=1
 #           echo "${option} value: ${OPTARG}"
         ;;
         x)
@@ -151,7 +157,7 @@ if [ "$release" = "rolling" ] && [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON"
 fi
 
 if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FONTCONFIG=OFF"
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FontConfig=OFF"
 fi
 
 case $distribution in
@@ -162,6 +168,7 @@ case $distribution in
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+					# ^ static jpeg seems to work again, debian testing 18.01.2016
 				fi
 				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
 				;;
@@ -252,11 +259,13 @@ if [ "$FORCE_EMBEDDED_LIBS" != "0" ] && [ "$FORCE_EMBEDDED_LIBS" != "" ]; then
 fi
 
 if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
-        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_TOOLCHAIN_FILE=../mk/cmake/Modules/Toolchain-linux32.cmake"
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_TOOLCHAIN_FILE=../mk/cmake/Modules/Toolchain-linux32.cmake"
+	#LIBDIR_32bit='/usr/lib32/'
+	#export LD_LIBRARY_PATH="${LIBDIR_32bit}:${LD_LIBRARY_PATH}"
+fi
 
-#LIBDIR_32bit='/usr/lib32/'
-#export LD_LIBRARY_PATH="${LIBDIR_32bit}:${LD_LIBRARY_PATH}"
-
+if [ "$COMPILATION_WITHOUT" != "0" ] && [ "$COMPILATION_WITHOUT" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF"
 fi
 
 if [ $MAKE_ONLY = 0 ]; then

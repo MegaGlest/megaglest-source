@@ -10,7 +10,7 @@ FIND_PATH( FONTCONFIG_INCLUDE_DIR NAMES fontconfig/fontconfig.h
                                   DOC "Path in which the file fontconfig/fontconfig.h is located." )
 MARK_AS_ADVANCED(FONTCONFIG_INCLUDE_DIR)
 
-IF(STATIC_FONTCONFIG)
+IF(STATIC_FontConfig)
 	FIND_LIBRARY( FONTCONFIG_LIBRARY NAMES libfontconfig.a fontconfig.a fontconfig
 					DOC "Path to fontconfig library." )
 ELSE()

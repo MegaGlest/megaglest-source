@@ -18,15 +18,16 @@ GCC_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
+COMPILATION_WITHOUT=0
 
-while getopts "c:defhl:mnxb" option; do
+while getopts "c:defhl:mnwxb" option; do
 	case "${option}" in
 		c) CPU_COUNT=${OPTARG};;
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
 		e) FORCE_EMBEDDED_LIBS=1;;
 		f) GCC_FORCED=1;;
 		h) 	echo "Usage: $0 <option>"
-			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
+			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
 			echo "       option descriptions:"
 			echo "       -b   : Force default configuration designed for bundle/release."
 			echo "       -c x : Force the cpu / cores count to x - example: -c 4"
@@ -36,12 +37,14 @@ while getopts "c:defhl:mnxb" option; do
 			echo "       -l x : Force using LUA version x - example: -l 5.3"
 			echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
+			echo "       -w   : Force compilation 'Without using wxWidgets'"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
 			echo "       -h   : Display this help usage"
 			exit 0;;
 		l) LUA_FORCED_VERSION=${OPTARG};;
 		m) CMAKE_ONLY=1;;
 		n) MAKE_ONLY=1;;
+		w) COMPILATION_WITHOUT=1;;
 		x) USE_XCODE=1;;
 		b)	BUILD_BUNDLE=1
 			#CPU_COUNT=-1
@@ -50,7 +53,8 @@ while getopts "c:defhl:mnxb" option; do
 			USE_XCODE=0
 			GCC_FORCED=0
 			WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
-			LUA_FORCED_VERSION=0;;
+			LUA_FORCED_VERSION=0
+			COMPILATION_WITHOUT=1;;
 		\?)
 			echo "Script Invalid option: -$OPTARG" >&2
 			exit 1;;
@@ -183,6 +187,10 @@ if [ "$FORCE_EMBEDDED_LIBS" != "0" ] && [ "$FORCE_EMBEDDED_LIBS" != "" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_EMBEDDED_LIBS=ON"
 fi
 
+if [ "$COMPILATION_WITHOUT" != "0" ] && [ "$COMPILATION_WITHOUT" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF"
+fi
+
 if [ "$MAKE_ONLY" -eq "0" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBREAKPAD_ROOT=$BREAKPAD_ROOT"
 	if [ "$BUILD_BUNDLE" -ne "1" ]; then
@@ -195,7 +203,7 @@ if [ "$MAKE_ONLY" -eq "0" ]; then
 		fi
 		rm -f ../MegaGlest*.dmg
 	else
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCPACK_GENERATOR=Bundle -DWANT_SINGLE_INSTALL_DIRECTORY=ON -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF"
+		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCPACK_GENERATOR=Bundle -DWANT_SINGLE_INSTALL_DIRECTORY=ON"
 		rm -f ../megaglest_editor ../megaglest_g3dviewer ../megaglest_tests
 	fi
 	echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
