@@ -14,13 +14,13 @@
 
 #include <memory>
 
-
 // =====================================================
-//	class Thread
+//	Hack for compilers that dont support cxx11's unique_ptr which replaces auto_ptr
 // =====================================================
 using namespace std;
 
-#if !defined(HAVE_CXX11) && !defined(__GXX_EXPERIMENTAL_CXX0X__)
+// C++11
+#if !defined(HAVE_CXX11) && !defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus < 201103L)
   #define unique_ptr auto_ptr
 #endif
 
