@@ -71,6 +71,7 @@ script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mk/linux/build-mg.sh -c 4; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macosx/build-mg.sh -c 4; fi
 
+# https://docs.travis-ci.com/user/notifications/#IRC-notification
 notifications:
   irc:
     channels:
@@ -79,8 +80,7 @@ notifications:
     use_notice: true
     on_success: change
     template:
-      #- "[%{commit}: %{author}] %{message}"
-      #- "%{build_url}"
-      - "[%{repository}#%{branch} @%{commit}] %{author}): %{message}"
-      - "Diff: %{compare_url}"
-      - "Build: %{build_url}"
+      #- "[%{repository_slug}#%{branch} @%{commit}] %{author}): %{message}"
+      #- "Diff: %{compare_url}"
+      #- "Build: %{build_url}"
+      - "[%{repository_name}#%{branch}@%{commit}] %{author}: %{message} %{build_url}"
