@@ -86,10 +86,19 @@ void dump_event (irc_session_t * session, const char * event, const char * origi
 
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 	if(ctx != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
+		if(ctx->getQuitStatus()) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
+			return;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
         if(difftime(time(NULL),ctx->getLastNickListUpdate()) >= 7) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
             ctx->setLastNickListUpdate(time(NULL));
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
             ctx->GetIRCConnectedNickList(ctx->getChannel(),false);
         }
+        if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 	}
 }
 
