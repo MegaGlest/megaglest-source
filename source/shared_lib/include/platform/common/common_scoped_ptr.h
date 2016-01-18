@@ -20,8 +20,13 @@
 using namespace std;
 
 // C++11
-#if !defined(HAVE_CXX11) && !defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus < 201103L)
-  #define unique_ptr auto_ptr
+#if !defined(HAVE_CXX11) && !defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus < 201103L) && (_MSC_VER < 1900)
+  #ifdef __APPLE__
+	  template<typename T>
+	    using unique_ptr = auto_ptr<T>;
+  #else
+  	  #define unique_ptr auto_ptr
+  #endif
 #endif
 
 #endif
