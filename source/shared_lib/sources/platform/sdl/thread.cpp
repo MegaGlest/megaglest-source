@@ -27,15 +27,15 @@ bool Thread::enableVerboseMode = false;
 Mutex Thread::mutexthreadList;
 vector<Thread *> Thread::threadList;
 
-unique_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
+auto_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
 vector<Mutex *> Mutex::mutexList;
 
 class ThreadGarbageCollector;
 class Mutex;
 class MutexSafeWrapper;
 
-static unique_ptr<ThreadGarbageCollector> cleanupThread;
-static unique_ptr<Mutex> cleanupThreadMutex(new Mutex(CODE_AT_LINE));
+static auto_ptr<ThreadGarbageCollector> cleanupThread;
+static auto_ptr<Mutex> cleanupThreadMutex(new Mutex(CODE_AT_LINE));
 
 class ThreadGarbageCollector : public BaseThread
 {
@@ -546,7 +546,7 @@ inline void Mutex::p() {
 //		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s] stack: %s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str(),stack.c_str());
 //		throw megaglest_runtime_error(szBuf);
 //	}
-//	std::unique_ptr<Chrono> chronoLockPerf;
+//	std::auto_ptr<Chrono> chronoLockPerf;
 //	if(debugMutexLock == true) {
 //		chronoLockPerf.reset(new Chrono());
 //		chronoLockPerf->start();

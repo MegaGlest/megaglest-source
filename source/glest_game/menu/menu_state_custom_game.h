@@ -219,7 +219,7 @@ private:
     bool masterserverModeMinimalResources;
     int lastMasterServerSettingsUpdateCount;
 
-    unique_ptr<TechTree> techTree;
+    auto_ptr<TechTree> techTree;
 
     string gameUUID;
 

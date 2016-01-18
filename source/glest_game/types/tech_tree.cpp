@@ -177,7 +177,7 @@ Checksum TechTree::loadTech(const string &techName,
 
 bool TechTree::exists(const string &techName, const vector<string> &pathTechList) {
 	bool techFound = false;
-	unique_ptr<TechTree> techTree(new TechTree(pathTechList));
+	auto_ptr<TechTree> techTree(new TechTree(pathTechList));
     string path = techTree->findPath(techName);
     if(path != "") {
     	techFound = true;

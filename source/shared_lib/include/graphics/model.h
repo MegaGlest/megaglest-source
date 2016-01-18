@@ -315,7 +315,7 @@ private:
 
     static vector<vector<unsigned char> > nextColorIDReuseList;
 
-    static unique_ptr<PixelBufferWrapper> pbo;
+    static auto_ptr<PixelBufferWrapper> pbo;
 
     void assign_color();
 

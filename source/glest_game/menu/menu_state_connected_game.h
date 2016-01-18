@@ -243,7 +243,7 @@ private:
 
 	bool launchingNewGame;
 	bool isfirstSwitchingMapMessage;
-	unique_ptr<TechTree> techTree;
+	auto_ptr<TechTree> techTree;
 
 	GameSettings originalGamesettings;
 	bool validOriginalGameSettings;

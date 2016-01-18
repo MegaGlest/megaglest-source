@@ -1896,7 +1896,7 @@ const unsigned int BaseColorPickEntity::k = 43067;
 unsigned int BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
 
 unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1, 0 };
-unique_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
+auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
 map<string,bool> BaseColorPickEntity::usedColorIDList;
 bool BaseColorPickEntity::trackColorUse = true;
@@ -2128,7 +2128,7 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	pickedModels.reserve(rendererModels.size());
 
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	static unique_ptr<Pixmap2D> cachedPixels;
+	static auto_ptr<Pixmap2D> cachedPixels;
 
 	if(rendererModels.empty() == false) {
 		if(PixelBufferWrapper::getIsPBOEnable() == true) {

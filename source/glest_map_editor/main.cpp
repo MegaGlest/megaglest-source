@@ -690,7 +690,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
 			currentFile = tmp_buf;
 
-			unique_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+			auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 			currentFile = utf8_encode(wstr.get());
 #else
 			//currentFile = fileDialog->GetPath().ToAscii();
@@ -766,7 +766,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
 		currentFile = tmp_buf;
 
-		unique_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+		auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 		currentFile = utf8_encode(wstr.get());
 #else
 		 //currentFile = fd.GetPath().ToAscii();
@@ -1639,7 +1639,7 @@ bool App::OnInit() {
 		fileparam = tmp_buf;
 		
 #ifdef WIN32
-		unique_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
+		auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
 		fileparam = utf8_encode(wstr.get());
 #endif
 
@@ -1664,7 +1664,7 @@ bool App::OnInit() {
 	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 	appPath = tmp_buf;
 
-	unique_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	appPath = utf8_encode(wstr.get());
 #else
 	appPath = wxFNCONV(exe_path);

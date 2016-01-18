@@ -35,7 +35,7 @@ namespace Glest{ namespace Game{
 
 bool NetworkMessage::useOldProtocol = true;
 
-unique_ptr<Mutex> NetworkMessage::mutexMessageStats(new Mutex(CODE_AT_LINE));
+auto_ptr<Mutex> NetworkMessage::mutexMessageStats(new Mutex(CODE_AT_LINE));
 Chrono NetworkMessage::statsTimer;
 Chrono NetworkMessage::lastSend;
 Chrono NetworkMessage::lastRecv;

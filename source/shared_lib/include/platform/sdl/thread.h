@@ -70,7 +70,7 @@ public:
 
 private:
 	SDL_Thread* thread;
-	//std::unique_ptr<Mutex> mutexthreadAccessor;
+	//std::auto_ptr<Mutex> mutexthreadAccessor;
 	Mutex *mutexthreadAccessor;
 	ThreadState currentState;
 	bool threadObjectValid();
@@ -129,7 +129,7 @@ private:
 	Shared::PlatformCommon::Chrono *chronoPerf;
 
 	bool isStaticMutexListMutex;
-	static unique_ptr<Mutex> mutexMutexList;
+	static auto_ptr<Mutex> mutexMutexList;
 	static vector<Mutex *> mutexList;
 
 public:

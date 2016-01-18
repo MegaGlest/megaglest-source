@@ -37,7 +37,7 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-unique_ptr<CommandType> UnitType::ctHarvestEmergencyReturnCommandType(new HarvestEmergencyReturnCommandType());
+auto_ptr<CommandType> UnitType::ctHarvestEmergencyReturnCommandType(new HarvestEmergencyReturnCommandType());
 // ===============================
 // 	class Level
 // ===============================

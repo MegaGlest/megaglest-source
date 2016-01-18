@@ -129,7 +129,7 @@ static string runtimeErrorMsg 					= "";
 #endif
 
 #ifdef HAVE_GOOGLE_BREAKPAD
-unique_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
+auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
 #endif
 
 class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
@@ -5555,8 +5555,8 @@ int glestMain(int argc, char** argv) {
 			preCacheThread->start();
 		}
 
-		unique_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
-		unique_ptr<SimpleTaskThread> languageCacheGen;
+		auto_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
+		auto_ptr<SimpleTaskThread> languageCacheGen;
 
 		bool startNativeLanguageNamesPrecacheThread = config.getBool("PreCacheNativeLanguageNamesThread","true");
 		if(startNativeLanguageNamesPrecacheThread == true &&

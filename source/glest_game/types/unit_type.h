@@ -234,7 +234,7 @@ private:
 
     UnitCountsInVictoryConditions countInVictoryConditions;
 
-    static unique_ptr<CommandType> ctHarvestEmergencyReturnCommandType;
+    static auto_ptr<CommandType> ctHarvestEmergencyReturnCommandType;
 
 public:
 	//creation and loading

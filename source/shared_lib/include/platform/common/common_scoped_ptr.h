@@ -17,16 +17,13 @@
 // =====================================================
 //	Hack for compilers that dont support cxx11's unique_ptr which replaces auto_ptr
 // =====================================================
-using namespace std;
+//using namespace std;
 
 // C++11
-#if !defined(HAVE_CXX11) && !defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus < 201103L) && (_MSC_VER < 1900)
-  #ifdef __APPLE__
-	  template<typename T>
-	    using unique_ptr = auto_ptr<T>;
-  #else
-  	  #define unique_ptr auto_ptr
-  #endif
+#if defined(HAVE_CXX11) || (__cplusplus >= 201103L) || (_MSC_VER >= 1900)
+  
+#define auto_ptr std::unique_ptr
+
 #endif
 
 #endif

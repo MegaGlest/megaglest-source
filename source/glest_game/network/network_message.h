@@ -98,7 +98,7 @@ enum NetworkMessageStatisticType {
 class NetworkMessage {
 private:
 
-	static unique_ptr<Mutex> mutexMessageStats;
+	static auto_ptr<Mutex> mutexMessageStats;
 	static Chrono statsTimer;
 	static Chrono lastSend;
 	static Chrono lastRecv;
