@@ -55,6 +55,7 @@
 #include "auto_test.h"
 #include "lua_script.h"
 #include "interpolation.h"
+#include "common_scoped_ptr.h"
 
 // To handle signal catching
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -128,7 +129,7 @@ static string runtimeErrorMsg 					= "";
 #endif
 
 #ifdef HAVE_GOOGLE_BREAKPAD
-std::auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
+unique_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
 #endif
 
 class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
@@ -5554,8 +5555,8 @@ int glestMain(int argc, char** argv) {
 			preCacheThread->start();
 		}
 
-		std::auto_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
-		std::auto_ptr<SimpleTaskThread> languageCacheGen;
+		unique_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
+		unique_ptr<SimpleTaskThread> languageCacheGen;
 
 		bool startNativeLanguageNamesPrecacheThread = config.getBool("PreCacheNativeLanguageNamesThread","true");
 		if(startNativeLanguageNamesPrecacheThread == true &&

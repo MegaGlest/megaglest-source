@@ -17,7 +17,7 @@
 #include "network_types.h"
 #include "byte_order.h"
 #include <map>
-
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 using Shared::Platform::Socket;
@@ -98,7 +98,7 @@ enum NetworkMessageStatisticType {
 class NetworkMessage {
 private:
 
-	static auto_ptr<Mutex> mutexMessageStats;
+	static unique_ptr<Mutex> mutexMessageStats;
 	static Chrono statsTimer;
 	static Chrono lastSend;
 	static Chrono lastRecv;

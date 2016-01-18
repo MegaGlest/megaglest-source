@@ -24,6 +24,7 @@
 #include "checksum.h"
 #include "game_constants.h"
 #include "platform_common.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -233,7 +234,7 @@ private:
 
     UnitCountsInVictoryConditions countInVictoryConditions;
 
-    static auto_ptr<CommandType> ctHarvestEmergencyReturnCommandType;
+    static unique_ptr<CommandType> ctHarvestEmergencyReturnCommandType;
 
 public:
 	//creation and loading

@@ -16,6 +16,7 @@
 #include "chat_manager.h"
 #include "simple_threads.h"
 #include "map_preview.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Map;
@@ -218,7 +219,7 @@ private:
     bool masterserverModeMinimalResources;
     int lastMasterServerSettingsUpdateCount;
 
-    std::auto_ptr<TechTree> techTree;
+    unique_ptr<TechTree> techTree;
 
     string gameUUID;
 

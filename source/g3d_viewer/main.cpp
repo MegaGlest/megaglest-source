@@ -25,13 +25,11 @@
 #include "game_constants.h"
 #include <wx/stdpaths.h>
 #include <platform_util.h>
-//#include "interpolation.h"
+#include "common_scoped_ptr.h"
 
 #ifndef WIN32
 #include <errno.h>
 #endif
-
-//#include <wx/filename.h>
 
 #ifndef WIN32
   #define stricmp strcasecmp
@@ -452,7 +450,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	DWORD dwDisposition;
 	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
 	//Set the value.
-	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	unique_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	
 	wstring launchApp = wstring(wstr.get()) + L" \"%1\"";
 	DWORD len = (DWORD)launchApp.length() + 1;
@@ -851,7 +849,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
 
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			unique_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -886,7 +884,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			unique_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -920,7 +918,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			unique_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -955,7 +953,7 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
 
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			unique_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -2160,7 +2158,7 @@ bool App::OnInit() {
 			for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
 
 #ifdef WIN32
-				std::auto_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
+				unique_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
 				autoScreenShotParams[i] = utf8_encode(wstr.get());
 #endif
 
@@ -2205,14 +2203,14 @@ bool App::OnInit() {
             if(delimitedList.size() >= 2) {
             	unitToLoad.first = delimitedList[0];
   				#ifdef WIN32
-				std::auto_ptr<wchar_t> wstr(Ansi2WideString(unitToLoad.first.c_str()));
+            	unique_ptr<wchar_t> wstr(Ansi2WideString(unitToLoad.first.c_str()));
 				unitToLoad.first = utf8_encode(wstr.get());
 				#endif
 
             	for(unsigned int i = 1; i < delimitedList.size(); ++i) {
 					string value = delimitedList[i];
   					#ifdef WIN32
-					std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+					unique_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
 					value = utf8_encode(wstr.get());
 					#endif
 
@@ -2251,7 +2249,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             modelPath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
+            unique_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
 			modelPath = utf8_encode(wstr.get());
 			#endif
 
@@ -2281,7 +2279,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             particlePath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(particlePath.c_str()));
+            unique_ptr<wchar_t> wstr(Ansi2WideString(particlePath.c_str()));
 			particlePath = utf8_encode(wstr.get());
 			#endif
         }
@@ -2309,7 +2307,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             projectileParticlePath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(projectileParticlePath.c_str()));
+            unique_ptr<wchar_t> wstr(Ansi2WideString(projectileParticlePath.c_str()));
 			projectileParticlePath = utf8_encode(wstr.get());
 			#endif
         }
@@ -2337,7 +2335,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             splashParticlePath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(splashParticlePath.c_str()));
+            unique_ptr<wchar_t> wstr(Ansi2WideString(splashParticlePath.c_str()));
 			splashParticlePath = utf8_encode(wstr.get());
 			#endif
         }
@@ -2496,7 +2494,7 @@ bool App::OnInit() {
 #ifdef WIN32
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
 		modelPath = tmp_buf;
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
+		unique_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
 		modelPath = utf8_encode(wstr.get());
 #else
 		modelPath = wxFNCONV(argv[1]);
@@ -2526,7 +2524,7 @@ bool App::OnInit() {
 	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 	string appPath = tmp_buf;
 
-	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	unique_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	appPath = utf8_encode(wstr.get());
 #else
 	string appPath(wxFNCONV(exe_path));

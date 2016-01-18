@@ -663,20 +663,12 @@ void Program::loadMap(const string &path) {
 	redoStack.clear();
 
 	std::string encodedPath = path;
-//#ifdef WIN32
-//	std::auto_ptr<wchar_t> wstr(Ansi2WideString(path.c_str()));
-//	encodedPath = utf8_encode(wstr.get());
-//#endif
 	map->loadFromFile(encodedPath);
 }
 
 void Program::saveMap(const string &path) {
 	if(map) {
 		std::string encodedPath = path;
-//#ifdef WIN32
-//		std::auto_ptr<wchar_t> wstr(Ansi2WideString(path.c_str()));
-//		encodedPath = utf8_encode(wstr.get());
-//#endif
 
 		map->saveToFile(encodedPath);
 	}

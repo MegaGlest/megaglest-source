@@ -19,6 +19,7 @@
 #include <SDL_mutex.h>
 #include <string>
 #include <memory>
+#include "common_scoped_ptr.h"
 
 #include "data_types.h"
 #ifdef DEBUG_PERFORMANCE_MUTEXES
@@ -69,7 +70,7 @@ public:
 
 private:
 	SDL_Thread* thread;
-	//std::auto_ptr<Mutex> mutexthreadAccessor;
+	//std::unique_ptr<Mutex> mutexthreadAccessor;
 	Mutex *mutexthreadAccessor;
 	ThreadState currentState;
 	bool threadObjectValid();
@@ -128,7 +129,7 @@ private:
 	Shared::PlatformCommon::Chrono *chronoPerf;
 
 	bool isStaticMutexListMutex;
-	static auto_ptr<Mutex> mutexMutexList;
+	static unique_ptr<Mutex> mutexMutexList;
 	static vector<Mutex *> mutexList;
 
 public:

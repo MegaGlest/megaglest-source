@@ -21,6 +21,7 @@
 #include "chat_manager.h"
 #include "map_preview.h"
 #include "miniftpclient.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 namespace Shared { namespace Graphics {
@@ -242,7 +243,7 @@ private:
 
 	bool launchingNewGame;
 	bool isfirstSwitchingMapMessage;
-	std::auto_ptr<TechTree> techTree;
+	unique_ptr<TechTree> techTree;
 
 	GameSettings originalGamesettings;
 	bool validOriginalGameSettings;

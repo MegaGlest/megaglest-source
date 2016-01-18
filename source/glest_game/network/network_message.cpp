@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cassert>
 #include <stdexcept>
+#include "common_scoped_ptr.h"
 
 #include "leak_dumper.h"
 
@@ -34,7 +35,7 @@ namespace Glest{ namespace Game{
 
 bool NetworkMessage::useOldProtocol = true;
 
-auto_ptr<Mutex> NetworkMessage::mutexMessageStats(new Mutex(CODE_AT_LINE));
+unique_ptr<Mutex> NetworkMessage::mutexMessageStats(new Mutex(CODE_AT_LINE));
 Chrono NetworkMessage::statsTimer;
 Chrono NetworkMessage::lastSend;
 Chrono NetworkMessage::lastRecv;

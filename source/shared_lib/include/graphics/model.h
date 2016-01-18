@@ -20,6 +20,7 @@
 #include "texture.h"
 #include "model_header.h"
 #include <memory>
+#include "common_scoped_ptr.h"
 #include "byte_order.h"
 #include "leak_dumper.h"
 
@@ -314,7 +315,7 @@ private:
 
     static vector<vector<unsigned char> > nextColorIDReuseList;
 
-    static auto_ptr<PixelBufferWrapper> pbo;
+    static unique_ptr<PixelBufferWrapper> pbo;
 
     void assign_color();
 
