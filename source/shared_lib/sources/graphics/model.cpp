@@ -1804,54 +1804,83 @@ void PixelBufferWrapper::addBuffersToPixelBuf(int pboCount) {
 Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int colorComponents) {
 	Pixmap2D *pixmapScreenShot = NULL;
 	if(PixelBufferWrapper::isPBOEnabled == true) {
-	    // increment current index first then get the next index
-	    // "index" is used to read pixels from a framebuffer to a PBO
-	    // "nextIndex" is used to process pixels in the other PBO
-	    index = (index + 1) % 2;
+		string codeSection = "A";
+		try {
+			// increment current index first then get the next index
+			// "index" is used to read pixels from a framebuffer to a PBO
+			// "nextIndex" is used to process pixels in the other PBO
+			index = (index + 1) % 2;
 
-	    // Check for out of range
-	    if(index >= (int)pboIds.size()) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"Error / Warning in [%s::%s] on line: %d pixel buffer out of range, index: %d size: %d, attempting to expand buffer...\n",__FILE__,__FUNCTION__,__LINE__,index, (int)pboIds.size());
-			//throw megaglest_runtime_error(szBuf);
-			addBuffersToPixelBuf((index - pboIds.size()) + 1);
-	    }
-	    // pbo index used for next frame
-	    //int nextIndex = (index + 1) % 2;
+			codeSection = "B";
+			// Check for out of range
+			if(index >= (int)pboIds.size()) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error / Warning in [%s::%s] on line: %d pixel buffer out of range, index: %d size: %d, attempting to expand buffer...\n",__FILE__,__FUNCTION__,__LINE__,index, (int)pboIds.size());
+				//throw megaglest_runtime_error(szBuf);
+				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
-	    // read framebuffer ///////////////////////////////
-		// copy pixels from framebuffer to PBO
-		// Use offset instead of pointer.
-		// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
-	    //glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+				codeSection = "C";
+				addBuffersToPixelBuf((index - pboIds.size()) + 1);
+			}
+			// pbo index used for next frame
+			//int nextIndex = (index + 1) % 2;
 
-		//glPixelStorei(GL_PACK_ALIGNMENT, 1);
-		glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			codeSection = "D";
+			// read framebuffer ///////////////////////////////
+			// copy pixels from framebuffer to PBO
+			// Use offset instead of pointer.
+			// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+			//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
 
-		// measure the time reading framebuffer
-		//t1.stop();
-		//readTime = t1.getElapsedTimeInMilliSec();
+			codeSection = "E";
+			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		// process pixel data /////////////////////////////
-		//t1.start();
+			// measure the time reading framebuffer
+			//t1.stop();
+			//readTime = t1.getElapsedTimeInMilliSec();
 
-		// map the PBO that contain framebuffer pixels before processing it
-		//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
-		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
-		if(src) {
-			pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
-			memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
-			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
-			//pixmapScreenShot->save("debugPBO.png");
+			// process pixel data /////////////////////////////
+			//t1.start();
+
+			codeSection = "F";
+			// map the PBO that contain framebuffer pixels before processing it
+			//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+
+			codeSection = "G";
+			GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
+			if(src) {
+				codeSection = "H";
+				pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
+
+				codeSection = "I";
+				memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
+
+				codeSection = "J";
+				glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
+				//pixmapScreenShot->save("debugPBO.png");
+			}
+			codeSection = "K";
+			// measure the time reading framebuffer
+			//t1.stop();
+			//processTime = t1.getElapsedTimeInMilliSec();
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 		}
-
-		// measure the time reading framebuffer
-		//t1.stop();
-		//processTime = t1.getElapsedTimeInMilliSec();
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+	    catch(megaglest_runtime_error& ex) {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] codeSection [%s] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeSection.c_str(),ex.what());
+			throw megaglest_runtime_error("Exception caught in getPixelBufferFor codeSection: " + codeSection +"\n"+ ex.what(),!ex.wantStackTrace());
+	    }
+		catch(exception &e){
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] codeSection [%s] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeSection.c_str(),e.what());
+			throw megaglest_runtime_error("Exception caught in getPixelBufferFor codeSection: " + codeSection +"\n"+ e.what());
+		}
+		catch(...){
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] codeSection [%s] UNKNOWN Error!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeSection.c_str());
+			throw megaglest_runtime_error("UNKNOWN Exception caught in getPixelBufferFor codeSection: " + codeSection +"\n");
+		}
 	}
 
 	return pixmapScreenShot;
