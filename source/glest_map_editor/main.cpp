@@ -22,7 +22,7 @@
 #include <errno.h>
 #endif
 #include "common_scoped_ptr.h"
-#include <memory>
+//#include <memory>
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;

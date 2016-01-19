@@ -37,7 +37,7 @@
 #include "ImageReaders.h"
 #include "renderer.h"
 #include "simple_threads.h"
-#include <memory>
+//#include <memory>
 #include "font.h"
 #include <curl/curl.h>
 #include "menu_state_masterserver.h"

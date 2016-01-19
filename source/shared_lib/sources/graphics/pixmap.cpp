@@ -24,7 +24,7 @@
 #include <png.h>
 #include <jpeglib.h>
 #include <setjmp.h>
-#include <memory>
+//#include <memory>
 #include "opengl.h"
 #include "leak_dumper.h"
 

@@ -316,6 +316,7 @@ private:
     static vector<vector<unsigned char> > nextColorIDReuseList;
 
     static auto_ptr<PixelBufferWrapper> pbo;
+    //static auto_ptr<Pixmap2D> cachedPixels;
 
     void assign_color();
 
