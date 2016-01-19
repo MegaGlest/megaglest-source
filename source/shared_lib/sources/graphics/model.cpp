@@ -1788,14 +1788,15 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 }
 
 void PixelBufferWrapper::addBuffersToPixelBuf(int pboCount) {
+	int iStartIndex = pboIds.size();
 	for(int i = 0; i < pboCount; ++i) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
 
 		pboIds.push_back(0);
-		glGenBuffersARB(1, (GLuint*)&pboIds[i]);
+		glGenBuffersARB(1, (GLuint*)&pboIds[i+iStartIndex]);
 		// create pixel buffer objects, you need to delete them when program exits.
 		// glBufferDataARB with NULL pointer reserves only memory space.
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i]);
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i+iStartIndex]);
 		glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
 	}
 	glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
