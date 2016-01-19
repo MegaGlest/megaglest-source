@@ -21,8 +21,12 @@
 
 // C++11
 #if defined(HAVE_CXX11) || (__cplusplus >= 201103L) || (_MSC_VER >= 1900)
-  
-#define auto_ptr std::unique_ptr
+
+#if defined(WIN32)
+#define auto_ptr unique_ptr
+#else
+	#define auto_ptr std::unique_ptr
+#endif
 
 #endif
 
