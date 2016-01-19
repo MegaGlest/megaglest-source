@@ -1806,6 +1806,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 	Pixmap2D *pixmapScreenShot = NULL;
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		string codeSection = "A";
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		try {
 			// increment current index first then get the next index
 			// "index" is used to read pixels from a framebuffer to a PBO
@@ -1813,6 +1814,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 			index = (index + 1) % 2;
 
 			codeSection = "B";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			// Check for out of range
 			if(index >= (int)pboIds.size()) {
 				char szBuf[8096]="";
@@ -1821,12 +1823,14 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 
 				codeSection = "C";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				addBuffersToPixelBuf((index - pboIds.size()) + 1);
 			}
 			// pbo index used for next frame
 			//int nextIndex = (index + 1) % 2;
 
 			codeSection = "D";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			// read framebuffer ///////////////////////////////
 			// copy pixels from framebuffer to PBO
 			// Use offset instead of pointer.
@@ -1835,6 +1839,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 			//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
 
 			codeSection = "E";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
 			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1847,24 +1852,30 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 			//t1.start();
 
 			codeSection = "F";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			// map the PBO that contain framebuffer pixels before processing it
 			//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
 			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
 
 			codeSection = "G";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
 			if(src) {
 				codeSection = "H";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
 
 				codeSection = "I";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
 
 				codeSection = "J";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
 				//pixmapScreenShot->save("debugPBO.png");
 			}
 			codeSection = "K";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			// measure the time reading framebuffer
 			//t1.stop();
 			//processTime = t1.getElapsedTimeInMilliSec();
