@@ -1646,8 +1646,30 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 			printf("** #2 Socket peek error for sock = %d err = %d lastSocketError = %d mustGetData = %d\n",sock,err,lastSocketError,mustGetData);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTING SOCKET for socket [%d], err = %d, dataSize = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,err,dataSize,getLastSocketErrorFormattedText(&iErr).c_str());
 
-			int iErr = lastSocketError;
-			disconnectSocket();
+			if(err == 0) {
+				printf("** LAST CHANCE for disconnection check for sock = %d\n",sock);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"** LAST CHANCE for disconnection check for sock = %d\n",sock);
+
+				MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
+				SafeSocketBlockToggleWrapper safeUnblock(this, false);
+				errno = 0;
+				int second_err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
+				safeUnblock.Restore();
+				safeMutex.ReleaseLock();
+
+				if(second_err == 0 || second_err < 0) {
+					printf("** Disconnecting sock = %d\n",sock);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"** Disconnecting sock = %d\n",sock);
+
+					disconnectSocket();
+				}
+			}
+			else {
+				printf("** Disconnecting sock = %d\n",sock);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"** Disconnecting sock = %d\n",sock);
+
+				disconnectSocket();
+			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while peeking socket data for socket [%d], err = %d, dataSize = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,err,dataSize,getLastSocketErrorFormattedText(&iErr).c_str());
 		}
