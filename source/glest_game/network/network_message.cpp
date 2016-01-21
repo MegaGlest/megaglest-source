@@ -2012,6 +2012,9 @@ void NetworkMessageCommandList::fromEndianDetail() {
 //	class NetworkMessageText
 // =====================================================
 
+NetworkMessageText::NetworkMessageText() {
+	messageType	= nmtText;
+}
 NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int playerIndex,
 										const string targetLanguage) {
 	if((int)text.length() >= maxTextStringSize) {
@@ -2759,6 +2762,10 @@ void NetworkMessageSynchNetworkGameDataStatus::fromEndianDetail() {
 //	class NetworkMessageSynchNetworkGameDataFileCRCCheck
 // =====================================================
 
+NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDataFileCRCCheck() {
+	messageType= nmtSynchNetworkGameDataFileCRCCheck;
+}
+
 NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDataFileCRCCheck(
 		uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName)
 {
@@ -2872,7 +2879,9 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::fromEndian() {
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileGet
 // =====================================================
-
+NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFileGet() {
+	messageType= nmtSynchNetworkGameDataFileGet;
+}
 NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFileGet(const string fileName) {
 	messageType= nmtSynchNetworkGameDataFileGet;
     data.fileName       = fileName;
@@ -3307,6 +3316,9 @@ void NetworkMessageLoadingStatus::fromEndian() {
 // =====================================================
 //	class NetworkMessageMarkCell
 // =====================================================
+NetworkMessageMarkCell::NetworkMessageMarkCell() {
+	messageType	= nmtMarkCell;
+}
 
 NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex) {
 	if((int)text.length() >= maxTextStringSize) {

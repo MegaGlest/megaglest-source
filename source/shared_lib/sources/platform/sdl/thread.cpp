@@ -107,7 +107,7 @@ public:
 				base_thread->signalQuit();
 				sleep(10);
 
-				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,base_thread->getUniqueID().c_str());
 
 				if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
 

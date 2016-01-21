@@ -254,6 +254,9 @@ int zipfile_tool(int argc, const char *argv[]) {
         uint n = BUF_SIZE - stream.avail_out;
         if (fwrite(s_outbuf, 1, n, pOutfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
+
+      	    if(pInfile) fclose(pInfile);
+      	    if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;

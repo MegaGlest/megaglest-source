@@ -520,7 +520,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-	NetworkMessageText(){}
+	NetworkMessageText();
 	NetworkMessageText(const string &text, int teamIndex, int playerIndex,
 			const string targetLanguage);
 
@@ -793,7 +793,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-    NetworkMessageSynchNetworkGameDataFileCRCCheck() {};
+    NetworkMessageSynchNetworkGameDataFileCRCCheck();
 	NetworkMessageSynchNetworkGameDataFileCRCCheck(uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
@@ -845,7 +845,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-    NetworkMessageSynchNetworkGameDataFileGet() {};
+    NetworkMessageSynchNetworkGameDataFileGet();
 	NetworkMessageSynchNetworkGameDataFileGet(const string fileName);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
@@ -1089,7 +1089,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-	NetworkMessageMarkCell(){}
+	NetworkMessageMarkCell();
 	NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }

@@ -622,7 +622,7 @@ const Resource *AiInterface::getResource(const ResourceType *rt){
 }
 
 Unit *AiInterface::getMyUnitPtr(int unitIndex) {
-	if(unitIndex >= world->getFaction(factionIndex)->getUnitCount()) {
+	if(unitIndex < 0 || unitIndex >= world->getFaction(factionIndex)->getUnitCount()) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] unitIndex >= world->getFaction(factionIndex)->getUnitCount(), unitIndex = %d, world->getFaction(factionIndex)->getUnitCount() = %d",__FILE__,__FUNCTION__,__LINE__,unitIndex,world->getFaction(factionIndex)->getUnitCount());
 		throw megaglest_runtime_error(szBuf);

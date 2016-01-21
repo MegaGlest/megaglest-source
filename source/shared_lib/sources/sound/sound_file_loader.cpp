@@ -201,6 +201,11 @@ void WavSoundFileLoader::restart(){
 //        Ogg Sound File Loader
 // =======================================
 
+OggSoundFileLoader::OggSoundFileLoader() {
+	vf = NULL;
+	f = NULL;
+}
+
 void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	fileName = path;
 
