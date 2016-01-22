@@ -9,6 +9,9 @@ v3.12.0
 - glowing meshes. ( models can glow like particles do )
 - console message for finished upgrades
 - new parameter to set servers titles
+- 5 new maps
+- improved network performance
+- better stability in the lobby
 
 v3.11.1
 - no more false clicks when commanding via mini map
