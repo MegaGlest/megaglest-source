@@ -265,6 +265,7 @@ bool Program::redo() {
 }
 
 void Program::renderMap(int w, int h) {
+	//printf("Rendering map\n");
 	if(map) renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize, grid,heightmap,hideWater);
 }
 

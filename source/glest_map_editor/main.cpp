@@ -115,11 +115,6 @@ MainWindow::MainWindow(string appPath)
 	Properties::setApplicationPath(executable_path(appPath));
 
 	this->panel = new wxPanel(this, wxID_ANY);
-
-	//gl canvas
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
-	glCanvas = new GlCanvas(this, this->panel, args);
-	glCanvas->SetFocus();
 }
 
 void MainWindow::onToolPlayer(wxCommandEvent& event){
@@ -440,10 +435,10 @@ void MainWindow::init(string fname) {
 	boxsizer = new wxBoxSizer(wxVERTICAL);
 	boxsizer->Add(toolbar, 0, wxEXPAND);
 	boxsizer->Add(toolbar2, 0, wxEXPAND);
-	boxsizer->Add(glCanvas, 1, wxEXPAND);
+	//boxsizer->Add(glCanvas, 1, wxEXPAND);
 
 	this->panel->SetSizer(boxsizer);
-	this->Layout();
+	//this->Layout();
 
 	//program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
@@ -488,6 +483,20 @@ void MainWindow::onClose(wxCloseEvent &event) {
 }
 
 void MainWindow::setupStartupSettings() {
+
+	//gl canvas
+	if(glCanvas == NULL) {
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
+		glCanvas = new GlCanvas(this, this->panel, args);
+
+		boxsizer->Add(glCanvas, 1, wxEXPAND);
+
+		this->panel->SetSizer(boxsizer);
+		this->Layout();
+	}
+	glCanvas->setCurrentGLContext();
+	glCanvas->SetFocus();
+
 	string playerName = Config::getInstance().getString("NetPlayerName","");
 	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y, playerName);
 	fileName = "New (unsaved) Map";
@@ -635,7 +644,11 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
+	//printf("onPaint map\n");
+
 	if(!IsShown()) {
+		//printf("onPaint skip map\n");
+
 		event.Skip();
 		return;
 	}
@@ -652,11 +665,14 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	glCanvas->setCurrentGLContext();
 	//}
 
+	//printf("lastPaintEvent.getMillis() map\n");
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
+		event.Skip();
 		return;
 	}
 
+	//printf("wxPaintDC dc map\n");
 	wxPaintDC dc(this); // "In a paint event handler must always create a wxPaintDC object even if you do not use it.  (?)
 	                    //  Otherwise, under MS Windows, refreshing for this and other windows will go wrong"
                         //  http://docs.wxwidgets.org/2.6/wx_wxpaintevent.html
@@ -671,6 +687,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 }
 
 void MainWindow::refreshMapRender() {
+	//printf("refreshMapRender map\n");
+
 	if(program && glCanvas) {
 		program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 		glCanvas->SwapBuffers();
@@ -1550,6 +1568,7 @@ void GlCanvas::onPaint(wxPaintEvent &event) {
 //    mainWindow->program->renderMap(GetClientSize().x, GetClientSize().y);
 //	SwapBuffers();
 //	event.Skip();
+	//printf("gl onPaint skip map\n");
   mainWindow->onPaint(event);
 }
 
