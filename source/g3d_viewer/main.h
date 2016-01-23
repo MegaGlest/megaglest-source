@@ -125,6 +125,7 @@ private:
 
 	bool startupSettingsInited;
 
+	void initGlCanvas();
 	void loadUnit(string path, string skillName);
 	void loadModel(string path);
 	void loadParticle(string path);

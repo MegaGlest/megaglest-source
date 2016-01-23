@@ -304,10 +304,12 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 	isControlKeyPressed = false;
 
+	initGlCanvas();
+
 #if wxCHECK_VERSION(2, 9, 1)
 
 #else
-	if(glCanvas) glCanvas->SetCurrent();
+	glCanvas->SetCurrent();
 #endif
 
 	unitPath = unitToLoad;
@@ -477,8 +479,7 @@ void MainWindow::setupStartupSettings() {
 
 	//printf("In setupStartupSettings #1\n");
 	if(glCanvas == NULL) {
-		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
-		glCanvas = new GlCanvas(this, args);
+		initGlCanvas();
 
 #if wxCHECK_VERSION(2, 9, 1)
 
@@ -576,6 +577,13 @@ MainWindow::~MainWindow(){
 
 }
 
+void MainWindow::initGlCanvas(){
+	if(glCanvas == NULL) {
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+		glCanvas = new GlCanvas(this, args);
+	}
+}
+
 void MainWindow::init() {
 
 #if wxCHECK_VERSION(2, 9, 3)
@@ -583,7 +591,7 @@ void MainWindow::init() {
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	if(glCanvas) glCanvas->SetCurrent();
+	glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 }
