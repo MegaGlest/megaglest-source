@@ -140,15 +140,6 @@ BEGIN_EVENT_TABLE(MainToolBar, wxToolBar)
 END_EVENT_TABLE()
 
 void MainWindow::init(string fname) {
-#if wxCHECK_VERSION(2, 9, 3)
-	//glCanvas->setCurrentGLContext();
-	//printf("setcurrent #1\n");
-#elif wxCHECK_VERSION(2, 9, 1)
-
-#else
-	if(glCanvas) glCanvas->SetCurrent();
-	//printf("setcurrent #2\n");
-#endif
 
 	//menus
 	menuBar = new wxMenuBar();
@@ -458,6 +449,17 @@ void MainWindow::init(string fname) {
 	//setDirty(false);
 	//setExtension();
 
+	initGlCanvas();
+	#if wxCHECK_VERSION(2, 9, 3)
+		//glCanvas->setCurrentGLContext();
+		//printf("setcurrent #1\n");
+	#elif wxCHECK_VERSION(2, 9, 1)
+
+	#else
+		if(glCanvas) glCanvas->SetCurrent();
+		//printf("setcurrent #2\n");
+	#endif
+
 	if(startupSettingsInited == false) {
 		startupSettingsInited = true;
 		setupStartupSettings();
@@ -482,12 +484,20 @@ void MainWindow::onClose(wxCloseEvent &event) {
 	this->Destroy();
 }
 
+void MainWindow::initGlCanvas(){
+	if(glCanvas == NULL) {
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
+		glCanvas = new GlCanvas(this, this->panel, args);
+
+		boxsizer->Add(glCanvas, 1, wxEXPAND);
+	}
+}
+
 void MainWindow::setupStartupSettings() {
 
 	//gl canvas
 	if(glCanvas == NULL) {
-		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
-		glCanvas = new GlCanvas(this, this->panel, args);
+		initGlCanvas();
 
 		boxsizer->Add(glCanvas, 1, wxEXPAND);
 
