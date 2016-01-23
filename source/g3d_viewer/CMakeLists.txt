@@ -7,14 +7,13 @@ SET(TARGET_NAME_MANPAGE "${TARGET_NAME}.6")
 IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	MESSAGE(STATUS "Will try to build MegaGlest model viewer")
 	
-	IF(UNIX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	IF(UNIX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 		IF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.7 OR NOT "${CMAKE_CXX_COMPILER_VERSION}")
 			ADD_DEFINITIONS("-std=gnu++0x")
 		ELSEIF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5.1)
 			ADD_DEFINITIONS("-std=c++11")
 		ENDIF()
-		# Was required at least on bsd and macos, on linux most likely not but we probably want to see same output on
-		# linux too, e.g. deprecation warnings especially when newer than c++11 "standard" is on the way.
+		# Was required at least on bsd and macos.
 	ENDIF()
 
 	FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
