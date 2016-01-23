@@ -248,9 +248,9 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	/libvlc.so.5/libvlc.so/|/"
     else
 	libs_list="$libs_list
-	/libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/libwx_gtk2u_core-[0-9]/libwx_gtk[0-9]u_core-/libwx_gtk[0-9]u_core/|/
-	/libwx_baseu-3.0.so.0/libwx_baseu-3.[num].so/libwx_baseu-[0-9]/libwx_baseu-/|/
-	/libwx_gtk2u_gl-3.0.so.0/libwx_gtk2u_gl-3.[num].so/libwx_gtk[0-9]u_gl-/libwx_gtk[0-9]u_gl/|/
+	/libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/|/
+	/libwx_baseu-3.0.so.0/libwx_baseu-3.[num].so/|/
+	/libwx_gtk2u_gl-3.0.so.0/libwx_gtk2u_gl-3.[num].so/|/
 	/libgtk-x11-2.0.so.0/libgtk-x11-2.[num].so/libgtk-x11-[0-9].[num].so/libgtk-x11-[0-9]/libgtk-x11/|/
 	/libgdk-x11-2.0.so.0/libgdk-x11-2.[num].so/libgdk-x11-[0-9].[num].so/libgdk-x11-[0-9]/libgdk-x11/|/
 	/libpangocairo-1.0.so.0/libpangocairo-1.[num].so/libpangocairo-[0-9].[num].so/libpangocairo-[0-9]/libpangocairo/|/
