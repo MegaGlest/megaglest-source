@@ -307,7 +307,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 #if wxCHECK_VERSION(2, 9, 1)
 
 #else
-	glCanvas->SetCurrent();
+	if(glCanvas) glCanvas->SetCurrent();
 #endif
 
 	unitPath = unitToLoad;
@@ -479,6 +479,13 @@ void MainWindow::setupStartupSettings() {
 	if(glCanvas == NULL) {
 		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
 		glCanvas = new GlCanvas(this, args);
+
+#if wxCHECK_VERSION(2, 9, 1)
+
+#else
+	    glCanvas->SetCurrent();
+#endif
+
 	}
 	glCanvas->setCurrentGLContext();
 	//printf("In setupStartupSettings #2\n");
