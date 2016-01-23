@@ -146,7 +146,7 @@ void MainWindow::init(string fname) {
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	glCanvas->SetCurrent();
+	if(glCanvas) glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 
