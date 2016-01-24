@@ -1,16 +1,42 @@
-# http://docs.travis-ci.com/user/build-configuration/
+# https://docs.travis-ci.com/user/customizing-the-build/
 language: cpp
+
+sudo: required
+
+os:
+  - linux
+  - osx
 
 compiler:
   - gcc
   - clang
 
+env:
+  - GCC_VERSION="5"
+  - GCC_VERSION="native"
+  - LLVM_VERSION="3.7"
+  - LLVM_VERSION="native"
+
 matrix:
-  #include:
-  #  - compiler: gcc
-  #  - compiler: clang
-  allow_failures:
+  exclude:
+    - compiler: gcc
+      env: LLVM_VERSION="3.7"
+    - compiler: gcc
+      env: LLVM_VERSION="native"
     - compiler: clang
+      env: GCC_VERSION="5"
+    - compiler: clang
+      env: GCC_VERSION="native"
+    - os: linux
+      compiler: clang
+      env: LLVM_VERSION="native" # broken compiler
+    - os: osx
+      compiler: gcc # unsupported compiler
+    - os: osx
+      compiler: clang
+      env: LLVM_VERSION="3.7" # missing compiler by brew
+  #allow_failures:
+  #  - os: osx
 
 git:
   submodules: false
@@ -20,24 +46,41 @@ git:
 #    - master
 
 before_install:
-  - sudo apt-get update -qq # UPDATE REPOS
-  #- sudo apt-get upgrade -qq # UPGRADE SYSTEM TO LATEST PATCH LEVEL
-  - sudo apt-get install -y -qq
-  - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL OUR DEPENDENCIES
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$GCC_VERSION" != "native" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
+  # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main'; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-${LLVM_VERSION} main"; fi
+  # http://llvm.org/apt/
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; fi # UPDATE REPOS
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
+  #- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get upgrade -qq; fi # UPGRADE SYSTEM TO LATEST PATCH LEVEL
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y -qq; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then sudo apt-get install -qq gcc-${GCC_VERSION} g++-${GCC_VERSION}; fi
+  - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install clang-${LLVM_VERSION}; fi
+  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then export CXX="clang++-${LLVM_VERSION}" CC="clang-${LLVM_VERSION}"; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo mk/linux/setupBuildDeps.sh --quiet; fi # INSTALL OUR DEPENDENCIES
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
+  - $CXX --version
+  - cmake --version
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ./.travis-before_install.sh; fi
 
 script:
 # ALL THE BUILD COMMANDS HERE
-  - mk/linux/build-mg.sh -c 4
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mk/linux/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macosx/build-mg.sh -c 4; fi
 
+# https://docs.travis-ci.com/user/notifications/#IRC-notification
 notifications:
   irc:
     channels:
       - "irc.freenode.org#megaglest"
     skip_join: true
     use_notice: true
+    on_success: change
     template:
-      #- "[%{commit}: %{author}] %{message}"
-      #- "%{build_url}"
-      - "[%{repository}#%{branch} @%{commit}] %{author}): %{message}"
-      - "Diff: %{compare_url}"
-      - "Build: %{build_url}"
+      #- "[%{repository_slug}#%{branch} @%{commit}] %{author}): %{message}"
+      #- "Diff: %{compare_url}"
+      #- "Build: %{build_url}"
+      - "[%{repository_name}#%{branch}@%{commit}] %{author}: %{message} %{build_url}"

@@ -15,7 +15,7 @@ body {
 /* Header */
 #header {
     width: 1016px;
-    height: 313px;
+    height: 175px;
     margin: 0 auto;
     background: url("header/header.jpg") no-repeat;
 }
@@ -121,6 +121,7 @@ img.left {
 #header #logo {
     width: 365px;
     margin: 0 auto;
+	margin-top: 1em;
 }
 
 /* Download image */

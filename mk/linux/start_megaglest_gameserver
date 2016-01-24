@@ -1,60 +1,266 @@
-#!/bin/bash
+#!/bin/sh
 #
-# Start a headless MegaGlest game server (and keep it running)
+# Start a headless game server (and keep it running)
 #
-# Using this script, a headless game server is started, waiting for players to 
+# Using this script, a headless game server is started, waiting for players to
 # connect (if your firewall configuration permits). Players connect and start a
-# game. As soon as the game ends, the server will quit, and this script will 
-# start up a new server immidiately. This is a stability measure to  rule out 
-# the unlikely case where side effects (such as memory leaks or corruption) 
+# game. As soon as the game ends, the server will quit, and this script will
+# start up a new server immidiately. This is a stability measure to  rule out
+# the unlikely case where side effects (such as memory leaks or corruption)
 # could drain on system resources.
 #
-# For this to work, Internet originated traffic must be able to reach the 
+# For this to work, Internet originated traffic must be able to reach the
 # server on the following ports:
 # TCP port 61357: game protocol port
 # TCP port 61358: FTP control port
 # TCP ports 61359 to 61366: FTP data ports
 #
 # Once publishing to the master server succeeded (this can be verified at
-# <http://master.megaglest.org>) you may connect to your headless game server
-# using a copy of MegaGlest you have installed on a Desktop computer. The first
-# user connecting to a headless server controls it. If this user disconnects, 
+# master server's site) you may connect to your headless game server
+# using a copy of game you have installed on a Desktop computer. The first
+# user connecting to a headless server controls it. If this user disconnects,
 # the next user who connects (or had already connected) takes control.
 #
 # Please read http://wiki.megaglest.org/Dedicated_Server for more information
 #
 # ----------------------------------------------------------------------------
-# Written by Tom Reynolds <tomreyn[at]megaglest.org>
-# Copyright (c) 2013 Tom Reynolds, The Megaglest Team, under GNU GPL v3.0+
+# 2013 Written by Tom Reynolds <tomreyn[at]megaglest.org>
+# 2015 Rewritten by filux <heross(@@)o2.pl>
+# Copyright (c) 2013-2015 under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 LANG=C
+trap "kill -- -$$" HUP INT QUIT TERM EXIT
 
-# Install location
-DIR_GAME="$(dirname "$(readlink -f "$0")")"
+KERNEL="$(uname -s | tr '[A-Z]' '[a-z]')"
+if [ "$(echo "$(readlink -f "$0" >/dev/null 2>&1; echo $?)" | grep '^[0-9]$')" -eq "0" ]; then
+    GAMEDIR="$(dirname "$(readlink -f "$0")")"
+else
+    GAMEDIR="$(cd "$(dirname "$0")"; pwd)"
+fi
+HOME_DIR="$HOME"
+B_SCRIPT_DIR="$GAME_DIR"
 
+# -------
+# useful for mods
+BASIC_SCRIPT="start_megaglest"
+FAKE_EXC_BINARY_MAC="MegaGlest"
+EXC_BINARY="megaglest"
+SHORT_GAME_NAME="megaglest"
+# -------
+PORTSTART=62001
+NUM_OA_SERVERS=2
 # Log file location (beware, this can grow large)
-#LOG_SERVER=/dev/null
-LOG_SERVER=~/.megaglest/server.log
+# LOG_SERVER=/dev/null
 
+if [ "$(which curl 2>/dev/null)" = "" ]; then
+    echo "WARNING: Downloading tool 'curl' DOES NOT EXIST on this system, please install it." >&2
+fi
+if [ "$KERNEL" = "darwin" ]; then
+	if [ -e "$GAMEDIR/../../MacOS/$FAKE_EXC_BINARY_MAC" ]; then
+		BASIC_SCRIPT="$FAKE_EXC_BINARY_MAC"; B_SCRIPT_DIR="$(cd "${GAMEDIR}/../../MacOS/"; pwd)"
+	elif [ -e "$GAMEDIR/$FAKE_EXC_BINARY_MAC.sh" ]; then
+		BASIC_SCRIPT="$FAKE_EXC_BINARY_MAC.sh"
+	fi
+fi
+if [ "$(which lscpu 2>/dev/null)" != "" ]; then NUMCORES="$(lscpu -p | grep -cv '^#')"
+    elif [  "$(which sysctl 2>/dev/null)" != "" ]; then NUMCORES="$(sysctl -n hw.ncpu)"; fi
+if [ "$NUMCORES" = "" ]; then NUMCORES=1; fi
+echo "Notice: Detected processor with $NUMCORES cores." >&2
+case $NUMCORES in
+    1) MAX_LOAD_MULT="0.65";; 2) MAX_LOAD_MULT="0.80";; 3) MAX_LOAD_MULT="0.90";; *) MAX_LOAD_MULT="0.95";;
+esac
+MAX_LOAD="$(echo "$NUMCORES $MAX_LOAD_MULT" | awk '{print $1*$2}')"
 
-# ---
+if [ "$1" != "" ] && [ "$(echo "$1" | grep '^[0-9]\+$')" != "" ]; then SERVERCOUNT="$1"
+    else SERVERCOUNT=0; fi
+if [ "$2" != "" ] && [ "$(echo "$2" | grep '[0-9.:]\+' | grep -v '[A-Za-z]')" != "" ]; then
+    SERVER_GREP_IP="$(echo "$2" | sed 's/\./\\./g')"; else SERVER_GREP_IP=""; fi
+if [ "$3" != "" ] && [ "$(echo "$3" | grep '^[0-9]\+$')" != "" ]; then PORTSTART="$3"; fi
+PORT="$(($PORTSTART + $(($(($SERVERCOUNT - 1)) * 11))))"
+STATUSPORT="$(($PORT - 1))"
+PORT_FD="$(echo "$PORT" | cut -c1-3)"
 
-cd $DIR_GAME
-ulimit -c unlimited
+SERVER_SCRIPT="$(basename "$0")"
+if [ -f "$GAMEDIR/glest.ini" ]; then
+    GLEST_INI="$(cat "$GAMEDIR/glest.ini")"
+    LOG_DIR="$(echo "$GLEST_INI" | awk -F '=' '/^LogPath=/ {print $2}' | sed -e 's:\$HOME:'"$HOME_DIR"':g')"
+    MASTER_SERVER="$(echo "$GLEST_INI" | awk -F '=' '/^Masterserver=/ {print $2}')"
+    if [ "$(echo "$MASTER_SERVER" | grep '/$')" ]; then CLEAR_M_SERVER="${MASTER_SERVER}showServersForGlest.php"
+	else CLEAR_M_SERVER="$MASTER_SERVER/showServersForGlest.php"; fi
+elif [ "$SERVER_GREP_IP" != "" ]; then
+    echo "WARNING: file 'glest.ini' not found, maybe '$SERVER_SCRIPT' script is placed in the wrong location." >&2
+fi
 
+if [ -e "$B_SCRIPT_DIR/$BASIC_SCRIPT" ]; then SERVER_EXEC="$B_SCRIPT_DIR/$BASIC_SCRIPT"
+    elif [ -e "$GAMEDIR/$EXC_BINARY" ]; then SERVER_EXEC="$GAMEDIR/$EXC_BINARY"
+    else SERVER_EXEC="$EXC_BINARY"; fi
+if [ "$SERVERCOUNT" -eq "0" ]; then
+    if [ "$SERVER_EXEC" != "$EXC_BINARY" ]; then ulimit -c unlimited; fi
+    USED_PORTS=""; LOG_FILE="server.log"
+else
+    USED_PORTS=" --use-ports=$PORT,$PORT,$STATUSPORT"
+    LOG_FILE="server_${SERVERCOUNT}.log"
+    echo "Info: Server nr. $SERVERCOUNT ($2 ; $PORT)." >&2
+fi
+SER_PARAMETERS="--headless-server-mode=vps,exit$USED_PORTS"
+SER_GREP_PARAMETERS="$(echo "$SER_PARAMETERS" | sed 's/--/\\--/g')"
+if [ "$SERVERCOUNT" -gt "0" ]; then
+    sleep "$(($SERVERCOUNT * 30))"s
+fi
+
+if [ "$LOG_SERVER" != "" ]; then :
+elif [ "$LOG_DIR" != "" ]; then
+    mkdir -p "$LOG_DIR"
+    if [ "$(echo "$LOG_DIR" | grep '/$')" ]; then LOG_SERVER="${LOG_DIR}${LOG_FILE}"
+	else LOG_SERVER="$LOG_DIR/$LOG_FILE"; fi
+else
+    LOG_SERVER=/dev/null
+fi
+cd "$GAMEDIR"
+
+AVG_LOAD="unknown"; SER_SITUATION="unknown"; CHECK_AVG_LOAD_M=0
+if [ -e "/proc/loadavg" ]; then CHECK_AVG_LOAD_M=1
+    elif [  "$(which sysctl 2>/dev/null)" != "" ]; then CHECK_AVG_LOAD_M=2; fi
 while true; do
-  if [ -f "$LOG_SERVER" ]; then mv -f "$LOG_SERVER" "$LOG_SERVER.1"; fi
-  if [ -f "core" ]; then mv -f "core" "core.1"; fi
-  date > "$LOG_SERVER"
-  echo 'Starting server...' | tee -a "$LOG_SERVER"
-  ./start_megaglest --headless-server-mode=vps,exit >> "$LOG_SERVER" 2>&1
-  if [ $? -ne 0 ];
-  then
-    echo 'ERROR: Server has quit unexpectedly.' >> "$LOG_SERVER"
-    echo 'ERROR: Server has quit unexpectedly.' >&2
-    echo '       Please inspect '"$LOG_SERVER"'.' >&2
-    exit 1
-  else
-    echo 'Server has quit.' | tee -a "$LOG_SERVER"
-  fi
+    if [ -f "$LOG_SERVER" ]; then mv -f "$LOG_SERVER" "$LOG_SERVER.1"; fi
+    if [ -e "core" ]; then mv -f "core" "core.1"; fi
+    date > "$LOG_SERVER"
+    while true; do
+	if [ "$CHECK_AVG_LOAD_M" -eq "1" ]; then
+	    AVG_LOAD="$(awk '{print $2}' /proc/loadavg)"
+	elif [  "$CHECK_AVG_LOAD_M" -eq "2" ]; then
+	    AVG_LOAD="$(sysctl -n vm.loadavg | awk -F '{' '{print $2}'  | awk '{print $2}')"
+	fi
+	if [ "$AVG_LOAD" != "unknown" ]; then
+		SER_SITUATION="$(echo "$AVG_LOAD $MAX_LOAD" | awk '{if ($1 > $2) print "highload"}')"
+	fi
+	if [ "$SER_SITUATION" = "highload" ]; then
+	    if [ "$OLD_SER_SITUATION_STATUS" = "" ]; then
+		echo "WARNING: Detected high load on the server." >&2
+		OLD_SER_SITUATION_STATUS="yes"
+	    fi
+	    sleep 5m; sleep "$((RANDOM % 180))"s
+	else
+	    OLD_SER_SITUATION_STATUS=""
+	    if [ "$SERVERCOUNT" -ne "0" ] && [ "$SERVERCOUNT" -ne "1" ] && [ "$MASTER_SERVER" != "" ] && [ "$SERVER_GREP_IP" != "" ]; then
+		NUM_O_FREE_SER="$(curl -s -L "$CLEAR_M_SERVER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|.*$' \
+		    | grep '^\([^|]*|\)\{11\}'"$PORT_FD"'' | grep '^\([^|]*|\)\{13\}0|.*$' | wc -l)"
+	    else
+		NUM_O_FREE_SER=""
+	    fi
+	    if [ "$NUM_O_FREE_SER" != "" ] && [ "$NUM_O_FREE_SER" -ge "$NUM_OA_SERVERS" ]; then
+		if [ "$OLD_NUM_OFS_STATUS" = "" ]; then
+		    echo "Notice: Waiting for situation when server may be really needed." >&2
+		    OLD_NUM_OFS_STATUS="yes"
+		fi
+		sleep 2m; sleep "$((RANDOM % 60))"s
+	    else
+		OLD_NUM_OFS_STATUS=""
+		break
+	    fi
+	fi
+    done
+
+    if [ "$SERVERCOUNT" -eq "1" ] && [ ! -e "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ] && \
+	[ -e "$GAMEDIR/../${SHORT_GAME_NAME}-dev_version-update.sh" ]; then
+	if [ ! -f "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log" ]; then
+	    echo "... dev_version update:" >&2
+	    "$GAMEDIR/../${SHORT_GAME_NAME}-dev_version-update.sh" "$GAMEDIR"; sleep 1s
+	    echo "#" > "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log"; sleep 1s
+	    "$GAMEDIR/$SERVER_SCRIPT" $@ &
+	    break
+	else
+	    rm -f "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log"
+	fi
+    fi
+    echo 'Starting server...' | tee -a "$LOG_SERVER"
+
+    if [ "$MASTER_SERVER" != "" ] && [ "$SERVER_GREP_IP" != "" ]; then
+	( check_nr=0; force_restart=0; loop_start="yes"; BeginTime="$(date +"%s")"; sleep 4m
+	while true; do
+	    SER_PID="$(ps -ef | grep "$SER_GREP_PARAMETERS" | awk '/\/'"$EXC_BINARY"' / {print $2}')"
+	    if [ "$loop_start" = "yes" ]; then SER_PID_S="$SER_PID"; loop_start="no"; fi
+	    CheckTime="$(date +"%s")"; DiffTime="$(($CheckTime-$BeginTime))"
+	    if [ "$SER_PID" != "" ] && [ "$SER_PID" = "$SER_PID_S" ]; then
+		FIND_SER="$(curl -s -L "$CLEAR_M_SERVER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|.*$' \
+		    | grep '^\([^|]*|\)\{11\}'"$PORT"'|.*$')"
+		if [ "$FIND_SER" = "" ]; then
+		    if [ "$OLD_FIND_SER_STATUS" = "" ]; then
+			echo "WARNING: The master server doesn't see this server." >&2
+			OLD_FIND_SER_STATUS="yes"
+		    fi
+		else
+		    OLD_FIND_SER_STATUS=""
+		    SER_STATUS="$(echo "$FIND_SER" | awk -F '|' '{print $14}')"
+		    if [ "$SER_STATUS" = "" ] || [ "$(echo "$SER_STATUS" | grep '^[0-9]\+$')" = "" ]; then
+			echo "ERROR: Server status cannot be determined." >&2
+		    fi
+		fi
+		if [ "$SER_STATUS" != "2" ] && [ "$DiffTime" -gt "43200" ]; then
+		    echo "Notice: The server is working continuously for over 12 hours." >&2; force_restart=1
+		elif [ "$SER_STATUS" = "2" ]; then
+		    if [ "$OLD_PROG_STATUS" = "" ]; then
+			echo "Status: Game in progress..." >&2
+			OLD_PROG_STATUS="yes"; BeginTime2="$(date +"%s")"
+		    fi
+		    DiffTime2="$(($CheckTime-$BeginTime2))"
+		    if [ "$DiffTime2" -gt "14400" ]; then
+			echo "WARNING: The game is in progress for over 4 hours." >&2; force_restart=1
+		    else
+			sleep 8m
+		    fi
+		elif [ "$SER_STATUS" = "1" ]; then
+		    if [ "$OLD_READY_STATUS" = "" ]; then
+			OLD_READY_STATUS="yes"; BeginTime3="$(date +"%s")"
+		    fi
+		    DiffTime3="$(($CheckTime-$BeginTime3))"
+		    if [ "$DiffTime3" -gt "3600" ]; then
+			echo "WARNING: The game seems to waiting for start for over an hour." >&2; force_restart=1
+		    fi
+		else
+		    OLD_READY_STATUS=""
+		fi
+		if [ "$force_restart" -eq "1" ]; then
+		    FIND_SER=""; if [ "$check_nr" -lt "120" ]; then check_nr=120; fi
+		    if [ "$LOG_DIR" != "" ]; then echo "#" > "$LOG_DIR/${SHORT_GAME_NAME}-server-forced-restart.log"; sleep 2s; fi
+		fi
+		if [ "$FIND_SER" = "" ]; then
+		    check_nr="$(($check_nr + 1))"
+		    if [ "$check_nr" -lt "119" ]; then :
+		    elif [ "$check_nr" -eq "119" ] && [ "$force_restart" -ne "1" ]; then
+			echo "ERROR: The master server doesn't see this server for over 4 hours." >&2
+		    elif [ "$check_nr" -ge "123" ]; then kill -9 "$SER_PID"
+		    else kill "$SER_PID"; fi
+		else
+		    check_nr=0
+		fi
+		sleep 2m
+	    else
+		break
+	    fi
+	done
+	) &
+    fi
+    "$SERVER_EXEC" $SER_PARAMETERS >> "$LOG_SERVER" 2>&1
+    if [ "$?" -ne "0" ]; then
+	if [ ! -f "$LOG_DIR/${SHORT_GAME_NAME}-server-forced-restart.log" ]; then
+	    echo 'ERROR: Server has quit unexpectedly.' >> "$LOG_SERVER"
+	    echo 'ERROR: Server has quit unexpectedly.' >&2
+	    if [ "$SERVERCOUNT" -eq "0" ]; then
+		echo '       Please inspect '"$LOG_SERVER"'.' >&2
+		exit 1
+	    fi
+	    sleep 5s
+	    if [ "$SERVERCOUNT" -eq "1" ] && [ "$SERVER_GREP_IP" != "" ] && [ -e "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
+		echo "... attempt to perform mini update, which may solve tiny problems:" >&2
+		"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"; sleep 1s
+	    fi
+	else
+	    echo 'Notice: Server was restarted by script.' >> "$LOG_SERVER"
+	    rm -f "$LOG_DIR/${SHORT_GAME_NAME}-server-forced-restart.log"
+	fi
+	sleep "$((RANDOM % 30))"s
+    else
+	echo 'Server has quit.' | tee -a "$LOG_SERVER"
+    fi
 done

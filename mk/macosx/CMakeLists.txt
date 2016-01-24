@@ -13,14 +13,11 @@ IF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 		#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
 	ENDIF()
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftree-vectorize" CACHE STRING "Flags used by the compiler during all build types." FORCE)
-ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
+ENDIF()
 
-# don't try to be too much "modern"
-ADD_DEFINITIONS(-Wno-deprecated -Wno-deprecated-declarations)
-
-# Include extra paths to search for includes; this is the default system wide macports path.
-INCLUDE_DIRECTORIES(/opt/local/include)
-LINK_DIRECTORIES(/opt/local/lib)
+# Include extra paths to search for includes; this is the default system wide macports and X11 path.
+INCLUDE_DIRECTORIES(/usr/X11/include /opt/local/include)
+#LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 
@@ -44,21 +41,3 @@ SET(CPACK_PACKAGE_FILE_NAME "MegaGlest-game-macos-${MEGAGLEST_VERSION}")
 SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns")
 SET(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns")
 SET(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.sh")
-
-# Install files in to the package (FIXME: how? we sure?)
-INSTALL(FILES
-	${LUA_LIBRARIES}
-	DESTINATION ../Frameworks
-)
-
-#the SDL_LIBRARY is seen as a framework thus we need to remove the suffix...
-STRING(REGEX REPLACE ";.*" "" SDL_LIBRARY_DIR "${SDL_LIBRARY}")
-
-#INSTALL(DIRECTORY
-#	${OGG_LIBRARY}
-#	${XERCESC_LIBRARY}
-#	${VORBIS_LIBRARY}
-#	${SDL_LIBRARY_DIR}
-#	${PNG_LIBRARY}
-#	DESTINATION ../Frameworks
-#	)

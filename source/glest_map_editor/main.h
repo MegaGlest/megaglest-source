@@ -287,6 +287,7 @@ private:
 	void setDirty(bool val=true);
 	void setExtension();
 	void setupStartupSettings();
+	void initGlCanvas();
 };
 
 // =====================================================

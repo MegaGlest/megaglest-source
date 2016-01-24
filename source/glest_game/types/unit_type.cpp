@@ -28,6 +28,7 @@
 #include "game_util.h"
 #include "unit_particle_type.h"
 #include "faction.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;

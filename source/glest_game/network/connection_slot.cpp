@@ -992,7 +992,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								}
 
 								NetworkMessageLaunch networkMessageLaunch;
-								if(receiveMessage(&networkMessageLaunch)) {
+								if(receiveMessage(&networkMessageLaunch,networkMessageType)) {
 									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
 										//printf("Got launch request from client joinGameInProgress = %d joinGameInProgress = %d!\n",joinGameInProgress,joinGameInProgress);

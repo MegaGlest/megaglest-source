@@ -40,36 +40,35 @@ SET(MINIUPNPC_DIR_SEARCH $ENV{MINIUPNPC_ROOT})
 #find_path(MINIUPNP_INCLUDE_DIR miniupnpc.h
 #   PATH_SUFFIXES miniupnpc)
 
-FIND_PATH(MINIUPNP_INCLUDE_DIR miniupnpc.h 
-  ${MINIUPNPC_DIR_SEARCH}/include/miniupnpc
-  /usr/include/miniupnpc
-  /usr/local/include/miniupnpc) 
+FIND_PATH(MINIUPNP_INCLUDE_DIR miniupnpc.h
+  PATHS ${MINIUPNPC_DIR_SEARCH}/include
+  /usr/include
+  /usr/local/include
+  PATH_SUFFIXES miniupnpc)
 
-message(STATUS "Finding miniupnpc.h result: ${MINIUPNP_INCLUDE_DIR}")
+#message(STATUS "Finding miniupnpc.h result: ${MINIUPNP_INCLUDE_DIR}")
 
 #find_library(MINIUPNP_LIBRARY miniupnpc)
+set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_DYNAMIC_NAME} libminiupnpc miniupnpc)
 
-IF(WANT_STATIC_LIBS)
-  set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_STATIC_NAME} libminiupnpc.a)
-ELSE()
-  set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_DYNAMIC_NAME} libminiupnpc.so miniupnpc)
+IF(STATIC_Miniupnpc)
+  set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_STATIC_NAME} libminiupnpc.a miniupnpc.a ${MINIUPNPC_LIBRARY_NAMES})
 ENDIF()
 
 FIND_LIBRARY(MINIUPNP_LIBRARY NAMES ${MINIUPNPC_LIBRARY_NAMES})
 
-message(STATUS "Finding miniupnpc lib result: ${MINIUPNP_LIBRARY}")
+#message(STATUS "Finding miniupnpc lib result: ${MINIUPNP_LIBRARY}")
 
-if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
-    set (MINIUPNP_FOUND TRUE)
-endif ()
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(MINIUPNP REQUIRED_VARS MINIUPNP_LIBRARY MINIUPNP_INCLUDE_DIR)
 
 if (MINIUPNP_FOUND)
   if (NOT MINIUPNP_FIND_QUIETLY)
-    message (STATUS "Found the miniupnpc libraries at ${MINIUPNP_LIBRARY}")
+    #message (STATUS "Found the miniupnpc libraries at ${MINIUPNP_LIBRARY}")
     message (STATUS "Found the miniupnpc headers at ${MINIUPNP_INCLUDE_DIR}")
   endif (NOT MINIUPNP_FIND_QUIETLY)
 
-  message(STATUS "Detecting version of miniupnpc in path: ${MINIUPNP_INCLUDE_DIR}")
+  #message(STATUS "Detecting version of miniupnpc in path: ${MINIUPNP_INCLUDE_DIR}")
 
   set(CMAKE_REQUIRED_INCLUDES ${MINIUPNP_INCLUDE_DIR})
   set(CMAKE_REQUIRED_LIBRARIES ${MINIUPNP_LIBRARY})
@@ -201,7 +200,5 @@ else ()
     message (STATUS "Could not find miniupnp")
 endif ()
 
-MARK_AS_ADVANCED(
-  MINIUPNPC_INCLUDE_DIR
-  MINIUPNPC_LIBRARY)
+MARK_AS_ADVANCED(MINIUPNP_INCLUDE_DIR MINIUPNP_LIBRARY)
 

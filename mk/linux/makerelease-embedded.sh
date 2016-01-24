@@ -1,6 +1,7 @@
 #!/bin/bash
 # Use this script to build MegaGlest Embedded Library Source Code Archive for 
 # a Version Release
+# (Archive for 'make install', with embedded/missing content in other archives)
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
@@ -9,7 +10,7 @@ VERSION=$(./mg-version.sh --version)
 RELEASENAME=megaglest-source-embedded
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="$RELEASEDIR_ROOT/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
 REPODIR="$CURRENTDIR/../../"
@@ -33,9 +34,9 @@ git archive --remote ${REPODIR} HEAD:source/shared_lib/sources/platform/miniupnp
 cd "$RELEASEDIR/source/shared_lib/include/platform/miniupnpc/"
 git archive --remote ${REPODIR} HEAD:source/shared_lib/include/platform/miniupnpc | tar x
 
-mkdir -p "$RELEASEDIR/source/masterserver/flags/"
-cd "$RELEASEDIR/source/masterserver/flags/"
-git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
+mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
+cd "$RELEASEDIR/data/core/misc_textures/flags/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:data/core/misc_textures/flags | tar x
 
 mkdir -p "$RELEASEDIR/data/core/fonts/"
 cd "$RELEASEDIR/data/core/fonts/"

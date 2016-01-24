@@ -21,7 +21,8 @@
 #ifndef WIN32
 #include <errno.h>
 #endif
-#include <memory>
+#include "common_scoped_ptr.h"
+//#include <memory>
 
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
@@ -46,7 +47,7 @@ string getGameReadWritePath(string lookupKey) {
 
 namespace MapEditor {
 
-const string mapeditorVersionString = "v3.11.1";
+const string mapeditorVersionString = "v3.12.0";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
@@ -114,11 +115,6 @@ MainWindow::MainWindow(string appPath)
 	Properties::setApplicationPath(executable_path(appPath));
 
 	this->panel = new wxPanel(this, wxID_ANY);
-
-	//gl canvas
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
-	glCanvas = new GlCanvas(this, this->panel, args);
-	glCanvas->SetFocus();
 }
 
 void MainWindow::onToolPlayer(wxCommandEvent& event){
@@ -144,15 +140,6 @@ BEGIN_EVENT_TABLE(MainToolBar, wxToolBar)
 END_EVENT_TABLE()
 
 void MainWindow::init(string fname) {
-#if wxCHECK_VERSION(2, 9, 3)
-	//glCanvas->setCurrentGLContext();
-	//printf("setcurrent #1\n");
-#elif wxCHECK_VERSION(2, 9, 1)
-
-#else
-	glCanvas->SetCurrent();
-	//printf("setcurrent #2\n");
-#endif
 
 	//menus
 	menuBar = new wxMenuBar();
@@ -439,10 +426,10 @@ void MainWindow::init(string fname) {
 	boxsizer = new wxBoxSizer(wxVERTICAL);
 	boxsizer->Add(toolbar, 0, wxEXPAND);
 	boxsizer->Add(toolbar2, 0, wxEXPAND);
-	boxsizer->Add(glCanvas, 1, wxEXPAND);
+	//boxsizer->Add(glCanvas, 1, wxEXPAND);
 
 	this->panel->SetSizer(boxsizer);
-	this->Layout();
+	//this->Layout();
 
 	//program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 
@@ -461,6 +448,17 @@ void MainWindow::init(string fname) {
 	SetTitle(ToUnicode(currentFile + " - " + winHeader));
 	//setDirty(false);
 	//setExtension();
+
+	initGlCanvas();
+	#if wxCHECK_VERSION(2, 9, 3)
+		//glCanvas->setCurrentGLContext();
+		//printf("setcurrent #1\n");
+	#elif wxCHECK_VERSION(2, 9, 1)
+
+	#else
+		if(glCanvas) glCanvas->SetCurrent();
+		//printf("setcurrent #2\n");
+	#endif
 
 	if(startupSettingsInited == false) {
 		startupSettingsInited = true;
@@ -486,7 +484,29 @@ void MainWindow::onClose(wxCloseEvent &event) {
 	this->Destroy();
 }
 
+void MainWindow::initGlCanvas(){
+	if(glCanvas == NULL) {
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
+		glCanvas = new GlCanvas(this, this->panel, args);
+
+		boxsizer->Add(glCanvas, 1, wxEXPAND);
+	}
+}
+
 void MainWindow::setupStartupSettings() {
+
+	//gl canvas
+	if(glCanvas == NULL) {
+		initGlCanvas();
+
+		boxsizer->Add(glCanvas, 1, wxEXPAND);
+
+		this->panel->SetSizer(boxsizer);
+		this->Layout();
+	}
+	glCanvas->setCurrentGLContext();
+	glCanvas->SetFocus();
+
 	string playerName = Config::getInstance().getString("NetPlayerName","");
 	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y, playerName);
 	fileName = "New (unsaved) Map";
@@ -634,7 +654,11 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
+	//printf("onPaint map\n");
+
 	if(!IsShown()) {
+		//printf("onPaint skip map\n");
+
 		event.Skip();
 		return;
 	}
@@ -651,11 +675,14 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	glCanvas->setCurrentGLContext();
 	//}
 
+	//printf("lastPaintEvent.getMillis() map\n");
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
+		event.Skip();
 		return;
 	}
 
+	//printf("wxPaintDC dc map\n");
 	wxPaintDC dc(this); // "In a paint event handler must always create a wxPaintDC object even if you do not use it.  (?)
 	                    //  Otherwise, under MS Windows, refreshing for this and other windows will go wrong"
                         //  http://docs.wxwidgets.org/2.6/wx_wxpaintevent.html
@@ -670,6 +697,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 }
 
 void MainWindow::refreshMapRender() {
+	//printf("refreshMapRender map\n");
+
 	if(program && glCanvas) {
 		program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 		glCanvas->SwapBuffers();
@@ -689,7 +718,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
 			currentFile = tmp_buf;
 
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+			auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 			currentFile = utf8_encode(wstr.get());
 #else
 			//currentFile = fileDialog->GetPath().ToAscii();
@@ -765,7 +794,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
 		currentFile = tmp_buf;
 
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+		auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 		currentFile = utf8_encode(wstr.get());
 #else
 		 //currentFile = fd.GetPath().ToAscii();
@@ -841,6 +870,9 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 	}
 	currentFile = "";
 	fileName = "New (unsaved) map";
+
+	wxPaintEvent ev;
+	onPaint(ev);
 }
 
 void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
@@ -1148,7 +1180,7 @@ void MainWindow::onMenuHideWater(wxCommandEvent &event) {
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
-		wxT("Glest Map Editor - Copyright 2004 The Glest Team\n(with improvements by others, 2010)."),
+		wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2016 The MegaGlest Team    \n"),
 		wxT("About")).ShowModal();
 }
 
@@ -1546,6 +1578,7 @@ void GlCanvas::onPaint(wxPaintEvent &event) {
 //    mainWindow->program->renderMap(GetClientSize().x, GetClientSize().y);
 //	SwapBuffers();
 //	event.Skip();
+	//printf("gl onPaint skip map\n");
   mainWindow->onPaint(event);
 }
 
@@ -1635,7 +1668,7 @@ bool App::OnInit() {
 		fileparam = tmp_buf;
 		
 #ifdef WIN32
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
+		auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
 		fileparam = utf8_encode(wstr.get());
 #endif
 
@@ -1660,7 +1693,7 @@ bool App::OnInit() {
 	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 	appPath = tmp_buf;
 
-	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	appPath = utf8_encode(wstr.get());
 #else
 	appPath = wxFNCONV(exe_path);

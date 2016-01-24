@@ -4178,7 +4178,13 @@ void Unit::setMeshPosInParticleSystem(UnitParticleSystem *ups){
 	if(ups->getMeshName()!=""){
 		string meshName=ups->getMeshName();
 		Model *model= getCurrentModelPtr();
-		model->updateInterpolationVertices(getAnimProgressAsFloat(), isAlive() && !isAnimProgressBound());
+
+		// as it can happen that anim progress is a bit out of range we correct it to get something valid for the particle positions.
+		float currentAnimProgress=getAnimProgressAsFloat();
+		if( currentAnimProgress>1.f || currentAnimProgress<0.f) {
+			currentAnimProgress=0.f;
+		}
+		model->updateInterpolationVertices(currentAnimProgress, isAlive() && !isAnimProgressBound());
 
 		bool foundMesh=false;
 		for(unsigned int i=0; i<model->getMeshCount() ; i++){
@@ -4192,12 +4198,12 @@ void Unit::setMeshPosInParticleSystem(UnitParticleSystem *ups){
 			}
 		}
 		if( foundMesh == false ) {
-			string meshesFound="";
-			for(unsigned i=0; i<model->getMeshCount() ; i++){
-				meshesFound+= model->getMesh(i)->getName()+", ";
+			string meshesFound = model->getMesh(0)->getName();
+			for(unsigned i=1; i<model->getMeshCount() ; i++){
+				meshesFound+= ", "+model->getMesh(i)->getName();
 			}
 
-			string errorString = "Warning: Particle system is trying to find mesh'"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+model->getFileName()+"'\n";
+			string errorString = "Warning: Particle system is trying to find mesh '"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+model->getFileName()+"'\n";
 			//throw megaglest_runtime_error(errorString);
 			printf("%s",errorString.c_str());
 		}

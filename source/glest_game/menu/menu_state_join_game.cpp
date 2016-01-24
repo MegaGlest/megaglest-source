@@ -104,64 +104,67 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 
 	//buttons
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(300, 300, 125);
+	buttonReturn.init(250, 300, 150);
 	buttonReturn.setText(lang.getString("Return"));
 
 	buttonConnect.registerGraphicComponent(containerName,"buttonConnect");
-	buttonConnect.init(450, 300, 125);
+	buttonConnect.init(425, 300, 150);
 	buttonConnect.setText(lang.getString("Connect"));
 
 	buttonCreateGame.registerGraphicComponent(containerName,"buttonCreateGame");
-	buttonCreateGame.init(450, 250, 125);
+	buttonCreateGame.init(600, 300, 150);
 	buttonCreateGame.setText(lang.getString("HostGame"));
 
 	buttonAutoFindServers.registerGraphicComponent(containerName,"buttonAutoFindServers");
-	buttonAutoFindServers.init(595, 300, 225);
+	buttonAutoFindServers.init(360, 250, 280);
 	buttonAutoFindServers.setText(lang.getString("FindLANGames"));
 	buttonAutoFindServers.setEnabled(true);
 
+	int labelXleft = 300;
+	int labelXright = 480;
+
 	//server type label
 	labelServerType.registerGraphicComponent(containerName,"labelServerType");
-	labelServerType.init(330, 490);
-	labelServerType.setText(lang.getString("ServerType") + ":");
+	labelServerType.init(labelXleft, 490);
+	labelServerType.setText(lang.getString("ServerType"));
 
 	//server type list box
 	listBoxServerType.registerGraphicComponent(containerName,"listBoxServerType");
-	listBoxServerType.init(465, 490);
+	listBoxServerType.init(labelXright, 490, 210);
 	listBoxServerType.pushBackItem(lang.getString("ServerTypeNew"));
 	listBoxServerType.pushBackItem(lang.getString("ServerTypePrevious"));
 	listBoxServerType.pushBackItem(lang.getString("ServerTypeFound"));
 
 	//server label
 	labelServer.registerGraphicComponent(containerName,"labelServer");
-	labelServer.init(330, 460);
-	labelServer.setText(lang.getString("Server") + ": ");
+	labelServer.init(labelXleft, 460);
+	labelServer.setText(lang.getString("Server"));
 
 	//server listbox
 	listBoxServers.registerGraphicComponent(containerName,"listBoxServers");
-	listBoxServers.init(465, 460);
+	listBoxServers.init(labelXright, 460, 210);
 	for(int i= 0; i<servers.getPropertyCount(); ++i){
 		listBoxServers.pushBackItem(servers.getKey(i));
 	}
 
 	// found servers listbox
 	listBoxFoundServers.registerGraphicComponent(containerName,"listBoxFoundServers");
-	listBoxFoundServers.init(465, 460);
+	listBoxFoundServers.init(labelXright, 460, 210);
 
 	//server ip
 	labelServerIp.registerGraphicComponent(containerName,"labelServerIp");
 	labelServerIp.setEditable(true);
-	labelServerIp.setMaxEditWidth(15);
-	labelServerIp.setMaxEditRenderWidth(220);
-	labelServerIp.init(465, 460);
+	labelServerIp.setMaxEditWidth(26);
+	labelServerIp.setMaxEditRenderWidth(210);
+	labelServerIp.init(labelXright, 460);
 
 	// server port
 	labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
-	labelServerPortLabel.init(330,430);
+	labelServerPortLabel.init(labelXleft,430);
 	labelServerPortLabel.setText(lang.getString("ServerPort"));
 
 	labelServerPort.registerGraphicComponent(containerName,"labelServerPort");
-	labelServerPort.init(465,430);
+	labelServerPort.init(labelXright,430);
 
 	string host = labelServerIp.getText();
 	int portNumber = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
@@ -177,11 +180,11 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	labelServerPort.setText(port);
 
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
-	labelStatus.init(330, 400);
+	labelStatus.init(labelXleft, 400);
 	labelStatus.setText("");
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-	labelInfo.init(330, 370);
+	labelInfo.init(labelXleft, 370);
 	labelInfo.setText("");
 
 	connected= false;
@@ -235,7 +238,7 @@ void MenuStateJoinGame::reloadUI() {
 	buttonConnect.setText(lang.getString("Connect"));
 	buttonCreateGame.setText(lang.getString("HostGame"));
 	buttonAutoFindServers.setText(lang.getString("FindLANGames"));
-	labelServerType.setText(lang.getString("ServerType") + ":");
+	labelServerType.setText(lang.getString("ServerType"));
 
 	std::vector<string> listboxData;
 	listboxData.push_back(lang.getString("ServerTypeNew"));
@@ -243,7 +246,7 @@ void MenuStateJoinGame::reloadUI() {
 	listboxData.push_back(lang.getString("ServerTypeFound"));
 	listBoxServerType.setItems(listboxData);
 
-	labelServer.setText(lang.getString("Server") + ": ");
+	labelServer.setText(lang.getString("Server"));
 
 	labelServerPortLabel.setText(lang.getString("ServerPort"));
 
@@ -640,6 +643,13 @@ void MenuStateJoinGame::update()
     if(clientInterface != NULL && clientInterface->getLaunchGame()) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 }
 
+bool MenuStateJoinGame::textInput(std::string text) {
+	if(chatManager.getEditEnabled() == true) {
+		return chatManager.textInput(text);
+	}
+	return false;
+}
+
 void MenuStateJoinGame::keyDown(SDL_KeyboardEvent key) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
@@ -693,20 +703,20 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 
 	if(clientInterface->isConnected() == false)	{
-		int maxTextSize= 16;
+		int maxTextSize= 22;
 
 		//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		SDLKey key = extractKeyPressed(c);
+		SDL_Keycode key = extractKeyPressed(c);
 
 		//if(c>='0' && c<='9') {
 		if( (key >= SDLK_0 && key <= SDLK_9) ||
-			(key >= SDLK_KP0 && key <= SDLK_KP9)) {
+			(key >= SDLK_KP_0 && key <= SDLK_KP_9)) {
 			if((int)labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				//text.insert(text.end()-1, key);
-				char szCharText[20]="";
-				snprintf(szCharText,20,"%c",key);
+				char szCharText[26]="";
+				snprintf(szCharText,26,"%c",key);
 				char *utfStr = ConvertToUTF8(&szCharText[0]);
 				if(text.size() > 0) {
 					text.insert(text.end() -1, utfStr[0]);
@@ -729,6 +739,20 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 				}
 				else {
 					text = ".";
+				}
+
+				labelServerIp.setText(text);
+			}
+		}
+		//else if (c==':') {
+		else if (key == SDLK_COLON) {
+			if((int)labelServerIp.getText().size() < maxTextSize) {
+				string text= labelServerIp.getText();
+				if(text.size() > 0) {
+					text.insert(text.end() -1, ':');
+				}
+				else {
+					text = ":";
 				}
 
 				labelServerIp.setText(text);

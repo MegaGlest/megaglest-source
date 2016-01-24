@@ -1691,37 +1691,37 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		}
 		//PopupMenu popupMenu;
 		std::vector<string> menuItems;
-		menuItems.push_back(lang.getString("ExitGameMenu?"));
+		menuItems.push_back("  " + lang.getString("ExitGameMenu") + "  ");
 		exitGamePopupMenuIndex = (int)menuItems.size()-1;
 
 		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
 			world.getThisFaction() != NULL && world.getThisFaction()->getPersonalityType() != fpt_Observer) {
-			menuItems.push_back(lang.getString("JoinOtherTeam"));
+			menuItems.push_back("  " + lang.getString("JoinOtherTeam") + "  ");
 			joinTeamPopupMenuIndex = (int)menuItems.size()-1;
 		}
 
 		if(allowAdminMenuItems == true){
-			menuItems.push_back(lang.getString("PauseResumeGame"));
+			menuItems.push_back("  " + lang.getString("PauseResumeGame") + "  ");
 			pauseGamePopupMenuIndex= (int)menuItems.size() - 1;
 
 			if(gameSettings.isNetworkGame() == false || gameSettings.getScenario() != "") {
-				menuItems.push_back(lang.getString("SaveGame"));
+				menuItems.push_back("  " + lang.getString("SaveGame") + "  ");
 				saveGamePopupMenuIndex= (int)menuItems.size() - 1;
 			}
 
 			if(gameSettings.isNetworkGame() == true) {
-				menuItems.push_back(lang.getString("DisconnectNetorkPlayer"));
+				menuItems.push_back("  " + lang.getString("DisconnectNetorkPlayer") + "  ");
 				disconnectPlayerPopupMenuIndex= (int)menuItems.size() - 1;
 			}
 		}
-		menuItems.push_back(lang.getString("Keyboardsetup"));
+		menuItems.push_back("  " + lang.getString("KeyboardsetupL") + "  ");
 		keyboardSetupPopupMenuIndex = (int)menuItems.size()-1;
 
-		menuItems.push_back(lang.getString("Cancel"));
+		menuItems.push_back("  " + lang.getString("Cancel") + "  ");
 
 		popupMenu.setW(100);
 		popupMenu.setH(100);
-		popupMenu.init(lang.getString("GameMenuTitle"),menuItems);
+		popupMenu.init("  " + lang.getString("GameMenuTitle") + "  ",menuItems);
 		popupMenu.setEnabled(false);
 		popupMenu.setVisible(false);
 
@@ -3717,7 +3717,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 			// Exit game
 			if(result.first == exitGamePopupMenuIndex) {
-				showMessageBox(Lang::getInstance().getString("ExitGameMenu?"), "", true);
+				showMessageBox(Lang::getInstance().getString("ExitBattleQuestion"), "", true);
 			}
 			else if(result.first == joinTeamPopupMenuIndex) {
 
@@ -3738,10 +3738,10 @@ void Game::mouseDownLeft(int x, int y) {
 						world.getThisFaction()->getTeam() != faction->getTeam()) {
 						char szBuf[8096]="";
 						if(lang.hasString("JoinPlayerTeam") == true) {
-							snprintf(szBuf,8096,lang.getString("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,("  " + lang.getString("JoinPlayerTeam") + "  ").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 						else {
-							snprintf(szBuf,8096,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,"  Join player #%d - %s on Team: %d  ",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 
 						menuItems.push_back(szBuf);
@@ -3751,15 +3751,15 @@ void Game::mouseDownLeft(int x, int y) {
 				}
 
 				if((int)uniqueTeamNumbersUsed.size() < 8) {
-					menuItems.push_back(lang.getString("CreateNewTeam"));
+					menuItems.push_back("  " + lang.getString("CreateNewTeam") + "  ");
 					switchTeamIndexMap[(int)menuItems.size()-1] = CREATE_NEW_TEAM;
 				}
-				menuItems.push_back(lang.getString("Cancel"));
+				menuItems.push_back("  " + lang.getString("Cancel") + "  ");
 				switchTeamIndexMap[(int)menuItems.size()-1] = CANCEL_SWITCH_TEAM;
 
 				popupMenuSwitchTeams.setW(100);
 				popupMenuSwitchTeams.setH(100);
-				popupMenuSwitchTeams.init(lang.getString("SwitchTeams"),menuItems);
+				popupMenuSwitchTeams.init("  " + lang.getString("SwitchTeams") + "  ",menuItems);
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
 			}
@@ -3801,10 +3801,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 						char szBuf[8096]="";
 						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {
-							snprintf(szBuf,8096,lang.getString("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,("  " + lang.getString("DisconnectNetorkPlayerIndex") + "  ").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 						else {
-							snprintf(szBuf,8096,"Disconnect player #%d - %s:",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,"  Disconnect player #%d - %s:  ",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 
 						menuItems.push_back(szBuf);
@@ -3814,12 +3814,12 @@ void Game::mouseDownLeft(int x, int y) {
 					}
 				}
 
-				menuItems.push_back(lang.getString("Cancel"));
+				menuItems.push_back("  " + lang.getString("Cancel") + "  ");
 				disconnectPlayerIndexMap[(int)menuItems.size()-1] = CANCEL_DISCONNECT_PLAYER;
 
 				popupMenuDisconnectPlayer.setW(100);
 				popupMenuDisconnectPlayer.setH(100);
-				popupMenuDisconnectPlayer.init(lang.getString("DisconnectNetorkPlayer"),menuItems);
+				popupMenuDisconnectPlayer.init("  " + lang.getString("DisconnectNetorkPlayer") + "  ",menuItems);
 				popupMenuDisconnectPlayer.setEnabled(true);
 				popupMenuDisconnectPlayer.setVisible(true);
 			}
@@ -3942,10 +3942,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 					char szBuf[8096]="";
 					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
-						snprintf(szBuf,8096,lang.getString("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,("  " + lang.getString("DisconnectNetorkPlayerIndexConfirm") + "  ").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 					else {
-						snprintf(szBuf,8096,"Confirm disconnection for player #%d - %s?",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,"  Confirm disconnection for player #%d - %s?  ",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 
 					disconnectPlayerConfirmMessageBox.setText(szBuf);
@@ -4596,10 +4596,51 @@ void Game::startCameraFollowUnit() {
 	}
 }
 
+bool Game::textInput(std::string text) {
+	if(chatManager.getEditEnabled() == true) {
+		return chatManager.textInput(text);
+	}
+	return false;
+}
+
+bool Game::sdlKeyDown(SDL_KeyboardEvent key) {
+	if(this->masterserverMode == true) {
+		return false;
+	}
+	if(gameStarted == false || totalRenderFps <= 0) {
+		return false;
+	}
+
+	if(chatManager.getEditEnabled() == true) {
+		return false;
+	}
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	//group
+	for(int idx = 1; idx <= Selection::maxGroups; idx++) {
+		string keyName = "GroupUnitsKey" + intToStr(idx);
+
+		SDL_Keycode groupHotKey = configKeys.getSDLKey(keyName.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
+
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,keyName.c_str(),isKeyPressed(groupHotKey,key));
+		//printf(" group key check %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
+		if(key.keysym.sym==groupHotKey){
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//printf("IS GROUP KEY %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
+			gui.groupKey(idx-1);
+			return true;
+		}
+	}
+	return false;
+}
+
 void Game::keyDown(SDL_KeyboardEvent key) {
 	if(this->masterserverMode == true) {
 		return;
 	}
+
+	//printf("In game checking keypress for key [%d]\n",key.keysym.sym);
 
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
@@ -4640,6 +4681,8 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				configKeys.getSDLKey("SetMarker") == SDLK_LALT) {
 				setMarkerKeyAllowsModifier = true;
 			}
+
+			//printf("In game checking keypress for key [%d] camera left [%d]\n",key.keysym.sym,configKeys.getSDLKey("CameraModeLeft"));
 
 			if(isKeyPressed(configKeys.getSDLKey("RenderInGamePerformance"),key, false) == true) {
 				renderInGamePerformance = !renderInGamePerformance;
@@ -4841,34 +4884,6 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			else if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key, false) == true) {
 				popupMenu.setEnabled(!popupMenu.getEnabled());
 				popupMenu.setVisible(popupMenu.getEnabled());
-			}
-			//group
-			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
-
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("====== Check ingame custom grouping hotkeys ======\n");
-				//printf("====== Check ingame custom grouping hotkeys ======\n");
-
-				for(int idx = 1; idx <= Selection::maxGroups; idx++) {
-					string keyName = "GroupUnitsKey" + intToStr(idx);
-					//char groupHotKey = configKeys.getCharKey(keyName.c_str());
-					//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
-
-					SDLKey groupHotKey = configKeys.getSDLKey(keyName.c_str());
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
-
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
-					//printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
-
-					//if(key == groupHotKey) {
-					if(isKeyPressed(groupHotKey,key) == true) {
-						//printf("GROUP KEY!\n");
-						//gui.groupKey(key-'0');
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-						gui.groupKey(idx-1);
-						break;
-					}
-				}
 			}
 
 			//hotkeys
@@ -6225,10 +6240,10 @@ void Game::showLoseMessageBox() {
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	if(networkManager.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer) {
-		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitGameServer?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitBattleServerQuestion"), lang.getString("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitBattleQuestion"), lang.getString("BattleOver"), false);
 	}
 }
 
@@ -6236,10 +6251,10 @@ void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
 	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
-		showMessageBox(lang.getString("GameOver")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("GameOver")+" "+lang.getString("ExitBattleQuestion"), lang.getString("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.getString("YouWin")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("YouWin")+" "+lang.getString("ExitBattleQuestion"), lang.getString("BattleOver"), false);
 	}
 }
 
@@ -6350,7 +6365,9 @@ void Game::playStreamingVideo(const string &playVideo) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
 				::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
-			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+			PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+			SDL_Window *window = glCtx->getScreenWindow();
+			SDL_Surface *screen = glCtx->getScreenSurface();
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
@@ -6358,7 +6375,7 @@ void Game::playStreamingVideo(const string &playVideo) {
 					&Renderer::getInstance(),
 					playVideo,
 					"",
-					screen,
+					window,
 					0,0,
 					screen->w,
 					screen->h,
@@ -6376,7 +6393,9 @@ void Game::playStreamingVideo(const string &playVideo) {
 			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
 					::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 				Context *c= GraphicsInterface::getInstance().getCurrentContext();
-				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+				PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+				SDL_Window *window = glCtx->getScreenWindow();
+				SDL_Surface *screen = glCtx->getScreenSurface();
 
 				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
@@ -6384,7 +6403,7 @@ void Game::playStreamingVideo(const string &playVideo) {
 						&Renderer::getInstance(),
 						playVideo,
 						"",
-						screen,
+						window,
 						0,0,
 						screen->w,
 						screen->h,
@@ -6441,20 +6460,22 @@ string Game::saveGame(string name, string path) {
 	Config &config= Config::getInstance();
 	// auto name file if using saved file pattern string
 	if(name == GameConstants::saveGameFilePattern) {
-		time_t curTime = time(NULL);
-	    struct tm *loctime = localtime (&curTime);
+		//time_t curTime = time(NULL);
+	    //struct tm *loctime = localtime (&curTime);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 	    char szBuf2[100]="";
-	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
+	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",&loctime);
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,name.c_str(),szBuf2);
 		name = szBuf;
 	}
 	else if(name == GameConstants::saveGameFileAutoTestDefault) {
-		time_t curTime = time(NULL);
-	    struct tm *loctime = localtime (&curTime);
+		//time_t curTime = time(NULL);
+	    //struct tm *loctime = localtime (&curTime);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 	    char szBuf2[100]="";
-	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",loctime);
+	    strftime(szBuf2,100,"%Y%m%d_%H%M%S",&loctime);
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,name.c_str(),szBuf2);
@@ -6485,10 +6506,11 @@ string Game::saveGame(string name, string path) {
 		XmlNode *rootNodeReplay = xmlTreeSaveGame.getRootNode();
 
 		//std::map<string,string> mapTagReplacements;
-		time_t now = time(NULL);
-		struct tm *loctime = localtime (&now);
+		//time_t now = time(NULL);
+		//struct tm *loctime = localtime (&now);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 		char szBuf[4096]="";
-		strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+		strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",&loctime);
 
 		rootNodeReplay->addAttribute("version",glestVersionString, mapTagReplacements);
 		rootNodeReplay->addAttribute("timestamp",szBuf, mapTagReplacements);
@@ -6514,10 +6536,11 @@ string Game::saveGame(string name, string path) {
 	XmlNode *rootNode = xmlTree.getRootNode();
 
 	std::map<string,string> mapTagReplacements;
-	time_t now = time(NULL);
-    struct tm *loctime = localtime (&now);
+	//time_t now = time(NULL);
+    //struct tm *loctime = localtime (&now);
+	struct tm loctime = threadsafe_localtime(systemtime_now());
     char szBuf[4096]="";
-    strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",loctime);
+    strftime(szBuf,4095,"%Y-%m-%d %H:%M:%S",&loctime);
 
 	rootNode->addAttribute("version",glestVersionString, mapTagReplacements);
 	rootNode->addAttribute("timestamp",szBuf, mapTagReplacements);

@@ -1,4 +1,7 @@
 /Release/
+/*/Release/
+/x64/
+/*/x64/
 
 # Windows_build
 *.dll
@@ -9,6 +12,8 @@
 *.map
 *.dmp
 *.dat
+*.ipdb
+*.iobj
 /lua/
 #
 
@@ -19,8 +24,7 @@
 /servers.ini
 # Files generated during build
 /xml_test_malformed.xml
-/vc2012/x64/
-/vc2012/xml_test_malformed.xml
+/*/xml_test_malformed.xml
 
 # Coverity
 /cov-analysis*/

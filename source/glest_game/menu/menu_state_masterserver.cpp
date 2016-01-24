@@ -117,7 +117,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	// header
 	labelTitle.registerGraphicComponent(containerName,"labelTitle");
-	labelTitle.init(330, serverLinesYBase+40);
+	labelTitle.init(410, serverLinesYBase+45);
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTitle.setText(lang.getString("AvailableServers"));
@@ -132,7 +132,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	// Titles for current games - START
 	int lineIndex = 0;
 	int lineOffset=25*lineIndex;
-	int i=7;
+	int i=5;
 	int startOffset=serverLinesYBase+23;
 
 	//general info:
@@ -141,9 +141,9 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	glestVersionLabel.init(i,startOffset-lineOffset);
 	glestVersionLabel.setText(lang.getString("MGVersion"));
 
-	i+=70;
+	i+=80;
 	platformLabel.registerGraphicComponent(containerName,"platformLabel");
-	platformLabel.init(i,startOffset-lineOffset);
+	platformLabel.init(i+15,startOffset-lineOffset);
 	platformLabel.setText(lang.getString("MGPlatform"));
 
 //	i+=50;
@@ -152,17 +152,17 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 //	binaryCompileDateLabel.setText(lang.getString("MGBuildDateTime"));
 
 	//game info:
-	i+=130;
+	i+=120;
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel");
 	serverTitleLabel.init(i,startOffset-lineOffset);
 	serverTitleLabel.setText(lang.getString("MGGameTitle"));
 
-	i+=150;
+	i+=170;
 	countryLabel.registerGraphicComponent(containerName,"countryLabel");
-	countryLabel.init(i,startOffset-lineOffset);
+	countryLabel.init(i-10,startOffset-lineOffset);
 	countryLabel.setText(lang.getString("MGGameCountry"));
 
-	i+=65;
+	i+=60;
 
 //	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
 //	ipAddressLabel.init(i,startOffset-lineOffset);
@@ -174,12 +174,12 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	techLabel.init(i,startOffset-lineOffset);
 	techLabel.setText(lang.getString("TechTree"));
 
-	i+=120;
+	i+=165;
 	mapLabel.registerGraphicComponent(containerName,"mapLabel");
 	mapLabel.init(i,startOffset-lineOffset);
 	mapLabel.setText(lang.getString("Map"));
 
-	i+=120;
+	i+=95;
 //	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel");
 //	tilesetLabel.init(i,startOffset-lineOffset);
 //	tilesetLabel.setText(lang.getString("Tileset"));
@@ -190,18 +190,18 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	activeSlotsLabel.setText(lang.getString("MGGameSlots"));
 
 	i+=50;
-	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort");
-	externalConnectPort.init(i,startOffset-lineOffset);
-	externalConnectPort.setText(lang.getString("Port"));
+	//externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort");
+	//externalConnectPort.init(i,startOffset-lineOffset);
+	//externalConnectPort.setText(lang.getString("Port"));
 
-	i+=60;
+	i+=30;
 	statusLabel.registerGraphicComponent(containerName,"statusLabel");
-	statusLabel.init(i,startOffset-lineOffset);
+	statusLabel.init(i+5,startOffset-lineOffset);
 	statusLabel.setText(lang.getString("MGGameStatus"));
 
 	i+=130;
 	selectButton.registerGraphicComponent(containerName,"selectButton");
-	selectButton.init(i, startOffset-lineOffset);
+	selectButton.init(i-5, startOffset-lineOffset);
 	selectButton.setText(lang.getString("MGJoinGameSlots"));
 
 	// Titles for current games - END
@@ -210,10 +210,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     buttonReturn.init(50, buttonPos, 150);
 
     buttonCreateGame.registerGraphicComponent(containerName,"buttonCreateGame");
-    buttonCreateGame.init(300, buttonPos, 150);
+    buttonCreateGame.init(275, buttonPos, 150);
 
     buttonRefresh.registerGraphicComponent(containerName,"buttonRefresh");
-    buttonRefresh.init(550, buttonPos, 150);
+    buttonRefresh.init(500, buttonPos, 150);
 
 	buttonRefresh.setText(lang.getString("RefreshList"));
 	buttonReturn.setText(lang.getString("Return"));
@@ -221,15 +221,15 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	labelAutoRefresh.setText(lang.getString("AutoRefreshRate"));
 
 	labelAutoRefresh.registerGraphicComponent(containerName,"labelAutoRefresh");
-	labelAutoRefresh.init(800,buttonPos+30);
+	labelAutoRefresh.init(750,buttonPos+30);
 
 	listBoxAutoRefresh.registerGraphicComponent(containerName,"listBoxAutoRefresh");
-	listBoxAutoRefresh.init(800,buttonPos);
+	listBoxAutoRefresh.init(750,buttonPos);
 	listBoxAutoRefresh.pushBackItem(lang.getString("Off"));
 	listBoxAutoRefresh.pushBackItem("10 s");
 	listBoxAutoRefresh.pushBackItem("20 s");
 	listBoxAutoRefresh.pushBackItem("30 s");
-	listBoxAutoRefresh.setSelectedItemIndex(1);
+	listBoxAutoRefresh.setSelectedItemIndex(2);
 	autoRefreshTime=10*listBoxAutoRefresh.getSelectedItemIndex();
 
 	ircOnlinePeopleLabel.registerGraphicComponent(containerName,"ircOnlinePeopleLabel");
@@ -383,7 +383,7 @@ void MenuStateMasterserver::reloadUI() {
 
 	activeSlotsLabel.setText(lang.getString("MGGameSlots"));
 
-	externalConnectPort.setText(lang.getString("Port"));
+	//externalConnectPort.setText(lang.getString("Port"));
 
 	statusLabel.setText(lang.getString("MGGameStatus"));
 
@@ -573,7 +573,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
-			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "left the lobby");
+			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "   <<   left the lobby");
 			sleep(30);
 		}
         cleanup();
@@ -595,7 +595,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
-			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "tries to create a game");
+			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "   <<   tries to create a game");
 			sleep(30);
 		}
         cleanup();
@@ -629,7 +629,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 
 						if (ircClient != NULL && ircClient->isConnected() == true
 									&& ircClient->getHasJoinedChannel() == true) {
-							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
+							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "   <<   is connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
 							sleep(30);
 						}
 						cleanup();
@@ -732,7 +732,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&mapLabel,&titleLabelColor);
 		//renderer.renderLabel(&tilesetLabel,&titleLabelColor);
 		renderer.renderLabel(&activeSlotsLabel,&titleLabelColor);
-		renderer.renderLabel(&externalConnectPort,&titleLabelColor);
+		//renderer.renderLabel(&externalConnectPort,&titleLabelColor);
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
 		Lang &lang= Lang::getInstance();
@@ -1194,7 +1194,17 @@ void MenuStateMasterserver::showMessageBox(const string &text, const string &hea
 }
 
 
+bool MenuStateMasterserver::textInput(std::string text) {
+	if (ircClient != NULL && ircClient->isConnected() == true
+			&& ircClient->getHasJoinedChannel() == true) {
+		return chatManager.textInput(text);
+	}
+    return false;
+}
+
 void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
+	//printf("In [%s::%s Line: %d] key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym);
+
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 	if (ircClient != NULL && ircClient->isConnected() == true
@@ -1204,11 +1214,10 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
 			MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 			//if (key == vkReturn && ircClient != NULL) {
-			if(isKeyPressed(SDLK_RETURN,key) == true && ircClient != NULL) {
+			if(isKeyPressed(SDLK_RETURN,key,false) == true && ircClient != NULL) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
 			}
 		}
-
 		chatManager.keyDown(key);
 	}
     if(chatManager.getEditEnabled() == false) {
@@ -1237,24 +1246,6 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
             consoleIRC.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
         }
     }
-}
-
-void MenuStateMasterserver::keyPress(SDL_KeyboardEvent c) {
-	if (ircClient != NULL && ircClient->isConnected() == true
-			&& ircClient->getHasJoinedChannel() == true) {
-		chatManager.keyPress(c);
-	}
-}
-void MenuStateMasterserver::keyUp(SDL_KeyboardEvent key) {
-	if (ircClient != NULL && ircClient->isConnected() == true
-			&& ircClient->getHasJoinedChannel() == true) {
-		chatManager.keyUp(key);
-
-		if (chatManager.getEditEnabled()) {
-			//send key to the chat manager
-			chatManager.keyUp(key);
-		}
-	}
 }
 
 }}//end namespace

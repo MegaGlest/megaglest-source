@@ -37,7 +37,7 @@
 #include "ImageReaders.h"
 #include "renderer.h"
 #include "simple_threads.h"
-#include <memory>
+//#include <memory>
 #include "font.h"
 #include <curl/curl.h>
 #include "menu_state_masterserver.h"
@@ -55,6 +55,7 @@
 #include "auto_test.h"
 #include "lua_script.h"
 #include "interpolation.h"
+#include "common_scoped_ptr.h"
 
 // To handle signal catching
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -81,6 +82,7 @@
 #include "network_protocol.h"
 #include "conversion.h"
 #include "gen_uuid.h"
+//#include "intro.h"
 #include "leak_dumper.h"
 
 #if defined(WIN32)
@@ -127,7 +129,7 @@ static string runtimeErrorMsg 					= "";
 #endif
 
 #ifdef HAVE_GOOGLE_BREAKPAD
-std::auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
+auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
 #endif
 
 class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
@@ -202,7 +204,7 @@ static void cleanupProcessObjects() {
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		showCursor(true);
-		restoreVideoMode(true);
+		restoreVideoMode(::Shared::Platform::Window::getSDLWindow(), true);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache SHUTDOWN\n");
@@ -298,8 +300,7 @@ void fatal(const char *s, ...)    // failure exit
 
 		if(errors <= 1) { // avoid recursion
             if(SDL_WasInit(SDL_INIT_VIDEO)) {
-                SDL_ShowCursor(1);
-                SDL_WM_GrabInput(SDL_GRAB_OFF);
+                SDL_SetRelativeMouseMode(SDL_FALSE);
             }
             #ifdef WIN32
 				LPWSTR wstr = Ansi2WideString(errText.c_str());
@@ -589,10 +590,11 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 #endif
 
 		if(logFile.is_open() == true) {
-			time_t curtime = time (NULL);
-			struct tm *loctime = localtime (&curtime);
+			//time_t curtime = time (NULL);
+			//struct tm *loctime = localtime (&curtime);
+			struct tm loctime = threadsafe_localtime(systemtime_now());
 			char szBuf2[100]="";
-			strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+			strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 			logFile << "[" << szBuf2 << "] Runtime Error information:"  << std::endl;
 			logFile << "======================================================"  << std::endl;
@@ -742,7 +744,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 
         if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
         	showCursor(true);
-        	restoreVideoMode(true);
+        	restoreVideoMode(::Shared::Platform::Window::getSDLWindow(), true);
         }
 
 		runtimeErrorMsg = errMsg;
@@ -825,6 +827,31 @@ MainWindow::~MainWindow(){
 	delete program;
 	program = NULL;
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+int MainWindow::getDesiredScreenWidth() {
+	Config &config= Config::getInstance();
+	return config.getInt("ScreenWidth");
+}
+int MainWindow::getDesiredScreenHeight() {
+	Config &config= Config::getInstance();
+	return config.getInt("ScreenHeight");
+}
+
+void MainWindow::eventToggleFullScreen(bool isFullscreen) {
+	WindowGl::eventToggleFullScreen(isFullscreen);
+
+	if(isFullscreen) {
+		Metrics::reload(this->program->getWindow()->getScreenWidth(),
+				this->program->getWindow()->getScreenHeight());
+	}
+	else {
+		Config &config= Config::getInstance();
+		Metrics::reload(config.getInt("ScreenWidth"),config.getInt("ScreenHeight"));
+		//window->setText(config.getString("WindowTitle","MegaGlest"));
+		//this->mainMenu->init();
+	}
+
 }
 
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
@@ -1091,8 +1118,31 @@ void MainWindow::toggleLanguage(string language) {
 	}
 }
 
+bool MainWindow::eventTextInput(std::string text) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,text.c_str());
+
+    if(program == NULL) {
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+    }
+
+	bool result = program->textInput(text);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+	return result;
+}
+
+bool MainWindow::eventSdlKeyDown(SDL_KeyboardEvent key) {
+	if(program == NULL) {
+	    	throw megaglest_runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+	}
+	return program->sdlKeyDown(key);
+}
+
 void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
+
+	//printf("In mainwindow checking keypress for key [%d]\n",key.keysym.sym);
 
 	SDL_keysym keystate = key.keysym;
 
@@ -1129,6 +1179,8 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
+
+	//printf("In mainwindow checking keypress for key [%d] mod [%d] modvalue: %d\n",key.keysym.sym,keystate.mod,(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)));
 
 	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1275,6 +1327,76 @@ void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
 		}
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
+}
+
+void MainWindow::eventWindowEvent(SDL_WindowEvent event) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.event);
+    if(program == NULL) {
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
+    }
+
+//    if(program->getState() != NULL && dynamic_cast<Intro *>(program->getState()) != NULL) {
+//    	printf("In eventWindowEvent skip\n");
+//    	return;
+//    }
+    //Renderer &renderer= Renderer::getInstance();
+    switch(event.event) {
+		case SDL_WINDOWEVENT_ENTER:
+		{
+			//printf("In SDL_WINDOWEVENT_ENTER\n");
+//			bool showCursorState = Window::lastShowMouseState;
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+		case SDL_WINDOWEVENT_LEAVE:
+		{
+			//printf("In SDL_WINDOWEVENT_LEAVE\n");
+//			bool showCursorState = false;
+//			int state = SDL_ShowCursor(SDL_QUERY);
+//			if(state == SDL_DISABLE) {
+//				showCursorState = true;
+//			}
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		{
+			//printf("SDL_WINDOWEVENT_FOCUS_GAINED\n");
+//			bool showCursorState = Window::lastShowMouseState;
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+		{
+			//printf("SDL_WINDOWEVENT_FOCUS_LOST\n");
+//			bool showCursorState = false;
+//			int state = SDL_ShowCursor(SDL_QUERY);
+//			if(state == SDL_DISABLE) {
+//				showCursorState = true;
+//			}
+//			showCursor(showCursorState);
+//			renderer.setNo2DMouseRendering(showCursorState);
+//
+//			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
+		}
+			break;
+
+    }
+
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,event.event);
 }
 
 void MainWindow::eventActivate(bool active) {
@@ -2556,66 +2678,85 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 #endif
 
 					if(txFile.is_open() == true) {
-						txFile << "TechTreeName=" << techName << std::endl;
+						string _transl_TechTreeName = techName;
+						replaceAll(_transl_TechTreeName,"_"," ");
+						txFile << "; TechTree" << std::endl;
+						txFile << "TechTreeName=" << _transl_TechTreeName << std::endl;
 
-						txFile << "; --------------" << std::endl;
+						txFile << "; -------------------------------------" << std::endl;
 						txFile << "; Types of Armor" << std::endl;
 						for(int index = 0; index < techtree->getArmorTypeCount(); ++index) {
 							const ArmorType *at = techtree->getArmorTypeByIndex(index);
-							txFile << "ArmorTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
+							string _transl_ArmorTypeName = at->getName(false);
+							replaceAll(_transl_ArmorTypeName,"_"," ");
+							txFile << "ArmorTypeName_" << at->getName(false) << "=" << _transl_ArmorTypeName << std::endl;
 						}
 
-						txFile << "; -------------- " << std::endl;
+						txFile << "; --------------------" << std::endl;
 						txFile << "; Types of Attack" << std::endl;
 						for(int index = 0; index < techtree->getAttackTypeCount(); ++index) {
 							const AttackType *at = techtree->getAttackTypeByIndex(index);
-							txFile << "AttackTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
+							string _transl_AttackTypeName = at->getName(false);
+							replaceAll(_transl_AttackTypeName,"_"," ");
+							txFile << "AttackTypeName_" << at->getName(false) << "=" << _transl_AttackTypeName << std::endl;
 						}
 
-						txFile << "; ------------------" << std::endl;
+						txFile << "; --------------------" << std::endl;
 						txFile << "; Types of Resources" << std::endl;
 						for(int index = 0; index < techtree->getResourceTypeCount(); ++index) {
 							const ResourceType *rt = techtree->getResourceType(index);
-							txFile << "ResourceTypeName_" << rt->getName(false) << "=" << rt->getName(false) << std::endl;
+							string _transl_ResourceTypeName = rt->getName(false);
+							replaceAll(_transl_ResourceTypeName,"_"," ");
+							txFile << "ResourceTypeName_" << rt->getName(false) << "=" << _transl_ResourceTypeName << std::endl;
 						}
 
-						txFile << "; -----------------" << std::endl;
-						txFile << "; Types of Factions" << std::endl;
-						txFile << "FactionName_" << GameConstants::OBSERVER_SLOTNAME << "=" << GameConstants::OBSERVER_SLOTNAME << std::endl;
-						txFile << "FactionName_" << GameConstants::RANDOMFACTION_SLOTNAME << "=" << GameConstants::RANDOMFACTION_SLOTNAME << std::endl;
-
+						//txFile << "FactionName_" << GameConstants::OBSERVER_SLOTNAME << "=" << GameConstants::OBSERVER_SLOTNAME << std::endl;
+						//txFile << "FactionName_" << GameConstants::RANDOMFACTION_SLOTNAME << "=" << GameConstants::RANDOMFACTION_SLOTNAME << std::endl;
 						for(int index = 0; index < techtree->getTypeCount(); ++index) {
 							const FactionType *ft = techtree->getType(index);
-							txFile << "FactionName_" << ft->getName(false) << "=" << ft->getName(false) << std::endl;
+							string _transl_FactionName = ft->getName(false);
+							replaceAll(_transl_FactionName,"_"," ");
+							txFile << "; -----------------------------------------------------------------------------" << std::endl;
+							txFile << "; Faction" << std::endl;
+							txFile << "FactionName_" << ft->getName(false) << "=" << _transl_FactionName << std::endl;
 
-							txFile << "; ----------------------------------" << std::endl;
+							txFile << "; -------------------------------------" << std::endl;
 							txFile << "; Types of Upgrades for this Faction" << std::endl;
 							for(int upgradeIndex = 0; upgradeIndex < ft->getUpgradeTypeCount(); ++upgradeIndex) {
 								const UpgradeType *upt = ft->getUpgradeType(upgradeIndex);
-								txFile << "UpgradeTypeName_" << upt->getName(false) << "=" << upt->getName(false) << std::endl;
+								string _transl_UpgradeTypeName = upt->getName(false);
+								replaceAll(_transl_UpgradeTypeName,"_"," ");
+								txFile << "UpgradeTypeName_" << upt->getName(false) << "=" << _transl_UpgradeTypeName << std::endl;
 							}
 
-							txFile << "; -------------------------------" << std::endl;
-							txFile << "; Types of Units for this Faction" << std::endl;
 							for(int unitIndex = 0; unitIndex < ft->getUnitTypeCount(); ++unitIndex) {
 								const UnitType *ut = ft->getUnitType(unitIndex);
-								txFile << "UnitTypeName_" << ut->getName(false) << "=" << ut->getName(false) << std::endl;
+								string _transl_UnitTypeName = ut->getName(false);
+								replaceAll(_transl_UnitTypeName,"_"," ");
+								txFile << "; -------------------------------------" << std::endl;
+								txFile << "; Unit" << std::endl;
+								txFile << "UnitTypeName_" << ut->getName(false) << "=" << _transl_UnitTypeName << std::endl;
 
 								txFile << "; --------------------" << std::endl;
 								txFile << "; Levels for this Unit" << std::endl;
 								for(int levelIndex = 0; levelIndex < ut->getLevelCount(); ++levelIndex) {
 									const Level *level = ut->getLevel(levelIndex);
-									txFile << "LevelName_" << level->getName(false) << "=" << level->getName(false) << std::endl;
+									string _transl_LevelName = level->getName(false);
+									replaceAll(_transl_LevelName,"_"," ");
+									txFile << "LevelName_" << level->getName(false) << "=" << _transl_LevelName << std::endl;
 								}
 
-								txFile << "; -------------------------------" << std::endl;
+								txFile << "; --------------------" << std::endl;
 								txFile << "; Types of Commands for this Unit" << std::endl;
 								for(int commandIndex = 0; commandIndex < ut->getCommandTypeCount(); ++commandIndex) {
 									const CommandType *ct = ut->getCommandType(commandIndex);
-									txFile << "CommandName_" << ct->getName(false) << "=" << ct->getName(false) << std::endl;
+									string _transl_CommandName = ct->getName(false);
+									replaceAll(_transl_CommandName,"_"," ");
+									txFile << "CommandName_" << ct->getName(false) << "=" << _transl_CommandName << std::endl;
 								}
 							}
 						}
+						txFile << "; -------------------------------------" << std::endl;
 					}
 					txFile.close();
 
@@ -4001,43 +4142,6 @@ int glestMain(int argc, char** argv) {
     // DEbug testing threads
     //Thread::setEnableVerboseMode(true);
 
-    if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
-    	//isMasterServerModeEnabled = true;
-    	//Window::setMasterserverMode(isMasterServerModeEnabled);
-    	GlobalStaticFlags::setIsNonGraphicalModeEnabled(true);
-
-    	int foundParamIndIndex = -1;
-		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]) + string("="),&foundParamIndIndex);
-		if(foundParamIndIndex < 0) {
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]),&foundParamIndIndex);
-		}
-		string paramValue = argv[foundParamIndIndex];
-		vector<string> paramPartTokens;
-		Tokenize(paramValue,paramPartTokens,"=");
-		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-			string headless_command_list = paramPartTokens[1];
-
-			vector<string> paramHeadlessCommandList;
-			Tokenize(headless_command_list,paramHeadlessCommandList,",");
-
-			for(unsigned int i = 0; i < paramHeadlessCommandList.size(); ++i) {
-				string headless_command = paramHeadlessCommandList[i];
-				if(headless_command == "exit") {
-					printf("Forcing quit after game has completed [%s]\n",headless_command.c_str());
-					Program::setWantShutdownApplicationAfterGame(true);
-				}
-				else if(headless_command == "vps") {
-					printf("Disabled reading from console [%s]\n",headless_command.c_str());
-					disableheadless_console = true;
-				}
-				else if(headless_command == "lan") {
-					printf("Forcing local LAN mode [%s]\n",headless_command.c_str());
-					GlobalStaticFlags::setFlag(gsft_lan_mode);
-				}
-			}
-		}
-    }
-
 	PlatformExceptionHandler::application_binary= executable_path(argv[0],true);
 	mg_app_name = GameConstants::application_name;
 	mailStringSupport = mailString;
@@ -4076,6 +4180,71 @@ int glestMain(int argc, char** argv) {
 		return 2;
 	}
 
+
+
+
+    if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
+    	//isMasterServerModeEnabled = true;
+    	//Window::setMasterserverMode(isMasterServerModeEnabled);
+    	GlobalStaticFlags::setIsNonGraphicalModeEnabled(true);
+
+    	int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string headless_command_list = paramPartTokens[1];
+
+			vector<string> paramHeadlessCommandList;
+			Tokenize(headless_command_list,paramHeadlessCommandList,",");
+
+			for(unsigned int i = 0; i < paramHeadlessCommandList.size(); ++i) {
+				string headless_command = paramHeadlessCommandList[i];
+				if(headless_command == "exit") {
+					printf("Forcing quit after game has completed [%s]\n",headless_command.c_str());
+					Program::setWantShutdownApplicationAfterGame(true);
+				}
+				else if(headless_command == "vps") {
+					printf("Disabled reading from console [%s]\n",headless_command.c_str());
+					disableheadless_console = true;
+				}
+				else if(headless_command == "lan") {
+					printf("Forcing local LAN mode [%s]\n",headless_command.c_str());
+					GlobalStaticFlags::setFlag(gsft_lan_mode);
+				}
+			}
+		}
+    }
+
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SERVER_TITLE]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SERVER_TITLE]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SERVER_TITLE]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			Config &config = Config::getInstance();
+			string serverTitle = paramPartTokens[1];
+			printf("Forcing serverTitle[%s]\n",serverTitle.c_str());
+
+			config.setString("ServerTitle",serverTitle,true);
+		}
+        else {
+            printf("\nInvalid missing server title specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+
+            return 1;
+        }
+	}
+
+
+
 #ifdef WIN32
 	SocketManager winSockManager;
 #endif
@@ -4106,7 +4275,8 @@ int glestMain(int argc, char** argv) {
 	if( haveSpecialOutputCommandLineOption == false ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) == true) {
 		printf("%s %s",extractFileFromDirectoryPath(argv[0]).c_str(),getNetworkPlatformFreeVersionString().c_str());
-		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(::Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
+//		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(::Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
+		printf("\nCompiled using: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getPlatformNameString().c_str(),(::Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
 
 //		printf("\n\nData type sizes int8 = " MG_SIZE_T_SPECIFIER " int16 = " MG_SIZE_T_SPECIFIER " int32 = " MG_SIZE_T_SPECIFIER " int64 = " MG_SIZE_T_SPECIFIER "\n\n",sizeof(int8),sizeof(int16),sizeof(int32),sizeof(int64));
 //
@@ -4247,7 +4417,7 @@ int glestMain(int argc, char** argv) {
 		print_SDL_version("SDL compile-time version", &ver);
 
         // Prints the run-time version
-        ver = *SDL_Linked_Version();
+		SDL_GetVersion(&ver);
         print_SDL_version("SDL runtime version", &ver);
         //const SDL_VideoInfo *vidInfo = SDL_GetVideoInfo();
         //printf("Video card Memory: %u\n",vidInfo->video_mem);
@@ -4693,6 +4863,7 @@ int glestMain(int argc, char** argv) {
 		::Shared::Platform::PlatformContextGl::charSet = config.getInt("FONT_CHARSET",intToStr(::Shared::Platform::PlatformContextGl::charSet).c_str());
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
+			//showWindowCursorState = false;
 		}
 		if(config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str()) >= 0) {
 			SystemFlags::DEFAULT_HTTP_TIMEOUT = config.getInt("DEFAULT_HTTP_TIMEOUT",intToStr(SystemFlags::DEFAULT_HTTP_TIMEOUT).c_str());
@@ -4978,8 +5149,6 @@ int glestMain(int argc, char** argv) {
 
 		mainWindow= new MainWindow(program);
 
-		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
-
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         GameSettings startupGameSettings;
@@ -5044,11 +5213,17 @@ int glestMain(int argc, char** argv) {
 			vector<string> paramPartTokens;
 			Tokenize(mapName,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string autoloadMapName = paramPartTokens[1];
+				vector<string> paramPartTokens2;
+				string tileset="forest";
+				Tokenize(paramPartTokens[1],paramPartTokens2,",");
+				if(paramPartTokens2.size() >= 2 && paramPartTokens2[1].length() > 0) {
+					tileset = paramPartTokens2[1];
+				}
+				string autoloadMapName = paramPartTokens2[0];
 
 				GameSettings *gameSettings = &startupGameSettings;
 				gameSettings->setMap(autoloadMapName);
-				gameSettings->setTileset("forest");
+				gameSettings->setTileset(tileset);
 				gameSettings->setTech("megapack");
 				gameSettings->setDefaultUnits(false);
 				gameSettings->setDefaultResources(false);
@@ -5229,7 +5404,6 @@ int glestMain(int argc, char** argv) {
 				}
 
 				showCursor(true);
-				mainWindow->setUseDefaultCursorOnly(true);
 
 				const Metrics &metrics= Metrics::getInstance();
 				renderer.clearBuffers();
@@ -5381,8 +5555,8 @@ int glestMain(int argc, char** argv) {
 			preCacheThread->start();
 		}
 
-		std::auto_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
-		std::auto_ptr<SimpleTaskThread> languageCacheGen;
+		auto_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
+		auto_ptr<SimpleTaskThread> languageCacheGen;
 
 		bool startNativeLanguageNamesPrecacheThread = config.getBool("PreCacheNativeLanguageNamesThread","true");
 		if(startNativeLanguageNamesPrecacheThread == true &&
@@ -5555,6 +5729,7 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    showCursor(true);
+	    //showWindowCursorState = true;
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -5654,15 +5829,29 @@ int glestMain(int argc, char** argv) {
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 		if( Config::getInstance().getString("FactorySound","") != "None" &&
 			soundRenderer.isVolumeTurnedOff() == false) {
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			for(;chronoshutdownFadeSound.getMillis() <= shutdownFadeSoundMilliseconds;) {
 				sleep(10);
 			}
 		}
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		BaseThread::shutdownAndWait(soundThreadManager);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		delete soundThreadManager;
 		soundThreadManager = NULL;
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	return 0;
 }

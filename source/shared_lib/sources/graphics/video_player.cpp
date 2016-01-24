@@ -69,7 +69,9 @@ std::string getRegKey(const std::string& location, const std::string& name){
 #endif
 
 const string HTTP_PREFIX 					= "http";
+#ifdef HAS_LIBVLC
 const double MAX_VIDEO_START_MILLISECONDS	= 10.0;
+#endif
 
 class ctx {
 public:
@@ -416,7 +418,7 @@ void callbacks( const libvlc_event_t* event, void* data ) {
 VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
 							string filename,
 							string filenameFallback,
-							SDL_Surface *surface,
+							SDL_Window *window,
 							int x, int y,int width, int height,int colorBits,
 							bool loop, string pluginsPath, bool verboseEnabled)
 	: ctxPtr(NULL) {
@@ -424,7 +426,7 @@ VideoPlayer::VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
 	this->loadingCB = loadingCB;
 	this->filename = filename;
 	this->filenameFallback = filenameFallback;
-	this->surface = surface;
+	this->window = window;
 	this->x = x;
 	this->y = y;
 	this->width = width;
@@ -919,7 +921,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 
 #if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_video_set_callbacks(ctxPtr->mp, lock, unlock, display, ctxPtr);
-		libvlc_video_set_format(ctxPtr->mp, "RV16", width, height, this->surface->pitch);
+		libvlc_video_set_format(ctxPtr->mp, "RV16", width, height, SDL_GetWindowSurface(this->window)->pitch);
 
 #endif
 
@@ -1229,7 +1231,7 @@ void VideoPlayer::PlayVideo() {
 
 #if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_video_set_callbacks(mp, lock, unlock, display, ctxPtr);
-		libvlc_video_set_format(mp, "RV16", width, height, this->surface->pitch);
+		libvlc_video_set_format(mp, "RV16", width, height, this->window->pitch);
 
 		// Get an event manager for the media player.
 		//libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mp, &ex);
@@ -1355,7 +1357,7 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 				finished = true;
 				break;
 			case SDLK_RETURN:
-				//options ^= SDL_FULLSCREEN;
+				//options ^= SDL_WINDOW_FULLSCREEN;
 				//screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, options);
 				finished = true;
 				break;
@@ -1416,7 +1418,7 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 			glPopAttrib();
 
 			if(swapBuffers == true) {
-				SDL_GL_SwapBuffers();
+				 SDL_GL_SwapWindow(window);
 			}
 		}
 	}

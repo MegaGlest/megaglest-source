@@ -25,6 +25,7 @@
 #include <utility>
 #include <SDL.h>
 #include <map>
+//#include <chrono>
 #include "leak_dumper.h"
 
 #if (defined WIN32) && !(defined snprintf)
@@ -89,6 +90,12 @@ public:
 	virtual void * getShellCommandOutput_UserData(string cmd) = 0;
     virtual void ShellCommandOutput_CallbackEvent(string cmd,char *output,void *userdata) = 0;
 };
+
+//typedef std::chrono::time_point<std::chrono::system_clock> system_time_point;
+tm threadsafe_localtime(const time_t &time);
+// extracting std::time_t from std:chrono for "now"
+time_t systemtime_now();
+
 
 // =====================================================
 //	class PerformanceTimer
@@ -220,7 +227,7 @@ string extractExtension(const string& filename);
 void getFullscreenVideoModes(vector<ModeInfo> *modeinfos,bool isFullscreen);
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen);
 void changeVideoModeFullScreen(bool value);
-void restoreVideoMode(bool exitingApp=false);
+void restoreVideoMode(SDL_Window *sdlWindow,bool exitingApp=false);
 
 bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
@@ -241,8 +248,8 @@ off_t getFileSize(string filename);
 bool searchAndReplaceTextInFile(string fileName, string findText, string replaceText, bool simulateOnly);
 void copyFileTo(string fromFileName, string toFileName);
 
-int getScreenW();
-int getScreenH();
+//int getScreenW();
+//int getScreenH();
 
 void sleep(int millis);
 

@@ -20,7 +20,9 @@
 #define OS_STRING "Other/unknown"
 #endif
 
-#define MINIUPNPC_VERSION_STRING "1.6"
+#define MINIUPNPC_VERSION_STRING "1.9"
+#define UPNP_VERSION_STRING "UPnP/1.1"
+#define MINIUPNPC_API_VERSION  15
 
 #endif
 

@@ -326,7 +326,9 @@ void BattleEnd::initBackgroundVideo() {
 			printf("videoFile [%s] videoFileFallback [%s]\n",videoFile.c_str(),videoFileFallback.c_str());
 
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
-			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+			PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+			SDL_Window *window = glCtx->getScreenWindow();
+			SDL_Surface *screen = glCtx->getScreenSurface();
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
@@ -334,7 +336,7 @@ void BattleEnd::initBackgroundVideo() {
 					&Renderer::getInstance(),
 					videoFile,
 					videoFileFallback,
-					screen,
+					window,
 					0,0,
 					screen->w,
 					screen->h,
@@ -587,7 +589,7 @@ void BattleEnd::render() {
 
 			Vec3f color = stats.getPlayerColor(i);
 			if(stats.getPlayerName(i) != "") {
-				string textToRender=stats.getPlayerName(i);
+				string textToRender=stats.getPlayerName(i).substr(0,11);
 				if(stats.getPlayerLeftBeforeEnd(i)==true){
 					textToRender+="\n("+getTimeDuationString(stats.getTimePlayerLeft(i),GameConstants::updateFps) + ")";
 				}

@@ -94,11 +94,13 @@ public:
 	virtual void mouseDoubleClickCenter(int x, int y){}
 	virtual void eventMouseWheel(int x, int y, int zDelta){}
 	virtual void mouseMove(int x, int y, const MouseState *mouseState);
+	virtual bool textInput(std::string text){ return false; };
 	virtual void keyDown(SDL_KeyboardEvent key){};
+	virtual bool sdlKeyDown(SDL_KeyboardEvent key){ return false; };
 	virtual void keyUp(SDL_KeyboardEvent key){};
 	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
-	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
+	virtual void restoreToStartXY();
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 	virtual bool quitTriggered() { return false; }
 	virtual Stats quitAndToggleState() { return Stats(); };
@@ -192,7 +194,9 @@ public:
 	void initScenario(WindowGl *window, string autoloadScenarioName);
 
 	//main
+	bool textInput(std::string text);
     void keyDown(SDL_KeyboardEvent key);
+    bool sdlKeyDown(SDL_KeyboardEvent key);
     void keyUp(SDL_KeyboardEvent key);
     void keyPress(SDL_KeyboardEvent c);
 
@@ -233,6 +237,7 @@ private:
 	void setDisplaySettings();
 	void restoreDisplaySettings();
 	void restoreStateFromSystemError();
+	void initResolution();
 };
 
 }} //end namespace

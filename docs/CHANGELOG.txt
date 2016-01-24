@@ -3,6 +3,16 @@ MEGAGLEST CHANGELOG
 
 To see a timeline of detail changes please visit:
 https://github.com/MegaGlest/megaglest-source/commits/master
+
+v3.12.0
+- MegaGlest uses SDL2 now
+- glowing meshes. ( models can glow like particles do )
+- console message for finished upgrades
+- new parameter to set servers titles
+- 5 new maps
+- improved network performance
+- better stability in the lobby
+
 v3.11.1
 - no more false clicks when commanding via mini map
 - map editor has a more useful and powerful map height randomizer

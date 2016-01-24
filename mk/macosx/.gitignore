@@ -8,6 +8,8 @@ core.bak
 
 /p7zip/
 /build/
+/lib/
 /[Rr]elease/
 /[Dd]ebug/
 /mydata/
+/*.dSYM/

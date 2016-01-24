@@ -112,6 +112,7 @@ Config::Config() {
 	fileName.second 			= "";
 	fileNameParameter.first 	= "";
 	fileNameParameter.second 	= "";
+	custom_path_parameter       = "";
 }
 
 bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path) {
@@ -159,6 +160,7 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 	cfgType 					= type;
 	fileName 					= file;
 	fileNameParameter 			= file;
+	custom_path_parameter 		= custom_path;
 
     if(getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) != "") {
     	fileName.first = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.first;
@@ -330,7 +332,7 @@ void Config::reload() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	std::pair<ConfigType,ConfigType> type = std::make_pair(cfgType.first,cfgType.second);
-	Config newconfig(type, std::make_pair(fileNameParameter.first,fileNameParameter.second), std::make_pair(true,false));
+	Config newconfig(type, std::make_pair(fileNameParameter.first,fileNameParameter.second), std::make_pair(true,false), custom_path_parameter);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -459,11 +461,11 @@ const string Config::getString(const string &key,const char *defaultValueIfNotFo
 	return properties.first.getString(key,defaultValueIfNotFound);
 }
 
-SDLKey Config::translateStringToSDLKey(const string &value) const {
-	SDLKey result = SDLK_UNKNOWN;
+SDL_Keycode Config::translateStringToSDLKey(const string &value) const {
+	SDL_Keycode result = SDLK_UNKNOWN;
 
 	if(IsNumeric(value.c_str()) == true) {
-		result = (SDLKey)strToInt(value);
+		result = (SDL_Keycode)strToInt(value);
 	}
 	else if(value.substr(0,2) == "vk") {
 		if(value == "vkLeft") {
@@ -524,7 +526,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 			result = SDLK_F12;
 		}
 		else if(value == "vkPrint") {
-			result = SDLK_PRINT;
+			result = SDLK_PRINTSCREEN;
 		}
 		else if(value == "vkPause") {
 			result = SDLK_PAUSE;
@@ -536,24 +538,20 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 	}
 	else if(value.length() >= 1) {
 		if(value.length() == 3 && value[0] == '\'' && value[2] == '\'') {
-			result = (SDLKey)value[1];
+			result = (SDL_Keycode)value[1];
 		}
 		else {
 			bool foundKey = false;
 			if(value.length() > 1) {
-				for(int i = SDLK_UNKNOWN; i < SDLK_LAST; ++i) {
-					SDLKey key = static_cast<SDLKey>(i);
-					string keyName = SDL_GetKeyName(key);
-					if(value == keyName) {
-						result = key;
-						foundKey = true;
-						break;
-					}
+				SDL_Keycode lookup = SDL_GetKeyFromName(value.c_str());
+				if(lookup != SDLK_UNKNOWN) {
+					result = lookup;
+					foundKey = true;
 				}
 			}
 
 			if(foundKey == false) {
-				result = (SDLKey)value[0];
+				result = (SDL_Keycode)value[0];
 			}
 		}
 	}
@@ -567,7 +565,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 	return result;
 }
 
-SDLKey Config::getSDLKey(const char *key) const {
+SDL_Keycode Config::getSDLKey(const char *key) const {
 	if(fileLoaded.second == true &&
 		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
 

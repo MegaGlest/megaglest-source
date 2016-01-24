@@ -175,6 +175,12 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 		glEnable(GL_CULL_FACE);
 	}
 
+	if(renderMode==rmNormal && mesh->getGlow()==true){
+		// glow on
+		glDisable(GL_LIGHTING);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	}
+
 	if(this->colorPickingMode == false) {
 		//set color
 		if(renderColors) {
@@ -324,6 +330,12 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
 	}
 
+	// glow
+	if(renderMode==rmNormal && mesh->getGlow()==true){
+		// glow off
+		glEnable(GL_LIGHTING);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	//assertions
 	assertGl();
 }

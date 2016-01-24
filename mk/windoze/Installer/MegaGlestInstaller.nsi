@@ -3,13 +3,17 @@
 
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.11.0
-!define APVER 3.11.1
+!define APVER_OLD 3.11.1
+!define APVER 3.12.0
+
+!ifdef NSIS_WIN32_MAKENSIS
+!define NSISCONF_3 ";" ; NSIS 2 tries to parse some preprocessor instructions inside "!if 0" blocks!
+!endif ;~ NSIS_WIN32_MAKENSIS
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
 SetCompressorDictSize 64
-OutFile "${APNAME}-Installer-${APVER}_i386_win32.exe"
+OutFile "${APNAME}-Installer-${APVER}_windows_XXbit.exe"
 Icon "..\..\shared\megaglest.ico"
 UninstallIcon "..\..\shared\megaglest.ico"
 !define MUI_ICON "..\..\shared\megaglest.ico"
@@ -61,6 +65,10 @@ UninstPage uninstConfirm
 UninstPage instfiles
 
 Function .onInit
+    InitPluginsDir
+FunctionEnd
+
+Function un.onInit
     InitPluginsDir
 FunctionEnd
 
@@ -125,6 +133,11 @@ Function MUIGUIInit
    StrCpy $R0 "$EXEDIR"
    StrCpy $R2 "?"
    IfFileExists $EXEDIR\megaglest_exe foundInst doneInit
+
+   IfFileExists $INSTDIR\megaglestx64.exe 0 +2
+   StrCpy $R0 "$INSTDIR"
+   StrCpy $R2 "?"
+   IfFileExists $INSTDIR\megaglestx64.exe foundInst
 
 foundInst:
 
@@ -195,7 +208,11 @@ noViewReadme:
     click Yes to launch the game now$\nor 'No' to exit." IDNO noLaunch
 
     SetOutPath $INSTDIR
-    Exec 'megaglest.exe'
+    ${If} ${FileExists}  "$INSTDIR\megaglest.exe"
+      Exec 'megaglest.exe'
+    ${ElseIf} ${FileExists}  "$INSTDIR\megaglestx64.exe"
+      Exec 'megaglestx64.exe'
+    ${EndIf}
 
 noLaunch:
 
@@ -213,43 +230,51 @@ Section "${APNAME} (required)"
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   ; Put file there
-  File "..\megaglest.exe"
-  File "..\megaglest_editor.exe"
-  File "..\megaglest_g3dviewer.exe"
+  File /NONFATAL "..\..\..\data\glest_game\megaglest.exe"
+  File /NONFATAL "..\..\..\data\glest_game\megaglest_editor.exe"
+  File /NONFATAL "..\..\..\data\glest_game\megaglest_g3dviewer.exe"
+
+  File /NONFATAL "..\megaglestx64.exe"
+  File /NONFATAL "..\megaglest_editorx64.exe"
+  File /NONFATAL "..\megaglest_g3dviewerx64.exe"
+
   File "..\7z.exe"
   File "..\7z.dll"
   File "..\..\shared\megaglest.ico"
   File "..\glest.ini"
   File "..\..\shared\glestkeys.ini"
   File "..\..\shared\servers.ini"
-  File "..\openal32.dll"
+  File /NONFATAL "..\..\..\data\glest_game\openal32.dll"
+  File /NONFATAL "..\openal64.dll"
   
   File "..\NetworkThrottleFix.reg"
   
-  File "..\libvlccore.dll"
-  File "..\libvlc.dll"
-  File /r /x .svn /x mydata "..\plugins"
-  File /r /x .svn /x mydata "..\lua"
+  #File /NONFATAL "..\libvlccore.dll"
+  #File /NONFATAL "..\libvlc.dll"
+  #File /NONFATAL /r /x .gitignore /x .svn /x mydata "..\plugins"
+  #File /NONFATAL /r /x .gitignore /x .svn /x mydata "..\lua"
   
   SetOutPath "$INSTDIR\blender\"
-  File "..\\xml2g.exe"
-  File "..\g2xml.exe"
-  File /r /x .svn /x mydata "..\..\..\source\tools\glexemel\*.*"
+  #File /NONFATAL "..\..\..\data\glest_game\xml2g.exe"
+  #File /NONFATAL "..\..\..\data\glest_game\g2xml.exe"
+
+  #File /NONFATAL "..\xml2gx64.exe"
+  #File /NONFATAL "..\g2xmlx64.exe"
+
+  File /r /x .gitignore /x .svn /x mydata /x g2xml /x xml2g "..\..\..\source\tools\glexemel\*.py"
   SetOutPath $INSTDIR
 
-  File /r /x .svn /x mydata /x cegui "..\..\..\data\glest_game\data"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\techs"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\data"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\docs"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\maps"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\techs"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\tilesets"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\data\glest_game\tutorials"
 
   SetOutPath "$INSTDIR\docs\"
-  File /r /x .svn /x mydata "..\..\..\docs\*.*"
-  
-  SetOutPath "$INSTDIR\data\core\misc_textures\flags"
-  File /r /x .svn /x mydata "..\..\..\source\masterserver\flags\*.*"
+  File /r /x .gitignore /x .svn /x mydata "..\..\..\docs\*.*"
+
   SetOutPath $INSTDIR
 
   ; Write the installation path into the registry
@@ -272,8 +297,9 @@ Section "${APNAME} (required)"
   CreateDirectory $INSTDIR\tutorials
   CreateDirectory $INSTDIR\blender
 
-  AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
-
+  !ifndef NSISCONF_3
+    AccessControl::GrantOnFile "$INSTDIR" "(BU)" "FullAccess"
+  !endif
 SectionEnd
 
 ; Optional section (can be disabled by the user)
@@ -282,22 +308,29 @@ Section "Start Menu Shortcuts"
   CreateDirectory "$SMPROGRAMS\${APNAME}"
   CreateDirectory "$APPDATA\megaglest"
   CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
-
-  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
-  CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
-
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Main.lnk" "$INSTDIR" "" "" 0 "" "" "This folder is the ${APNAME} installation folder"
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} User Data.lnk" "$APPDATA\megaglest" "" "" 0 "" "" "This folder contains downloaded data (such as mods) and your personal ${APNAME} configuration"
+
+  ${If} ${FileExists}  "$INSTDIR\megaglest.exe"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewer.exe" "" "$INSTDIR\megaglest_g3dviewer.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editor.exe" "" "$INSTDIR\megaglest_editor.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
+  ${ElseIf} ${FileExists}  "$INSTDIR\megaglestx64.exe"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} G3D Viewer.lnk" "$INSTDIR\megaglest_g3dviewerx64.exe" "" "$INSTDIR\megaglest_g3dviewerx64.exe" 0 "" "" "${APNAME} MegaGlest G3D Viewer"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME} Map Editor.lnk" "$INSTDIR\megaglest_editorx64.exe" "" "$INSTDIR\megaglest_editorx64.exe" 0 "" "" "${APNAME} MegaGlest Map Editor"
+    CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglestx64.exe" "" "$INSTDIR\megaglestx64.exe" 0 "" "" "${APNAME}"
+  ${EndIf}
 
 SectionEnd
 
 ;--------------------------------
 RequestExecutionLevel admin
 section "Tweaks"
-  AccessControl::GrantOnRegKey \
-    HKLM "Software" "(BU)" "FullAccess"
-    WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NetworkThrottlingIndex" 0xffffffff
+  !ifndef NSISCONF_3
+    AccessControl::GrantOnRegKey \
+      HKLM "Software" "(BU)" "FullAccess"
+      WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NetworkThrottlingIndex" 0xffffffff
+  !endif
 sectionEnd
 RequestExecutionLevel none
 
@@ -317,11 +350,19 @@ Section "Uninstall"
   Delete "$INSTDIR\megaglest.exe"
   Delete "$INSTDIR\megaglest_editor.exe"
   Delete "$INSTDIR\megaglest_g3dviewer.exe"
+
+  Delete "$INSTDIR\megaglestx64.exe"
+  Delete "$INSTDIR\megaglest_editorx64.exe"
+  Delete "$INSTDIR\megaglest_g3dviewerx64.exe"
+
   Delete "$INSTDIR\megaglest.ico"
   Delete "$INSTDIR\glest.ini"
   Delete "$INSTDIR\glestkeys.ini"
   Delete "$INSTDIR\servers.ini"
+
   Delete "$INSTDIR\openal32.dll"
+  Delete "$INSTDIR\openal64.dll"
+
   Delete "$INSTDIR\*.log"
 
   Delete "$INSTDIR\data\*.*"

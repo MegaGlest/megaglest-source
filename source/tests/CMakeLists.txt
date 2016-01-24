@@ -15,21 +15,22 @@ IF(BUILD_MEGAGLEST_TESTS)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CPPUNIT_LIBRARY})
 	ENDIF()
 
-	FIND_PACKAGE(SDL REQUIRED)
-	INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+	FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
+	INCLUDE_DIRECTORIES(${${SDL_VERSION_NAME}_INCLUDE_DIR})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${${SDL_VERSION_NAME}_LIBRARY})
 	ENDIF()
 
-	find_package( FriBiDi )
-	if(ENABLE_FRIBIDI AND FRIBIDI_LIBRARIES)
-	        add_definitions(-DHAVE_FRIBIDI)
+	if(WANT_USE_FriBiDi)
+		find_package( FriBiDi )
+		if(FRIBIDI_FOUND)
+			add_definitions(-DHAVE_FRIBIDI)
 
-        	include_directories( ${FRIBIDI_INCLUDE_DIR} )
-                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
-
-	elseif(ENABLE_FRIBIDI AND NOT FRIBIDI_LIBRARIES)
-		message("Could not find FriBiDi. Disabling FriBiDi support.")
+			include_directories( ${FRIBIDI_INCLUDE_DIR} )
+			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
+		else()
+			message("Could not find FriBiDi. Disabling FriBiDi support.")
+		endif()
 	endif()
 
 	#########################################################################################
@@ -70,7 +71,7 @@ IF(BUILD_MEGAGLEST_TESTS)
                 ${PROJECT_SOURCE_DIR}/source/glest_game/types
                 )
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
 			${GLEST_LIB_INCLUDE_ROOT}streflop
@@ -83,10 +84,10 @@ IF(BUILD_MEGAGLEST_TESTS)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/posix)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
-		SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/sdl)
+		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
+		SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME})
 		SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/unix)
 	ENDIF()
 
@@ -139,27 +140,20 @@ IF(BUILD_MEGAGLEST_TESTS)
 	
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
 
-        MESSAGE(STATUS "***Note: The final output path for Megaglest Game will be [${EXECUTABLE_OUTPUT_PATH}]")
+        MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
 	IF(NOT WIN32)
-		IF(WANT_STREFLOP)
+		IF(WANT_USE_STREFLOP)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
@@ -173,11 +167,11 @@ IF(BUILD_MEGAGLEST_TESTS)
 
 			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 				COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-				COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
+				COMMENT "***-- Found MegaGlest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
 		ELSE()
 			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 				COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-				COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests...")
+				COMMENT "***-- Found MegaGlest test runner: ${TARGET_NAME} about to run unit tests...")
 		ENDIF()
 	ENDIF()
 

@@ -31,6 +31,12 @@
 
 #endif
 
+#if __cplusplus > 199711L
+#include <chrono>
+#else
+#include <time.h>
+#endif
+
 #ifdef WIN32
  #define S_ISDIR(mode) (((mode) & _S_IFDIR) == _S_IFDIR)
 #elif defined(__GNUC__)
@@ -101,6 +107,30 @@ int ScreenWidth = 800;
 int ScreenHeight = 600;
 
 }
+
+/*
+	A thread safe localtime proxy
+*/
+tm threadsafe_localtime(const time_t &time) {
+	tm tm_snapshot;
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+	localtime_s(&tm_snapshot, &time);
+#else
+	localtime_r(&time, &tm_snapshot); // POSIX  
+#endif
+	return tm_snapshot;
+}
+
+// extracting std::time_t from std:chrono for "now"
+time_t systemtime_now() {
+#if __cplusplus > 199711L
+	system_time_point system_now = std::chrono::system_clock::now();
+	return std::chrono::system_clock::to_time_t(system_now);
+#else
+	return time(NULL);
+#endif
+}
+
 
 // =====================================
 //          PerformanceTimer
@@ -786,9 +816,10 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				value = crcValue;
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
-			        struct tm *loctime = localtime (&refreshDate);
+			        //struct tm *loctime = localtime (&refreshDate);
+					struct tm loctime = threadsafe_localtime(refreshDate);
 			        char szBuf1[100]="";
-			        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+			        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,
 							"=-=-=-=- READ CACHE for Cache file [%s] refreshDate = %ld [%s], crcValue = %u\n",
@@ -796,19 +827,20 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				}
 			}
 			else {
-				time_t now = time(NULL);
-		        struct tm *loctime = localtime (&now);
+				//time_t now = time(NULL);
+		        //struct tm *loctime = localtime (&now);
+				struct tm loctime = threadsafe_localtime(systemtime_now());
 		        char szBuf1[100]="";
-		        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+		        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
-		        loctime = localtime (&refreshDate);
+		        loctime = threadsafe_localtime(refreshDate);
 		        char szBuf2[100]="";
-		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+		        strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 					SystemFlags::OutputDebug(SystemFlags::debugSystem,
 							"=-=-=-=- NEED TO CALCULATE CRC for Cache file [%s] now = %ld [%s], refreshDate = %ld [%s], crcValue = %u\n",
-							crcCacheFile.c_str(),now, szBuf1, refreshDate, szBuf2, crcValue);
+							crcCacheFile.c_str(), systemtime_now(), szBuf1, refreshDate, szBuf2, crcValue);
 				}
 			}
 		}
@@ -844,9 +876,10 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
 	    time_t now = time(NULL);
 		time_t refreshDate = now + (REFRESH_CRC_DAY_SECONDS * offset);
 
-        struct tm *loctime = localtime (&refreshDate);
+        //struct tm *loctime = localtime (&refreshDate);
+		struct tm loctime = threadsafe_localtime(refreshDate);
         char szBuf1[100]="";
-        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 		string writeGameVer = Shared::PlatformByteOrder::toCommonEndian(gameVersion);
 		string writeGameGITVersion = Shared::PlatformByteOrder::toCommonEndian(gameGITVersion);
@@ -904,9 +937,10 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 	uint32 crcValue = 0;
 	pair<bool,time_t> crcResult = hasCachedFileCRCValue(crcCacheFile, crcValue);
 	if(crcResult.first == true) {
-        struct tm *loctime = localtime (&crcResult.second);
+        //struct tm *loctime = localtime (&crcResult.second);
+		struct tm loctime = threadsafe_localtime(crcResult.second);
         char szBuf1[100]="";
-        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
+        strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",&loctime);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);
 		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n-------------- In [%s::%s Line: %d] scanning folders found CACHED FILE for cacheKey [%s] last updated [%s]\n",__FILE__,__FUNCTION__,__LINE__,cacheKey.c_str(),szBuf1);
@@ -1539,270 +1573,116 @@ void createDirectoryPaths(string Path) {
 }
 
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen) {
-    // Get the current video hardware information
-    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-    //colorBits      = vidInfo->vfmt->BitsPerPixel;
-    //screenWidth    = vidInfo->current_w;
-    //screenHeight   = vidInfo->current_h;
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    /* Get available fullscreen/hardware modes */
-
-    #if defined(WIN32) || defined(__APPLE__)
-
-	int flags = 0;
-
-    #else
-
-    int flags = SDL_RESIZABLE;
-
-    #endif
-    if(isFullscreen) flags = SDL_FULLSCREEN;
-    SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|flags);
-
-    /* Check if there are any modes available */
-    if (modes == (SDL_Rect**)0) {
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
-
-       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-       colorBits      = vidInfo->vfmt->BitsPerPixel;
-       screenWidth    = vidInfo->current_w;
-       screenHeight   = vidInfo->current_h;
-
-       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
-   }
-   /* Check if our resolution is restricted */
-   else if (modes == (SDL_Rect**)-1) {
-	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
-
-       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-       colorBits      = vidInfo->vfmt->BitsPerPixel;
-       screenWidth    = vidInfo->current_w;
-       screenHeight   = vidInfo->current_h;
-
-       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
-   }
-   else{
-       /* Print valid modes */
-	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
-
-       int bestW = -1;
-       int bestH = -1;
-       for(int i=0; modes[i]; ++i) {
-    	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
-
-           if(bestW < modes[i]->w) {
-               bestW = modes[i]->w;
-               bestH = modes[i]->h;
-           }
-       }
-
-       if(bestW > screenWidth) {
-           screenWidth = bestW;
-           screenHeight = bestH;
-       }
-
-       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
-  }
+// TTSDL What does this method do ? I have no clue...
+//
+//    // Get the current video hardware information
+//    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+//    //colorBits      = vidInfo->vfmt->BitsPerPixel;
+//    //screenWidth    = vidInfo->current_w;
+//    //screenHeight   = vidInfo->current_h;
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//    /* Get available fullscreen/hardware modes */
+//
+//    #if defined(WIN32) || defined(__APPLE__)
+//
+//	int flags = 0;
+//
+//    #else
+//
+//    int flags = SDL_WINDOW_RESIZABLE;
+//
+//    #endif
+//    if(isFullscreen) flags = SDL_WINDOW_FULLSCREEN;
+//    SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|flags);
+//
+//    /* Check if there are any modes available */
+//    if (modes == (SDL_Rect**)0) {
+//    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+//       colorBits      = vidInfo->vfmt->BitsPerPixel;
+//       screenWidth    = vidInfo->current_w;
+//       screenHeight   = vidInfo->current_h;
+//
+//       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+//   }
+//   /* Check if our resolution is restricted */
+//   else if (modes == (SDL_Rect**)-1) {
+//	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//       const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+//       colorBits      = vidInfo->vfmt->BitsPerPixel;
+//       screenWidth    = vidInfo->current_w;
+//       screenHeight   = vidInfo->current_h;
+//
+//       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+//   }
+//   else{
+//       /* Print valid modes */
+//	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//       int bestW = -1;
+//       int bestH = -1;
+//       for(int i=0; modes[i]; ++i) {
+//    	   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h);
+//
+//           if(bestW < modes[i]->w) {
+//               bestW = modes[i]->w;
+//               bestH = modes[i]->h;
+//           }
+//       }
+//
+//       if(bestW > screenWidth) {
+//           screenWidth = bestW;
+//           screenHeight = bestH;
+//       }
+//
+//       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] using current resolution: %d x %d.\n",__FILE__,__FUNCTION__,__LINE__,screenWidth,screenHeight);
+//  }
 }
 
 
 void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
-    // Get the current video hardware information
-    //const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-    //colorBits      = vidInfo->vfmt->BitsPerPixel;
-    //screenWidth    = vidInfo->current_w;
-    //screenHeight   = vidInfo->current_h;
+	// Get the current video hardware information
+	//const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
+	//colorBits      = vidInfo->vfmt->BitsPerPixel;
+	//screenWidth    = vidInfo->current_w;
+	//screenHeight   = vidInfo->current_h;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    SDL_PixelFormat format;
-  	//SDL_Rect **modes;
-  	int loops(0);
-	int bpp(0);
-	std::map<std::string,bool> uniqueResList;
+		//SDL_PixelFormat format;
+		//SDL_Rect **modes;
+		//int loops(0);
+		//int bpp(0);
+		std::map<std::string,bool> uniqueResList;
 
-	do
-	{
-			//format.BitsPerPixel seems to get zeroed out on my windows box
-			switch(loops)
-			{
-				case 0://32 bpp
-					format.BitsPerPixel = 32;
-					bpp = 32;
-					break;
-				case 1://24 bpp
-					format.BitsPerPixel = 24;
-					bpp = 24;
-					break;
-				case 2://16 bpp
-					format.BitsPerPixel = 16;
-					bpp = 16;
-					break;
-//				case 3://8 bpp
-//					format.BitsPerPixel = 8;
-//					bpp = 8;
-//					break;
+		///////////////////////////
+		vector<pair<int,int> > allResoltuions;
+		SDL_DisplayMode mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+		int max=SDL_GetNumDisplayModes(0);
+		for (int i = 0; i < max; ++i) {
+			if(0==SDL_GetDisplayMode(0,i,&mode)) {
+				int bpp;
+				Uint32 Rmask;
+				Uint32 Gmask;
+				Uint32 Bmask;
+				Uint32 Amask;
+				SDL_PixelFormatEnumToMasks(mode.format,&bpp,&Rmask,&Gmask,&Bmask,&Amask);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",allResoltuions[i].first, allResoltuions[i].second,bpp);
+				string lookupKey = intToStr(mode.w) + "_" + intToStr(mode.h) + "_" + intToStr(bpp);
+				if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
+					uniqueResList[lookupKey] = true;
+					modeinfos->push_back(ModeInfo(mode.w,mode.h,bpp));
+				}
 			}
-
-			/* Get available fullscreen/hardware modes */
-			//SDL_Rect**modes = SDL_ListModes(NULL, SDL_OPENGL|SDL_RESIZABLE);
-
-
-		    #if defined(WIN32) || defined(__APPLE__)
-
-			int flags = 0;
-
-		    #else
-
-		    int flags = SDL_RESIZABLE;
-
-		    #endif
-		    if(isFullscreen) flags = SDL_FULLSCREEN;
-			SDL_Rect**modes = SDL_ListModes(&format, SDL_OPENGL|flags);
-
-			/* Check if there are any modes available */
-			if (modes == (SDL_Rect**)0) {
-				//printf("NO resolutions are usable for format = %d\n",format.BitsPerPixel);
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] no hardware modes available.\n",__FILE__,__FUNCTION__,__LINE__);
-
-			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-  		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
-		       if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
-		    	   uniqueResList[lookupKey] = true;
-		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
-		       }
-		       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
-		   }
-		   /* Check if our resolution is restricted */
-		   else if (modes == (SDL_Rect**)-1) {
-			   //printf("ALL resolutions are usable for format = %d\n",format.BitsPerPixel);
-			   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] all resolutions available.\n",__FILE__,__FUNCTION__,__LINE__);
-
-			   const SDL_VideoInfo* vidInfo = SDL_GetVideoInfo();
-  		       string lookupKey = intToStr(vidInfo->current_w) + "_" + intToStr(vidInfo->current_h) + "_" + intToStr(vidInfo->vfmt->BitsPerPixel);
-		       if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
-		    	   uniqueResList[lookupKey] = true;
-		    	   modeinfos->push_back(ModeInfo(vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel));
-		       }
-		       if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding only current resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,vidInfo->current_w,vidInfo->current_h,vidInfo->vfmt->BitsPerPixel);
-
-		       // Lets add these resolutions since sdl said all are supported
-		       /*
-		       240x160	 4:3		 GameboyAdvanced
-		       256x192	 4:3		 NintendoDS
-		       320x240	 4:3		 GP2x
-		       480x272	 ~16:9		 PSP
-		       480x320	 3:2		 iPhone
-		       640x480	 4:3		 numerous PDA use this resolution
-		       800x480	 5:3		 ASUS Eee PC, Nokia N800
-		       1024x600	 ~16:9		 ASUS Eee PC 1000
-		       1024x768	 4:3		 common LCD format
-		       1200x900	 4:3		 OLPC
-		       1280x1024	 5:4		 common LCD format
-		       1440x900	 16:10		 common LCD format
-		       1680x1050	 16:10		 common LCD format
-		       1600x1200	 4:3		 common LCD format
-		       1366x768	 ~16:9		 common resolution of HD-TVs, even so its not actually an official HD-TV resolution
-		       1368x768	 ~16:9		 common resolution of HD-TVs, even so its not actually an official HD-TV resolution
-		       1920x1200	 16:10		 common LCD format
-		       2560x1600	 16:10		 30" LCD
-		       1280x720	 16:9		 HD-TV (720p)
-		       1920x1080	 16:9		 HD-TV (1080p)
-		       2560x1440	 16:9		 Apple iMac
-		       2560x1600	 16:10		 Largest Available Consumer Monitor
-		       */
-
-		       vector<pair<int,int> > allResoltuions;
-		       if(SDL_VideoModeOK(640, 480, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(640, 480));
-		       }
-		       if(SDL_VideoModeOK(800, 480, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(800, 480));
-		       }
-		       if(SDL_VideoModeOK(800, 600, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(800, 600));
-		       }
-		       if(SDL_VideoModeOK(1024, 600, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1024, 600));
-		       }
-		       if(SDL_VideoModeOK(1024, 768, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1024, 768));
-		       }
-		       if(SDL_VideoModeOK(1280, 720, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1280, 720));
-		       }
-		       if(SDL_VideoModeOK(1200, 900, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1200, 900));
-		       }
-		       if(SDL_VideoModeOK(1280, 1024, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1280, 1024));
-		       }
-		       if(SDL_VideoModeOK(1440, 900, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1440, 900));
-		       }
-		       if(SDL_VideoModeOK(1680, 1050, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1680, 1050));
-		       }
-		       if(SDL_VideoModeOK(1600, 1200, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1600, 1200));
-		       }
-		       if(SDL_VideoModeOK(1366, 768, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1366, 768));
-		       }
-		       if(SDL_VideoModeOK(1920, 1080, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1920, 1080));
-		       }
-		       if(SDL_VideoModeOK(1920, 1200, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(1920, 1200));
-		       }
-		       if(SDL_VideoModeOK(2560, 1600, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(2560, 1600));
-		       }
-		       if(SDL_VideoModeOK(2560, 1440, bpp, SDL_OPENGL|flags) == bpp) {
-		    	   allResoltuions.push_back(make_pair(2560, 1440));
-		       }
-
-			   for(unsigned int i=0; i < allResoltuions.size(); ++i) {
-				   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",allResoltuions[i].first, allResoltuions[i].second,bpp);
-				    string lookupKey = intToStr(allResoltuions[i].first) + "_" + intToStr(allResoltuions[i].second) + "_" + intToStr(bpp);
-				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
-				    	uniqueResList[lookupKey] = true;
-				    	modeinfos->push_back(ModeInfo(allResoltuions[i].first, allResoltuions[i].second,bpp));
-				    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,allResoltuions[i].first, allResoltuions[i].second,bpp);
-				    }
-			   }
-		   }
-		   else {
-			   //printf("SOME resolutions are usable for format = %d\n",format.BitsPerPixel);
-
-			   /* Print valid modes */
-			   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] available Modes are:\n",__FILE__,__FUNCTION__,__LINE__);
-
-			   for(int i=0; modes[i]; ++i) {
-				   if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%d x %d\n",modes[i]->w, modes[i]->h,bpp);
-				    string lookupKey = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(bpp);
-				    if(uniqueResList.find(lookupKey) == uniqueResList.end()) {
-				    	uniqueResList[lookupKey] = true;
-				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,bpp));
-				    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,bpp);
-				    }
-				    // fake the missing 16 bit resolutions
-				    string lookupKey16 = intToStr(modes[i]->w) + "_" + intToStr(modes[i]->h) + "_" + intToStr(16);
-				    if(uniqueResList.find(lookupKey16) == uniqueResList.end()) {
-				    	uniqueResList[lookupKey16] = true;
-				    	modeinfos->push_back(ModeInfo(modes[i]->w,modes[i]->h,16));
-				    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] adding resolution: %d x %d - %d.\n",__FILE__,__FUNCTION__,__LINE__,modes[i]->w,modes[i]->h,16);
-				    }
-			   }
-		  }
-	//} while(++loops != 4);
-	} while(++loops != 3);
-
-	std::sort(modeinfos->begin(),modeinfos->end());
-}
+		}
+		//////////////////////////////////
+		std::sort(modeinfos->begin(),modeinfos->end());
+	}
 
 
 
@@ -1810,22 +1690,21 @@ void changeVideoModeFullScreen(bool value) {
 	Private::shouldBeFullscreen = value;
 }
 
-void restoreVideoMode(bool exitingApp) {
+void restoreVideoMode(SDL_Window *sdlWindow,bool exitingApp) {
     //SDL_Quit();
 	if(exitingApp == true && SDL_WasInit(SDL_INIT_VIDEO)) {
-		SDL_ShowCursor(1);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetGamma(1, 1, 1);
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+		SDL_SetWindowBrightness(sdlWindow, 1.0f);
 	}
 }
 
-int getScreenW() {
-	return SDL_GetVideoSurface()->w;
-}
-
-int getScreenH() {
-	return SDL_GetVideoSurface()->h;
-}
+//int getScreenW() {
+//	return SDL_GetVideoSurface()->w; //SDL_GetWindowSurface()
+//}
+//
+//int getScreenH() {
+//	return SDL_GetVideoSurface()->h;
+//}
 
 void sleep(int millis) {
 	SDL_Delay(millis);
@@ -1837,15 +1716,18 @@ bool isCursorShowing() {
 }
 
 void showCursor(bool b) {
+	//printf("In showCursor, b: %d, isCursorShowing(): %d\n",b,isCursorShowing());
+
+
 	if(isCursorShowing() == b) {
 		return;
 	}
-
+	//printf("showCursor(bool b) b=%d\n",b);
 	SDL_ShowCursor(b == true ? SDL_ENABLE : SDL_DISABLE);
 }
 
 //bool isKeyDown(SDLKey key) {
-//	const Uint8* keystate = SDL_GetKeyState(0);
+//	const Uint8* keystate = SDL_GetKeyboardState(0);
 //
 //	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 //
@@ -1861,7 +1743,7 @@ void showCursor(bool b) {
 
 bool isKeyDown(int virtualKey) {
 	char key = static_cast<char> (virtualKey);
-	const Uint8* keystate = SDL_GetKeyState(0);
+	const Uint8* keystate = SDL_GetKeyboardState(0);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",__FILE__,__FUNCTION__,__LINE__,key);
 
@@ -1871,36 +1753,36 @@ bool isKeyDown(int virtualKey) {
 		return (keystate[(unsigned char)key] != 0);
 	}
 	switch(key) {
-		case vkAdd:
-			return (keystate[SDLK_PLUS] != 0 || keystate[SDLK_KP_PLUS] != 0);
+//SDLTT		case vkAdd:
+//			return (keystate[SDL_SCANCODE_PLUS] != 0 || keystate[SDL_SCANCODE_KP_PLUS] != 0);
 		case vkSubtract:
-			return (keystate[SDLK_MINUS] != 0 || keystate[SDLK_KP_MINUS] != 0);
+			return (keystate[SDL_SCANCODE_MINUS] != 0 || keystate[SDL_SCANCODE_KP_MINUS] != 0);
 		case vkAlt:
-			return (keystate[SDLK_LALT] != 0 || keystate[SDLK_RALT] != 0);
+			return (keystate[SDL_SCANCODE_LALT] != 0 || keystate[SDL_SCANCODE_RALT] != 0);
 		case vkControl:
-			return (keystate[SDLK_LCTRL] != 0 || keystate[SDLK_RCTRL] != 0);
+			return (keystate[SDL_SCANCODE_LCTRL] != 0 || keystate[SDL_SCANCODE_RCTRL] != 0);
 		case vkShift:
-			return (keystate[SDLK_LSHIFT] != 0 || keystate[SDLK_RSHIFT] != 0);
+			return (keystate[SDL_SCANCODE_LSHIFT] != 0 || keystate[SDL_SCANCODE_RSHIFT] != 0);
 		case vkEscape:
-			return (keystate[SDLK_ESCAPE] != 0);
+			return (keystate[SDL_SCANCODE_ESCAPE] != 0);
 		case vkUp:
-			return (keystate[SDLK_UP] != 0);
+			return (keystate[SDL_SCANCODE_UP] != 0);
 		case vkLeft:
-			return (keystate[SDLK_LEFT] != 0);
+			return (keystate[SDL_SCANCODE_LEFT] != 0);
 		case vkRight:
-			return (keystate[SDLK_RIGHT] != 0);
+			return (keystate[SDL_SCANCODE_RIGHT] != 0);
 		case vkDown:
-			return (keystate[SDLK_DOWN] != 0);
+			return (keystate[SDL_SCANCODE_DOWN] != 0);
 		case vkReturn:
-			return (keystate[SDLK_RETURN] != 0 || keystate[SDLK_KP_ENTER] != 0);
+			return (keystate[SDL_SCANCODE_RETURN] != 0 || keystate[SDL_SCANCODE_KP_ENTER] != 0);
 		case vkBack:
-			return  (keystate[SDLK_BACKSPACE] != 0);
+			return  (keystate[SDL_SCANCODE_BACKSPACE] != 0);
 		case vkDelete:
-			return (keystate[SDLK_DELETE] != 0);
+			return (keystate[SDL_SCANCODE_DELETE] != 0);
 		case vkPrint:
-			return (keystate[SDLK_PRINT] != 0);
+			return (keystate[SDL_SCANCODE_PRINTSCREEN] != 0);
 		case vkPause:
-			return (keystate[SDLK_PAUSE] != 0);
+			return (keystate[SDL_SCANCODE_PAUSE] != 0);
 		default:
 			std::cerr << "isKeyDown called with unknown key.\n";
 			break;

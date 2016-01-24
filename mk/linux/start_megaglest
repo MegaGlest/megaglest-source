@@ -1,305 +1,345 @@
 #!/bin/sh
-
+# 2011 Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
+# 2014 Rewritten by filux <heross(@@)o2.pl>
+# Copyright (c) 2011-2015 under GNU GPL v3.0+
+# ----------------------------------------------------------------------------
 # If you want to have core files generated (for debugging purposes):
-#ulimit -c unlimited
+# ulimit -c unlimited
+LANG=C
 
-findMissingSO () {
+SCRIPTLOCATION="$(readlink -f "$0")"
+GAMEDIR="$(dirname "$SCRIPTLOCATION")"
+ARCHITECTURE="$(uname -m | tr '[A-Z]' '[a-z]')"
+BugReportEngine="https://github.com/MegaGlest/megaglest-source/issues"
+BugReportBoth="https://forum.megaglest.org/index.php?board=23.0"
+# -------
+# useful for mods
+BugReportBoth2="$BugReportBoth"
+BugReportData="https://github.com/MegaGlest/megaglest-data/issues"
+EXC_BINARY="megaglest"
+SHORT_GAME_NAME="megaglest"
+# -------
+LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""
+if [ ! -d "$GAMEDIR/$LIBDIR" ]; then mkdir "$GAMEDIR/$LIBDIR"; fi
+if [ "$1" = "--tool-editor" ] || [ "$1" = "--tool-g3dviewer" ] || [ "$1" = "--tool-buginfo" ];
+then OperatingMode="$1"; else OperatingMode="--game"; fi
+BeginTime="$(date +"%s")"
+if [ "$(which lsb_release 2>/dev/null)" != "" ]; then
+    OS_INFO_P="$(which lsb_release) -d"
+    OS_INFO="$($OS_INFO_P | awk -F ':[ \t]*' '{print $2}')"
+fi
 
-  LDCONFIG="$1"
-  SO_LINKEDLIBNAME="$2"
-  SO_LIBLOOKUP1="$3"
-  SO_LIBLOOKUP2="$4"
-
-  hasSO=`$LDCONFIG -p | grep -m 1 "$SO_LIBLOOKUP1" | cut "-d>" -f2 | cut "-d " -f2`
-  if [ -n "$hasSO" ]; then
-    echo 'default library ['"$SO_LINKEDLIBNAME"'] was found in ['"$hasSO"']' >&2
-  else
-    echo 'default library ['"$SO_LINKEDLIBNAME"'] is missing, attempting to find and link to a newer version if available...' >&2
-    hasSO=`$LDCONFIG -p | grep -m 1 "$SO_LIBLOOKUP2" | cut "-d>" -f2 | cut "-d " -f2`
-    if [ -n "$hasSO" ]; then
-      echo 'new library link ['"$hasSO"'] pointed to from ['"$SO_LINKEDLIBNAME"']' >&2
-      ln -f -s $hasSO $SO_LINKEDLIBNAME
-    fi
-  fi
-
-  return 0
-}
-
-# Library directory
-LIBDIR='lib'
-
-# As a first step to determine the absolute path of the directory the game 
-# resides in, dereference symlinks to this script and convert relative to 
-# absolute paths along the way.
-MYLOCATION="`readlink -f $0`"
-
-# The game directory is the directory the script resides in
-GAMEDIR="`dirname $MYLOCATION`"
-
-# Change to the game dir, and go!
-cd $GAMEDIR
-echo 'gamedir ['"$GAMEDIR"']' >&2
-
-# export game library directory
-test -n "${LIBDIR}" && export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GAMEDIR}/${LIBDIR}"
-
-# ensure ldconfig is found (was an issue on OpenSuSE 11.2)
-echo 'Looking for LDCONFIG ['"$LDCONFIG"']...' >&2
-
-if [ "$LDCONFIG"'_' = '_' ]; then    # 'LDCONFIG' environment variable, if set, overrides the following detection 
-  echo 'LDCONFIG environment variable is not set...' >&2
-  if [ `which ldconfig 2>/dev/null` ]; then 
-    LDCONFIG=`which ldconfig 2>/dev/null`
-    echo 'Found LDCONFIG using which ['"$LDCONFIG"']...' >&2
-  else
-    if [ -x /sbin/ldconfig ]; then
-      LDCONFIG=/sbin/ldconfig
-      echo 'Found LDCONFIG in /sbin ['"$LDCONFIG"']...' >&2
-    # optionally add more custom locations using 'elseif' here
+if [ "$OperatingMode" != "--tool-buginfo" ]; then
+    if [ "$LDCONFIG" = "" ]; then
+	if [ "$(which ldconfig 2>/dev/null)" != "" ]; then
+	    LDCONFIG="$(which ldconfig 2>/dev/null)"; LDconfigType=1
+	elif [ -x "/sbin/ldconfig" ]; then
+	    LDCONFIG="/sbin/ldconfig"; LDconfigType=2
+	else
+	    echo 'ERROR: Could not find the "ldconfig" command.' >&2
+	    echo 'Please re-run using: "LDCONFIG=/path/to/ldconfig '"$0" >&2
+	    exit 1
+	fi
     else
-      echo 'ERROR: Could not find the "ldconfig" command.' >&2
-      echo 'Please re-run using: "LDCONFIG=/path/to/ldconfig '"$0" >&2
-      exit 1
+	LDconfigType=9
     fi
-  fi
+    LibsWarnings="$LibsWarnings
+    ||    If for some reason you see an error related with library, then you should try install this library
+    || in your linux. Hints with full names and with default versions of just detected missing libraries you
+    || see below.
+    || You can also perform mini update by launch '${SHORT_GAME_NAME}-mini-update.sh' script, which may solve tiny problems.
+    || If it is other problem or after your tries it still doesn't work then please report a bug
+    || here: '$BugReportEngine',
+    || or here: '$BugReportBoth'."
+    LibsWarnings="$LibsWarnings
+    ||
+    || Found LDCONFIG variable [$LDconfigType][$LDCONFIG]...
+    || OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]"
+
+    if [ "$ARCHITECTURE" = "x86_64" ]; then GrepPattern="x86[_-]64"
+    else GrepPattern="$ARCHITECTURE"; fi
+    LDCONFIG_P="$($LDCONFIG -p)"; ArchSortLibs="no"
+    LDCONFIG_P_ARCH="$(echo "$LDCONFIG_P" | grep "$GrepPattern")"
+    if [ "$LDCONFIG_P_ARCH" != "" ]; then
+	LDCONFIG_P_R_ARCH="$(echo "$LDCONFIG_P" | grep -v "$GrepPattern")"
+	ArchSortLibs="yes"
+    fi
+    if [ "$OperatingMode" = "--game" ]; then
+	ldd_target="$GAMEDIR/$EXC_BINARY"
+    else
+	ldd_target="$GAMEDIR/$2"
+    fi
+    c_required_libs="$(ldd "$ldd_target")"
+
+    hasSOlib() {
+	if [ "$2" = "myarch" ]; then
+	    if [ "$ArchSortLibs" = "yes" ]; then OS_libs_list="$LDCONFIG_P_ARCH"; else OS_libs_list="$LDCONFIG_P"; fi
+	else
+	    if [ "$ArchSortLibs" = "yes" ]; then OS_libs_list="$LDCONFIG_P_R_ARCH"; else OS_libs_list=""; fi
+	fi
+	if [ "$OS_libs_list" != "" ]; then
+	    echo "$OS_libs_list" | grep -m 1 "[^_-]$1" | cut "-d>" -f2 | cut "-d " -f2
+	fi
+    }
+    findMissingSO() {
+	SO_WANTED_LIB="$1"; SO_WANTED_LIB2="$2"; SO_LIB_PATTERN="$3"
+	SO_LINKED_LIB="$GAMEDIR/$LIBDIR/$SO_WANTED_LIB2"
+	hasSO="$(hasSOlib "$SO_LIB_PATTERN" "myarch")"; CommonPart="no"
+	if [ "$hasSO" != "" ]; then
+	    CommonPart="yes"
+	elif [ "$SO_WANTED_LIB" = "$SO_LIB_PATTERN" ] && [ ! -h "$SO_LINKED_LIB" ] && [ -e "$SO_LINKED_LIB" ]; then
+	    LibsWarnings="$LibsWarnings
+	    ||- default library [$SO_WANTED_LIB2] is missing in your OS, using embedded library."
+	    return 0
+	else
+	    hasSO="$(hasSOlib "$SO_LIB_PATTERN")"
+	    if [ "$ArchSortLibs" = "yes" ] && [ "$hasSO" != "" ]; then
+		CommonPart="yes"
+	    else
+		if [ "$SO_WANTED_LIB" = "$SO_LIB_PATTERN" ]; then
+		    LibsWarnings="$LibsWarnings
+		    ||- default library [$SO_WANTED_LIB2] is missing in your OS, attempting to find and link to different version if is available..."
+		fi
+		if [ "$4" != "no" ]; then
+		    LibsWarnings="$LibsWarnings
+		    ||  > not found !"
+		fi
+		return 1
+	    fi
+	fi
+	if [ "$CommonPart" = "yes" ]; then
+	    if [ "$SO_WANTED_LIB" != "$SO_LIB_PATTERN" ]; then
+		LibsWarnings="$LibsWarnings
+		||  new library link [.../$LIBDIR/$SO_WANTED_LIB2] pointed to [$hasSO]."
+		ln -f -s "$hasSO" "$SO_LINKED_LIB"
+	    else
+		if [ -e "$SO_LINKED_LIB" ]; then rm -f "$SO_LINKED_LIB"; fi
+		if [ "$(echo "$c_required_libs" | grep "$SO_LIB_PATTERN[ \t]*=>[ \t]*not found")" != "" ]; then
+		    #rare exception
+		    LibsWarnings="$LibsWarnings
+		    ||- default library: [$SO_WANTED_LIB2] is missing in your OS, attempting to find and link to different version if is available...
+		    ||  > not found !"
+		fi
+	    fi
+	    return 0
+	fi
+    }
+
+    checkLibsStatus() {
+	if [ "$1" != "" ]; then
+	    list_of_libs="$(echo "$1" | sed -e 's|\([^\]\)\.|\1\\.|g' -e 's|\[num\]|[0-9]\\+|g')"
+	    for var in $list_of_libs; do
+		patterns="$(echo "$var" | sed -e 's|^ */||' -e 's|/| |g' -e 's/| /|/')"
+		patterns_num="$(echo "$patterns" | wc -w)"
+		wanted_lib="$(echo "$patterns" | awk '{print $1}')"; i=2
+		wanted_lib2="$(echo "$wanted_lib" | sed 's/\\//g')";
+		last_pattern="$(echo "$patterns" | awk '{print $(NF-1)}')"
+		if [ "$(echo "$c_required_libs" | grep "[^_-]$last_pattern")" != "" ]; then
+		    for var2 in $patterns; do
+			if [ "$var2" = "|" ]; then break; fi
+			lib_pattern="$(echo "$var" | awk -F '/' -v ii="$i" '{print $ii}')"
+			if [ "$i" -lt "$patterns_num" ]; then end_w="no"; else end_w="yes"; fi
+			findMissingSO "$wanted_lib" "$wanted_lib2" "$lib_pattern" "$end_w"
+			if [ "$?" -eq "0" ]; then break; else i=$((i + 1)); fi
+		    done
+		else
+		    IgnoredLibs="$IgnoredLibs $wanted_lib2"
+		fi
+	    done
+	fi
+    }
+
+    # Each line /.../.../|/ .
+    # First entry libs_list="...\n...\n..." ,
+    # each next libs_list="$libs_list\n...\n..." .
+    # First word should be original name, in any other you can use [0-9] what mean "any digit",
+    # or [num] what mean "any number with one or more digits".
+    # Last word should have length at least 6 chars, but use longer if string is too much common.
+
+    # ignored: linux-vdso.so*, linux-gate.so*, ld-linux-*.so*, libpthread.so*, libpulsecommon-*.so, libresolv.so*
+    libs_list="/libSDL2-2.0.so.0/libSDL2-2.[num].so/libSDL2-[0-9].[num].so/libSDL2-/|/
+    /libGLU.so.1/libGLU.so/|/
+    /libGL.so.1/libGL.so/|/
+    /libX11.so.6/libX11.so/|/
+    /libidn.so.11/libidn.so/|/
+    /librtmp.so.0/librtmp.so/|/
+    /libgcrypt.so.11/libgcrypt.so.1[0-9]/libgcrypt.so/libgcrypt/|/
+    /libgnutls.so.26/libgnutls.so.2[0-9]/libgnutls.so/libgnutls/|/
+    /libgssapi_krb5.so.2/libgssapi_krb[0-9].so/libgssapi_krb[num].so/libgssapi_krb/|/
+    /liblber-2.4.so.2/liblber-2.[num].so/liblber-[0-9].[num].so/liblber-/liblber/|/
+    /libldap_r-2.4.so.2/libldap_r-2.[num].so/libldap_r-[0-9].[num].so/libldap_r-/libldap_r/|/
+    /libz.so.1/libz.so/|/
+    /libdl.so.2/libdl.so/|/
+    /libfontconfig.so.1/libfontconfig.so/libfontconfig/|/
+    /libfreetype.so.6/libfreetype.so/|/
+    /libfribidi.so.0/libfribidi.so/libfribidi/|/
+    /libm.so.6/libm.so/|/
+    /libstdc++.so.6/libstdc++.so/|/
+    /libgcc_s.so.1/libgcc_s.so/|/
+    /libc.so.6/libc.so/|/
+    /libasound.so.2/libasound.so/|/
+    /libpulse-simple.so.0/libpulse-simple.so/libpulse-simple/|/
+    /libpulse.so.0/libpulse.so/|/
+    /libXext.so.6/libXext.so/libXext/|/
+    /libXcursor.so.1/libXcursor.so/libXcursor/|/
+    /libXinerama.so.1/libXinerama.so/libXinerama/|/
+    /libXi.so.6/libXi.so/|/
+    /libXrandr.so.2/libXrandr.so/libXrandr/|/
+    /libXss.so.1/libXss.so/|/
+    /libXxf86vm.so.1/libXxf86vm.so/libXxf86vm/|/
+    /libwayland-egl.so.1/libwayland-egl.so/libwayland-egl/|/
+    /libwayland-client.so.0/libwayland-client.so/libwayland-client/|/
+    /libwayland-cursor.so.0/libwayland-cursor.so/libwayland-cursor/|/
+    /libxkbcommon.so.0/libxkbcommon.so/libxkbcommon/|/
+    /librt.so.1/librt.so/|/
+    /libglapi.so.0/libglapi.so/libglapi/|/
+    /libXdamage.so.1/libXdamage.so/libXdamage/|/
+    /libXfixes.so.3/libXfixes.so/libXfixes/|/
+    /libX11-xcb.so.1/libX11-xcb.so/libX11-xcb/|/
+    /libxcb-glx.so.0/libxcb-glx.so/libxcb-glx/|/
+    /libxcb-dri2.so.0/libxcb-dri2.so/libxcb-dri2/|/
+    /libxcb-dri3.so.0/libxcb-dri3.so/libxcb-dri3/|/
+    /libxcb-present.so.0/libxcb-present.so/libxcb-present/|/
+    /libxcb-sync.so.1/libxcb-sync.so/libxcb-sync/|/
+    /libxcb.so.1/libxcb.so/|/
+    /libxshmfence.so.1/libxshmfence.so/libxshmfence/|/
+    /libdrm.so.2/libdrm.so/|/
+    /libgpg-error.so.0/libgpg-error.so/libgpg-error/|/
+    /libtasn1.so.6/libtasn1.so/libtasn[num].so/libtasn[0-9]/libtasn/|/
+    /libp11-kit.so.0/libp11-kit.so/libp11-kit/|/
+    /libkrb5.so.3/libkrb[0-9].so.[num]/libkrb[num].so/|/
+    /libk5crypto.so.3/libk[0-9]crypto.so/libk[num]crypto/|/
+    /libcom_err.so.2/libcom_err.so/libcom_err/|/
+    /libkrb5support.so.0/libkrb[0-9]support.so/libkrb[num]support/|/
+    /libsasl2.so.2/libsasl[0-9].so/libsasl/|/
+    /libgssapi.so.3/libgssapi.so/|/
+    /libexpat.so.1/libexpat.so/|/
+    /libpng12.so.0/libpng1[0-9].so/libpng[num].so/libpng[0-9]/|/
+    /libjson-c.so.2/libjson-c.so/libjson-c/|/
+    /libdbus-1.so.3/libdbus-[0-9].so/libdbus-[num]/|/
+    /libXrender.so.1/libXrender.so/libXrender/|/
+    /libffi.so.6/libffi.so/|/
+    /libXau.so.6/libXau.so/|/
+    /libXdmcp.so.6/libXdmcp.so/libXdmcp/|/
+    /libkeyutils.so.1/libkeyutils.so/libkeyutils/|/
+    /libheimntlm.so.0/libheimntlm.so/libheimntlm/|/
+    /libkrb5.so.26/libkrb[0-9].so.[num]/libkrb[num].so/|/
+    /libasn1.so.8/libasn1.so/libasn[num].so/|/
+    /libhcrypto.so.4/libhcrypto.so/libhcrypto/|/
+    /libroken.so.18/libroken.so/libroken/|/
+    /libwrap.so.0/libwrap.so/|/
+    /libsndfile.so.1/libsndfile.so/|/
+    /libasyncns.so.0/libasyncns.so/libasyncns/|/
+    /libwind.so.0/libwind.so/|/
+    /libheimbase.so.1/libheimbase.so/libheimbase/|/
+    /libhx509.so.5/libhx509.so/libhx509/|/
+    /libsqlite3.so.0/libsqlite3.so/|/
+    /libcrypt.so.1/libcrypt.so/|/
+    /libnsl.so.1/libnsl.so/|/
+    /libFLAC.so.8/libFLAC.so/|/
+    /libvorbisenc.so.2/libvorbisenc.so/libvorbisenc/|/
+    /libvorbis.so.0/libvorbis.so/|/
+    /libogg.so.0/libogg.so/|/
+    /libGLEW.so.1.10/libGLEW.so.1.[num]/libGLEW.so/|/"
+    if [ "$OperatingMode" = "--game" ]; then
+	libs_list="$libs_list
+	/libopenal.so.1/libopenal.so/libopenal/|/
+	/libvlccore.so.7/libvlccore.so/libvlccore/|/
+	/libvlc.so.5/libvlc.so/|/"
+    else
+	libs_list="$libs_list
+	/libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/|/
+	/libwx_baseu-3.0.so.0/libwx_baseu-3.[num].so/|/
+	/libwx_gtk2u_gl-3.0.so.0/libwx_gtk2u_gl-3.[num].so/|/
+	/libgtk-x11-2.0.so.0/libgtk-x11-2.[num].so/libgtk-x11-[0-9].[num].so/libgtk-x11-[0-9]/libgtk-x11/|/
+	/libgdk-x11-2.0.so.0/libgdk-x11-2.[num].so/libgdk-x11-[0-9].[num].so/libgdk-x11-[0-9]/libgdk-x11/|/
+	/libpangocairo-1.0.so.0/libpangocairo-1.[num].so/libpangocairo-[0-9].[num].so/libpangocairo-[0-9]/libpangocairo/|/
+	/libgdk_pixbuf-2.0.so.0/libgdk_pixbuf-2.[num].so/libgdk_pixbuf-[0-9].[num].so/libgdk_pixbuf-[0-9]/|/
+	/libcairo.so.2/libcairo.so/|/
+	/libpango-1.0.so.0/libpango-1.[num].so/libpango-[0-9].[num].so/libpango-[0-9]/libpango-/|/
+	/libgobject-2.0.so.0/libgobject-2.[num].so/libgobject-[0-9].[num].so/libgobject-[0-9]/libgobject/|/
+	/libglib-2.0.so.0/libglib-2.[num].so/libglib-[0-9].[num].so/libglib-[0-9]/libglib-/|/
+	/libSM.so.6/libSM.so/|/
+	/libjpeg.so.8/libjpeg.so.[0-9]/libjpeg.so/|/
+	/libtiff.so.5/libtiff.so/|/
+	/libgmodule-2.0.so.0/libgmodule-2.[num].so/libgmodule-[0-9].[num].so/libgmodule-[0-9]/libgmodule/|/
+	/libatk-1.0.so.0/libatk-1.[num].so/libatk-[0-9].[num].so/libatk-[0-9]/|/
+	/libgio-2.0.so.0/libgio-2.[num].so/libgio-[0-9].[num].so/libgio-[0-9]/|/
+	/libpangoft2-1.0.so.0/libpangoft2-1.[num].so/libpangoft2-[0-9]/libpangoft2-/libpangoft/|/
+	/libXcomposite.so.1/libXcomposite.so/libXcomposite/|/
+	/libpixman-1.so.0/libpixman-1.so/libpixman-[0-9].so/libpixman/|/
+	/libxcb-shm.so.0/libxcb-shm.so/libxcb-shm/|/
+	/libxcb-render.so.0/libxcb-render.so/|/
+	/libthai.so.0/libthai.so/|/
+	/libpcre.so.3/libpcre.so/|/
+	/libICE.so.6/libICE.so/|/
+	/libuuid.so.1/libuuid.so/|/
+	/liblzma.so.5/liblzma.so/|/
+	/libjbig.so.0/libjbig.so/|/
+	/libselinux.so.1/libselinux.so/|/
+	/libharfbuzz.so.0/libharfbuzz.so/|/
+	/libdatrie.so.1/libdatrie.so/|/
+	/libgraphite2.so.3/libgraphite2.so/libgraphite[0-9].so/|/"
+    fi
+    #if [ "$ARCHITECTURE" = "x86_64" ]; then
+    #else
+    #fi
+
+    checkLibsStatus "$libs_list"
+    if [ -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh" ]; then
+	"$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
+	rm -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
+    fi
 else
-  echo 'Found LDCONFIG environment variable ['"$LDCONFIG"']...' >&2
+    ExitStatus="$2"
+    LibsWarnings="$3"
+    BeginTime="$4"
+    ErrorTime="$5"
+    BinaryToCheck="$6"
 fi
+if [ "$OperatingMode" = "--game" ]; then
+    if [ -d "$GAMEDIR/$LIBDIR" ]; then
+	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}"
+	if [ -d "$GAMEDIR/$LIBDIR/vlc" ]; then
+		export VLC_PLUGIN_PATH="${GAMEDIR}/${LIBDIR}/vlc"
+	fi
+    fi
+    "$GAMEDIR/$EXC_BINARY" $@
+    ExitStatus="$?"
 
-
-# now deal with the openal library [libopenal.so.0]
-OS_TYPE=`uname -m`
-
-# OpenSuSE (11.3) and Fedora needs its own openAL
-#if [ -f /etc/SuSE-release -a -f lib/libopenal* ]; then
-if [ -f /etc/SuSE-release ] || [ -f /etc/fedora-release ] ; then
-  
-  if [ -f /etc/SuSE-release ] ; then
-    echo 'Detected Open Suse...' >&2
-  fi
-
-  if [ -f /etc/fedora-release ] ; then
-    echo 'Detected Fedora...' >&2
-  fi
-
-  #rm -f lib/libopenal*
-  # libcurl*, libgnu*, libicu*, liblua*, libxerces*
-  #mv `ls -1 | grep -v '\.abc$' | grep -v '\.xyz$' | xargs`
-
-  if [ ! -d lib_bkp ]; then
-	  mkdir lib_bkp
-	  mv lib/* lib_bkp/
-	  cp lib_bkp/libcurl* lib/
-	  cp lib_bkp/libgnu* lib/
-	  cp lib_bkp/libicu* lib/
-	  cp lib_bkp/liblua* lib/
-	  cp lib_bkp/libxerces* lib/
-  fi
+    BinaryToCheck="$EXC_BINARY"
+    ErrorTime="$(date +"%s")"
 fi
-
-OPENAL_LINKEDLIBNAME='libopenal.so.0'
-OPENAL_LIBLOOKUP1=${OPENAL_LINKEDLIBNAME}
-OPENAL_LIBLOOKUP2='libopenal.so.'
-
-DIRECTFB_LINKEDLIBNAME='libdirectfb-1.0.so.0'
-DIRECTFB_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
-DIRECTFB_LIBLOOKUP2='libdirectfb-'
-
-FUSION_LINKEDLIBNAME='libfusion-1.0.so.0'
-FUSION_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
-FUSION_LIBLOOKUP2='libfusion-'
-
-DIRECT_LINKEDLIBNAME='libdirect-1.0.so.0'
-DIRECT_LIBLOOKUP1=${DIRECT_LINKEDLIBNAME}
-DIRECT_LIBLOOKUP2='libdirect-'
-
-JPG_LINKEDLIBNAME='libjpeg.so.62'
-JPG_LIBLOOKUP1=${JPG_LINKEDLIBNAME}
-JPG_LIBLOOKUP2='libjpeg.so'
-
-PNG_LINKEDLIBNAME='libpng15.so.15'
-PNG_LIBLOOKUP1=${PNG_LINKEDLIBNAME}
-PNG_LIBLOOKUP2='libpng'
-
-CURL_LINKEDLIBNAME='libcurl.so.4'
-CURL_LIBLOOKUP1=${CURL_LINKEDLIBNAME}
-CURL_LIBLOOKUP2='libcurl.so.'
-
-XERCES_LINKEDLIBNAME='libxerces-c-3.1.so'
-XERCES_LIBLOOKUP1=${XERCES_LINKEDLIBNAME}
-XERCES_LIBLOOKUP2='libxerces-c'
-
-ICUDATA_LINKEDLIBNAME='libicudata.so.38'
-ICUDATA_LIBLOOKUP1=${ICUDATA_LINKEDLIBNAME}
-ICUDATA_LIBLOOKUP2='libicudata.so.'
-
-ICUUC_LINKEDLIBNAME='libicuuc.so.38'
-ICUUC_LIBLOOKUP1=${ICUUC_LINKEDLIBNAME}
-ICUUC_LIBLOOKUP2='libicuuc.so.'
-
-GLEW_LINKEDLIBNAME='libGLEW.so.1.5'
-GLEW_LIBLOOKUP1=${GLEW_LINKEDLIBNAME}
-GLEW_LIBLOOKUP2='libGLEW.so.'
-GLEW_LIBLOOKUP3='libglew.so.'
-
-OGG_LINKEDLIBNAME='libogg.so.0'
-OGG_LIBLOOKUP1=${OGG_LINKEDLIBNAME}
-OGG_LIBLOOKUP2='libogg.so.'
-
-VORBIS_LINKEDLIBNAME='libvorbis.so.0'
-VORBIS_LIBLOOKUP1=${VORBIS_LINKEDLIBNAME}
-VORBIS_LIBLOOKUP2='libvorbis.so.'
-
-VORBISFILE_LINKEDLIBNAME='libvorbisfile.so.3'
-VORBISFILE_LIBLOOKUP1=${VORBISFILE_LINKEDLIBNAME}
-VORBISFILE_LIBLOOKUP2='libvorbisfile.so.'
-
-FONTCONFIG_LINKEDLIBNAME='libfontconfig.so.1'
-FONTCONFIG_LIBLOOKUP1=${FONTCONFIG_LINKEDLIBNAME}
-FONTCONFIG_LIBLOOKUP2='libfontconfig.so.'
-
-FREETYPE_LINKEDLIBNAME='libfreetype.so.6'
-FREETYPE_LIBLOOKUP1=${FREETYPE_LINKEDLIBNAME}
-FREETYPE_LIBLOOKUP2='libfreetype.so.'
-
-GNUTLS_LINKEDLIBNAME='libgnutls.so.26'
-GNUTLS_LIBLOOKUP1=${GNUTLS_LINKEDLIBNAME}
-GNUTLS_LIBLOOKUP2='libgnutls.so.'
-
-LDAP_LINKEDLIBNAME='libldap_r-2.4.so.2'
-LDAP_LIBLOOKUP1=${LDAP_LINKEDLIBNAME}
-LDAP_LIBLOOKUP2='libldap_r-'
-
-RESOLV_LINKEDLIBNAME='libresolv.so.2'
-RESOLV_LIBLOOKUP1=${RESOLV_LINKEDLIBNAME}
-RESOLV_LIBLOOKUP2='libresolv.so.'
-
-LUA_LINKEDLIBNAME='liblua5.1.so.0'
-LUA_LIBLOOKUP1=${LUA_LINKEDLIBNAME}
-LUA_LIBLOOKUP2='liblua.so.'
-
-FTGL_LINKEDLIBNAME='libftgl.so.2'
-FTGL_LIBLOOKUP1=${FTGL_LINKEDLIBNAME}
-FTGL_LIBLOOKUP2='libftgl.so.'
-
-IRC_LINKEDLIBNAME='libircclient.so.1'
-IRC_LIBLOOKUP1=${IRC_LINKEDLIBNAME}
-IRC_LIBLOOKUP2='libircclient.so.'
-
-DL_LINKEDLIBNAME='libdl.so.2'
-DL_LIBLOOKUP1=${DL_LINKEDLIBNAME}
-DL_LIBLOOKUP2='libdl.so.'
-
-VLC_LINKEDLIBNAME='libvlc.so.5'
-VLC_LIBLOOKUP1=${VLC_LINKEDLIBNAME}
-VLC_LIBLOOKUP2='libvlc.so.'
-
-VLCCORE_LINKEDLIBNAME='libvlccore.so.5'
-VLCCORE_LIBLOOKUP1=${VLCCORE_LINKEDLIBNAME}
-VLCCORE_LIBLOOKUP2='libvlccore.so.'
-
-GCRYPT_LINKEDLIBNAME='libgcrypt.so.11'
-GCRYPT_LIBLOOKUP1=${GCRYPT_LINKEDLIBNAME}
-GCRYPT_LIBLOOKUP2='libgcrypt.so.'
-
-TASN_LINKEDLIBNAME='libtasn1.so.3'
-TASN_LIBLOOKUP1=${TASN_LINKEDLIBNAME}
-TASN_LIBLOOKUP2='libtasn1.so.'
-
-RTMP_LINKEDLIBNAME='librtmp.so.0'
-RTMP_LIBLOOKUP1=${RTMP_LINKEDLIBNAME}
-RTMP_LIBLOOKUP2='librtmp.so.'
-
-
-if [ "$OS_TYPE"'_' = 'x86_64_' ]; then
-  DIRECTFB_LINKEDLIBNAME='libdirectfb-1.2.so.0'
-  DIRECTFB_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
-  DIRECTFB_LIBLOOKUP2='libdirectfb-'
-
-  FUSION_LINKEDLIBNAME='libfusion-1.2.so.0'
-  FUSION_LIBLOOKUP1=${DIRECTFB_LINKEDLIBNAME}
-  FUSION_LIBLOOKUP2='libfusion-'
-
-  DIRECT_LINKEDLIBNAME='libdirect-1.2.so.0'
-  DIRECT_LIBLOOKUP1=${DIRECT_LINKEDLIBNAME}
-  DIRECT_LIBLOOKUP2='libdirect-'
-
-  OPENAL_LINKEDLIBNAME='libopenal.so.1'
-  OPENAL_LIBLOOKUP1=${OPENAL_LINKEDLIBNAME}
-  OPENAL_LIBLOOKUP2='libopenal.so.'
-
-  ICUDATA_LINKEDLIBNAME='libicudata.so.40'
-  ICUDATA_LIBLOOKUP1=${ICUDATA_LINKEDLIBNAME}
-  ICUDATA_LIBLOOKUP2='libicudata.so.'
-
-  ICUUC_LINKEDLIBNAME='libicuuc.so.40'
-  ICUUC_LIBLOOKUP1=${ICUUC_LINKEDLIBNAME}
-  ICUUC_LIBLOOKUP2='libicuuc.so.'
-
-  GNUTLS_LINKEDLIBNAME='libgnutls.so.26'
-  GNUTLS_LIBLOOKUP1=${GNUTLS_LINKEDLIBNAME}
-  GNUTLS_LIBLOOKUP2='libgnutls.so.'
-
-GCRYPT_LINKEDLIBNAME='libgcrypt.so.11'
-GCRYPT_LIBLOOKUP1=${GCRYPT_LINKEDLIBNAME}
-GCRYPT_LIBLOOKUP2='libgcrypt.so.'
-
+if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$OperatingMode" = "--tool-g3dviewer" ]; then
+    if [ "$(echo "$@" | grep "^[ \t]*--help[ \t]*$")" = "" ] && [ "$(echo "$@" | grep "^[ \t]*-h[ \t]*$")" = "" ]; then
+	DiffTime="$(($ErrorTime-$BeginTime))"
+	if [ "$DiffTime" -le "15" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
+	    echo "$LibsWarnings" | sed 's/^[\t ]*||//g' >&2; echo
+	    if [ "$IgnoredLibs" != "" ]; then
+		echo "... and as information useful only for game developers, List of ignored libs:" >&2
+		echo "$IgnoredLibs" >&2; echo
+	    fi
+	else
+	    BugReportInfo="$BugReportInfo
+	    || OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]
+	    ||
+	    || If you see an unknown error then please report a bug
+	    || here: '$BugReportBoth2',
+	    || or if you think that bug is related with game engine here:
+	    || '$BugReportEngine'"
+	    if [ "$BugReportData" != "" ] && [ "$BugReportData" != "$BugReportBoth2" ] && [ "$BugReportData" != "$BugReportEngine" ] ; then
+		BugReportInfo="$BugReportInfo,
+		|| or if you think that bug is related with game data here:
+		|| '$BugReportData'."
+	    else
+		BugReportInfo="$BugReportInfo."
+	    fi
+	    echo "$BugReportInfo" | sed 's/^[\t ]*||//g' >&2; echo
+	fi
+	#if [ "$OperatingMode" = "--game" ] && [ -f "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
+	    #echo "... attempt to perform mini update, which may solve tiny problems:" >&2
+	    #"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"
+	#fi
+    fi
 fi
-
-
-#if [ "$OS_TYPE"'_' = 'x86_64_' ]; then
-#  OPENAL_LIBLOOKUP1="${OPENAL_LIBLOOKUP1}"' (libc6)'
-#  OPENAL_LIBLOOKUP2="${OPENAL_LIBLOOKUP2}"' (libc6)'
-#
-#  DIRECTFB_LIBLOOKUP1="${DIRECTFB_LIBLOOKUP1}"' (libc6)'
-#  DIRECTFB_LIBLOOKUP2="${DIRECTFB_LIBLOOKUP2}"' (libc6)'
-#
-#  FUSION_LIBLOOKUP1="${FUSION_LIBLOOKUP1}"' (libc6)'
-#  FUSION_LIBLOOKUP2="${FUSION_LIBLOOKUP2}"' (libc6)'
-#
-#  DIRECT_LIBLOOKUP1="${DIRECT_LIBLOOKUP1}"' (libc6)'
-#  DIRECT_LIBLOOKUP2="${DIRECT_LIBLOOKUP2}"' (libc6)'
-#fi
-
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${OPENAL_LINKEDLIBNAME}" "$OPENAL_LIBLOOKUP1" "$OPENAL_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DIRECTFB_LINKEDLIBNAME}" "$DIRECTFB_LIBLOOKUP1" "$DIRECTFB_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FUSION_LINKEDLIBNAME}" "$FUSION_LIBLOOKUP1" "$FUSION_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DIRECT_LINKEDLIBNAME}" "$DIRECT_LIBLOOKUP1" "$DIRECT_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${JPG_LINKEDLIBNAME}" "$JPG_LIBLOOKUP1" "$JPG_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${PNG_LINKEDLIBNAME}" "$PNG_LIBLOOKUP1" "$PNG_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${CURL_LINKEDLIBNAME}" "$CURL_LIBLOOKUP1" "$CURL_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${XERCES_LINKEDLIBNAME}" "$XERCES_LIBLOOKUP1" "$XERCES_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${ICUDATA_LINKEDLIBNAME}" "$ICUDATA_LIBLOOKUP1" "$ICUDATA_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${ICUUC_LINKEDLIBNAME}" "$ICUUC_LIBLOOKUP1" "$ICUUC_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${GLEW_LINKEDLIBNAME}" "$GLEW_LIBLOOKUP1" "$GLEW_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${GLEW_LINKEDLIBNAME}" "$GLEW_LIBLOOKUP1" "$GLEW_LIBLOOKUP3"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${OGG_LINKEDLIBNAME}" "$OGG_LIBLOOKUP1" "$OGG_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${VORBIS_LINKEDLIBNAME}" "$VORBIS_LIBLOOKUP1" "$VORBIS_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${VORBISFILE_LINKEDLIBNAME}" "$VORBISFILE_LIBLOOKUP1" "$VORBISFILE_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FONTCONFIG_LINKEDLIBNAME}" "$FONTCONFIG_LIBLOOKUP1" "$FONTCONFIG_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FREETYPE_LINKEDLIBNAME}" "$FREETYPE_LIBLOOKUP1" "$FREETYPE_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${GNUTLS_LINKEDLIBNAME}" "$GNUTLS_LIBLOOKUP1" "$GNUTLS_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${LDAP_LINKEDLIBNAME}" "$LDAP_LIBLOOKUP1" "$LDAP_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${RESOLV_LINKEDLIBNAME}" "$RESOLV_LIBLOOKUP1" "$RESOLV_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${LUA_LINKEDLIBNAME}" "$LUA_LIBLOOKUP1" "$LUA_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${FTGL_LINKEDLIBNAME}" "$FTGL_LIBLOOKUP1" "$FTGL_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${IRC_LINKEDLIBNAME}" "$IRC_LIBLOOKUP1" "$IRC_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${DL_LINKEDLIBNAME}" "$DL_LIBLOOKUP1" "$DL_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${VLCCORE_LINKEDLIBNAME}" "$VLCCORE_LIBLOOKUP1" "$VLCCORE_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${VLC_LINKEDLIBNAME}" "$VLC_LIBLOOKUP1" "$VLC_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${GCRYPT_LINKEDLIBNAME}" "$GCRYPT_LIBLOOKUP1" "$GCRYPT_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${TASN_LINKEDLIBNAME}" "$TASN_LIBLOOKUP1" "$TASN_LIBLOOKUP2"
-findMissingSO "$LDCONFIG" "$GAMEDIR/$LIBDIR/${RTMP_LINKEDLIBNAME}" "$RTMP_LIBLOOKUP1" "$RTMP_LIBLOOKUP2"
-
-./megaglest $@
-
-# Other ways to start MegaGlest (for testing purposes)
-#
-# Write verbose output (stout+stderr) to a gzip compressed file (only)
-#./megaglest $@ --verbose 2>&1 | gzip > ~/.megaglest/verbose.log.gz
-#
-# Create a new date/time indexed log file for every MG run and keep it;
-# write output (stout+stderr) both to this file and to the screen
-#./megaglest $@ 2>&1 | tee -a /tmp/`date +"%F_%k-%M-%S"`.glest.log 2>&1
-
-exit $?
+exit "$ExitStatus"

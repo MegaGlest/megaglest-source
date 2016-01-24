@@ -45,8 +45,8 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		this->parentUI=parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
 		//modeinfos=list<ModeInfo> ();
-		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+280;
+		int leftLabelStart=100;
+		int leftColumnStart=leftLabelStart+300;
 		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
@@ -123,7 +123,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		labelServerPortLabel.setText(lang.getString("ServerPort"));
 
 		listBoxServerPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
-		listBoxServerPort.init(currentColumnStart, currentLine, 170);
+		listBoxServerPort.init(currentColumnStart, currentLine, 160);
 
 		string portListString = config.getString("PortList",intToStr(GameConstants::serverPort).c_str());
 		std::vector<std::string> portList;
@@ -219,8 +219,8 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
-		buttonReturn.setText(lang.getString("Return"));
 
+		buttonReturn.setText(lang.getString("Return"));
 		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 
@@ -444,7 +444,7 @@ void MenuStateOptionsNetwork::keyPress(SDL_KeyboardEvent c) {
 //			&labelTransifexUser == activeInputLabel ||
 //			&labelTransifexPwd == activeInputLabel ||
 //			&labelTransifexI18N == activeInputLabel) {
-//			keyPressEditLabel(c, &activeInputLabel);
+//			textInputEditLabel(c, &activeInputLabel);
 //		}
 //	}
 //	else {
@@ -522,18 +522,6 @@ void MenuStateOptionsNetwork::saveConfig(){
     config.setBool("PrivacyPlease", checkBoxEnablePrivacy.getValue());
 
 	config.save();
-
-    SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-    soundRenderer.stopAllSounds();
-    program->stopSoundSystem();
-    soundRenderer.init(program->getWindow());
-    soundRenderer.loadConfig();
-    soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
-    program->startSoundSystem();
-
-    if(CoreData::getInstance().hasMainMenuVideoFilename() == false) {
-    	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
-    }
 
 	Renderer::getInstance().loadConfig();
 	console.addLine(lang.getString("SettingsSaved"));

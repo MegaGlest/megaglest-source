@@ -45,7 +45,8 @@ namespace Shared{ namespace Platform{
 class PlatformContextGl {
 protected:
 	SDL_Surface *icon;
-	SDL_Surface *screen;
+	SDL_Window *window;
+	SDL_GLContext glcontext;
 
 public:
 	// Example values:
@@ -69,7 +70,8 @@ public:
 	virtual void makeCurrent();
 	virtual void swapBuffers();
 
-	SDL_Surface * getScreen() { return screen; }
+	SDL_Window * getScreenWindow() { return window; }
+	SDL_Surface * getScreenSurface();
 
 	DeviceContextHandle getHandle() const	{ return 0; }
 };

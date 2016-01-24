@@ -287,10 +287,13 @@ inline bool acquire_file_lock(int hnd)
 {
 #ifndef WIN32
    struct ::flock lock;
+   // Initialize the flock structure.
+   memset(&lock, 0, sizeof(lock));
    lock.l_type    = F_WRLCK;
    lock.l_whence  = SEEK_SET;
    lock.l_start   = 0;
    lock.l_len     = 0;
+   lock.l_pid     = 0;
    return -1 != ::fcntl(hnd, F_SETLK, &lock);
 #else
    HANDLE hFile = (HANDLE)_get_osfhandle(hnd);
@@ -454,8 +457,9 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 		// Get the current time.
 	//    time_t curtime = time (NULL);
 		// Convert it to local time representation.
-		struct tm *loctime = localtime (&debugTime);
-		strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+		//struct tm *loctime = localtime (&debugTime);
+		std::tm loctime = threadsafe_localtime(debugTime);
+		strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
     }
 /*
     va_list argList;

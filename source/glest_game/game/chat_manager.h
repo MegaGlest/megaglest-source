@@ -69,7 +69,8 @@ private:
 	CustomInputCallbackInterface *customCB;
 	int maxCustomTextLength;
 
-	void appendText(const wchar_t *addText, bool validateChars=true,bool addToAutoCompleteBuffer=true);
+	string getTextWithLengthCheck(string text, int currentLength, int maxLength);
+	void appendText(string addText, bool validateChars=true,bool addToAutoCompleteBuffer=true);
 	void deleteText(int deleteCount,bool addToAutoCompleteBuffer=true);
 	void updateAutoCompleteBuffer();
 
@@ -77,6 +78,7 @@ public:
 	ChatManager();
 	void init(Console* console, int thisTeamIndex, const bool inMenu=false, string manualPlayerNameOverride="");
 
+	bool textInput(std::string text);
 	void keyDown(SDL_KeyboardEvent key);
 	void keyUp(SDL_KeyboardEvent key);
 	void keyPress(SDL_KeyboardEvent c);

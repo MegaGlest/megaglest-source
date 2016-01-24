@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "conversion.h"
+#include "platform_util.h"
 #include "util.h"
 
 using namespace Shared::Util;
@@ -253,6 +254,9 @@ int zipfile_tool(int argc, const char *argv[]) {
         uint n = BUF_SIZE - stream.avail_out;
         if (fwrite(s_outbuf, 1, n, pOutfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
+
+      	    if(pInfile) fclose(pInfile);
+      	    if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;
@@ -322,6 +326,51 @@ bool extractFileFromZIPFile(string inFile, string outFile) {
 
 	int result = zipfile_tool((int)argv.size(), &argv[0]);
 	return(result == EXIT_SUCCESS ? true : false);
+}
+
+std::pair<unsigned char *,unsigned long> compressMemoryToMemory(unsigned char *input, unsigned long input_len, int compressionLevel) {
+	// Like compress() but with more control, level may range from 0 (storing) to 9 (max. compression)
+	unsigned long compressed_buffer_len = input_len + 100;
+	unsigned char *compressed_buffer = new unsigned char[compressed_buffer_len+1];
+	memset(compressed_buffer,0,compressed_buffer_len+1);
+
+	unsigned char *decompressed_buffer = new unsigned char[input_len+1];
+	memcpy(decompressed_buffer,input,input_len);
+
+	//printf("compress2 start size: %lu\n",input_len);
+	int result = compress2(compressed_buffer, &compressed_buffer_len, decompressed_buffer, input_len, compressionLevel);
+	if(result != Z_OK) {
+		string msg = string("Invalid compress2 return value: ") + intToStr(result);
+		throw megaglest_runtime_error(msg.c_str());
+	}
+
+	//printf("compress2 returned: %d start size: %lu end size: %lu\n",result,input_len,compressed_buffer_len);
+	delete [] decompressed_buffer;
+
+	return make_pair(compressed_buffer,compressed_buffer_len);
+}
+
+std::pair<unsigned char *,unsigned long> extractMemoryToMemory(unsigned char *input, unsigned long input_len, unsigned long max_output_len) {
+	// Like compress() but with more control, level may range from 0 (storing) to 9 (max. compression)
+	unsigned long decompressed_buffer_len = max_output_len;
+	unsigned char *decompressed_buffer = new unsigned char[decompressed_buffer_len+1];
+	memset(decompressed_buffer,0,decompressed_buffer_len+1);
+	//printf("#1uncompress start size: %lu\n",input_len);
+
+	unsigned char *compressed_buffer = new unsigned char[input_len+1];
+	memcpy(compressed_buffer,input,input_len);
+
+	//printf("#2uncompress start size: %lu\n",input_len);
+	//int result = uncompress(decompressed_buffer, &decompressed_buffer_len, compressed_buffer, input_len);
+	int result = uncompress(decompressed_buffer, &decompressed_buffer_len, compressed_buffer, input_len);
+	if(result != Z_OK) {
+		string msg = string("Invalid uncompress return value: ") + intToStr(result);
+		throw megaglest_runtime_error(msg.c_str());
+	}
+	//printf("uncompress returned: %d start size: %lu end size: %lu\n",result,input_len,decompressed_buffer_len);
+	delete [] compressed_buffer;
+
+	return make_pair(decompressed_buffer,decompressed_buffer_len);
 }
 
 }}

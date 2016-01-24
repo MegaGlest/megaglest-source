@@ -152,6 +152,8 @@ protected:
 	bool isSocketBlocking;
 	time_t lastSocketError;
 
+	static string host_name;
+
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();

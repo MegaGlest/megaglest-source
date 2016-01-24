@@ -78,6 +78,10 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	keyButtonsLineHeight	= 20;
 	keyButtonsHeight		= 20;
 	keyButtonsWidth			= 200;
+	keyButtonsWidthTech		= keyButtonsWidth;
+	keyButtonsWidthMap		= keyButtonsWidth + 15;
+	keyButtonsWidthTil		= keyButtonsWidth - 5;
+	keyButtonsWidthScen		= keyButtonsWidth + 20;
 	scrollListsYPos 		= 700;
 	listBoxLength 			= 200;
 	keyButtonsYBase			= scrollListsYPos;
@@ -95,41 +99,41 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
     mapPreviewTexture=NULL;
 
 	//create
-	techInfoXPos = 10;
+	techInfoXPos = 5;
 	keyTechScrollBarTitle1.registerGraphicComponent(containerName,"keyTechScrollBarTitle1");
-	keyTechScrollBarTitle1.init(techInfoXPos,scrollListsYPos + 25,labelWidth,20);
+	keyTechScrollBarTitle1.init(techInfoXPos + 5,scrollListsYPos + 30,labelWidth,20);
 	keyTechScrollBarTitle1.setText(lang.getString("TechTitle1"));
 	keyTechScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTechScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	keyTechScrollBarTitle2.registerGraphicComponent(containerName,"keyTechScrollBarTitle2");
-	keyTechScrollBarTitle2.init(techInfoXPos + 200,scrollListsYPos + 25,labelWidth,20);
+	keyTechScrollBarTitle2.init(techInfoXPos - 10 + keyButtonsWidthTech,scrollListsYPos + 17,labelWidth,20);
 	keyTechScrollBarTitle2.setText(lang.getString("TechTitle2"));
 	keyTechScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
 	keyTechScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
-	mapInfoXPos = 270;
+	mapInfoXPos = 260;
 	keyMapScrollBarTitle1.registerGraphicComponent(containerName,"keyMapScrollBarTitle1");
-	keyMapScrollBarTitle1.init(mapInfoXPos,scrollListsYPos + 25,labelWidth,20);
+	keyMapScrollBarTitle1.init(mapInfoXPos + 5,scrollListsYPos + 30,labelWidth,20);
 	keyMapScrollBarTitle1.setText(lang.getString("MapTitle1"));
 	keyMapScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyMapScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	keyMapScrollBarTitle2.registerGraphicComponent(containerName,"keyMapScrollBarTitle2");
-	keyMapScrollBarTitle2.init(mapInfoXPos + 200,scrollListsYPos + 25,labelWidth,20);
+	keyMapScrollBarTitle2.init(mapInfoXPos - 10 + keyButtonsWidthMap,scrollListsYPos + 17,labelWidth,20);
 	keyMapScrollBarTitle2.setText(lang.getString("MapTitle2"));
 	keyMapScrollBarTitle2.setFont(CoreData::getInstance().getMenuFontNormal());
 	keyMapScrollBarTitle2.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	tilesetInfoXPos = 530;
 	keyTilesetScrollBarTitle1.registerGraphicComponent(containerName,"keyTilesetScrollBarTitle1");
-	keyTilesetScrollBarTitle1.init(tilesetInfoXPos,scrollListsYPos + 25,labelWidth,20);
+	keyTilesetScrollBarTitle1.init(tilesetInfoXPos + 5,scrollListsYPos + 30,labelWidth,20);
 	keyTilesetScrollBarTitle1.setText(lang.getString("TilesetTitle1"));
 	keyTilesetScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyTilesetScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 
-	scenarioInfoXPos = 760;
+	scenarioInfoXPos = 755;
 	keyScenarioScrollBarTitle1.registerGraphicComponent(containerName,"keyScenarioScrollBarTitle1");
-	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 25,labelWidth,20);
+	keyScenarioScrollBarTitle1.init(scenarioInfoXPos,scrollListsYPos + 30,labelWidth,20);
 	keyScenarioScrollBarTitle1.setText(lang.getString("ScenarioTitle1"));
 	keyScenarioScrollBarTitle1.setFont(CoreData::getInstance().getMenuFontBig());
 	keyScenarioScrollBarTitle1.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -145,7 +149,7 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 	lineReturn.init(0, returnLineY);
 
 	modDescrLabel.registerGraphicComponent(containerName,"modDescrLabel");
-	modDescrLabel.init(50,installButtonYPos-60 - 20,450,20);
+	modDescrLabel.init(15,installButtonYPos-60 - 20,450,20);
 	modDescrLabel.setWordWrap(true);
 	modDescrLabel.setText("description is empty");
 
@@ -167,80 +171,80 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	int legendButtonY= buttonLineDownY-30;
 	buttonInstalled.registerGraphicComponent(containerName,"buttonInstalled");
-	buttonInstalled.init(techInfoXPos, legendButtonY, 200);
-	buttonInstalled.setText(lang.getString("ModInstalled"));
+	buttonInstalled.init(5, legendButtonY, 240);
+	buttonInstalled.setText(" " + lang.getString("ModInstalled"));
 	buttonInstalled.setUseCustomTexture(true);
 	buttonInstalled.setCustomTexture(CoreData::getInstance().getOnServerInstalledTexture());
 	buttonInstalled.setEnabled(false);
 
 	buttonAvailable.registerGraphicComponent(containerName,"buttonAvailable");
-	buttonAvailable.init(tilesetInfoXPos, legendButtonY, 200);
+	buttonAvailable.init(255, legendButtonY, 240);
 	buttonAvailable.setUseCustomTexture(true);
 	buttonAvailable.setCustomTexture(CoreData::getInstance().getOnServerTexture());
-	buttonAvailable.setText(lang.getString("ModAvailable"));
+	buttonAvailable.setText(" " + lang.getString("ModAvailable"));
 
 	buttonOnlyLocal.registerGraphicComponent(containerName,"buttonOnlyLocal");
-	buttonOnlyLocal.init(mapInfoXPos, legendButtonY, 200);
+	buttonOnlyLocal.init(505, legendButtonY, 240);
 	buttonOnlyLocal.setUseCustomTexture(true);
 	buttonOnlyLocal.setCustomTexture(CoreData::getInstance().getNotOnServerTexture());
-	buttonOnlyLocal.setText(lang.getString("ModOnlyLocal"));
+	buttonOnlyLocal.setText(" " + lang.getString("ModOnlyLocal"));
 
 	buttonConflict.registerGraphicComponent(containerName,"buttonConflict");
-	buttonConflict.init(scenarioInfoXPos, legendButtonY, 200);
+	buttonConflict.init(755, legendButtonY, 240);
 	buttonConflict.setUseCustomTexture(true);
 	buttonConflict.setCustomTexture(CoreData::getInstance().getOnServerDifferentTexture());
-	buttonConflict.setText(lang.getString("ModHasConflict"));
+	buttonConflict.setText(" " + lang.getString("ModHasConflict"));
 
 
 	buttonInstallTech.registerGraphicComponent(containerName,"buttonInstallTech");
-	buttonInstallTech.init(techInfoXPos + 40, buttonLineUpY, 125);
+	buttonInstallTech.init(techInfoXPos + 45, buttonLineUpY, 125);
 	buttonInstallTech.setText(lang.getString("Install"));
 	buttonRemoveTech.registerGraphicComponent(containerName,"buttonRemoveTech");
-	buttonRemoveTech.init(techInfoXPos + 40, buttonLineDownY, 125);
+	buttonRemoveTech.init(techInfoXPos + 45, buttonLineDownY, 125);
 	buttonRemoveTech.setText(lang.getString("Remove"));
 
 	buttonInstallTileset.registerGraphicComponent(containerName,"buttonInstallTileset");
-	buttonInstallTileset.init(tilesetInfoXPos + 20, buttonLineUpY, 125);
+	buttonInstallTileset.init(tilesetInfoXPos + 30, buttonLineUpY, 125);
 	buttonInstallTileset.setText(lang.getString("Install"));
 	buttonRemoveTileset.registerGraphicComponent(containerName,"buttonRemoveTileset");
-	buttonRemoveTileset.init(tilesetInfoXPos + 20, buttonLineDownY, 125);
+	buttonRemoveTileset.init(tilesetInfoXPos + 30, buttonLineDownY, 125);
 	buttonRemoveTileset.setText(lang.getString("Remove"));
 
 	buttonInstallMap.registerGraphicComponent(containerName,"buttonInstallMap");
-	buttonInstallMap.init(mapInfoXPos + 40, buttonLineUpY, 125);
+	buttonInstallMap.init(mapInfoXPos + 50, buttonLineUpY, 125);
 	buttonInstallMap.setText(lang.getString("Install"));
 	buttonRemoveMap.registerGraphicComponent(containerName,"buttonRemoveMap");
-	buttonRemoveMap.init(mapInfoXPos + 40, buttonLineDownY, 125);
+	buttonRemoveMap.init(mapInfoXPos + 50, buttonLineDownY, 125);
 	buttonRemoveMap.setText(lang.getString("Remove"));
 
 	buttonInstallScenario.registerGraphicComponent(containerName,"buttonInstallScenario");
-	buttonInstallScenario.init(scenarioInfoXPos + 20, buttonLineUpY, 125);
+	buttonInstallScenario.init(scenarioInfoXPos + 45, buttonLineUpY, 125);
 	buttonInstallScenario.setText(lang.getString("Install"));
 	buttonRemoveScenario.registerGraphicComponent(containerName,"buttonRemoveScenario");
-	buttonRemoveScenario.init(scenarioInfoXPos + 20, buttonLineDownY, 125);
+	buttonRemoveScenario.init(scenarioInfoXPos + 45, buttonLineDownY, 125);
 	buttonRemoveScenario.setText(lang.getString("Remove"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidthTil,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
 	keyTilesetScrollBar.setElementCount(0);
 	keyTilesetScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTilesetScrollBar.setVisibleStart(0);
 
-	keyTechScrollBar.init(techInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyTechScrollBar.init(techInfoXPos + keyButtonsWidthTech + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTechScrollBar.setLength(listBoxLength);
 	keyTechScrollBar.setElementCount(0);
 	keyTechScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTechScrollBar.setVisibleStart(0);
 
-	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidthMap + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyMapScrollBar.setLength(listBoxLength);
 	keyMapScrollBar.setElementCount(0);
 	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
 	keyMapScrollBar.setVisibleStart(0);
 
-	keyScenarioScrollBar.init(scenarioInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyScenarioScrollBar.init(scenarioInfoXPos + keyButtonsWidthScen,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyScenarioScrollBar.setLength(listBoxLength);
 	keyScenarioScrollBar.setElementCount(0);
 	keyScenarioScrollBar.setVisibleSize(keyButtonsToRender);
@@ -530,7 +534,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 			ModInfo modinfo;
 			modinfo=tilesetCacheList[result];
 			GraphicButton *button=new GraphicButton();
-			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidthTil,keyButtonsHeight);
 			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
@@ -554,7 +558,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 		bool alreadyHasTileset = (tilesetCacheList.find(tilesetName) != tilesetCacheList.end());
 		if(alreadyHasTileset == false) {
 			GraphicButton *button=new GraphicButton();
-			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidthTil,keyButtonsHeight);
 			button->setText(tilesetName);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
@@ -593,14 +597,14 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 			modinfo=techCacheList[result];
 
 			GraphicButton *button=new GraphicButton();
-			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidthTech,keyButtonsHeight);
 			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 
 			keyTechButtons.push_back(button);
 			GraphicLabel *label=new GraphicLabel();
-			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+			label->init(techInfoXPos + keyButtonsWidthTech+10,keyButtonsYBase,labelWidth,20);
 			label->setText(modinfo.count);
 			labelsTech.push_back(label);
 		}
@@ -628,7 +632,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 	        findAll(techPath + techName + "/factions/*.", factions, false, false);
 
 			GraphicButton *button=new GraphicButton();
-			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidthTech,keyButtonsHeight);
 			button->setText(techName);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
@@ -636,7 +640,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 
 			int techFactionCount = (int)factions.size();
 			GraphicLabel *label=new GraphicLabel();
-			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
+			label->init(techInfoXPos + keyButtonsWidthTech+10,keyButtonsYBase,labelWidth,20);
 			label->setText(intToStr(techFactionCount));
 			labelsTech.push_back(label);
 		}
@@ -668,14 +672,14 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 			modinfo=mapCacheList[result];
 
 			GraphicButton *button=new GraphicButton();
-			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidthMap,keyButtonsHeight);
 			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 			keyMapButtons.push_back(button);
 
 			GraphicLabel *label=new GraphicLabel();
-			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
+			label->init(mapInfoXPos + keyButtonsWidthMap + 10,keyButtonsYBase,labelWidth,20);
 			label->setText(modinfo.count);
 			labelsMap.push_back(label);
 		}
@@ -703,7 +707,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 	        MapInfo mapInfo = loadMapInfo(mapPath);
 
 			GraphicButton *button=new GraphicButton();
-			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidthMap,keyButtonsHeight);
 			button->setText(mapName);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
@@ -711,7 +715,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 
 			int mapPlayerCount = mapInfo.players;
 			GraphicLabel *label=new GraphicLabel();
-			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
+			label->init(mapInfoXPos + keyButtonsWidthMap + 10,keyButtonsYBase,labelWidth,20);
 			label->setText(intToStr(mapPlayerCount));
 			labelsMap.push_back(label);
 		}
@@ -742,7 +746,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 			ModInfo modinfo;
 			modinfo=scenarioCacheList[result];
 			GraphicButton *button=new GraphicButton();
-			button->init(scenarioInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(scenarioInfoXPos, keyButtonsYBase, keyButtonsWidthScen,keyButtonsHeight);
 			button->setText(modinfo.name);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
@@ -771,7 +775,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 	        scenarioPath += scenarioName;
 
 			GraphicButton *button=new GraphicButton();
-			button->init(scenarioInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
+			button->init(scenarioInfoXPos, keyButtonsYBase, keyButtonsWidthScen,keyButtonsHeight);
 			button->setText(scenarioName);
 			button->setUseCustomTexture(true);
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
@@ -787,25 +791,25 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidthTil,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
 	keyTilesetScrollBar.setElementCount((int)keyTilesetButtons.size());
 	keyTilesetScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTilesetScrollBar.setVisibleStart(0);
 
-	keyTechScrollBar.init(techInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyTechScrollBar.init(techInfoXPos + keyButtonsWidthTech + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTechScrollBar.setLength(listBoxLength);
 	keyTechScrollBar.setElementCount((int)keyTechButtons.size());
 	keyTechScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTechScrollBar.setVisibleStart(0);
 
-	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidthMap + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyMapScrollBar.setLength(listBoxLength);
 	keyMapScrollBar.setElementCount((int)keyMapButtons.size());
 	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
 	keyMapScrollBar.setVisibleStart(0);
 
-	keyScenarioScrollBar.init(scenarioInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
+	keyScenarioScrollBar.init(scenarioInfoXPos + keyButtonsWidthScen,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyScenarioScrollBar.setLength(listBoxLength);
 	keyScenarioScrollBar.setElementCount((int)keyScenarioButtons.size());
 	keyScenarioScrollBar.setVisibleSize(keyButtonsToRender);

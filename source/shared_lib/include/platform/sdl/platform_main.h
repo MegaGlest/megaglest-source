@@ -33,6 +33,7 @@ const char  *GAME_ARGS[] = {
 	"--starthost",
 	"--headless-server-mode",
 	"--headless-server-status",
+	"--server-title",
 	"--use-ports",
 
 	"--load-scenario",
@@ -113,6 +114,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_SERVER,
 	GAME_ARG_MASTERSERVER_MODE,
 	GAME_ARG_MASTERSERVER_STATUS,
+	GAME_ARG_SERVER_TITLE,
 	GAME_ARG_USE_PORTS,
 
 	GAME_ARG_LOADSCENARIO,
@@ -235,7 +237,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 	printf("\n%s\tCheck the current status of a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
 
-	printf("\n%s=x,y,z\t\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
+	printf("\n%s=x,y,z\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
 	printf("\n\t\t\t\tx, externally on port y and game status on port z.");
 	printf("\n                     \t\tWhere x is the internal port # on the local");
 	printf("\n                     \t\t        machine to listen for connects");
@@ -247,11 +249,13 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t*NOTE: If enabled the FTP Server port #'s will");
 	printf("\n                     \t\t       be set to x+1 to x+9");
 
+	printf("\n%s=x\t\tSet server title.",GAME_ARGS[GAME_ARG_SERVER_TITLE]);
+
 	printf("\n%s=x\t\tAuto load a scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
 	printf("\n%s=x\t\t\tAuto load a mod by mod pathname.",GAME_ARGS[GAME_ARG_MOD]);
 
 	//     "================================================================================"
-	printf("\n%s=x\t\t\tAuto Preview a map by map name.",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
+	printf("\n%s=Map,Tileset\tAuto Preview a map by map name. (tileset is optional)",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
 	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL info.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
@@ -669,9 +673,9 @@ int mainSetup(int argc, char **argv) {
 			return 3;
 		 }
 		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		 SDL_EnableUNICODE(1);
+		 //SDL_EnableUNICODE(1);
 		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		 SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+		 //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	}
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return 0;

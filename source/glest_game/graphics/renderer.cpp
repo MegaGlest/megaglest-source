@@ -41,7 +41,7 @@ namespace Glest { namespace Game{
 uint32 Renderer::SurfaceData::nextUniqueId = 1;
 bool Renderer::renderText3DEnabled = true;
 
-const float SKIP_INTERPOLATION_DISTANCE = 20.0f;
+//const float SKIP_INTERPOLATION_DISTANCE = 20.0f;
 const string DEFAULT_CHAR_FOR_WIDTH_CALC = "V";
 
 enum PROJECTION_TO_INFINITY {
@@ -2206,6 +2206,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	Lang &lang= Lang::getInstance();
 
 	if(chatManager->getEditEnabled()) {
+		Vec4f color=Vec4f(0.0f,0.0f,0.0f,0.6f);
 		string text="";
 
 		if(chatManager->isInCustomInputMode() == true) {
@@ -2230,6 +2231,25 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 			fontColor=Vec4f(1.f, 1.f, 1.f, 0.0f);
 		}
 
+		// render Background
+		int x=chatManager->getXPos();
+		int y=chatManager->getYPos()-6;
+		int h=22;
+		int w=830;
+
+    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+    	glEnable(GL_BLEND);
+
+    	glColor4f(color.x, color.y, color.z, color.w) ;
+
+    	glBegin(GL_TRIANGLE_STRIP);
+    		glVertex2i(x, y);
+    		glVertex2i(x, y+h);
+    		glVertex2i(x+w, y);
+    		glVertex2i(x+w, y+h);
+    	glEnd();
+    	glPopAttrib();
+
 		if(renderText3DEnabled == true) {
 			renderTextShadow3D(
 					text,
@@ -2248,7 +2268,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	else
 	{
 		if (chatManager->getInMenu()) {
-			string text = ">> "+lang.getString("PressEnterToChat")+" <<";
+			string text = "\t\t\t\t\t>> "+lang.getString("PressEnterToChat")+" <<";
 			fontColor = Vec4f(0.5f, 0.5f, 0.5f, 0.5f);
 
 			if(renderText3DEnabled == true) {
@@ -2334,10 +2354,11 @@ void Renderer::renderClock() {
 	}
 
 	if(config.getBool("InGameLocalClock","true") == true) {
-		time_t nowTime = time(NULL);
-		struct tm *loctime = localtime(&nowTime);
+		//time_t nowTime = time(NULL);
+		//struct tm *loctime = localtime(&nowTime);
+		struct tm loctime = threadsafe_localtime(systemtime_now());
 		char szBuf2[100]="";
-		strftime(szBuf2,100,"%H:%M",loctime);
+		strftime(szBuf2,100,"%H:%M",&loctime);
 
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";
@@ -6588,7 +6609,7 @@ void Renderer::renderDisplay() {
 				display->getProgressBar(),
 				metrics.getDisplayX(),
 				metrics.getDisplayY() + metrics.getDisplayH()-50,
-				coreData.getDisplayFontSmall3D());
+				coreData.getDisplayFontSmall3D(), 175);
 		}
 	}
 	else {
@@ -7610,7 +7631,6 @@ void Renderer::loadConfig() {
 		//if(this->program != NULL) {
 		if(gammaValue != 0.0) {
 			this->program->getWindow()->setGamma(gammaValue);
-			SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 		}
 		//}
 	}
@@ -8927,7 +8947,7 @@ Renderer::Shadows Renderer::strToShadows(const string &s){
 string Renderer::shadowsToStr(Shadows shadows){
 	switch(shadows){
 	case sDisabled:
-		return "Disabled";
+		return "Disabled2";
 	case sProjected:
 		return "Projected";
 	case sShadowMapping:

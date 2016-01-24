@@ -32,10 +32,10 @@ OR
   folder
 
 * MegaGlest Windows 32 bit dependencies for building with VC++:
-  http://sourceforge.net/projects/megaglest/files/windows_deps.7z/download
+  https://github.com/MegaGlest/megaglest-source/releases/download/3.2.3/windows_deps.7z
 OR
 * MegaGlest Windows 32 bit dependencies for building with mingw:
-  http://sourceforge.net/projects/megaglest/files/win32_deps_mingw.7z/download
+  https://github.com/MegaGlest/megaglest-source/releases/download/3.2.3/win32_deps_mingw.7z
 
 These include:
 * Xerces-C

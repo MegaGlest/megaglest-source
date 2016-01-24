@@ -51,13 +51,24 @@ streflop_winx64_stmxcsr PROC FRAME
 streflop_winx64_stmxcsr ENDP
 
 streflop_winx64_ldmxcsr PROC FRAME
-
-    sub rsp, 8
-    .ENDPROLOG
+	sub   rsp, 8
+    mov   [rsp], rax ; win x64 specific
+	.ENDPROLOG
     ldmxcsr [rsp]
-    mov rax, [rsp]
-    add rsp, 8
+    add   rsp, 8
     ret
+
+;    sub rsp, 8
+;    .ENDPROLOG
+;    ldmxcsr [rsp]
+;    mov rax, [rsp]
+;    add rsp, 8
+;    ret
+
+;	mov qword ptr [rsp + 8], rcx
+;    .ENDPROLOG
+;    ldmxcsr [rsp + 8]
+;    ret
 streflop_winx64_ldmxcsr ENDP
 
 ;%endif

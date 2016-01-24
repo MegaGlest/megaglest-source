@@ -47,6 +47,8 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 
 	Lang &lang= Lang::getInstance();
 	int yPos=440;
+	int buttonWidth = 200;
+	int buttonXPosition = (1000 - buttonWidth) / 2;
 
 
 	labelVersion.registerGraphicComponent(containerName,"labelVersion");
@@ -55,28 +57,29 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 		labelVersion.setText(glestVersionString);
 	}
 	else {
-		labelVersion.init(405, yPos);
-		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelVersion.init(buttonXPosition, yPos);
+		//labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	yPos-=55;
 	buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
-	buttonNewGame.init(425, yPos, 150);
+	buttonNewGame.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
     buttonLoadGame.registerGraphicComponent(containerName,"buttonLoadGame");
-    buttonLoadGame.init(425, yPos, 150);
+    buttonLoadGame.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
     buttonMods.registerGraphicComponent(containerName,"buttonMods");
-    buttonMods.init(425, yPos, 150);
+    buttonMods.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
     buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
-    buttonOptions.init(425, yPos, 150);
+    buttonOptions.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
     buttonAbout.registerGraphicComponent(containerName,"buttonAbout");
-    buttonAbout.init(425, yPos , 150);
+    buttonAbout.init(buttonXPosition, yPos , buttonWidth);
     yPos-=40;
     buttonExit.registerGraphicComponent(containerName,"buttonExit");
-    buttonExit.init(425, yPos, 150);
+    buttonExit.init(buttonXPosition, yPos, buttonWidth);
 
 	buttonNewGame.setText(lang.getString("NewGame"));
 	buttonLoadGame.setText(lang.getString("LoadGame"));
@@ -172,7 +175,8 @@ void MenuStateRoot::reloadUI() {
 		labelVersion.setText(glestVersionString);
 	}
 	else {
-		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	buttonNewGame.setText(lang.getString("NewGame"));
@@ -508,9 +512,9 @@ void MenuStateRoot::render() {
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
 
-	int w= 300;
-	int h= 150;
-	int yPos=495;
+	int w= 400;
+	int h= 200;
+	int yPos= 510;
 
 	int logoMainX = (metrics.getVirtualW()-w)/2;
 	int logoMainY = yPos-h/2;
@@ -704,9 +708,10 @@ void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	//exit
 	//if(key == configKeys.getCharKey("ExitKey")) {
+	//printf("Check Root menu exit key!\n");
 	if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key) == true) {
 		Lang &lang= Lang::getInstance();
-		showMessageBox(lang.getString("ExitGame?"), "", true);
+		showMessageBox(lang.getString("ExitGameQuestion"), "", true);
 	}
 	//else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
 	else if(mainMessageBox.getEnabled() == true && isKeyPressed(SDLK_RETURN,key) == true) {

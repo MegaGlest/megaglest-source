@@ -15,7 +15,7 @@
 #include "graphics_interface.h"
 #include "config.h"
 #include "platform_common.h"
-#include <memory>
+//#include <memory>
 
 using namespace Shared::Graphics;
 using namespace Shared::Graphics::Gl;

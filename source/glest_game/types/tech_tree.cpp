@@ -21,6 +21,7 @@
 #include "platform_util.h"
 #include "game_util.h"
 #include "window.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -176,7 +177,7 @@ Checksum TechTree::loadTech(const string &techName,
 
 bool TechTree::exists(const string &techName, const vector<string> &pathTechList) {
 	bool techFound = false;
-	std::auto_ptr<TechTree> techTree(new TechTree(pathTechList));
+	auto_ptr<TechTree> techTree(new TechTree(pathTechList));
     string path = techTree->findPath(techName);
     if(path != "") {
     	techFound = true;

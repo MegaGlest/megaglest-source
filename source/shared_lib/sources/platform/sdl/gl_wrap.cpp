@@ -47,8 +47,9 @@ int PlatformContextGl::charSet = 1;
 // ======================================
 PlatformContextGl::PlatformContextGl() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	glcontext = NULL;
 	icon = NULL;
-	screen = NULL;
+	window = NULL;
 }
 
 PlatformContextGl::~PlatformContextGl() {
@@ -57,6 +58,10 @@ PlatformContextGl::~PlatformContextGl() {
 	end();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+SDL_Surface * PlatformContextGl::getScreenSurface() {
+	return SDL_GetWindowSurface(window);
 }
 
 void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
@@ -73,10 +78,13 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 	//printf("In [%s::%s %d] PlatformCommon::Private::shouldBeFullscreen = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PlatformCommon::Private::shouldBeFullscreen);
 
-	int flags = SDL_OPENGL;
+	// SDL_WINDOW_FULLSCREEN seems very broken when changing resolutions that differ from the desktop resolution
+	// For now fullscreen will mean use desktop resolution
+	int flags = SDL_WINDOW_OPENGL;
 	if(PlatformCommon::Private::shouldBeFullscreen) {
-		flags |= SDL_FULLSCREEN;
 		Window::setIsFullScreen(true);
+		//flags |= SDL_WINDOW_FULLSCREEN;
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
 	else {
 		Window::setIsFullScreen(false);
@@ -92,15 +100,47 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,resW,resH,colorBits);
 
-		if(screen != NULL) {
-			SDL_FreeSurface(screen);
-			screen = NULL;
+		if(Window::getIsFullScreen() && (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+			//printf("#1 SDL_WINDOW_FULLSCREEN_DESKTOP\n");
+			// TODO: which display? is 0 the designated primary display always?
+			SDL_Rect display_rect;
+			SDL_GetDisplayBounds(0, &display_rect);
+
+			if(PlatformCommon::Private::ScreenWidth != display_rect.w ||
+			   PlatformCommon::Private::ScreenHeight != display_rect.h) {
+				printf("Auto Change resolution to (%d x %d) from (%d x %d)\n",display_rect.w,display_rect.h,resW,resH);
+				resW = display_rect.w;
+				resH = display_rect.h;
+				PlatformCommon::Private::ScreenWidth = display_rect.w;
+				PlatformCommon::Private::ScreenHeight = display_rect.h;
+			}
+		}
+
+		int windowX = SDL_WINDOWPOS_UNDEFINED;
+		int windowY = SDL_WINDOWPOS_UNDEFINED;
+		string windowTitleText = "MG";
+		int windowDisplayID = -1;
+
+		if(window != NULL) {
+			SDL_GetWindowPosition(window,&windowX,&windowY);
+			windowDisplayID = SDL_GetWindowDisplayIndex( window );
+			//printf("windowDisplayID = %d\n",windowDisplayID);
+			if(Window::getIsFullScreen()) {
+				windowX = SDL_WINDOWPOS_CENTERED_DISPLAY(windowDisplayID);
+				windowY = SDL_WINDOWPOS_CENTERED_DISPLAY(windowDisplayID);
+			}
+			windowTitleText = SDL_GetWindowTitle(window);
+
+			SDL_DestroyWindow(window);
+			window = NULL;
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
-		if(screen == 0) {
+		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+		//screen = SDL_CreateWindow(resW, resH, colorBits, flags);
+		window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,resW, resH, flags);
+		if(window == 0) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			std::ostringstream msg;
@@ -112,50 +152,67 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg.str().c_str());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg.str().c_str());
 
-			for(int i = 32; i >= 8; i-=8) {
-				// try different color bits
-				screen = SDL_SetVideoMode(resW, resH, i, flags);
-				if(screen != 0) {
-					glViewport( 0, 0, resW, resH ) ;
-
-					break;
-				}
+			//screen = SDL_SetVideoMode(resW, resH, i, flags);
+			window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,resW, resH, flags);
+			if(window == 0) {
+				// try to switch to native desktop resolution
+				window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,0, 0,SDL_WINDOW_FULLSCREEN_DESKTOP|flags);
 			}
-
-			if(screen == 0) {
-				for(int i = 32; i >= 8; i-=8) {
-					// try to revert to 800x600
-					screen = SDL_SetVideoMode(800, 600, i, flags);
-					if(screen != 0) {
-						resW = 800;
-						resH = 600;
-
-						glViewport( 0, 0, resW, resH ) ;
-						break;
-					}
-				}
+			if(window == 0) {
+				// try to revert to 640x480
+				window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,650, 480,SDL_WINDOW_FULLSCREEN_DESKTOP);
 			}
-			if(screen == 0) {
-				for(int i = 32; i >= 8; i-=8) {
-					// try to revert to 640x480
-					screen = SDL_SetVideoMode(640, 480, i, flags);
-					if(screen != 0) {
-						resW = 640;
-						resH = 480;
-
-						glViewport( 0, 0, resW, resH ) ;
-						break;
-					}
-				}
-			}
-
-			if(screen == 0) {
+			if(window == 0) {
 				throw std::runtime_error(msg.str());
 			}
 		}
+
+//		int totalDisplays = SDL_GetNumVideoDisplays();
+//		windowDisplayID = SDL_GetWindowDisplayIndex( window );
+//		printf("!!! totalDisplays = %d, windowDisplayID = %d\n",totalDisplays,windowDisplayID);
+
+		//SDL_SetWindowDisplayMode(window, NULL);
+
+		bool isNewWindow = (glcontext == NULL);
+		if(isNewWindow) {
+			glcontext = SDL_GL_CreateContext(window);
+		}
 		else {
-			glViewport( 0, 0, resW, resH ) ;
-			//printf("Reset resolution to [%d] x [%d]\n",resW, resH);
+			SDL_GL_MakeCurrent(window, glcontext);
+		}
+
+		int h;
+		int w;
+		SDL_GetWindowSize(window, &w, &h);
+
+		if((w != resW || h != resH) && (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+			//printf("#2 SDL_WINDOW_FULLSCREEN_DESKTOP\n");
+			printf("#1 Change resolution mismatch get (%d x %d) desired (%d x %d)\n",w,h,resW,resH);
+
+			PlatformCommon::Private::ScreenWidth = w;
+			PlatformCommon::Private::ScreenHeight = h;
+
+			resW = PlatformCommon::Private::ScreenWidth;
+			resH = PlatformCommon::Private::ScreenHeight;
+
+			printf("#2 Change resolution to (%d x %d)\n",resW,resH);
+
+//			SDL_SetWindowFullscreen(window,0);
+//			SDL_SetWindowSize(window, resW, resH);
+//			SDL_SetWindowFullscreen(window,flags);
+//			SDL_SetWindowSize(window, resW, resH);
+//
+//			SDL_GetWindowSize(window, &w, &h);
+//			printf("#2 Change resolution mismatch get (%d x %d) desired (%d x %d)\n",w,resW,h,resH);
+		}
+		glViewport( 0, 0, w, h ) ;
+
+		// There seems to be a bug where if relative mouse mouse is enabled when you create a new window,
+		// the window still reports that it has input & mouse focus, but it doesn't send any events for
+		// mouse motion or mouse button clicks. You can fix this by toggling relative mouse mode.
+		if (SDL_GetRelativeMouseMode()) {
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			SDL_SetRelativeMouseMode(SDL_TRUE);
 		}
 
 #ifndef WIN32
@@ -224,18 +281,19 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 				//uint32 colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
 				//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);
-				if(SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255))) {
+				if(SDL_SetColorKey(icon, SDL_TRUE, SDL_MapRGB(icon->format, 255, 0, 255))) {
 					printf("Icon Load Error #2: %s\n", SDL_GetError());
 				}
 				else {
-					SDL_WM_SetIcon(icon, NULL);
+					SDL_SetWindowIcon(window,icon);
 				}
 			}
 		}
 #endif
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		//SDL_WM_GrabInput(SDL_GRAB_OFF);
+		//SDL_SetRelativeMouseMode(SDL_FALSE);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d] BEFORE glewInit call\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		
@@ -265,13 +323,30 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(gammaValue != 0.0) {
 			//printf("Attempting to call SDL_SetGamma using value %f\n", gammaValue);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if (SDL_SetGamma(gammaValue, gammaValue, gammaValue) < 0) {
-				printf("WARNING, SDL_SetGamma failed using value %f [%s]\n", gammaValue,SDL_GetError());
+			if (SDL_SetWindowBrightness(window, gammaValue) < 0) {
+				printf("WARNING, SDL_SetWindowBrightness failed using value %f [%s]\n", gammaValue,SDL_GetError());
 			}
 		}
 
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
+//        SDL_WM_GrabInput(SDL_GRAB_ON);
+//        SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+
+
+//		if(Window::getIsFullScreen())
+//			SDL_SetWindowGrab(window, SDL_TRUE);
+//		else
+		SDL_SetWindowGrab(window, SDL_FALSE);
+
+//		if(Window::getIsFullScreen()) {
+//			SDL_SetWindowSize(window, resW, resH);
+//			//SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
+//			SDL_SetWindowSize(window, resW, resH);
+//		}
+
+//		SDL_SetRelativeMouseMode(SDL_TRUE);
+//		SDL_SetRelativeMouseMode(SDL_FALSE);
 	}
 }
 
@@ -287,11 +362,11 @@ void PlatformContextGl::end() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(screen != NULL) {
+	if(window != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		SDL_FreeSurface(screen);
-		screen = NULL;
+		SDL_DestroyWindow(window);
+		window = NULL;
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -302,7 +377,7 @@ void PlatformContextGl::makeCurrent() {
 
 void PlatformContextGl::swapBuffers() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		SDL_GL_SwapBuffers();
+		 SDL_GL_SwapWindow(window);
 	}
 }
 	

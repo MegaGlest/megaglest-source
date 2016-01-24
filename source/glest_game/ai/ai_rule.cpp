@@ -1305,122 +1305,146 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						//besti=i%(producers.size());
 					}
 				}
-				if(	aiInterface->getMyUnit(bestIndex)->getCommandSize() > 2) {
-					// maybe we need another producer of this kind if possible!
-					if(aiInterface->reqsOk(aiInterface->getMyUnit(bestIndex)->getType())) {
-						if(ai->getCountOfClass(ucBuilding) > 5) {
-							ai->addTask(new BuildTask(aiInterface->getMyUnit(bestIndex)->getType()));
+				if(bestIndex >= 0) {
+					if(	aiInterface->getMyUnit(bestIndex)->getCommandSize() > 2) {
+						// maybe we need another producer of this kind if possible!
+						if(aiInterface->reqsOk(aiInterface->getMyUnit(bestIndex)->getType())) {
+							if(ai->getCountOfClass(ucBuilding) > 5) {
+								ai->addTask(new BuildTask(aiInterface->getMyUnit(bestIndex)->getType()));
+							}
 						}
-					}
-					// need to calculate another producer, maybe its better to produce another warrior with another producer
-					vector<int> backupProducers;
-					// find another producer unit which is free and produce any kind of warrior.
-					//for each unit
-					for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-						const UnitType *ut= aiInterface->getMyUnit(i)->getType();
-						//for each command
-						for(int j=0; j<ut->getCommandTypeCount(); ++j){
-							const CommandType *ct= ut->getCommandType(j);
-							//if the command is produce
-							if(ct->getClass() == ccProduce) {
-								const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
-								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
-								{//this can produce a warrior
-									backupProducers.push_back(i);
+						// need to calculate another producer, maybe its better to produce another warrior with another producer
+						vector<int> backupProducers;
+						// find another producer unit which is free and produce any kind of warrior.
+						//for each unit
+						for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
+							const UnitType *ut= aiInterface->getMyUnit(i)->getType();
+							//for each command
+							for(int j=0; j<ut->getCommandTypeCount(); ++j){
+								const CommandType *ct= ut->getCommandType(j);
+								//if the command is produce
+								if(ct->getClass() == ccProduce) {
+									const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
+									if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
+									{//this can produce a warrior
+										backupProducers.push_back(i);
+									}
 								}
 							}
 						}
-					}
-					if(!backupProducers.empty()) {
-						int randomstart=ai->getRandom()->randRange(0, (int)backupProducers.size()-1);
-						int lowestCommandCount=1000000;
-						int currentProducerIndex=backupProducers[randomstart];
-						int bestIndex=-1;
-						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++) {
-							int prIndex = i;
-							if(i >= backupProducers.size()) {
-								prIndex = (i - (int)backupProducers.size());
-							}
+						if(!backupProducers.empty()) {
+							int randomstart=ai->getRandom()->randRange(0, (int)backupProducers.size()-1);
+							int lowestCommandCount=1000000;
+							int currentProducerIndex=backupProducers[randomstart];
+							int bestIndex=-1;
+							for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++) {
+								int prIndex = i;
+								if(i >= backupProducers.size()) {
+									prIndex = (i - (int)backupProducers.size());
+								}
 
-							currentProducerIndex=backupProducers[prIndex];
+								currentProducerIndex=backupProducers[prIndex];
 
-							if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
-								char szBuf[8096]="";
-								printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
-								snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
-								throw megaglest_runtime_error(szBuf);
-							}
-							if(prIndex >= (int)backupProducers.size()) {
-								char szBuf[8096]="";
-								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER " \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,backupProducers.size());
-								snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,backupProducers.size());
-								throw megaglest_runtime_error(szBuf);
-							}
+								if(currentProducerIndex >= aiInterface->getMyUnitCount()) {
+									char szBuf[8096]="";
+									printf("In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
+									snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
+									throw megaglest_runtime_error(szBuf);
+								}
+								if(prIndex >= (int)backupProducers.size()) {
+									char szBuf[8096]="";
+									printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER " \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,backupProducers.size());
+									snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,backupProducers.size());
+									throw megaglest_runtime_error(szBuf);
+								}
 
-							int currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
-							if( currentCommandCount==1 &&
-								aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
-							{// special for non buildings
-								currentCommandCount=0;
-							}
-						    if(lowestCommandCount>currentCommandCount) {
-								lowestCommandCount=currentCommandCount;
-								bestIndex=currentProducerIndex;
-								if(lowestCommandCount==0) break;
-							}
-						}
-						// a good producer is found, lets choose a warrior production
-						vector<int> productionCommandIndexes;
-						const UnitType *ut=aiInterface->getMyUnit(bestIndex)->getType();
-						for(int j=0; j<ut->getCommandTypeCount(); ++j){
-							const CommandType *ct= ut->getCommandType(j);
-
-							//if the command is produce
-							if(ct->getClass()==ccProduce) {
-								const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
-								if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
-								{//this can produce a warrior
-									productionCommandIndexes.push_back(j);
+								int currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
+								if( currentCommandCount==1 &&
+									aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
+								{// special for non buildings
+									currentCommandCount=0;
+								}
+								if(lowestCommandCount>currentCommandCount) {
+									lowestCommandCount=currentCommandCount;
+									bestIndex=currentProducerIndex;
+									if(lowestCommandCount==0) break;
 								}
 							}
-						}
-						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, (int)productionCommandIndexes.size()-1)];
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							// a good producer is found, lets choose a warrior production
+							vector<int> productionCommandIndexes;
+							if(bestIndex >= 0) {
+								const UnitType *ut=aiInterface->getMyUnit(bestIndex)->getType();
+								for(int j=0; j<ut->getCommandTypeCount(); ++j){
+									const CommandType *ct= ut->getCommandType(j);
 
-						if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-						if(aiInterface->isLogLevelEnabled(4) == true) {
-							char szBuf[8096]="";
-							snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-							aiInterface->printLog(4, szBuf);
-						}
+									//if the command is produce
+									if(ct->getClass()==ccProduce) {
+										const UnitType *unitType= static_cast<const UnitType*>(ct->getProduced());
+										if(unitType->hasSkillClass(scAttack) && !unitType->hasCommandClass(ccHarvest) && aiInterface->reqsOk(ct))
+										{//this can produce a warrior
+											productionCommandIndexes.push_back(j);
+										}
+									}
+								}
 
-						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
+								int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, (int)productionCommandIndexes.size()-1)];
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+								if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
+								if(aiInterface->isLogLevelEnabled(4) == true) {
+									char szBuf[8096]="";
+									snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
+									aiInterface->printLog(4, szBuf);
+								}
+
+								aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
+							}
+						}
+						else
+						{// do it like normal CPU
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							defCt = NULL;
+							if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
+								int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
+								int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+
+								defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
+							}
+
+							if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
+							if(aiInterface->isLogLevelEnabled(4) == true) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
+								aiInterface->printLog(4, szBuf);
+							}
+							aiInterface->giveCommand(bestIndex, defCt);
+						}
 					}
-					else
-					{// do it like normal CPU
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						defCt = NULL;
-						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
-							int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
-							int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
+					else {
+						if(currentCommandCount == 0) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							defCt = NULL;
+							if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
+								//defCt = producersDefaultCommandType[bestIndex];
+								int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
+								int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
-							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
+								defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
+							}
+
+							if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
+							if(aiInterface->isLogLevelEnabled(4) == true) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
+								aiInterface->printLog(4, szBuf);
+							}
+
+							aiInterface->giveCommand(bestIndex, defCt);
 						}
-
-						if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
-						if(aiInterface->isLogLevelEnabled(4) == true) {
-							char szBuf[8096]="";
-							snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
-							aiInterface->printLog(4, szBuf);
-						}
-						aiInterface->giveCommand(bestIndex, defCt);
-					}
-				}
-				else
-				{
-					if(currentCommandCount==0) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						defCt = NULL;
 						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
@@ -1432,35 +1456,15 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
-
-						if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
+						if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 						if(aiInterface->isLogLevelEnabled(4) == true) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
+							snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 							aiInterface->printLog(4, szBuf);
 						}
 
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-					defCt = NULL;
-					if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
-						//defCt = producersDefaultCommandType[bestIndex];
-						int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
-						int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
-
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
-
-						defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
-					}
-					if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
-					if(aiInterface->isLogLevelEnabled(4) == true) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
-						aiInterface->printLog(4, szBuf);
-					}
-
-					aiInterface->giveCommand(bestIndex, defCt);
 				}
 			}
 			else {

@@ -39,9 +39,9 @@ ChatManager::ChatManager() {
 	teamMode= false;
 	thisTeamIndex= -1;
 	disableTeamMode = false;
-	xPos=300;
-	yPos=150;
-	maxTextLenght=64;
+	xPos=75;
+	yPos=155;
+	maxTextLenght=90;
 	textCharLength.clear();
 	text="";
 	font=CoreData::getInstance().getConsoleFont();
@@ -93,6 +93,39 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 		throw megaglest_runtime_error(szBuf);
 	}
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool ChatManager::textInput(std::string inputText) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] inputText [%s]\n",__FILE__,__FUNCTION__,__LINE__,inputText.c_str());
+
+	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
+	string textToAdd = getTextWithLengthCheck(inputText,textCharLength.size(),maxTextLenAllowed);
+
+	if(editEnabled && (int)textCharLength.size() < maxTextLenAllowed && textToAdd.size() > 0) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		appendText(textToAdd, true, true);
+		updateAutoCompleteBuffer();
+		return true;
+	}
+	return false;
+}
+
+string ChatManager::getTextWithLengthCheck(string addText, int currentLength, int maxLength) {
+	string resultText = "";
+	if(addText.empty() == false) {
+		int utf8CharsAdded = 0;
+		for(unsigned int index = 0; index < addText.size(); ) {
+			int len = getUTF8_Width(&addText[index]);
+			utf8CharsAdded++;
+			if(currentLength + utf8CharsAdded > maxLength) {
+				break;
+			}
+			resultText += addText.substr(index,len);
+			index += len;
+		}
+	}
+	return resultText;
 }
 
 void ChatManager::keyDown(SDL_KeyboardEvent key) {
@@ -309,8 +342,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 					else {
 						//printf("ADD: currentAutoCompleteName [%s] autoCompleteResult [%s] text [%s]\n",currentAutoCompleteName.c_str(),autoCompleteResult.c_str(),text.c_str());
 					}
-					WString addText(autoCompleteResult);
-					appendText(addText.cw_str(), false, false);
+					appendText(autoCompleteResult, false, false);
 				}
 			}
 		}
@@ -334,14 +366,15 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 
-	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
-		//space is the first meaningful code
-		wchar_t key = extractKeyPressedUnicode(c);
-		wchar_t textAppend[] = { key, 0 };
-		appendText(textAppend);
-	}
+// no more textinput with keyPress in SDL2!
+//	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
+//	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
+//		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
+//		//space is the first meaningful code
+//		wchar_t key = extractKeyPressedUnicode(c);
+//		wchar_t textAppend[] = { key, 0 };
+//		appendText(textAppend);
+//	}
 }
 
 void ChatManager::switchOnEdit(CustomInputCallbackInterface *customCB,int maxCustomTextLength) {
@@ -381,37 +414,16 @@ void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
 
 }
 
-void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool addToAutoCompleteBuffer) {
-	for(unsigned int i = 0; i < wcslen(addText); ++i) {
-		wchar_t key = addText[i];
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("appendText key [%d]\n\n",(int)key);
+void ChatManager::appendText(string addText, bool validateChars, bool addToAutoCompleteBuffer) {
 
-		if(validateChars == false ||
-			(isAllowedInputTextKey(key) == true && key != 10)) {
-			char buf[4] = {0};
-			if (key < 0x80) {
-				buf[0] = key;
-				textCharLength.push_back(1);
-				//printf("1 char, textCharLength = %d\n",textCharLength.size());
-			}
-			else if (key < 0x800) {
-				buf[0] = (0xC0 | key >> 6);
-				buf[1] = (0x80 | (key & 0x3F));
-				textCharLength.push_back(2);
-				//printf("2 char, textCharLength = %d\n",textCharLength.size());
-			}
-			else {
-				buf[0] = (0xE0 | key >> 12);
-				buf[1] = (0x80 | (key >> 6 & 0x3F));
-				buf[2] = (0x80 | (key & 0x3F));
-				textCharLength.push_back(3);
-				//printf("3 char, textCharLength = %d\n",textCharLength.size());
-			}
-			text += buf;
+	for(unsigned int index = 0; index < addText.size(); ) {
+		int len = getUTF8_Width(&addText[index]);
+		textCharLength.push_back(len);
+		text += addText.substr(index,len);
+		index += len;
 
-			if(addToAutoCompleteBuffer == true) {
-				updateAutoCompleteBuffer();
-			}
+		if(addToAutoCompleteBuffer == true) {
+			updateAutoCompleteBuffer();
 		}
 	}
 }

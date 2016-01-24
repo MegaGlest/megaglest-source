@@ -22,9 +22,9 @@ sync_support_libs(){
 	local _cp="/bin/cp"
 	#local skip_deps="libm.so libpthread.so libstdc++.so libgcc_s.so libc.so libdl.so libX11.so libpulse libfusion libdirect libnvidia libXext librt libxcb libICE libSM libXtst libwrap libdbus libXau libXdmcp libnsl libFLAC libGL"
 	local skip_deps=""
-	local keep_deps="libcurl libgnu libgcrypt libicu liblua libjpeg libpng libwx libgtk libgdk libftgl libfreetype libvlc" 
+	local keep_deps="libcurl libgnu libgcrypt libnghttp libidn librtmp libssh libnettle libicu liblua libjpeg libpng libwx libgtk libgdk libftgl libfreetype libvlc"
 	
-	local scan_via_skiplist=1 
+	local scan_via_skiplist=1
 
 	if [ -n "$skip_deps" ]; then
 		scan_via_skiplist=1
@@ -86,8 +86,7 @@ sync_support_libs(){
 }
  
 usage(){
-	echo "Syntax : $0 megaglest
-	echo "Example: $0 megaglest
+	echo "Error: Wrong syntax. Example: $0 megaglest"
 	exit 1
 }
  
@@ -101,3 +100,16 @@ for f in $file
 do
 	sync_support_libs "${BASE}" "${f}"
 done
+
+# copy vlc's plugins if libvlc was copied
+if [ "$(find $BASE -type f -name "libvlc.*")" != "" ]; then
+	LIBVLC_DIR_CHECK="$( ldd "$1" | grep "libvlc\." | sort -u | awk '{print $3}' | head -1 )"
+	if [ "$LIBVLC_DIR_CHECK" != "" ]; then
+		LIBVLC_DIR="$(dirname "$LIBVLC_DIR_CHECK")"
+		if [ -d "$LIBVLC_DIR/vlc/plugins" ]; then
+			mkdir -p "$BASE/vlc"
+			echo "Including plugins directory for VLC from = [$LIBVLC_DIR/vlc]"
+			cp -f -r "$LIBVLC_DIR/vlc/plugins" "$BASE/vlc/"
+		fi
+	fi
+fi

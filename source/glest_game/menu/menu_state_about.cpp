@@ -50,7 +50,7 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 
 	//init
 	buttonReturn.registerGraphicComponent(containerName, "buttonReturn");
-	buttonReturn.init(460, 100, 125);
+	buttonReturn.init(438, 100, 125);
 	buttonReturn.setText(lang.getString("Return"));
 
 	labelAdditionalCredits.registerGraphicComponent(containerName, "labelAdditionalCredits");
@@ -229,7 +229,11 @@ void MenuStateAbout::render() {
 		if(customModTexture == NULL) {
 			string customModCreditsTextureFile = Config::getInstance().getString("CustomModCreditsTextureFile","");
 			if(customModCreditsTextureFile != "") {
-				customModTexture = Renderer::findTexture(customModCreditsTextureFile);
+				string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+				if(data_path != ""){
+					endPathWithSlash(data_path);
+				}
+				customModTexture = Renderer::findTexture(data_path + customModCreditsTextureFile);
 			}
 		}
 

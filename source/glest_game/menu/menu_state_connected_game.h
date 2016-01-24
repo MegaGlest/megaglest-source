@@ -21,6 +21,7 @@
 #include "chat_manager.h"
 #include "map_preview.h"
 #include "miniftpclient.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 namespace Shared { namespace Graphics {
@@ -242,7 +243,7 @@ private:
 
 	bool launchingNewGame;
 	bool isfirstSwitchingMapMessage;
-	std::auto_ptr<TechTree> techTree;
+	auto_ptr<TechTree> techTree;
 
 	GameSettings originalGamesettings;
 	bool validOriginalGameSettings;
@@ -260,6 +261,7 @@ public:
 	void render();
 	void update();
 
+	virtual bool textInput(std::string text);
     virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void keyUp(SDL_KeyboardEvent key);

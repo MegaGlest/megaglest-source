@@ -75,6 +75,7 @@ public:
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
 	virtual void mouseUpLeft(int x, int y);
+	virtual bool textInput(std::string text);
 	virtual void keyDown(SDL_KeyboardEvent key);
 	virtual void keyUp(SDL_KeyboardEvent key);
 	virtual void keyPress(SDL_KeyboardEvent key);
@@ -109,6 +110,7 @@ protected:
 protected:
 
 	void setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr);
+	bool textInputEditLabel(string input, GraphicLabel **activeInputLabelPtr);
 	bool keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
 	bool keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
 
@@ -120,6 +122,8 @@ public:
 	virtual void mouseMove(int x, int y, const MouseState *mouseState)=0;
 	virtual void render()=0;
 	virtual void update(){};
+
+	virtual bool textInput(std::string text) {return false; }
 	virtual void keyDown(SDL_KeyboardEvent key){};
 	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void keyUp(SDL_KeyboardEvent key){};

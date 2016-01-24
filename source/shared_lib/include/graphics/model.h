@@ -20,6 +20,7 @@
 #include "texture.h"
 #include "model_header.h"
 #include <memory>
+#include "common_scoped_ptr.h"
 #include "byte_order.h"
 #include "leak_dumper.h"
 
@@ -72,6 +73,7 @@ private:
 	bool twoSided;
 	bool customColor;
 	bool noSelect;
+	bool glow;
 
 	uint32 textureFlags;
 
@@ -133,6 +135,7 @@ public:
 	bool getTwoSided() const		{return twoSided;}
 	bool getCustomTexture() const	{return customColor;}
 	bool getNoSelect() const		{return noSelect;}
+	bool getGlow() const		{return glow;}
 	string getName() const		{return name;}
 
 	uint32 getTextureFlags() const { return textureFlags; }
@@ -248,7 +251,7 @@ public:
 	PixelBufferWrapper(int pboCount,int bufferSize);
 	~PixelBufferWrapper();
 
-	static Pixmap2D *getPixelBufferFor(int x,int y,int w,int h, int colorComponents);
+	Pixmap2D *getPixelBufferFor(int x,int y,int w,int h, int colorComponents);
 	static void begin();
 	static void end();
 	static bool getIsPBOEnable() { return isPBOEnabled; }
@@ -257,8 +260,10 @@ private:
 	static bool isPBOEnabled;
 	static int index;
 	static vector<uint32> pboIds;
+	int bufferSize;
 
 	void cleanup();
+	void addBuffersToPixelBuf(int pboCount);
 };
 
 class BaseColorPickEntity {
@@ -311,6 +316,7 @@ private:
     static vector<vector<unsigned char> > nextColorIDReuseList;
 
     static auto_ptr<PixelBufferWrapper> pbo;
+    //static auto_ptr<Pixmap2D> cachedPixels;
 
     void assign_color();
 

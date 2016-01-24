@@ -21,7 +21,7 @@
 #include "platform_common.h"
 #include "opengl.h"
 #include "platform_util.h"
-#include <memory>
+//#include <memory>
 #include <map>
 #include <vector>
 #include "leak_dumper.h"
@@ -225,6 +225,7 @@ Mesh::Mesh() {
 	twoSided= false;
 	customColor= false;
 	noSelect= false;
+	glow= false;
 
 	textureFlags=0;
 
@@ -446,6 +447,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	twoSided= false;
 	customColor= false;
 	noSelect= false;
+	glow= false;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d modelFile [%s]\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex,modelFile.c_str());
 
@@ -586,6 +588,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	twoSided= (meshHeader.properties & mp3TwoSided) != 0;
 	customColor= (meshHeader.properties & mp3CustomColor) != 0;
 	noSelect = false;
+	glow = false;
 
 	textureFlags= 0;
 	if((meshHeader.properties & mp3NoTexture) != mp3NoTexture) {
@@ -781,6 +784,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	customColor= (meshHeader.properties & mpfCustomColor) != 0;
 	twoSided= (meshHeader.properties & mpfTwoSided) != 0;
 	noSelect= (meshHeader.properties & mpfNoSelect) != 0;
+	glow= (meshHeader.properties & mpfGlow) != 0;
 
 	//material
 	diffuseColor= Vec3f(meshHeader.diffuseColor);
@@ -899,6 +903,9 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	}
 	if(noSelect) {
 		meshHeader.properties |= mpfNoSelect;
+	}
+	if(glow) {
+		meshHeader.properties |= mpfGlow;
 	}
 
 	meshHeader.textures = textureFlags;
@@ -1532,6 +1539,7 @@ void Mesh::copyInto(Mesh *dest, bool ignoreInterpolationData,
 	dest->twoSided 		= this->twoSided;
 	dest->customColor 	= this->customColor;
 	dest->noSelect 		= this->noSelect;
+	dest->glow 			= this->glow;
 
 	dest->textureFlags 	= this->textureFlags;
 
@@ -1605,6 +1613,7 @@ void Model::autoJoinMeshFrames() {
 				           string("_") + intToStr(mesh.getCustomTexture()) +
 				           string("_") + intToStr(mesh.getNoSelect()) +
 				           string("_") + floatToStr(mesh.getOpacity()) +
+				           string("_") + floatToStr(mesh.getGlow()) +
 				           string("_") + mesh.getDiffuseColor().getString() +
 				           string("_") + mesh.getSpecularColor().getString() +
 				           string("_") + floatToStr(mesh.getSpecularPower());
@@ -1751,6 +1760,7 @@ int PixelBufferWrapper::index 			= 0;
 vector<unsigned int> PixelBufferWrapper::pboIds;
 
 PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
+	this->bufferSize = bufferSize;
 	//if(isGlExtensionSupported("GL_ARB_pixel_buffer_object") == true &&
 	if(GLEW_ARB_pixel_buffer_object) {
 		PixelBufferWrapper::isPBOEnabled = true;
@@ -1760,6 +1770,7 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 		//glGenBuffersARB(pboCount, (GLuint*)&pboIds[0]);
 		//
 
+		/*
 		for(int i = 0; i < pboCount; ++i) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
 
@@ -1771,53 +1782,121 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 			glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
 		}
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+		*/
+		addBuffersToPixelBuf(pboCount);
 	}
+}
+
+void PixelBufferWrapper::addBuffersToPixelBuf(int pboCount) {
+	int iStartIndex = pboIds.size();
+	for(int i = 0; i < pboCount; ++i) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
+
+		pboIds.push_back(0);
+		glGenBuffersARB(1, (GLuint*)&pboIds[i+iStartIndex]);
+		// create pixel buffer objects, you need to delete them when program exits.
+		// glBufferDataARB with NULL pointer reserves only memory space.
+		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i+iStartIndex]);
+		glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
+	}
+	glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 }
 
 Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int colorComponents) {
 	Pixmap2D *pixmapScreenShot = NULL;
 	if(PixelBufferWrapper::isPBOEnabled == true) {
-	    // increment current index first then get the next index
-	    // "index" is used to read pixels from a framebuffer to a PBO
-	    // "nextIndex" is used to process pixels in the other PBO
-	    index = (index + 1) % 2;
+		string codeSection = "A";
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		try {
+			// increment current index first then get the next index
+			// "index" is used to read pixels from a framebuffer to a PBO
+			// "nextIndex" is used to process pixels in the other PBO
+			index = (index + 1) % 2;
 
-	    // pbo index used for next frame
-	    //int nextIndex = (index + 1) % 2;
+			codeSection = "B";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			// Check for out of range
+			if(index >= (int)pboIds.size()) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error / Warning in [%s::%s] on line: %d pixel buffer out of range, index: %d size: %d, attempting to expand buffer...\n",__FILE__,__FUNCTION__,__LINE__,index, (int)pboIds.size());
+				//throw megaglest_runtime_error(szBuf);
+				SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] szBuf: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
 
-	    // read framebuffer ///////////////////////////////
-		// copy pixels from framebuffer to PBO
-		// Use offset instead of pointer.
-		// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
-	    //glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+				codeSection = "C";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				addBuffersToPixelBuf((index - pboIds.size()) + 1);
+			}
+			// pbo index used for next frame
+			//int nextIndex = (index + 1) % 2;
 
-		//glPixelStorei(GL_PACK_ALIGNMENT, 1);
-		glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			codeSection = "D";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			// read framebuffer ///////////////////////////////
+			// copy pixels from framebuffer to PBO
+			// Use offset instead of pointer.
+			// OpenGL should perform asynch DMA transfer, so glReadPixels() will return immediately.
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+			//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
 
-		// measure the time reading framebuffer
-		//t1.stop();
-		//readTime = t1.getElapsedTimeInMilliSec();
+			codeSection = "E";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		// process pixel data /////////////////////////////
-		//t1.start();
+			// measure the time reading framebuffer
+			//t1.stop();
+			//readTime = t1.getElapsedTimeInMilliSec();
 
-		// map the PBO that contain framebuffer pixels before processing it
-		//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
-		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
-		if(src) {
-			pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
-			memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
-			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
-			//pixmapScreenShot->save("debugPBO.png");
+			// process pixel data /////////////////////////////
+			//t1.start();
+
+			codeSection = "F";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			// map the PBO that contain framebuffer pixels before processing it
+			//glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+
+			codeSection = "G";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
+			if(src) {
+				codeSection = "H";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
+
+				codeSection = "I";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
+
+				codeSection = "J";
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
+				//pixmapScreenShot->save("debugPBO.png");
+			}
+			codeSection = "K";
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			// measure the time reading framebuffer
+			//t1.stop();
+			//processTime = t1.getElapsedTimeInMilliSec();
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
-
-		// measure the time reading framebuffer
-		//t1.stop();
-		//processTime = t1.getElapsedTimeInMilliSec();
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+	    catch(megaglest_runtime_error& ex) {
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] codeSection [%s] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeSection.c_str(),ex.what());
+			throw megaglest_runtime_error("Exception caught in getPixelBufferFor codeSection: " + codeSection +"\n"+ ex.what(),!ex.wantStackTrace());
+	    }
+		catch(exception &e){
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] codeSection [%s] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeSection.c_str(),e.what());
+			throw megaglest_runtime_error("Exception caught in getPixelBufferFor codeSection: " + codeSection +"\n"+ e.what());
+		}
+		catch(...){
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] codeSection [%s] UNKNOWN Error!",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeSection.c_str());
+			throw megaglest_runtime_error("UNKNOWN Exception caught in getPixelBufferFor codeSection: " + codeSection +"\n");
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 
 	return pixmapScreenShot;
@@ -1863,6 +1942,7 @@ unsigned int BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
 
 unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1, 0 };
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
+//auto_ptr<Pixmap2D> BaseColorPickEntity::cachedPixels;
 
 map<string,bool> BaseColorPickEntity::usedColorIDList;
 bool BaseColorPickEntity::trackColorUse = true;
@@ -2032,6 +2112,13 @@ void BaseColorPickEntity::resetUniqueColors() {
 }
 void BaseColorPickEntity::init(int bufferSize) {
 	 if(BaseColorPickEntity::pbo.get() == NULL) {
+		 //printf("BaseColorPickEntity::init pbo == null\n");
+		 BaseColorPickEntity::bufferSizeRequired = bufferSize;
+		 BaseColorPickEntity::pbo.reset(new PixelBufferWrapper(2,BaseColorPickEntity::bufferSizeRequired));
+	 }
+	 else if(bufferSize != BaseColorPickEntity::bufferSizeRequired) {
+		 //printf("BaseColorPickEntity::init pbo resize\n");
+		 cleanupPBO();
 		 BaseColorPickEntity::bufferSizeRequired = bufferSize;
 		 BaseColorPickEntity::pbo.reset(new PixelBufferWrapper(2,BaseColorPickEntity::bufferSizeRequired));
 	 }
@@ -2095,7 +2182,9 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	static auto_ptr<Pixmap2D> cachedPixels;
+	//auto_ptr<Pixmap2D> cachedPixels;
 
+	//printf("PixelBufferWrapper::getIsPBOEnable() = %d\n",PixelBufferWrapper::getIsPBOEnable());
 	if(rendererModels.empty() == false) {
 		if(PixelBufferWrapper::getIsPBOEnable() == true) {
 				Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);

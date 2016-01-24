@@ -119,7 +119,9 @@ void MainMenu::initBackgroundVideo() {
 		string introVideoFileFallback = CoreData::getInstance().getMainMenuVideoFilenameFallback();
 
 		Context *c= GraphicsInterface::getInstance().getCurrentContext();
-		SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+		PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+		SDL_Window *window = glCtx->getScreenWindow();
+		SDL_Surface *screen = glCtx->getScreenSurface();
 
 		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
@@ -127,7 +129,7 @@ void MainMenu::initBackgroundVideo() {
 				&Renderer::getInstance(),
 				introVideoFile,
 				introVideoFileFallback,
-				screen,
+				window,
 				0,0,
 				screen->w,
 				screen->h,
@@ -231,6 +233,9 @@ void MainMenu::mouseUpLeft(int x, int y){
 	state->mouseUp(x, y, mbLeft);
 }
 
+bool MainMenu::textInput(std::string text) {
+	return state->textInput(text);
+}
 void MainMenu::keyDown(SDL_KeyboardEvent key) {
 	state->keyDown(key);
 }
@@ -398,84 +403,49 @@ void MenuState::setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activ
 	}
 }
 
-bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr) {
+
+bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr){
+	if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
+			isKeyPressed(SDLK_RETURN,c,false) == true ) {
+		GraphicLabel *activeInputLabel = *activeInputLabelPtr;
+		setActiveInputLabel(NULL,activeInputLabelPtr);
+		//textCharLength.clear();
+		activeInputLabel->clearTextCharLengthList();
+		return true;
+	}
+	return false;
+}
+
+bool MenuState::textInputEditLabel(string input, GraphicLabel **activeInputLabelPtr) {
 	bool eventHandled = false;
 	GraphicLabel *activeInputLabel = *activeInputLabelPtr;
 	if(activeInputLabel != NULL) {
 		int maxTextSize= activeInputLabel->getMaxEditWidth();
 
-		SDLKey key = extractKeyPressed(c);
-		if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
-				isKeyPressed(SDLK_RETURN,c,false) == true ) {
-			setActiveInputLabel(NULL,activeInputLabelPtr);
-			//textCharLength.clear();
-			activeInputLabel->clearTextCharLengthList();
-			eventHandled = true;
-			return eventHandled;
-		}
 		//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
 		//   (c=='-') || (c=='(') || (c==')')) {
-		if(isAllowedInputTextKey(key)) {
-			if((int)activeInputLabel->getText().size() < maxTextSize) {
+		//if(isAllowedInputTextKey(key))
+		{
+			if((int)activeInputLabel->getTextCharLengthList().size() < maxTextSize) {
 				string text= activeInputLabel->getText();
-
-				wchar_t keyW = extractKeyPressedUnicode(c);
-				wchar_t textAppend[] = { keyW, 0 };
-				wchar_t newKey = textAppend[0];
-
-				char buf[4] = {0};
-				if (newKey < 0x80) {
-					buf[0] = newKey;
-					//textCharLength.push_back(1);
-					activeInputLabel->addTextCharLengthToList(1);
-					//printf("1 char, textCharLength = %d\n",textCharLength.size());
-				}
-				else if (newKey < 0x800) {
-					buf[0] = (0xC0 | newKey >> 6);
-					buf[1] = (0x80 | (newKey & 0x3F));
-					//textCharLength.push_back(2);
-					activeInputLabel->addTextCharLengthToList(2);
-					//printf("2 char, textCharLength = %d\n",textCharLength.size());
-				}
-				else {
-					buf[0] = (0xE0 | newKey >> 12);
-					buf[1] = (0x80 | (newKey >> 6 & 0x3F));
-					buf[2] = (0x80 | (newKey & 0x3F));
-					//textCharLength.push_back(3);
-					activeInputLabel->addTextCharLengthToList(3);
-					//printf("3 char, textCharLength = %d\n",textCharLength.size());
-				}
 
 				if(text.size() > 0) {
 					size_t found = text.find_last_of("_");
 					if (found == string::npos || found != text.length()-1) {
-						//text.insert(text.end(), utfStr[0]);
-						//text.insert(text.end(), buf);
-						text += buf;
-
-						//printf("Insert A [%s][%s]\n",text.c_str(),buf);
+						text += input;
+						activeInputLabel->addTextCharLengthToList(input.length());
 					}
 					else {
-						//text.insert(text.end() -1, utfStr[0]);
-						//text.insert(text.end() -1, buf[0]);
-						text = text.substr(0,found) + buf + "_";
-
-						//int lastCharLen = textCharLength[textCharLength.size()-1];
-						int lastCharLen = activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1];
-						//textCharLength.pop_back();
+						text = text.substr(0,found) + input + "_";
+						//int lastCharLen = activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1];
 						activeInputLabel->deleteTextCharLengthFromList();
-						//textCharLength.pop_back();
-						activeInputLabel->deleteTextCharLengthFromList();
-						//textCharLength.push_back(lastCharLen);
-						activeInputLabel->addTextCharLengthToList(lastCharLen);
-						//textCharLength.push_back(1);
+						activeInputLabel->addTextCharLengthToList(input.length());
 						activeInputLabel->addTextCharLengthToList(1);
-
-						//printf("Insert B [%s][%s]\n",text.c_str(),buf);
 					}
 				}
 				else {
-					text = buf;
+					text = input;
+					activeInputLabel->addTextCharLengthToList(input.length());
 				}
 				//delete [] utfStr;
 
@@ -496,37 +466,19 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 		if(isKeyPressed(SDLK_BACKSPACE,c) == true && text.length() > 0) {
 			//printf("BSPACE text [%s]\n",text.c_str());
 
-/*
-			size_t found = text.find_last_of("_");
-			if (found == string::npos || found != text.length()-1) {
-				text.erase(text.end() - 1);
-			}
-			else {
-				if(text.size() > 1) {
-					text.erase(text.end() - 2);
-				}
-			}
-*/
-
 			bool hasUnderscore = false;
 			bool delChar = false;
 			size_t found = text.find_last_of("_");
 			if (found == string::npos || found != text.length()-1) {
 				//printf("A text.length() = %d textCharLength.size() = %d\n",text.length(),textCharLength.size());
-
-				//if(textCharLength[textCharLength.size()-1] >= 1) {
 				if(activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1] >= 1) {
-					//textCharLength[textCharLength.size()-1] = text.length();
 					delChar = true;
 				}
 			}
 			else {
 				//printf("B text.length() = %d textCharLength.size() = %d\n",text.length(),textCharLength.size());
-
 				hasUnderscore = true;
-				//if(textCharLength.size() >= 2 && textCharLength[textCharLength.size()-2] >= 1) {
 				if(activeInputLabel->getTextCharLengthList().size() >= 2 && activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-2] >= 1) {
-					//textCharLength[textCharLength.size()-2] = text.length();
 					delChar = true;
 				}
 			}
@@ -535,34 +487,19 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 					//if(textCharLength.size() > 1) {
 					if(activeInputLabel->getTextCharLengthList().size() > 1) {
 						//printf("Underscore erase start\n");
-						//for(unsigned int i = 0; i < textCharLength.size(); ++i) {
-						//	printf("len = %d [%d]\n",i,textCharLength[i]);
-						//}
-
-						//for(unsigned int i = 0; i < textCharLength[textCharLength.size()-2]; ++i) {
 						for(unsigned int i = 0; i < (unsigned int)activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-2]; ++i) {
-							//printf("erase A1 i = %d [%s]\n",i,text.c_str());
 							text.erase(text.end() -2);
-							//printf("erase A2 i = %d [%s]\n",i,text.c_str());
 						}
 						//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-						//textCharLength.pop_back();
 						activeInputLabel->deleteTextCharLengthFromList();
-						//textCharLength.pop_back();
 						activeInputLabel->deleteTextCharLengthFromList();
-						//textCharLength.push_back(1);
 						activeInputLabel->addTextCharLengthToList(1);
 					}
 				}
 				else {
-					//for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
 					for(unsigned int i = 0; i < (unsigned int)activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1]; ++i) {
-						//printf("erase B1 i = %d [%s]\n",i,text.c_str());
 						text.erase(text.end() -1);
-						//printf("erase B2 i = %d [%s]\n",i,text.c_str());
 					}
-					//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
-					//textCharLength.pop_back();
 					activeInputLabel->deleteTextCharLengthFromList();
 				}
 			}

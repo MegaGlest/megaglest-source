@@ -123,6 +123,10 @@ private:
 	int keyButtonsLineHeight;
 	int	keyButtonsHeight;
 	int keyButtonsWidth;
+	int keyButtonsWidthTech;
+	int keyButtonsWidthMap;
+	int keyButtonsWidthTil;
+	int keyButtonsWidthScen;
 
 	//Console console;
 	bool showFullConsole;

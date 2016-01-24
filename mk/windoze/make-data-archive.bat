@@ -99,14 +99,6 @@ echo GIT ARCHIVE tutorials ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:tutorials | tar -x
 cd /d "%~dp0"
 
-rem special export for flag images
-mkdir %RELEASEDIR%\data\core\misc_textures\flags\
-cd /d %RELEASEDIR%\data\core\misc_textures\flags\
-echo GIT ARCHIVE flags ...
-git archive --remote %REPODIR% HEAD:source/masterserver/flags | tar -x
-cd /d "%~dp0"
-
-
 rem START
 rem remove embedded data
 rem rm -rf "%RELEASEDIR%\data\core\fonts"

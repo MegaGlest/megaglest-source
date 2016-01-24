@@ -24,22 +24,37 @@ namespace Shared{ namespace Platform{
 //	class WindowGl
 // =====================================================
 
-class WindowGl: public Window{
+class WindowGl: public Window {
 private:
 	ContextGl context;
 
+	static void setGamma(SDL_Window *window,float gammaValue);
 public:
+	WindowGl();
+	WindowGl(SDL_Window *sdlWindow);
+	virtual ~WindowGl();
+
 	void initGl(int colorBits, int depthBits, int stencilBits,
 			    bool hardware_acceleration, bool fullscreen_anti_aliasing,
 			    float gammaValue);
 	void makeCurrentGl();
 	void swapBuffersGl();
-	void setGamma(float gammaValue){context.setGammaValue(gammaValue);}
+	void setGamma(float gammaValue);
+
+	SDL_Window * getScreenWindow();
+	SDL_Surface * getScreenSurface();
+	virtual int getScreenWidth();
+	virtual int getScreenHeight();
+	virtual int getDesiredScreenWidth() { return getScreenWidth(); }
+	virtual int getDesiredScreenHeight() { return getScreenHeight(); }
 
 	virtual bool ChangeVideoMode(bool preserveContext, int resWidth, int resHeight,
 			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,
             bool hardware_acceleration, bool fullscreen_anti_aliasing,
             float gammaValue);
+
+protected:
+	virtual void eventToggleFullScreen(bool isFullscreen);
 };
 
 }}//end namespace

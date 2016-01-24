@@ -38,3 +38,4 @@ robots.txt eol=lf
 .gitignore export-ignore
 .gitattributes export-ignore
 .gitmodules export-ignore
+README.md export-ignore

@@ -30,22 +30,19 @@ using Shared::Graphics::Vec2i;
 #if SDL_VERSION_ATLEAST(2,0,0)
 
 typedef SDL_Keysym SDL_keysym;
-typedef SDL_Keycode SDLKey;
 
 #endif
 
 namespace Shared{ namespace Platform{
 
 class Timer;
-class PlatformContextGl;
+//class PlatformContextGl;
 
 enum MouseButton {
 	mbUnknown,
 	mbLeft,
 	mbCenter,
 	mbRight,
-	mbWheelUp,
-	mbWheelDown,
 	mbButtonX1,
 	mbButtonX2,
 
@@ -97,6 +94,7 @@ enum WindowStyle{
 
 class Window {
 private:
+	static SDL_Window *sdlWindow;
 	Uint32 lastMouseDown[mbCount];
 	int lastMouseX[mbCount];
 	int lastMouseY[mbCount];
@@ -124,13 +122,13 @@ private:
     static map<wchar_t,bool> mapAllowedKeys;
 
 protected:
-	int w, h;
+	//int w, h;
 	static bool isActive;
-	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;
 	static int lastShowMouseState;
 
 public:
+	static SDL_Window *getSDLWindow();
 	static bool handleEvent();
 	static void revertMousePos();
 	static Vec2i getOldMousePos();
@@ -143,11 +141,15 @@ public:
 	static wchar_t extractLastKeyPressed();
 
 	Window();
+	Window(SDL_Window *sdlWindow);
 	virtual ~Window();
 
 	static void addAllowedKeys(string keyList);
 	static void clearAllowedKeys();
 	static bool isAllowedKey(wchar_t key);
+
+	virtual int getScreenWidth() = 0;
+	virtual int getScreenHeight() = 0;
 
 	virtual bool ChangeVideoMode(bool preserveContext,int resWidth, int resHeight,
 			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,
@@ -163,8 +165,8 @@ public:
 	string getText();
 	int getX()					{ return 0; }
 	int getY()					{ return 0; }
-	int getW()					{ return w; }
-	int getH()					{ return h; }
+	int getW()					{ return getScreenWidth(); }
+	int getH()					{ return getScreenHeight(); }
 
 	//component state
 	int getClientW()			{ return getW(); }
@@ -184,15 +186,15 @@ public:
 	void destroy();
 	void minimize();
 
-	static void setUseDefaultCursorOnly(bool value) { no2DMouseRendering = value; }
-	static bool getUseDefaultCursorOnly() { return no2DMouseRendering; }
-
 	static void setAllowAltEnterFullscreenToggle(bool value) { allowAltEnterFullscreenToggle = value; }
 	static bool getAllowAltEnterFullscreenToggle() { return allowAltEnterFullscreenToggle; }
 
 	static char getRawKey(SDL_keysym keysym);
 
 protected:
+
+	void setSDLWindow(SDL_Window *window);
+
 	virtual void eventCreate(){}
 	virtual void eventMouseDown(int x, int y, MouseButton mouseButton){}
 	virtual void eventMouseUp(int x, int y, MouseButton mouseButton){}
@@ -202,6 +204,8 @@ protected:
 	virtual void eventKeyDown(SDL_KeyboardEvent key) {}
 	virtual void eventKeyUp(SDL_KeyboardEvent key) {}
 	virtual void eventKeyPress(SDL_KeyboardEvent c) {}
+	virtual bool eventTextInput(std::string text) { return false; }
+	virtual bool eventSdlKeyDown(SDL_KeyboardEvent key) { return false; }
 	virtual void eventResize() {};
 	virtual void eventPaint() {}
 	virtual void eventTimer(int timerId) {}
@@ -210,10 +214,13 @@ protected:
 	virtual void eventMenu(int menuId) {}
 	virtual void eventClose() {};
 	virtual void eventDestroy() {};
+	virtual void eventToggleFullScreen(bool isFullscreen) {};
+	virtual void eventWindowEvent(SDL_WindowEvent event) {}
 
 private:
 	/// needed to detect double clicks
 	void handleMouseDown(SDL_Event event);
+	void handleMouseWheel(SDL_Event event);
 
 	static MouseButton getMouseButton(int sdlButton);
 	//static char getKey(SDL_keysym keysym, bool skipSpecialKeys=false);
@@ -223,11 +230,11 @@ private:
 	static wchar_t convertStringtoSDLKey(const string &value);
 };
 
-bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input, vector<int> modifiersToCheck);
-bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input, bool modifiersAllowed=true);
+bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input, vector<int> modifiersToCheck);
+bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input, bool modifiersAllowed=true);
 
-SDLKey extractKeyPressed(SDL_KeyboardEvent input);
-bool isAllowedInputTextKey(SDLKey key);
+SDL_Keycode extractKeyPressed(SDL_KeyboardEvent input);
+bool isAllowedInputTextKey(SDL_Keycode key);
 
 wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input);
 vector<int> extractKeyPressedUnicodeLength(string text);

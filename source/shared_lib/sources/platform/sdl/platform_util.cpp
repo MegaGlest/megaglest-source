@@ -36,35 +36,65 @@ bool PlatformExceptionHandler::disableBacktrace = false;
 const char * getDialogCommand() {
 
 /*
-  if (::system(NULL)) {
-    if (::system("which gdialog") == 0)
-      return "gdialog";
-    else if (::system("which kdialog") == 0)
-      return "kdialog";
-  }
+	if (::system(NULL)) {
+	    if (::system("which gdialog") == 0)
+		    return "gdialog";
+	    else if (::system("which kdialog") == 0)
+		    return "kdialog";
+	}
 */
+	FILE *file;
+	char file_string [100];
 
-  FILE *file = popen("which zenity","r");
-  //printf("File #1 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "zenity";
-  }
+	file = popen("which zenity","r");
+	//printf("File #1 [%p]\n",file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "zenity";
+		}
+		else {
+			pclose(file);
+		}
+	}
 
-  file = popen("which gdialog","r");
-  //printf("File #1 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "gdialog";
-  }
-  file = popen("which kdialog","r");
-  //printf("File #2 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "kdialog";
-  }
+	file = popen("which kdialog","r");
+	//printf("File #2 [%p]\n",file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "kdialog";
+		}
+		else {
+			pclose(file);
+		}
+	}
 
-  return NULL;
+	file = popen("which yad","r");
+	//printf("File #3 [%p]\n",file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "yad";
+		}
+		else {
+			pclose(file);
+		}
+	}
+
+	file = popen("which gdialog","r");
+	//printf("File #4 [%p]\n",file);
+	if (file != NULL) {
+		if (fgets(file_string, 100, file) != NULL ) {
+			pclose(file);
+			return "gdialog";
+		}
+		else {
+			pclose(file);
+		}
+	}
+
+	return NULL;
 }
 
 bool showMessage(std::string warning,string writepath) {
@@ -83,7 +113,17 @@ bool showMessage(std::string warning,string writepath) {
 		}
 
 		//command += " --title \"Error\" --msgbox \"`printf \"" + warning + "\"`\"";
-		command += " --title \"Error\" --text-info --filename=" + text_file;
+		command += " --title \"Error\" ";
+
+		if (!strcmp(dialogCommand, "kdialog")) {
+		    command += "--textbox " + text_file + " 640 360";
+		}
+		else if (!strcmp(dialogCommand, "yad")) {
+		    command += "--text-info --center --wrap --width 640 --height 360 --filename=" + text_file;
+		}
+		else {
+		    command += "--text-info --width 640 --height 360 --filename=" + text_file;
+		}
 
 		//printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
 

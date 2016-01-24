@@ -49,8 +49,8 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		//modeinfos=list<ModeInfo> ();
 		::Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
 
-		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+280;
+		int leftLabelStart=100;
+		int leftColumnStart=leftLabelStart+300;
 		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
@@ -188,7 +188,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelSelectionType.setText(lang.getString("SelectionType"));
 
 		listBoxSelectionType.registerGraphicComponent(containerName,"listBoxSelectionType");
-		listBoxSelectionType.init(currentColumnStart, currentLine, 200);
+		listBoxSelectionType.init(currentColumnStart, currentLine, 250);
 		listBoxSelectionType.pushBackItem("SelectBuffer (nvidia)");
 		listBoxSelectionType.pushBackItem("ColorPicking (default)");
 		listBoxSelectionType.pushBackItem("FrustumPicking (bad)");
@@ -208,7 +208,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelShadows.setText(lang.getString("Shadows"));
 
 		listBoxShadows.registerGraphicComponent(containerName,"listBoxShadows");
-		listBoxShadows.init(currentColumnStart, currentLine, 200);
+		listBoxShadows.init(currentColumnStart, currentLine, 250);
 		for(int i= 0; i<Renderer::sCount; ++i){
 			listBoxShadows.pushBackItem(lang.getString(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
 		}
@@ -369,11 +369,11 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		buttonAutoConfig.setText(lang.getString("AutoConfig"));
 
 		buttonAutoConfig.registerGraphicComponent(containerName,"buttonAutoConfig");
-		buttonAutoConfig.init(buttonStartPos+250, buttonRowPos, 125);
+		buttonAutoConfig.init(buttonStartPos+230, buttonRowPos, 175);
 
 		buttonVideoInfo.setText(lang.getString("VideoInfo"));
 		buttonVideoInfo.registerGraphicComponent(containerName,"buttonVideoInfo");
-		buttonVideoInfo.init(buttonStartPos+385, buttonRowPos, 125); // was 620
+		buttonVideoInfo.init(buttonStartPos+415, buttonRowPos, 175); // was 620
 
 		GraphicComponent::applyAllCustomProperties(containerName);
 	}
@@ -523,8 +523,10 @@ void MenuStateOptionsGraphics::revertScreenMode(){
 				   config.getBool("HardwareAcceleration","false"),
 				   config.getBool("FullScreenAntiAliasing","false"),
 				   config.getFloat("GammaValue","0.0"));
+	Metrics::reload(this->program->getWindow()->getScreenWidth(),
+			this->program->getWindow()->getScreenHeight());
+	window->setText(config.getString("WindowTitle","MegaGlest"));
 
-	Metrics::reload();
 	this->mainMenu->init();
 }
 
@@ -635,7 +637,9 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 						   config.getBool("FullScreenAntiAliasing","false"),
 						   strToFloat(listBoxGammaCorrection.getSelectedItem()));
 
-			Metrics::reload(selectedMode->width,selectedMode->height);
+			Metrics::reload(this->program->getWindow()->getScreenWidth(),
+					this->program->getWindow()->getScreenHeight());
+
 			this->mainMenu->init();
 
 			mainMessageBoxState=1;
@@ -661,7 +665,6 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 			if(gammaValue==0.0f) gammaValue=1.0f;
 			if(gammaValue!=0.0){
 				program->getWindow()->setGamma(gammaValue);
-				SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 			}
 		}
 		if(this->parentUI != NULL) {
@@ -725,7 +728,6 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 			float gammaValue=strToFloat(listBoxGammaCorrection.getSelectedItem());
 			if(gammaValue!=0.0){
 				program->getWindow()->setGamma(gammaValue);
-				SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 			}
 		}
 		checkBoxTextures3D.mouseClick(x, y);
@@ -798,7 +800,7 @@ void MenuStateOptionsGraphics::keyPress(SDL_KeyboardEvent c) {
 //			&labelTransifexUser == activeInputLabel ||
 //			&labelTransifexPwd == activeInputLabel ||
 //			&labelTransifexI18N == activeInputLabel) {
-//			keyPressEditLabel(c, &activeInputLabel);
+//			textInputEditLabel(c, &activeInputLabel);
 //		}
 //	}
 //	else {
@@ -941,18 +943,6 @@ void MenuStateOptionsGraphics::saveConfig(){
 	if(config.getBool("DisableLuaSandbox","false") == true) {
 		LuaScript::setDisableSandbox(true);
 	}
-
-    SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-    soundRenderer.stopAllSounds();
-    program->stopSoundSystem();
-    soundRenderer.init(program->getWindow());
-    soundRenderer.loadConfig();
-    soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
-    program->startSoundSystem();
-
-    if(CoreData::getInstance().hasMainMenuVideoFilename() == false) {
-    	soundRenderer.playMusic(CoreData::getInstance().getMenuMusic());
-    }
 
 	Renderer::getInstance().loadConfig();
 	console.addLine(lang.getString("SettingsSaved"));

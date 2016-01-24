@@ -18,7 +18,6 @@
 #include "platform_common.h"
 #include "base_thread.h"
 #include "time.h"
-#include <memory>
 
 using namespace std;
 
@@ -103,8 +102,13 @@ public:
 			BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
 			if(base_thread != NULL &&
 					(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
+				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+
 				base_thread->signalQuit();
 				sleep(10);
+
+				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,base_thread->getUniqueID().c_str());
+
 				if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
 
 					if(Thread::getEnableVerboseMode()) printf("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$ cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,base_thread->getUniqueID().c_str());
@@ -191,7 +195,9 @@ bool Thread::isThreadExecuteCompleteStatus() {
 	return (currentState == thrsExecuteComplete);
 }
 Thread::~Thread() {
-	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
+	string uniqueId =  (base_thread ? base_thread->getUniqueID() : "new_base_thread_prev_null");
+	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p uniqueId [%s]\n",__LINE__,this,thread,uniqueId.c_str());
 
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	if(thread != NULL) {
@@ -213,9 +219,10 @@ Thread::~Thread() {
 
 		if(isThreadExecuteCompleteStatus() == false) {
 			printf("**WARNING** thread destructor will KILL thread [%p]...\n",thread);
-			SDL_KillThread(thread);
+			//SDL_KillThread(thread);
 		}
 		else {
+			if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p uniqueId [%s]\n",__LINE__,this,thread,uniqueId.c_str());
 			SDL_WaitThread(thread, NULL);
 		}
 		thread = NULL;
@@ -242,14 +249,24 @@ std::vector<Thread *> Thread::getThreadList() {
 }
 
 void Thread::start() {
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	currentState = thrsStarting;
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
 	if(base_thread) base_thread->setStarted(true);
+	string uniqueId =  (base_thread ? base_thread->getUniqueID() : "new_base_thread_prev_null");
 
-	thread = SDL_CreateThread(beginExecution, this);
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
+	thread = SDL_CreateThread(beginExecution, uniqueId.c_str(), this);
+
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p uniqueId [%s]\n",__LINE__,thread,uniqueId.c_str());
+
 	if(thread == NULL) {
+		if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+
 		if(base_thread) base_thread->setStarted(false);
 
 		char szBuf[8096]="";
@@ -257,6 +274,7 @@ void Thread::start() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
 	//printf("In Thread::start Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 }
 
@@ -304,14 +322,21 @@ int Thread::beginExecution(void* data) {
 	if(thread->threadObjectValid() == true) {
 		safeMutex.Lock();
 		thread->currentState = thrsExecuteAutoClean;
-		safeMutex.ReleaseLock(true);
+		safeMutex.ReleaseLock();
 		thread->queueAutoCleanThread();
 	}
 
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
-	safeMutex.Lock();
-	thread->currentState = thrsExecuteComplete;
-	safeMutex.ReleaseLock();
+	MutexSafeWrapper safeMutex2(thread->mutexthreadAccessor);
+
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+	if(thread->threadObjectValid() == true) {
+		if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+		thread->currentState = thrsExecuteComplete;
+	}
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+	safeMutex2.ReleaseLock();
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
 
 	return 0;
 }
@@ -380,7 +405,7 @@ void Thread::queueAutoCleanThread() {
 
 void Thread::kill() {
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
-	SDL_KillThread(thread);
+	//SDL_KillThread(thread);
 	thread = NULL;
 }
 
@@ -421,12 +446,12 @@ public:
 
 	void Lock() {
 		if(mutex != NULL && *mutex != NULL) {
-			SDL_mutexP(*mutex);
+			SDL_LockMutex(*mutex);
 		}
 	}
 	void ReleaseLock(bool keepMutex=false) {
 		if(mutex != NULL && *mutex != NULL) {
-			SDL_mutexV(*mutex);
+			SDL_UnlockMutex(*mutex);
 
 			if(keepMutex == false) {
 				mutex = NULL;
@@ -436,7 +461,7 @@ public:
 };
 
 const bool debugMutexLock 						= false;
-const int debugMutexLockMillisecondThreshold 	= 2000;
+//const int debugMutexLockMillisecondThreshold 	= 2000;
 
 Mutex::Mutex(string ownerId) {
 	this->isStaticMutexListMutex 	= false;
@@ -513,53 +538,53 @@ Mutex::~Mutex() {
 //	}
 }
 
-void Mutex::p() {
-	if(mutex == NULL) {
-
-		string stack = PlatformExceptionHandler::getStackTrace();
-
-		char szBuf[8096]="";
-		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s] stack: %s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str(),stack.c_str());
-		throw megaglest_runtime_error(szBuf);
-	}
-	std::auto_ptr<Chrono> chronoLockPerf;
-	if(debugMutexLock == true) {
-		chronoLockPerf.reset(new Chrono());
-		chronoLockPerf->start();
-	}
+/*
+inline void Mutex::p() {
+//	if(mutex == NULL) {
+//		string stack = PlatformExceptionHandler::getStackTrace();
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s] stack: %s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str(),stack.c_str());
+//		throw megaglest_runtime_error(szBuf);
+//	}
+//	std::auto_ptr<Chrono> chronoLockPerf;
+//	if(debugMutexLock == true) {
+//		chronoLockPerf.reset(new Chrono());
+//		chronoLockPerf->start();
+//	}
 
 //	maxRefCount = max(maxRefCount,refCount+1);
 	SDL_mutexP(mutex);
 	refCount++;
 
-	if(debugMutexLock == true) {
-		if(chronoLockPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
-			printf("\n**WARNING possible mutex lock detected ms [%lld] Last ownerid: [%s]\n",(long long int)chronoLockPerf->getMillis(),lastownerId.c_str());
-		}
-		chronoPerf->start();
-	}
+//	if(debugMutexLock == true) {
+//		if(chronoLockPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
+//			printf("\n**WARNING possible mutex lock detected ms [%lld] Last ownerid: [%s]\n",(long long int)chronoLockPerf->getMillis(),lastownerId.c_str());
+//		}
+//		chronoPerf->start();
+//	}
 }
 
-void Mutex::v() {
-	if(mutex == NULL) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
-		throw megaglest_runtime_error(szBuf);
-	}
+inline void Mutex::v() {
+//	if(mutex == NULL) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+//		throw megaglest_runtime_error(szBuf);
+//	}
 	refCount--;
 
-	if(debugMutexLock == true) {
-		lastownerId = ownerId;
-		if(chronoPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
-			printf("About to get stacktrace for stuck mutex ...\n");
-			string oldLastownerId = lastownerId;
-			lastownerId = PlatformExceptionHandler::getStackTrace();
-
-			printf("\n**WARNING possible mutex lock (on unlock) detected ms [%lld] Last ownerid: [%s]\noldLastownerId: [%s]\n",(long long int)chronoPerf->getMillis(),lastownerId.c_str(),oldLastownerId.c_str());
-		}
-	}
+//	if(debugMutexLock == true) {
+//		lastownerId = ownerId;
+//		if(chronoPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
+//			printf("About to get stacktrace for stuck mutex ...\n");
+//			string oldLastownerId = lastownerId;
+//			lastownerId = PlatformExceptionHandler::getStackTrace();
+//
+//			printf("\n**WARNING possible mutex lock (on unlock) detected ms [%lld] Last ownerid: [%s]\noldLastownerId: [%s]\n",(long long int)chronoPerf->getMillis(),lastownerId.c_str(),oldLastownerId.c_str());
+//		}
+//	}
 	SDL_mutexV(mutex);
 }
+*/
 
 // =====================================================
 //	class Semaphore

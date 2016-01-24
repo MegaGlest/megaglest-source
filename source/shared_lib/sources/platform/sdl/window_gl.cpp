@@ -31,6 +31,48 @@ namespace Shared{ namespace Platform{
 //	class WindowGl
 // =====================================================
 
+WindowGl::WindowGl() : Window() {
+}
+WindowGl::WindowGl(SDL_Window *sdlWindow) : Window(sdlWindow) {
+}
+WindowGl::~WindowGl() {
+}
+
+int WindowGl::getScreenWidth() {
+	return PlatformCommon::Private::ScreenWidth;
+
+}
+int WindowGl::getScreenHeight() {
+	return PlatformCommon::Private::ScreenHeight;
+}
+
+void WindowGl::setGamma(SDL_Window *window,float gammaValue) {
+	//SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+	//SDL_SetWindowGammaRamp(getSDLWindow(), gammaValue, gammaValue, gammaValue);
+	gammaValue = clamp(gammaValue, 0.1f, 10.0f);
+
+	Uint16 red_ramp[256];
+	Uint16 green_ramp[256];
+	Uint16 blue_ramp[256];
+
+	SDL_CalculateGammaRamp(gammaValue, red_ramp);
+	SDL_memcpy(green_ramp, red_ramp, sizeof(red_ramp));
+	SDL_memcpy(blue_ramp, red_ramp, sizeof(red_ramp));
+
+	SDL_SetWindowGammaRamp(window, red_ramp, green_ramp, blue_ramp);
+}
+void WindowGl::setGamma(float gammaValue) {
+	context.setGammaValue(gammaValue);
+	WindowGl::setGamma(getSDLWindow(),gammaValue);
+}
+
+SDL_Window * WindowGl::getScreenWindow() {
+	return context.getPlatformContextGlPtr()->getScreenWindow();
+}
+SDL_Surface * WindowGl::getScreenSurface() {
+	return context.getPlatformContextGlPtr()->getScreenSurface();
+}
+
 void WindowGl::initGl(int colorBits, int depthBits, int stencilBits,
 		             bool hardware_acceleration, bool fullscreen_anti_aliasing,
 		             float gammaValue) {
@@ -42,6 +84,7 @@ void WindowGl::initGl(int colorBits, int depthBits, int stencilBits,
 	context.setGammaValue(gammaValue);
 	
 	context.init();
+	setSDLWindow(context.getPlatformContextGlPtr()->getScreenWindow());
 }
 
 void WindowGl::makeCurrentGl() {
@@ -51,6 +94,38 @@ void WindowGl::makeCurrentGl() {
 
 void WindowGl::swapBuffersGl(){
 	context.swapBuffers();
+}
+
+void WindowGl::eventToggleFullScreen(bool isFullscreen) {
+	Window::eventToggleFullScreen(isFullscreen);
+
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		//SDL_Surface *cur_surface = SDL_GetVideoSurface();
+		if(getScreenWindow() != NULL) {
+			if(getIsFullScreen()){
+				SDL_SetWindowFullscreen(getScreenWindow(),SDL_WINDOW_FULLSCREEN_DESKTOP);
+			}
+			else {
+				SDL_SetWindowFullscreen(getScreenWindow(),0);
+			}
+		}
+
+		if(isFullscreen) {
+			changeVideoModeFullScreen(isFullscreen);
+			ChangeVideoMode(true, getScreenWidth(), getScreenHeight(),
+					true,context.getColorBits(), context.getDepthBits(), context.getStencilBits(),
+					context.getHardware_acceleration(),context.getFullscreen_anti_aliasing(),
+					context.getGammaValue());
+
+		}
+		else {
+			changeVideoModeFullScreen(false);
+			ChangeVideoMode(true, getDesiredScreenWidth(), getDesiredScreenHeight(),
+					false,context.getColorBits(), context.getDepthBits(), context.getStencilBits(),
+					context.getHardware_acceleration(),context.getFullscreen_anti_aliasing(),
+					context.getGammaValue());
+		}
+	}
 }
 
 // changes display resolution at any time
@@ -68,13 +143,13 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 	if(preserveContext == true) {
 		// get window handle from SDL
 		SDL_VERSION(&info.version);
-		if (SDL_GetWMInfo(&info) == -1) {
+		if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&info) == -1) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] SDL_GetWMInfo #1 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			return false;
 		}
 
 		// get device context handle
-		tempDC = GetDC( info.window );
+		tempDC = GetDC( info.info.win.window );
 
 		// create temporary context
 		tempRC = wglCreateContext( tempDC );
@@ -85,10 +160,10 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 
 		// share resources to temporary context
 		SetLastError(0);
-		if (!wglShareLists(info.hglrc, tempRC)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #1 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			return false;
-		}
+		//if (!wglShareLists(info.info.win.hglrc, tempRC)) {
+		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #1 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		//	return false;
+		//}
 	}
 #endif
 
@@ -117,16 +192,16 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 	if(preserveContext == true) {
 		// previously used structure may possibly be invalid, to be sure we get it again
 		SDL_VERSION(&info.version);
-		if (SDL_GetWMInfo(&info) == -1) {
+		if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&info) == -1) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] SDL_GetWMInfo #2 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			return false;
 		}
 
 		// share resources to new SDL-created context
-		if (!wglShareLists(tempRC, info.hglrc)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #2 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			return false;
-		}
+		//if (!wglShareLists(tempRC, info.hglrc)) {
+		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #2 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		//	return false;
+		//}
 
 		// we no longer need our temporary context
 		if (!wglDeleteContext(tempRC)) {

@@ -45,8 +45,8 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		Config &config= Config::getInstance();
 		this->console.setOnlyChatMessagesInStoredLines(false);
 
-		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+280;
+		int leftLabelStart=100;
+		int leftColumnStart=leftLabelStart+300;
 		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
@@ -103,14 +103,19 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		//soundboxes
 		labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
 		labelSoundFactory.init(currentLabelStart, currentLine);
-		labelSoundFactory.setText(lang.getString("SoundAndMusic"));
+		labelSoundFactory.setText(lang.getString("SoundAndMusic2"));
 
 		listBoxSoundFactory.registerGraphicComponent(containerName,"listBoxSoundFactory");
-		listBoxSoundFactory.init(currentColumnStart, currentLine, 100);
-		listBoxSoundFactory.pushBackItem("None");
+		listBoxSoundFactory.init(currentColumnStart, currentLine, 175);
+		listBoxSoundFactory.pushBackItem(lang.getString("None"));
 		listBoxSoundFactory.pushBackItem("OpenAL");
 
-		listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
+		string FSoundMode=config.getString("FactorySound");
+		string FSoundModeT=lang.getString(config.getString("FactorySound"));
+		if(FSoundModeT != "???" + FSoundMode + "???") {
+		    FSoundMode=FSoundModeT;
+		}
+		listBoxSoundFactory.setSelectedItem(FSoundMode);
 		currentLine-=lineOffset;
 
 		labelVolumeFx.registerGraphicComponent(containerName,"labelVolumeFx");
@@ -198,10 +203,10 @@ void MenuStateOptionsSound::reloadUI() {
 	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonNetworkSettings.setText(lang.getString("Network"));
 
-	labelSoundFactory.setText(lang.getString("SoundAndMusic"));
+	labelSoundFactory.setText(lang.getString("SoundAndMusic2"));
 
 	std::vector<string> listboxData;
-	listboxData.push_back("None");
+	listboxData.push_back(lang.getString("None"));
 	listboxData.push_back("OpenAL");
 
 	listBoxSoundFactory.setItems(listboxData);
@@ -367,7 +372,7 @@ void MenuStateOptionsSound::keyPress(SDL_KeyboardEvent c) {
 //			&labelTransifexUser == activeInputLabel ||
 //			&labelTransifexPwd == activeInputLabel ||
 //			&labelTransifexI18N == activeInputLabel) {
-//			keyPressEditLabel(c, &activeInputLabel);
+//			textInputEditLabel(c, &activeInputLabel);
 //		}
 //	}
 //	else {
@@ -419,7 +424,18 @@ void MenuStateOptionsSound::saveConfig(){
 	Lang &lang= Lang::getInstance();
 	setActiveInputLable(NULL);
 
-	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
+	int FSoundIndex=listBoxSoundFactory.getSelectedItemIndex();
+	string FSoundMode;
+	switch (FSoundIndex) {
+		case 0:
+			FSoundMode = "None";
+			break;
+		case 1:
+			FSoundMode = "OpenAL";
+			break;
+	}
+	config.setString("FactorySound",FSoundMode);
+
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
 	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);

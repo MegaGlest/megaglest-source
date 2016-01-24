@@ -16,6 +16,7 @@
 #include "chat_manager.h"
 #include "simple_threads.h"
 #include "map_preview.h"
+#include "common_scoped_ptr.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Map;
@@ -145,6 +146,8 @@ private:
 	time_t mapPublishingDelayTimer;
 	bool needToPublishDelayed;
 
+	bool headlessHasConnectedPlayer;
+
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;
@@ -216,7 +219,7 @@ private:
     bool masterserverModeMinimalResources;
     int lastMasterServerSettingsUpdateCount;
 
-    std::auto_ptr<TechTree> techTree;
+    auto_ptr<TechTree> techTree;
 
     string gameUUID;
 
@@ -234,6 +237,7 @@ public:
 	void render();
 	void update();
 
+	virtual bool textInput(std::string text);
     virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void keyUp(SDL_KeyboardEvent key);
@@ -251,6 +255,7 @@ public:
     virtual bool isVideoPlaying();
 private:
 
+    void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);
@@ -288,6 +293,7 @@ private:
 			ServerInterface *& serverInterface, int startIndex, int endIndex,
 			bool onlyNetworkUnassigned);
 
+	string createGameName(string controllingPlayer="");
 	void reloadUI();
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void processScenario();

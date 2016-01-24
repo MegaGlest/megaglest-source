@@ -48,6 +48,8 @@ public:
 	virtual void eventMouseUp(int x, int y, MouseButton mouseButton);
 	virtual void eventMouseDoubleClick(int x, int y, MouseButton mouseButton);
 	virtual void eventMouseMove(int x, int y, const MouseState *mouseState);
+	virtual bool eventTextInput(std::string text);
+	virtual bool eventSdlKeyDown(SDL_KeyboardEvent key);
 	virtual void eventKeyDown(SDL_KeyboardEvent key);
 	virtual void eventMouseWheel(int x, int y, int zDelta);
 	virtual void eventKeyUp(SDL_KeyboardEvent key);
@@ -55,12 +57,18 @@ public:
 	virtual void eventActivate(bool active);
 	virtual void eventResize(SizeState sizeState);
 	virtual void eventClose();
+	virtual void eventWindowEvent(SDL_WindowEvent event);
 
 	virtual void render();
 	void toggleLanguage(string language);
     bool getTriggerLanguageToggle() const { return triggerLanguageToggle; }
     string getTriggerLanguage() const { return triggerLanguage; }
 
+	virtual int getDesiredScreenWidth();
+	virtual int getDesiredScreenHeight();
+
+protected:
+    virtual void eventToggleFullScreen(bool isFullscreen);
 };
 
 }}//end namespace

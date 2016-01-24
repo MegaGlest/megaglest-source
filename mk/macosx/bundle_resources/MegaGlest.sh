@@ -5,8 +5,14 @@
 
 export LANG=C
 SCRIPTDIR="$(cd "$(dirname "$0")"; pwd)"
-export DYLD_LIBRARY_PATH="$SCRIPTDIR/../FRAMEWORKS"
-export PATH="$SCRIPTDIR/../Resources/megaglest-game:$PATH"
+if [ -d "$SCRIPTDIR/lib" ]; then
+    export DYLD_LIBRARY_PATH="$SCRIPTDIR/lib"
+    binary_dir_path="$SCRIPTDIR"
+else
+    export DYLD_LIBRARY_PATH="$SCRIPTDIR/../Frameworks"
+    binary_dir_path="$SCRIPTDIR/../Resources/megaglest-game"
+fi
+export PATH="$binary_dir_path:$PATH"
 
-exec "$SCRIPTDIR/../Resources/megaglest-game/megaglest"
+exec "$binary_dir_path/megaglest" "$@"
 exit "$?"

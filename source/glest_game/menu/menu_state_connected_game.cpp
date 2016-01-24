@@ -198,37 +198,14 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-	// fog - o - war
-	int xoffset=70;
-	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
-	labelFogOfWar.init(xoffset+100, aHeadPos, 130);
-	labelFogOfWar.setText(lang.getString("FogOfWar"));
-
-	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset+100, aPos, 150);
-	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
-	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
-	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
-	listBoxFogOfWar.setSelectedItemIndex(0);
-	listBoxFogOfWar.setEditable(false);
-
-
-	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
-	labelAllowObservers.setText(lang.getString("AllowObservers"));
-
-	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
-	checkBoxAllowObservers.init(xoffset+310, aPos);
-	checkBoxAllowObservers.setValue(false);
-	checkBoxAllowObservers.setEditable(false);
-
+	int xoffset=90;
 	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
 	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
 	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
 	labelAllowTeamUnitSharing.setVisible(true);
 
 	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
-	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
+	checkBoxAllowTeamUnitSharing.init(xoffset+612, 670);
 	checkBoxAllowTeamUnitSharing.setValue(false);
 	checkBoxAllowTeamUnitSharing.setVisible(true);
 	checkBoxAllowTeamUnitSharing.setEditable(false);
@@ -239,41 +216,64 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelAllowTeamResourceSharing.setVisible(true);
 
 	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
-	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
+	checkBoxAllowTeamResourceSharing.init(xoffset+612, 640);
 	checkBoxAllowTeamResourceSharing.setValue(false);
 	checkBoxAllowTeamResourceSharing.setVisible(true);
 	checkBoxAllowTeamResourceSharing.setEditable(false);
+
+	// fog - o - war
+	xoffset=65;
+	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
+	labelFogOfWar.init(xoffset+100, aHeadPos, 165);
+	labelFogOfWar.setText(lang.getString("FogOfWar"));
+
+	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
+	listBoxFogOfWar.init(xoffset+100, aPos, 165);
+	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
+	listBoxFogOfWar.setSelectedItemIndex(0);
+	listBoxFogOfWar.setEditable(false);
+
+	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
+	labelAllowObservers.init(xoffset+325, aHeadPos, 80);
+	labelAllowObservers.setText(lang.getString("AllowObservers"));
+
+	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
+	checkBoxAllowObservers.init(xoffset+325, aPos);
+	checkBoxAllowObservers.setValue(false);
+	checkBoxAllowObservers.setEditable(false);
 
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
 
 	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
-	labelFallbackCpuMultiplier.init(xoffset+460, aHeadPos, 80);
+	labelFallbackCpuMultiplier.init(xoffset+500, aHeadPos, 80);
 	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
 
 	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
-	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
+	listBoxFallbackCpuMultiplier.init(xoffset+500, aPos, 80);
 	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
 	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
 
 
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
+	labelEnableSwitchTeamMode.init(xoffset+325, aHeadPos+45, 80);
 	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
 
 	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
-	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
+	checkBoxEnableSwitchTeamMode.init(xoffset+325, aPos+45);
 	checkBoxEnableSwitchTeamMode.setValue(false);
 	checkBoxEnableSwitchTeamMode.setEditable(false);
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
-	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
+	labelAISwitchTeamAcceptPercent.init(xoffset+500, aHeadPos+45, 80);
 	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
 	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
-	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+45, 80);
+	listBoxAISwitchTeamAcceptPercent.init(xoffset+500, aPos+45, 80);
 	for(int i = 0; i <= 100; i = i + 10) {
 		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
 	}
@@ -286,12 +286,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonCancelDownloads.setText(lang.getString("CancelDownloads"));
 
 	// Network Frame Period
-	xoffset=70;
+	xoffset=65;
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
-	listBoxMap.init(xoffset+100, mapPos, 200);
+	listBoxMap.init(xoffset+100, mapPos, 220);
 	listBoxMap.setEditable(false);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
@@ -304,11 +304,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
     //tileset listBox
 	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
-	listBoxTileset.init(xoffset+460, mapPos, 150);
+	listBoxTileset.init(xoffset+500, mapPos, 160);
 	listBoxTileset.setEditable(false);
 
 	labelTileset.registerGraphicComponent(containerName,"labelTileset");
-	labelTileset.init(xoffset+460, mapHeadPos);
+	labelTileset.init(xoffset+500, mapHeadPos);
 	labelTileset.setText(lang.getString("Tileset"));
 
 
@@ -316,79 +316,94 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxTechTree.setEditable(false);
 
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
-	listBoxTechTree.init(xoffset+620, mapPos, 150);
+	listBoxTechTree.init(xoffset+700, mapPos, 180);
 
 	labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
-	labelTechTree.init(xoffset+620, mapHeadPos);
+	labelTechTree.init(xoffset+700, mapHeadPos);
 	labelTechTree.setText(lang.getString("TechTree"));
 
 	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
-	labelAllowNativeLanguageTechtree.init(xoffset+620, mapHeadPos-45);
+	labelAllowNativeLanguageTechtree.init(xoffset+700, aHeadPos+45);
 	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
 
 	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
-	checkBoxAllowNativeLanguageTechtree.init(xoffset+620, mapHeadPos-65);
+	checkBoxAllowNativeLanguageTechtree.init(xoffset+700, aPos+45);
 	checkBoxAllowNativeLanguageTechtree.setValue(false);
 	checkBoxAllowNativeLanguageTechtree.setEditable(false);
 	checkBoxAllowNativeLanguageTechtree.setEnabled(false);
 
+	// Network Scenario
+	int scenarioX=xoffset+700;
+	int scenarioY=aPos;
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(scenarioX, aHeadPos);
+    labelScenario.setText(lang.getString("Scenario"));
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(scenarioX+30, scenarioY,190);
+    listBoxScenario.setEditable(false);
+    listBoxScenario.setEnabled(false);
+    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    checkBoxScenario.init(scenarioX, scenarioY);
+    checkBoxScenario.setValue(false);
+    checkBoxScenario.setEditable(false);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	xoffset=30;
+	xoffset=5;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
-		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontBig());
-		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontBig3D());
+		labelPlayers[i].init(xoffset-1, setupPos-30-i*rowHeight+2);
+		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontVeryBig());
+		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelPlayers[i].setEditable(false);
 
 		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
+		labelPlayerStatus[i].init(xoffset+14, setupPos-30-i*rowHeight+2);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
 		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+170, setupPos-30-i*rowHeight);
+        listBoxControls[i].init(xoffset+160, setupPos-30-i*rowHeight, 174);
         listBoxControls[i].setEditable(false);
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
-        listBoxRMultiplier[i].init(xoffset+310, setupPos-30-i*rowHeight,70);
+        listBoxRMultiplier[i].init(xoffset+336, setupPos-30-i*rowHeight,70);
         listBoxRMultiplier[i].setEditable(false);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+390, setupPos-30-i*rowHeight, 250);
+        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 247);
         listBoxFactions[i].setLeftControlled(true);
         listBoxFactions[i].setEditable(false);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+660, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
 		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+723, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+720, setupPos-30-i*rowHeight, 30);
+		grabSlotButton[i].init(xoffset+726, setupPos-30-i*rowHeight, 35, rowHeight-5);
 		grabSlotButton[i].setText(">");
     }
 
     labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+160, setupPos, 50, GraphicListBox::defH, true);
 	labelControl.setText(lang.getString("Control"));
 
 	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelRMultiplier.init(xoffset+310, setupPos, 50, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+411, setupPos, 50, GraphicListBox::defH, true);
     labelFaction.setText(lang.getString("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+650, setupPos, 60, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+660, setupPos, 50, GraphicListBox::defH, true);
 	labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -434,7 +449,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelPlayers[i].setText(intToStr(i+1));
 		labelPlayerNames[i].setText("");
 		labelPlayerNames[i].setMaxEditWidth(16);
-		labelPlayerNames[i].setMaxEditRenderWidth(135);
+		labelPlayerNames[i].setMaxEditRenderWidth(127);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
@@ -456,11 +471,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 
-	int buttonx=170;
+	int buttonx=165;
 	int buttony=180;
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(buttonx, buttony, 150);
+	listBoxPlayerStatus.init(buttonx, buttony, 165);
 	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
 	listBoxPlayerStatus.setLighted(true);
 	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
@@ -471,12 +486,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(buttonx, buttony, 125);
-	buttonx+=130;
+	buttonx+=132;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(buttonx, buttony, 220);
+	buttonRestoreLastSettings.init(buttonx, buttony, 240);
 	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
-	buttonx+=225;
+	buttonx+=247;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
@@ -498,16 +513,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int initialTechSelection = setupTechList("",true);
 	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
-	int scenarioX=810;
-	int scenarioY=140;
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, scenarioY);
-    labelScenario.setText(lang.getString("Scenario"));
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX, scenarioY-30,190);
-    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX+90, scenarioY);
-    checkBoxScenario.setValue(false);
 
     //scenario listbox
     vector<string> resultsScenarios;
@@ -2854,6 +2859,9 @@ void MenuStateConnectedGame::update() {
 		//printf("#2 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
 		broadCastGameSettingsToHeadlessServer(false);
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		bool notCurrentlySwitching=(( difftime((long int) time(NULL), broadcastServerSettingsDelayTimer)) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS );
 		bool receiveAllowedNow=difftime((long int) time(NULL), noReceiveTimer) > 2 ;
 		bool newMessage= lastGameSettingsReceivedCount < clientInterface->getGameSettingsReceivedCount();
@@ -2929,6 +2937,9 @@ void MenuStateConnectedGame::update() {
 			labelWaitingForPlayers.setVisible(false);
 		}
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		if(difftime((long int)time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to sendPingMessage...\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -2942,7 +2953,13 @@ void MenuStateConnectedGame::update() {
 				pingCount >= MAX_PING_LAG_COUNT && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * MAX_PING_LAG_COUNT)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				clientInterface->updateLobby();
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				if(clientInterface->isConnected() && clientInterface->getJoinGameInProgress() == false &&
 					pingCount >= MAX_PING_LAG_COUNT && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * MAX_PING_LAG_COUNT)) {
@@ -2962,6 +2979,10 @@ void MenuStateConnectedGame::update() {
 			pingCount++;
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		buttonDisconnect.setText(lang.getString("Disconnect"));
 
 		if(clientInterface->getAllowDownloadDataSynch() == false) {
@@ -2972,6 +2993,9 @@ void MenuStateConnectedGame::update() {
             }
 
             label = label + ", " + clientInterface->getVersionString();
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
             if(clientInterface->getAllowGameDataSynchCheck() == false &&
             	displayedGamesettings.getTileset() != "" &&
@@ -2995,6 +3019,9 @@ void MenuStateConnectedGame::update() {
 					lastCheckedCRCTilesetValue = tilesetCRC;
 					lastCheckedCRCTilesetName = displayedGamesettings.getTileset();
                 }
+
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                 uint32 techCRC = lastCheckedCRCTechtreeValue;
                 if(lastCheckedCRCTechtreeName != displayedGamesettings.getTech() &&
@@ -3024,12 +3051,19 @@ void MenuStateConnectedGame::update() {
             			}
                     }
 
+        			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					// Test data synch
 					//techCRC++;
 					lastCheckedCRCTechtreeValue = techCRC;
 					lastCheckedCRCTechtreeName = displayedGamesettings.getTech();
 
 					loadFactions(&displayedGamesettings,false);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 	    			factionCRCList.clear();
 	    			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 	    				string factionName = factionFiles[factionIdx];
@@ -3070,7 +3104,13 @@ void MenuStateConnectedGame::update() {
 	    				}
 	    			}
 	    			//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
+	    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+	    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
                 }
+
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                 uint32 mapCRC = lastCheckedCRCMapValue;
                 if(lastCheckedCRCMapName != displayedGamesettings.getMap() &&
@@ -3087,6 +3127,9 @@ void MenuStateConnectedGame::update() {
 					lastCheckedCRCMapName = displayedGamesettings.getMap();
                 }
                 safeMutexFTPProgress.ReleaseLock();
+
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                 bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != displayedGamesettings.getMapCRC()) ||
                 						  (tilesetCRC != 0 && tilesetCRC != displayedGamesettings.getTilesetCRC()) ||
@@ -3152,6 +3195,9 @@ void MenuStateConnectedGame::update() {
             		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
             		    		clientInterface->sendTextMessage(msg,-1,localEcho,languageList[i]);
             		    	}
+
+            				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
             		    	const int MAX_CHAT_TEXT_LINE_LENGTH = 110;
             		    	//const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
@@ -3276,6 +3322,9 @@ void MenuStateConnectedGame::update() {
 									}
 								}
             		    	}
+
+            				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
                         }
                     }
 
@@ -3286,6 +3335,9 @@ void MenuStateConnectedGame::update() {
                     labelDataSynchInfo.setText("");
                 }
             }
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false) {
@@ -3302,6 +3354,9 @@ void MenuStateConnectedGame::update() {
                     }
                 }
 
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
                 if(clientInterface->getNetworkGameDataSynchCheckOkTile() == false) {
                     label = label + " tile";
                     if(updateDataSynchDetailText == true &&
@@ -3311,6 +3366,9 @@ void MenuStateConnectedGame::update() {
                     	clientInterface->sendTextMessage(lastTileDataSynchError,-1,true,"");
                     }
                 }
+
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                 if(clientInterface->getNetworkGameDataSynchCheckOkTech() == false) {
                     label = label + " techtree";
@@ -3334,6 +3392,9 @@ void MenuStateConnectedGame::update() {
                     }
                 }
 
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
                 if(clientInterface->getReceivedDataSynchCheck() == true) {
                 	updateDataSynchDetailText = false;
                 }
@@ -3343,6 +3404,10 @@ void MenuStateConnectedGame::update() {
             }
 
             labelStatus.setText(label);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 		}
 		else {
 		    string label = lang.getString("ConnectedToServer");
@@ -3350,6 +3415,9 @@ void MenuStateConnectedGame::update() {
             if(!clientInterface->getServerName().empty()) {
                 label = label + " " + clientInterface->getServerName();
             }
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
             if(clientInterface->getAllowGameDataSynchCheck() == true &&
                clientInterface->getNetworkGameDataSynchCheckOk() == false) {
@@ -3407,10 +3475,17 @@ void MenuStateConnectedGame::update() {
 
 				const GameSettings *receivedGameSettings= clientInterface->getGameSettings();
 
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",displayedGamesettings.getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),displayedGamesettings.getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
 				if ( difftime((long int)time(NULL),noReceiveTimer) < 3 || difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) < HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS){
 					// copy my current settings in UI to displayedSettings;
 					loadGameSettings(&displayedGamesettings);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					// check if there are any changed fields from others clients
 					if(isHeadlessAdmin()){
 						//printf("I am headless admin and will restore only some parts\n");
@@ -3454,20 +3529,37 @@ void MenuStateConnectedGame::update() {
 						originalGamesettings.setNetworkPlayerName(i,networkPlayerName);
 
 					}
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					setupUIFromGameSettings(&displayedGamesettings, errorOnMissingData);
 				}
 				else {
 					// do nothing
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					setupUIFromGameSettings(&displayedGamesettings, errorOnMissingData);
 				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
 			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 			// check if we are joining an in progress game
 			if( clientInterface->getJoinGameInProgress() == true &&
 				clientInterface->getJoinGameInProgressLaunch() == true &&
 			    clientInterface->getReadyForInGameJoin() == true &&
 			   ftpClientThread != NULL) {
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				if(readyToJoinInProgressGame == false) {
@@ -3503,14 +3595,23 @@ void MenuStateConnectedGame::update() {
 					GameSettings gameSettings = *clientInterface->getGameSettings();
 					loadGameSettings(&gameSettings);
 
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					Game::loadGame(saveGameFile,program,false,&gameSettings);
 					return;
 				}
 			}
 
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 			//update lobby
 			clientInterface= NetworkManager::getInstance().getClientInterface();
 			if(clientInterface != NULL && clientInterface->isConnected()) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				clientInterface->updateLobby();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -3574,6 +3675,9 @@ void MenuStateConnectedGame::update() {
 						modHttpServerThread = NULL;
 					}
 
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
                     if(ftpClientThread != NULL) {
 						ftpClientThread->setCallBackObject(NULL);
 						ftpClientThread->signalQuit();
@@ -3592,6 +3696,9 @@ void MenuStateConnectedGame::update() {
                     }
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                     launchingNewGame = true;
 
@@ -3613,6 +3720,9 @@ void MenuStateConnectedGame::update() {
                 		gameSettings.setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
                     }
 
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+    				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					program->setState(new Game(program, &gameSettings,false));
 					return;
 				}
@@ -3620,6 +3730,9 @@ void MenuStateConnectedGame::update() {
 
 			//call the chat manager
 			chatManager.updateNetwork();
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 			//console732
             console.update();
@@ -3646,7 +3759,8 @@ void MenuStateConnectedGame::update() {
     			soundConnectionCount = currentConnectionCount;
 			}
 
-
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 		}
 		catch(const runtime_error &ex) {
 			char szBuf[8096]="";
@@ -3864,21 +3978,34 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 	}
 }
 
-void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
-	if(activeInputLabel != NULL) {
-		bool handled = keyPressEditLabel(c, &activeInputLabel);
-		if(handled == true) {
+bool MenuStateConnectedGame::textInput(std::string text) {
+	if (activeInputLabel != NULL) {
+		bool handled = textInputEditLabel(text, &activeInputLabel);
+		if (handled == true) {
 			switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
-            needToSetChangedGameSettings = true;
-            lastSetChangedGameSettings   = time(NULL);
+			needToSetChangedGameSettings = true;
+			lastSetChangedGameSettings = time(NULL);
+		}
+		return handled;
+	} else {
+		NetworkManager &networkManager = NetworkManager::getInstance();
+		ClientInterface *clientInterface = networkManager.getClientInterface();
+		if (clientInterface != NULL && clientInterface->isConnected() == true
+				&& clientInterface->getIntroDone() == true) {
+			return chatManager.textInput(text);
 		}
 	}
-	else {
-		NetworkManager &networkManager= NetworkManager::getInstance();
+	return false;
+}
+
+void MenuStateConnectedGame::keyPress(SDL_KeyboardEvent c) {
+	if(activeInputLabel!=NULL) {
+		keyPressEditLabel( c, &activeInputLabel);
+	} else {
+		NetworkManager &networkManager = NetworkManager::getInstance();
 		ClientInterface *clientInterface = networkManager.getClientInterface();
-		if(clientInterface != NULL &&
-				clientInterface->isConnected() == true &&
-				clientInterface->getIntroDone() == true) {
+		if (clientInterface != NULL && clientInterface->isConnected() == true
+				&& clientInterface->getIntroDone() == true) {
 			chatManager.keyPress(c);
 		}
 	}
@@ -4890,7 +5017,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				labelPlayerNames[slot].setEditable(false);
 			}
 
-			if(i >= gameSettings->getFactionCount()) {
+			if(i >= mapInfo.players) {
 				if( gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
 					continue;
 				}
@@ -5035,7 +5162,9 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 				string introVideoFileFallback = factionVideoUrlFallback;
 
 				Context *c= GraphicsInterface::getInstance().getCurrentContext();
-				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+				PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+				SDL_Window *window = glCtx->getScreenWindow();
+				SDL_Surface *screen = glCtx->getScreenSurface();
 
 				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 				//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
@@ -5043,7 +5172,7 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 						&Renderer::getInstance(),
 						introVideoFile,
 						introVideoFileFallback,
-						screen,
+						window,
 						0,0,
 						screen->w,
 						screen->h,

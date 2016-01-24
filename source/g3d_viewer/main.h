@@ -125,6 +125,7 @@ private:
 
 	bool startupSettingsInited;
 
+	void initGlCanvas();
 	void loadUnit(string path, string skillName);
 	void loadModel(string path);
 	void loadParticle(string path);
@@ -199,6 +200,7 @@ public:
 	void onMouseMove(wxMouseEvent &event);
 	void onPaint(wxPaintEvent &event);
 	void onKeyDown(wxKeyEvent &event);
+	void OnSize(wxSizeEvent&);
 	void setCurrentGLContext();
 
 	wxGLContext * getCtx() { return context; }

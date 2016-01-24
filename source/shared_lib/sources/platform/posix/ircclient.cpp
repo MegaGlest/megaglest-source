@@ -86,10 +86,19 @@ void dump_event (irc_session_t * session, const char * event, const char * origi
 
     IRCThread *ctx = (IRCThread *)irc_get_ctx(session);
 	if(ctx != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
+		if(ctx->getQuitStatus()) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
+			return;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
         if(difftime(time(NULL),ctx->getLastNickListUpdate()) >= 7) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
             ctx->setLastNickListUpdate(time(NULL));
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
             ctx->GetIRCConnectedNickList(ctx->getChannel(),false);
         }
+        if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 	}
 }
 
@@ -472,7 +481,7 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
                                 get_nickname(tokens[j].c_str(),realNick,127);
                                 if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: LIBIRC_RFC_RPL_NAMREPLY user joined channel realNick [%s] tokens[j] [%s]\n", realNick,tokens[j].c_str());
 
-                                // Only show Megaglest users in the user list
+                                // Only show MegaGlest users in the user list
                                 //if(strncmp(&realNick[0],"MG_",3) == 0) {
                                 nickList.push_back(realNick);
                                 //}
@@ -545,7 +554,9 @@ void IRCThread::disconnect() {
         if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Quitting Channel\n");
 
         MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
-        irc_disconnect(ircSession);
+        if(ircSession != NULL) {
+        	irc_disconnect(ircSession);
+        }
         safeMutex1.ReleaseLock();
 
         BaseThread::signalQuit();
@@ -570,7 +581,9 @@ void IRCThread::signalQuit() {
         if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Quitting Channel\n");
 
         MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
-        irc_cmd_quit(ircSession, "MG Bot is closing!");
+        if(ircSession != NULL) {
+        	irc_cmd_quit(ircSession, "MG Bot is closing!");
+        }
         safeMutex1.ReleaseLock();
 		hasJoinedChannel = false;
     }
@@ -598,7 +611,10 @@ void IRCThread::SendIRCCmdMessage(string target, string msg) {
 
 #if !defined(DISABLE_IRCCLIENT)
     	MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
-        int ret = irc_cmd_msg (ircSession, target.c_str(), msg.c_str());
+    	int ret = 0;
+    	if(ircSession != NULL) {
+    		ret = irc_cmd_msg (ircSession, target.c_str(), msg.c_str());
+    	}
         safeMutex1.ReleaseLock();
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending IRC command to [%s] cmd [%s] ret = %d\n",__FILE__,__FUNCTION__,__LINE__,target.c_str(),msg.c_str(),ret);
@@ -665,22 +681,31 @@ std::vector<string> IRCThread::GetIRCConnectedNickList(string target, bool waitF
 
 bool IRCThread::isConnected(bool mutexLockRequired) {
     bool ret = false;
+    if(this->getQuitStatus() == false) {
+		MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+		int lockStatus = 0;
+		if(mutexLockRequired == true) {
+			lockStatus = safeMutex.setMutexAndTryLock(&mutexIRCSession);
+		}
+		bool validSession = (lockStatus == SDL_MUTEX_TIMEDOUT || (lockStatus == 0 && ircSession != NULL));
+		if(mutexLockRequired == true && lockStatus == 0) {
+			safeMutex.ReleaseLock();
+		}
 
-	MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-	if(mutexLockRequired == true) {
-		safeMutex.setMutex(&mutexIRCSession);
-	}
-	bool validSession = (ircSession != NULL);
-	safeMutex.ReleaseLock();
-
-    if(validSession == true) {
+		if(validSession == true) {
 #if !defined(DISABLE_IRCCLIENT)
-    	MutexSafeWrapper safeMutex1(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
-    	if(mutexLockRequired == true) {
-    		safeMutex1.setMutex(&mutexIRCSession);
-    	}
-        ret = (irc_is_connected(ircSession) != 0);
-        safeMutex1.ReleaseLock();
+			MutexSafeWrapper safeMutex1(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
+			if(ircSession != NULL) {
+				lockStatus = 0;
+				if(mutexLockRequired == true) {
+					lockStatus = safeMutex1.setMutexAndTryLock(&mutexIRCSession);
+				}
+				ret = (lockStatus == SDL_MUTEX_TIMEDOUT || (lockStatus == 0 && irc_is_connected(ircSession) != 0));
+			}
+			if(mutexLockRequired == true && lockStatus == 0) {
+				safeMutex1.ReleaseLock();
+			}
+		}
 #endif
     }
 
@@ -711,12 +736,15 @@ void IRCThread::execute() {
     {
         RunningStatusSafeWrapper runningStatus(this);
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] argv.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,argv.size());
+        if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: IRCThread::execute Line: %d\n", __LINE__);
 
         if(getQuitStatus() == true) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
             return;
         }
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"IRC thread is running\n");
+        if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 
         try	{
 #if !defined(DISABLE_IRCCLIENT)
@@ -755,6 +783,7 @@ void IRCThread::execute() {
             callbacks.event_dcc_send_req = irc_event_dcc_send;
 
             if(this->getQuitStatus() == true) {
+            	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
                 return;
             }
             safeMutex.Lock();
@@ -792,6 +821,8 @@ void IRCThread::execute() {
                 return;
             }
 
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
+
             safeMutex.Lock();
             if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), "megaglest")) {
             	safeMutex.ReleaseLock();
@@ -799,6 +830,8 @@ void IRCThread::execute() {
                 return;
             }
             safeMutex.ReleaseLock();
+
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 
             if(this->getQuitStatus() == true) {
                 return;
@@ -809,6 +842,7 @@ void IRCThread::execute() {
             }
 
 			//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 
             for(int iAttempts=1;
                 this->getQuitStatus() == false && iAttempts <= 7; ++iAttempts) {
@@ -822,6 +856,8 @@ void IRCThread::execute() {
                     printf ("===> IRC Could not run the session: %s run_result = %d\n", irc_strerror (irc_errno(ircSession)), run_result);
                 }
             }
+
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 
 			//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
 #else
@@ -842,20 +878,23 @@ void IRCThread::execute() {
         }
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] IRC thread is exiting\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 		//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
-    }
 
-	//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
-    // Delete ourself when the thread is done (no other actions can happen after this
-    // such as the mutex which modifies the running status of this method
-    MutexSafeWrapper safeMutex(&mutexIRCCB,string(__FILE__) + "_" + intToStr(__LINE__));
-    IRCCallbackInterface *cb = getCallbackObj(false);
-    if(cb != NULL) {
+
 		//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
-       cb->IRC_CallbackEvent(IRC_evt_exitThread, NULL, NULL, 0);
-    }
-    safeMutex.ReleaseLock();
+		// Delete ourself when the thread is done (no other actions can happen after this
+		// such as the mutex which modifies the running status of this method
+		MutexSafeWrapper safeMutex(&mutexIRCCB,string(__FILE__) + "_" + intToStr(__LINE__));
+		IRCCallbackInterface *cb = getCallbackObj(false);
+		if(cb != NULL) {
+			//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
+			if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
+		   cb->IRC_CallbackEvent(IRC_evt_exitThread, NULL, NULL, 0);
+		}
+		safeMutex.ReleaseLock();
 
+    }
 	//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In IRCThread() calling delete ...\n");

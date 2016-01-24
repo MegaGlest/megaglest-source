@@ -211,31 +211,71 @@ bool Selection::hasUnit(const Unit* unit) const {
 	return find(selectedUnits.begin(), selectedUnits.end(), unit) != selectedUnits.end();
 }
 
-void Selection::assignGroup(int groupIndex,const UnitContainer *pUnits) {
+bool Selection::assignGroup(int groupIndex, bool clearGroup,const UnitContainer *pUnits) {
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
 		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
 	}
 
 	//clear group
-	groups[groupIndex].clear();
+	if(true==clearGroup){
+		groups[groupIndex].clear();
+	}
 
 	//assign new group
 	const UnitContainer *addUnits = &selectedUnits;
 	if(pUnits != NULL) {
 		addUnits = pUnits;
 	}
+
 	for(unsigned int i = 0; i < addUnits->size(); ++i) {
-		groups[groupIndex].push_back((*addUnits)[i]);
+		if(false == addUnitToGroup(groupIndex,(*addUnits)[i])){
+			// don't try to add more, group is maybe full
+			return false;
+		}
 	}
+	return true;
 }
 
-void Selection::addUnitToGroup(int groupIndex,Unit *unit) {
+/**
+ * returns false if unit cannot be added
+ */
+bool Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
 		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
 	}
+	bool alreadyExists=false;
+	bool groupIsFull=(int)groups[groupIndex].size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str());
 
-	if(unit != NULL) {
+	for(int i = 0; i < (int)groups[groupIndex].size(); ++i) {
+		if(groups[groupIndex][i] == unit) {
+			alreadyExists=true;
+			break;
+		}
+	}
+
+	if(alreadyExists){
+		return true;
+	}
+
+	// check for non Multiselect units
+	if((int)groups[groupIndex].size()>0 ){
+		if( !unit->getType()->getMultiSelect()){
+			//dont add single selection units to already filled group
+			return false;
+		}
+		Unit* unitInGroup=groups[groupIndex][0];
+		if( !unitInGroup->getType()->getMultiSelect()){
+			//dont add a unit to a group which has a single selection unit
+			return false;
+		}
+	}
+
+	if(unit != NULL && !groupIsFull) {
 		groups[groupIndex].push_back(unit);
+		return true;
+	}
+	else{
+		return false;
 	}
 }
 
@@ -260,12 +300,14 @@ vector<Unit*> Selection::getUnitsForGroup(int groupIndex) {
 	return groups[groupIndex];
 }
 
-void Selection::recallGroup(int groupIndex){
+void Selection::recallGroup(int groupIndex,bool clearSelection){
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
 		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
 	}
 
-	clear();
+	if(clearSelection==true){
+		clear();
+	}
 	for(int i = 0; i < (int)groups[groupIndex].size(); ++i) {
 		select(groups[groupIndex][i]);
 	}

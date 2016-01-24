@@ -29,8 +29,7 @@ goto processBuildStageA
 
 :getDepFile
 ECHO Retrieving windows dependency archive...
-rem call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
-call .\wget.exe -c -O ..\..\source\%depfile% http://download.sourceforge.net/project/megaglest/%depfile%
+call .\wget.exe -c -O ..\..\source\%depfile% http://github.com/MegaGlest/megaglest-source/releases/download/3.2.3/%depfile%
 call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
@@ -97,9 +96,15 @@ rem Update from GIT to latest rev
 ECHO --------------------------------
 Echo Updating Code from GIT to latest Revision...
 cd ..\..\
+set GIT_NORM_BRANCH=.
+for /f "delims=" %%a in ('git branch ^| findstr /rc:"^\* (detached"') do @set GIT_NORM_BRANCH=%%a
+if "%GIT_NORM_BRANCH%" == "." git pull
+cd data\glest_game
+set GIT_NORM_BRANCH=.
+for /f "delims=" %%a in ('git branch ^| findstr /rc:"^\* (detached"') do @set GIT_NORM_BRANCH=%%a
+if "%GIT_NORM_BRANCH%" == "." git pull
+cd ..\..\
 git submodule update
-git pull
-git submodule foreach git pull
 
 set GITVERSION_SHA1=.
 set GITVERSION_REV=.

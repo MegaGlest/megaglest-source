@@ -1,5 +1,6 @@
 #!/bin/bash
 # Use this script to build MegaGlest Data Archive for a Version Release
+# (Data archive for 'make install', without embedded content)
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
@@ -11,7 +12,7 @@ VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="$RELEASEDIR_ROOT/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
 REPODIR="$CURRENTDIR/../../"
@@ -79,8 +80,7 @@ cd "$CURRENTDIR"
 # START
 # remove embedded data
 rm -rf "$RELEASEDIR/data/core/fonts"
-# remove cegui data
-rm -rf "$RELEASEDIR/data/cegui"
+rm -rf "$RELEASEDIR/data/core/misc_textures/flags"
 # END
 
 echo "creating $PACKAGE"

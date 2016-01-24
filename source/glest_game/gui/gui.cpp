@@ -287,16 +287,13 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	}
 	else if(selection.isCommandable()) {
 		if(prepared) {
-			Vec2i targetPos=game->getMouseCellPos();
-			if(prepared || (game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true )) {
-				givePreparedDefaultOrders(x, y);
-			}
+			//Vec2i targetPos=game->getMouseCellPos();
+			givePreparedDefaultOrders(x, y);
 		}
 		else {
 			Vec2i targetPos=game->getMouseCellPos();
-			if(prepared || (game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true)) {
+			if(game->isValidMouseCellPos() &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				giveDefaultOrders(x, y);
 			}
 		}
@@ -349,8 +346,18 @@ void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 void Gui::groupKey(int groupIndex) {
 	if(isKeyDown(vkControl)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
-
-		selection.assignGroup(groupIndex);
+//		bool allAssigned=true;
+		bool clearGroup=!isKeyDown(vkShift);
+//		if(!clearGroup){
+//			Unit* unit=selection.getFrontUnit();
+//			if(unit!=null && unit->getType()->getMultiSelect()==false){
+//				return;
+//			}
+//		}
+		bool allAssigned=selection.assignGroup(groupIndex,clearGroup);
+		if(!allAssigned){
+			console->addStdMessage("GroupAssignFailed");
+		}
 	}
 	else{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
@@ -361,11 +368,11 @@ void Gui::groupKey(int groupIndex) {
 			lastGroupRecallTime.getMillis() > 0 &&
 			lastGroupRecallTime.getMillis() <= recallGroupCenterCameraTimeout) {
 
-			selection.recallGroup(groupIndex);
+			selection.recallGroup(groupIndex,!isKeyDown(vkShift));
 			centerCameraOnSelection();
 		}
 		else {
-			selection.recallGroup(groupIndex);
+			selection.recallGroup(groupIndex,!isKeyDown(vkShift));
 		}
 
 		lastGroupRecallTime.start();
@@ -630,7 +637,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 				    const CommandType *ct = display.getCommandType(posDisplay);
 
 				    // try to switch to next attack type
-				    if(activeCommandClass == ccAttack) {
+				    if(activeCommandClass == ccAttack && activeCommandType!=NULL) {
 
 						int maxI			= unit->getType()->getCommandTypeCount();
 						int cmdTypeId		= activeCommandType->getId();
@@ -644,6 +651,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 							if(ctype != NULL && ctype->getClass() == ccAttack) {
 								if(ctype != NULL && unit->getFaction()->reqsOk(ctype)) {
 									posDisplay=cmdTypeIdNext;
+									ct = display.getCommandType(posDisplay);
 									break;
 								}
 							}
@@ -652,7 +660,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 					}
 
 					if(ct != NULL && unit->getFaction()->reqsOk(ct)) {
-						activeCommandType= display.getCommandType(posDisplay);
+						activeCommandType= ct;
 						activeCommandClass= activeCommandType->getClass();
 					}
 					else {
@@ -854,8 +862,27 @@ void Gui::computeDisplay(){
 		}
 
 		//portraits
-		for(int i= 0; i < selection.getCount(); ++i){
-			display.setUpImage(i, selection.getUnit(i)->getType()->getImage());
+		int unitIndex = 0;
+		for(unitIndex = 0; unitIndex < selection.getCount(); ++unitIndex){
+			try {
+				const Unit *unit = selection.getUnit(unitIndex);
+				if(unit == NULL) {
+					throw megaglest_runtime_error("unit == NULL");
+				}
+				if(unit->getType() == NULL) {
+					throw megaglest_runtime_error("unit->getType() == NULL");
+				}
+				if(unit->getType()->getImage() == NULL) {
+					throw megaglest_runtime_error("unit->getType()->getImage()");
+				}
+
+				display.setUpImage(unitIndex, unit->getType()->getImage());
+			}
+			catch(exception &ex) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Error in unit selection for index: %d error [%s]",unitIndex,ex.what());
+				throw megaglest_runtime_error(szBuf, true);
+			}
 		}
 
 		// ================ PART 2 ================

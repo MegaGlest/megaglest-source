@@ -526,7 +526,14 @@ std::string ClientInterface::getServerIpAddress() {
 }
 
 void ClientInterface::updateLobby() {
+	Chrono chrono;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+
     NetworkMessageType networkMessageType = getNextMessageType();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
     switch(networkMessageType)
     {
         case nmtInvalid:
@@ -536,6 +543,9 @@ void ClientInterface::updateLobby() {
         {
             NetworkMessageIntro networkMessageIntro;
             if(receiveMessage(&networkMessageIntro)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	gotIntro 		= true;
             	sessionKey 		= networkMessageIntro.getSessionId();
             	versionString 	= networkMessageIntro.getVersionString();
@@ -602,6 +612,9 @@ void ClientInterface::updateLobby() {
             		}
                 }
 
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
                 if(networkMessageIntro.getGameState() == nmgstOk) {
@@ -661,6 +674,8 @@ void ClientInterface::updateLobby() {
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                 	return;
                 }
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
             }
         }
         break;
@@ -671,6 +686,9 @@ void ClientInterface::updateLobby() {
 
 			NetworkMessagePing networkMessagePing;
 			if(receiveMessage(&networkMessagePing)) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				this->setLastPingInfo(networkMessagePing);
 			}
@@ -682,6 +700,9 @@ void ClientInterface::updateLobby() {
             NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData;
 
             if(receiveMessage(&networkMessageSynchNetworkGameData)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageSynchNetworkGameData, getTechCRCFileCount() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageSynchNetworkGameData.getTechCRCFileCount());
 
             	this->setLastPingInfoToNow();
@@ -758,6 +779,9 @@ void ClientInterface::updateLobby() {
 					DisplayErrorMessage(sErr);
 				}
 
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				NetworkMessageSynchNetworkGameDataStatus sendNetworkMessageSynchNetworkGameDataStatus(mapCRC,tilesetCRC,techCRC,vctFileList);
 				sendMessage(&sendNetworkMessageSynchNetworkGameDataStatus);
             }
@@ -768,6 +792,9 @@ void ClientInterface::updateLobby() {
         {
             NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck;
             if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	this->setLastPingInfoToNow();
 
                 Checksum checksum;
@@ -805,6 +832,9 @@ void ClientInterface::updateLobby() {
                         "");
                     sendMessage(&sendNetworkMessageSynchNetworkGameDataFileCRCCheck);
                 }
+
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
             }
         }
         break;
@@ -813,6 +843,9 @@ void ClientInterface::updateLobby() {
         {
             NetworkMessageText networkMessageText;
             if(receiveMessage(&networkMessageText)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	this->setLastPingInfoToNow();
 
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
@@ -827,6 +860,9 @@ void ClientInterface::updateLobby() {
         {
         	NetworkMessageMarkCell networkMessageMarkCell;
             if(receiveMessage(&networkMessageMarkCell)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	this->setLastPingInfoToNow();
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
@@ -842,6 +878,9 @@ void ClientInterface::updateLobby() {
         {
         	NetworkMessageUnMarkCell networkMessageMarkCell;
             if(receiveMessage(&networkMessageMarkCell)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	this->setLastPingInfoToNow();
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
@@ -855,6 +894,9 @@ void ClientInterface::updateLobby() {
         {
         	NetworkMessageHighlightCell networkMessageHighlightCell;
             if(receiveMessage(&networkMessageHighlightCell)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	this->setLastPingInfoToNow();
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtHighlightCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
@@ -872,7 +914,10 @@ void ClientInterface::updateLobby() {
         	//printf("#1 Got new game setup playerIndex = %d!\n",playerIndex);
 
             NetworkMessageLaunch networkMessageLaunch;
-            if(receiveMessage(&networkMessageLaunch)) {
+            if(receiveMessage(&networkMessageLaunch, networkMessageType)) {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
             	this->setLastPingInfoToNow();
 
             	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
@@ -890,6 +935,9 @@ void ClientInterface::updateLobby() {
             	}
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
+
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
                 //printf("Client got game settings playerIndex = %d lookingfor match...\n",playerIndex);
 
@@ -923,6 +971,9 @@ void ClientInterface::updateLobby() {
                 else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
                 	setGameSettingsReceived(true);
                 }
+
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
             }
         }
         break;
@@ -930,6 +981,9 @@ void ClientInterface::updateLobby() {
 		{
 			PlayerIndexMessage playerIndexMessage(-1);
 			if(receiveMessage(&playerIndexMessage)) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				this->setLastPingInfoToNow();
 				playerIndex= playerIndexMessage.getPlayerIndex();
 
@@ -944,6 +998,9 @@ void ClientInterface::updateLobby() {
 		{
 			NetworkMessageReady networkMessageReady;
 			if(receiveMessage(&networkMessageReady)) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				this->setLastPingInfoToNow();
 				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 				this->readyForInGameJoin = true;
@@ -963,6 +1020,9 @@ void ClientInterface::updateLobby() {
 			if(gotCmd == false) {
 				throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 			}
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 			this->setLastPingInfoToNow();
 		}
 		break;
@@ -975,6 +1035,9 @@ void ClientInterface::updateLobby() {
 				if(gotCmd == false) {
 					throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
 				}
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 				this->setLastPingInfoToNow();
 				setQuit(true);
 				close();
@@ -985,6 +1048,9 @@ void ClientInterface::updateLobby() {
 			{
 				NetworkMessageLoadingStatus networkMessageLoadingStatus(nmls_NONE);
 				if(receiveMessage(&networkMessageLoadingStatus)) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 					this->setLastPingInfoToNow();
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				}
@@ -1004,11 +1070,17 @@ void ClientInterface::updateLobby() {
             }
     }
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
 	if( clientSocket != NULL && clientSocket->isConnected() == true &&
 		gotIntro == false && difftime((long int)time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] difftime(time(NULL),connectedTime) = %f\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,difftime((long int)time(NULL),connectedTime));
 		close();
 	}
+
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 }
 
 void ClientInterface::updateNetworkFrame() {
@@ -1232,7 +1304,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					//printf("#2 Got new game setup playerIndex = %d!\n",playerIndex);
 
 					NetworkMessageLaunch networkMessageLaunch;
-					if(receiveMessage(&networkMessageLaunch)) {
+					if(receiveMessage(&networkMessageLaunch,networkMessageType)) {
 
 						if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1887,7 +1959,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 
 		msg = getNextMessageType(waitMicroseconds);
 		if(msg == nmtInvalid) {
-			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
+			if(getSocket() == NULL || (chrono.getMillis() % 250 == 0 && isConnected() == false)) {
 				if(getQuit() == false) {
 					//throw megaglest_runtime_error("Disconnected");
 					//sendTextMessage("Server has Disconnected.",-1);
@@ -1922,8 +1994,11 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 				return msg;
 			}
 			// Sleep every x milli-seconds we wait to let other threads work
-			else if(chrono.getMillis() % 20 == 0) {
-				sleep(5);
+			else if(chrono.getMillis() % 2 == 0) {
+				sleep(1);
+			}
+			else {
+				sleep(0);
 			}
 		}
 

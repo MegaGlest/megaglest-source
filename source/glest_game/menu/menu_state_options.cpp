@@ -47,8 +47,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		//modeinfos=list<ModeInfo> ();
 		activeInputLabel=NULL;
 
-		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+280;
+		int leftLabelStart=100;
+		int leftColumnStart=leftLabelStart+300;
 		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
@@ -108,7 +108,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelLang.setText(lang.getString("Language"));
 
 		listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
-		listBoxLang.init(currentColumnStart, currentLine, 320);
+		listBoxLang.init(currentColumnStart, currentLine, 375);
 		vector<string> langResults;
 
 	//    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -232,7 +232,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelHealthBars.setText(lang.getString("Healthbar"));
 
 		listBoxHealthBars.registerGraphicComponent(containerName,"lisBoxtHealthBars");
-		listBoxHealthBars.init(currentColumnStart ,currentLine, 300 );
+		listBoxHealthBars.init(currentColumnStart ,currentLine, 375);
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsFactionDefault"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsOff"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsAlways"));
@@ -332,11 +332,11 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
 
 		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
-		labelTransifexPwdLabel.init(currentLabelStart + 250 ,currentLine);
+		labelTransifexPwdLabel.init(currentLabelStart + 260 ,currentLine);
 		labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
 
 		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
-		labelTransifexI18NLabel.init(currentLabelStart + 500 ,currentLine);
+		labelTransifexI18NLabel.init(currentLabelStart + 520 ,currentLine);
 		labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
 
 		currentLine-=lineOffset;
@@ -344,32 +344,32 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelTransifexUser.registerGraphicComponent(containerName,"labelTransifexUser");
 		labelTransifexUser.init(currentLabelStart,currentLine);
 		labelTransifexUser.setEditable(true);
-		labelTransifexUser.setMaxEditWidth(30);
-		labelTransifexUser.setMaxEditRenderWidth(220);
+		labelTransifexUser.setMaxEditWidth(28);
+		labelTransifexUser.setMaxEditRenderWidth(250);
 		labelTransifexUser.setText(config.getString("TranslationGetURLUser","<none>"));
 
 		labelTransifexPwd.registerGraphicComponent(containerName,"labelTransifexPwd");
-		labelTransifexPwd.init(currentLabelStart + 250 ,currentLine);
+		labelTransifexPwd.init(currentLabelStart + 260 ,currentLine);
 		labelTransifexPwd.setIsPassword(true);
 		labelTransifexPwd.setEditable(true);
-		labelTransifexPwd.setMaxEditWidth(35);
-		labelTransifexPwd.setMaxEditRenderWidth(220);
+		labelTransifexPwd.setMaxEditWidth(28);
+		labelTransifexPwd.setMaxEditRenderWidth(250);
 		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword",""));
 
 		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
-		labelTransifexI18N.init(currentLabelStart + 500 ,currentLine);
+		labelTransifexI18N.init(currentLabelStart + 520 ,currentLine);
 		labelTransifexI18N.setEditable(true);
-		labelTransifexI18N.setMaxEditWidth(3);
-		labelTransifexI18N.setMaxEditRenderWidth(40);
+		labelTransifexI18N.setMaxEditWidth(6);
+		labelTransifexI18N.setMaxEditRenderWidth(70);
 		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
 		currentLine-=lineOffset;
 
 		buttonGetNewLanguageFiles.registerGraphicComponent(containerName,"buttonGetNewLanguageFiles");
-		buttonGetNewLanguageFiles.init(currentLabelStart+20, currentLine, 200);
+		buttonGetNewLanguageFiles.init(currentLabelStart, currentLine, 250);
 		buttonGetNewLanguageFiles.setText(lang.getString("TransifexGetLanguageFiles"));
 
 		buttonDeleteNewLanguageFiles.registerGraphicComponent(containerName,"buttonDeleteNewLanguageFiles");
-		buttonDeleteNewLanguageFiles.init(currentLabelStart + 250, currentLine, 200);
+		buttonDeleteNewLanguageFiles.init(currentLabelStart + 260, currentLine, 250);
 		buttonDeleteNewLanguageFiles.setText(lang.getString("TransifexDeleteLanguageFiles"));
 
 		setupTransifexUI();
@@ -609,6 +609,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		if(labelTransifexI18N.getText() != "") {
 			Lang &lang= Lang::getInstance();
 			string language = lang.getLanguageFile(labelTransifexI18N.getText());
+			replaceAll(language,"(","");
+			replaceAll(language,")","");
 
 			if(language != "") {
 				bool foundFilesToDelete = false;
@@ -853,6 +855,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 							replaceAll(langName,"@","");
 							replaceAll(langName,"!","");
 							replaceAll(langName,"*","");
+							replaceAll(langName,"(","");
+							replaceAll(langName,")","");
 							langName = trim(langName);
 							replaceAll(langName," ","-");
 						}
@@ -1015,19 +1019,26 @@ void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 	}
 }
 
-void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
+bool MenuStateOptions::textInput(std::string text) {
 	if(activeInputLabel != NULL) {
-	    //printf("[%d]\n",c); fflush(stdout);
+    //printf("[%d]\n",c); fflush(stdout);
 		if( &labelPlayerName 	== activeInputLabel ||
 			&labelTransifexUser == activeInputLabel ||
 			&labelTransifexPwd == activeInputLabel ||
 			&labelTransifexI18N == activeInputLabel) {
-			keyPressEditLabel(c, &activeInputLabel);
+			return textInputEditLabel(text, &activeInputLabel);
 		}
 	}
-	else {
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
+	return false;
+}
+
+void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
+	if (activeInputLabel == NULL) {
+		keyPressEditLabel(c, &activeInputLabel);
+	} else {
+		Config &configKeys = Config::getInstance(
+				std::pair<ConfigType, ConfigType>(cfgMainKeys, cfgUserKeys));
+		if (isKeyPressed(configKeys.getSDLKey("SaveGUILayout"), c) == true) {
 			GraphicComponent::saveAllCustomProperties(containerName);
 			//Lang &lang= Lang::getInstance();
 			//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");

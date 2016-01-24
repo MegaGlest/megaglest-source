@@ -23,16 +23,16 @@ IF(BUILD_MEGAGLEST)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
+		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include)
 				       
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 	ENDIF()
 
-	FIND_PACKAGE(SDL REQUIRED)
-	INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+	FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
+	INCLUDE_DIRECTORIES(${${SDL_VERSION_NAME}_INCLUDE_DIR})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${${SDL_VERSION_NAME}_LIBRARY})
 	ENDIF()
 
 	FIND_PACKAGE(OpenGL REQUIRED)
@@ -41,7 +41,7 @@ IF(BUILD_MEGAGLEST)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 	ENDIF()
 
-        IF(WANT_XERCES)
+        IF(WANT_USE_XercesC)
 	        FIND_PACKAGE(XercesC REQUIRED)
 	        INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
 	        IF(UNIX)
@@ -57,10 +57,11 @@ IF(BUILD_MEGAGLEST)
 
 	FIND_PACKAGE(OGG REQUIRED)
 	INCLUDE_DIRECTORIES(${OGG_INCLUDE_DIR})
-	IF(UNIX OR APPLE)
-	#	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OGG_LIBRARY})
-	#	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_LIBRARY})
+	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_FILE_LIBRARY})
+		IF(STATIC_OGG)
+			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OGG_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARY})
+		ENDIF()
 	ENDIF()
 
 	FIND_PACKAGE(LUA REQUIRED)
@@ -75,48 +76,68 @@ IF(BUILD_MEGAGLEST)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${JPEG_LIBRARY})
 	ENDIF()
 
-	OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
-	IF(WANT_STATIC_LIBS)
-		SET(PNG_NAMES libpng.a ${PNG_NAMES}) 
-	ENDIF()
 	FIND_PACKAGE(PNG REQUIRED)
 	INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 	ENDIF()
 
+	IF(WANT_USE_OpenSSL)
+		FIND_PACKAGE(OpenSSL)
+		IF(OPENSSL_FOUND)
+		    INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+		ELSE()
+		    MESSAGE(STATUS "**NOTE: OpenSSL is usually not required.")
+		ENDIF()
+	ENDIF()
+
 	FIND_PACKAGE(CURL REQUIRED)
+	INCLUDE(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/CurlGetConfig.cmake)
 	INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
+		IF(NOT OPENSSL_FOUND)
+		    # default
+		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
+		ELSE()
+		    # mageia
+		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
+		ENDIF()
 	ENDIF()
 
 	FIND_PACKAGE(GLEW REQUIRED)
-	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_PATH})
+	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARIES})
 	ENDIF()
 
-        #SET(LIBVLC_MIN_VERSION "2.0.1")
-	FIND_PACKAGE(LIBVLC)
-
-        IF(LIBVLC_FOUND AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
-                MESSAGE(STATUS "**NOTE: LIBVLC found so intro videos are supported.")
-	        INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
-	        IF(UNIX)
-		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIBVLCCORE_LIBRARY} ${LIBVLC_LIBRARY})
-                        ADD_DEFINITIONS(-DHAS_LIBVLC)
-	        ENDIF()
+	IF(VLC_MIN_VERSION_MG)
+		SET(LIBVLC_MIN_VERSION "${VLC_MIN_VERSION_MG}")
+	ELSE()
+		SET(LIBVLC_MIN_VERSION "1.1.0")
+	ENDIF()
+	IF(WANT_USE_VLC)
+		FIND_PACKAGE(LIBVLC)
+	ENDIF()
+	IF(LIBVLC_FOUND AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
+		MESSAGE(STATUS "**NOTE: LIBVLC found so intro videos are supported.")
+		INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
+		IF(UNIX)
+			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LIBVLCCORE_LIBRARY} ${LIBVLC_LIBRARY})
+			ADD_DEFINITIONS(-DHAS_LIBVLC)
+		ENDIF()
 		IF(LIBVLC_VERSION_PRE_V2)
 			ADD_DEFINITIONS(-DLIBVLC_VERSION_PRE_2)
 		ENDIF()
 		IF(LIBVLC_VERSION_PRE_1_1_13)
 			ADD_DEFINITIONS(-DLIBVLC_VERSION_PRE_1_1_13)
 		ENDIF()
-		
-        ELSE()
-                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so intro videos are NOT supported.")
-        ENDIF()
+	ELSE()
+		IF(WANT_USE_VLC)
+			MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
+		ELSE()
+			MESSAGE(STATUS "LIBVLC disabled so videos are NOT supported.")
+		ENDIF()
+	ENDIF()
 
 	#########################################################################################
 	# megaglest game
@@ -153,7 +174,7 @@ IF(BUILD_MEGAGLEST)
 		${GLEST_LIB_INCLUDE_ROOT}lua
 		${GLEST_LIB_INCLUDE_ROOT}map)
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
 			${GLEST_LIB_INCLUDE_ROOT}streflop
@@ -162,16 +183,16 @@ IF(BUILD_MEGAGLEST)
 
 	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
 
-	#INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+	#INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 
 	IF(WIN32)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/posix)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
-		SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/sdl)
+		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
+		SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME})
 		SET(GLEST_LIB_INCLUDE_DIRS ${GLEST_LIB_INCLUDE_DIRS} ${GLEST_LIB_INCLUDE_ROOT}platform/unix)
 	ENDIF()
 
@@ -186,7 +207,7 @@ IF(BUILD_MEGAGLEST)
 		FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.c)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
 		FILE(GLOB INCLUDE_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.h)
-		SET(MG_INCLUDE_FILES ${MG_INCLUDE_FILES} ${INCLUDE_FILES_FROM_THIS_DIR})	
+		SET(MG_INCLUDE_FILES ${MG_INCLUDE_FILES} ${INCLUDE_FILES_FROM_THIS_DIR})
 
 		IF(APPLE)
 			FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.mm)
@@ -194,66 +215,54 @@ IF(BUILD_MEGAGLEST)
 			SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
 			FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.m)
 			#MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
-			SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})	
+			SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
 		ENDIF(APPLE)
 	ENDFOREACH(DIR)
 
-	# Force the version and date/time stamp file to be touched so the compile stamp is always right
-	IF(UNIX)
-	add_custom_command(
-	  OUTPUT mg.tmp
-	  COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
-	add_custom_target(run ALL
-	    DEPENDS mg.tmp)
+	# Force the git revision stamp (${GIT_COMMIT_COUNT}.${GIT_SHA1}) file to be touched so the compile stamp is always right
+	IF(UNIX AND GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
+		add_custom_command(OUTPUT mg.tmp
+			COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
+		add_custom_target(run ALL DEPENDS mg.tmp)
 	ENDIF()
 
 	IF(WIN32)
-		SET(CMAKE_CXX_FLAGS_NONE "${CMAKE_CXX_FLAGS_NONE} -Wl,-subsystem,console -mconsole")
-		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wl,-subsystem,console -mconsole")
-		SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wl,-subsystem,console -mconsole")
-		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -Wl,-subsystem,console -mconsole")
-		SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Wl,-subsystem,console -mconsole")
-
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-subsystem,console -mconsole")
 	ENDIF()
 
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
-        MESSAGE(STATUS "***Note: The final output path for Megaglest Game will be [${EXECUTABLE_OUTPUT_PATH}]")
+        MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
 	SET(MG_STREFLOP "")
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(MG_STREFLOP "streflop")
 	ENDIF()
 
-	find_package( GoogleBreakpad )
-	if(BREAKPAD_EXCEPTION_HANDLER_FOUND AND BREAKPAD_EXCEPTION_HANDLER_LIBRARIES)
-	        add_definitions(-DHAVE_GOOGLE_BREAKPAD)
+	if(WANT_USE_GoogleBreakpad)
+		find_package( GoogleBreakpad )
+		if(BREAKPAD_EXCEPTION_HANDLER_FOUND AND BREAKPAD_EXCEPTION_HANDLER_LIBRARIES)
+			add_definitions(-DHAVE_GOOGLE_BREAKPAD)
 
-        	include_directories( ${BREAKPAD_EXCEPTION_HANDLER_INCLUDE_DIR} )
-                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES})
+			include_directories( ${BREAKPAD_EXCEPTION_HANDLER_INCLUDE_DIR} )
+			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES})
 
-	else()
-		message("** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
+		else()
+			message(STATUS "** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
+		endif()
 	endif()
 
 	IF(WIN32)
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
+		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
 	IF(NOT WIN32)
-		IF(WANT_STREFLOP)
+		IF(WANT_USE_STREFLOP)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
@@ -266,12 +275,12 @@ IF(BUILD_MEGAGLEST)
         ENDIF()
 
 	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
+		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "3D multi-player real time strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
+			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
 		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
@@ -292,7 +301,7 @@ IF(BUILD_MEGAGLEST)
 		        ${TARGET_NAME} 
 		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN})
+	        IF(EXISTS ${HELP2MAN} AND NOT "${MEGAGLEST_MANPAGE_INSTALL_PATH}" STREQUAL "")
          		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
 		        # Installation of the program manpage file
@@ -301,6 +310,11 @@ IF(BUILD_MEGAGLEST)
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
+		IF(UNIX)
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/linux/start_megaglest_gameserver"
+				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		ENDIF()
 		INSTALL(FILES
 			"${PROJECT_SOURCE_DIR}/mk/shared/glestkeys.ini"
 			"${PROJECT_SOURCE_DIR}/mk/shared/servers.ini"
@@ -317,45 +331,24 @@ IF(BUILD_MEGAGLEST)
 			INSTALL(FILES
 				"${PROJECT_SOURCE_DIR}/mk/macosx/glest.ini"
 				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-			IF(SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/p7zip/")
+			IF(WANT_SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/p7zip/")
 				INSTALL(DIRECTORY
 					"${PROJECT_SOURCE_DIR}/mk/macosx/p7zip"
 					DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 			ENDIF()
+			IF(WANT_SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/lib/")
+				INSTALL(DIRECTORY
+					"${PROJECT_SOURCE_DIR}/mk/macosx/lib/"
+					DESTINATION "${MEGAGLEST_DATA_INSTALL_PATH}/../../Frameworks/")
+			ENDIF()
 		ENDIF()
 
-		# Installation of data files from outside normal data folder
-		INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
-		  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
-		  OPTIONAL REGEX "/.git" EXCLUDE)
-
-	        #MESSAGE(STATUS "**Source package detected git folder structure.")
-
-		IF(NOT APPLE)
-			# Installation of the program desktop file
-			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop"
-				DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
-		ENDIF()
-
-		# Installation of the program desktop icon file
 		INSTALL(FILES
 			"${PROJECT_SOURCE_DIR}/mk/shared/megaglest.ico"
-			DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-		IF(UNIX AND NOT APPLE)
+			DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		IF(UNIX AND APPLE AND NOT WANT_SINGLE_INSTALL_DIRECTORY)
 			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
-				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-		ELSEIF(UNIX AND APPLE)
-			IF(NOT SINGLE_INSTALL_DIRECTORY)
-				INSTALL(FILES
-					"${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns"
-					DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-			ENDIF()
-		ELSE()
-			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
+				"${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns"
 				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 		ENDIF()
 	ENDIF()

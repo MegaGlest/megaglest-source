@@ -51,6 +51,7 @@ private:
 	std::pair<string,string> fileNameParameter;
 	std::pair<string,string> fileName;
 	std::pair<bool,bool> fileLoaded;
+	string custom_path_parameter;
 
 	static map<ConfigType,Config> configList;
 
@@ -97,7 +98,7 @@ public:
 	float getFloat(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	const string getString(const char *key,const char *defaultValueIfNotFound=NULL) const;
 	//char getCharKey(const char *key) const;
-	SDLKey getSDLKey(const char *key) const;
+	SDL_Keycode getSDLKey(const char *key) const;
 
 	void setInt(const string &key, int value, bool tempBuffer=false);
 	void setBool(const string &key, bool value, bool tempBuffer=false);
@@ -113,7 +114,7 @@ public:
 
     string getFileName(bool userFilename) const;
 
-    SDLKey translateStringToSDLKey(const string &value) const;
+    SDL_Keycode translateStringToSDLKey(const string &value) const;
 
 	string toString();
 

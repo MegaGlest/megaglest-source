@@ -238,6 +238,7 @@ public:
 	virtual void sendMessage(NetworkMessage* networkMessage);
 	NetworkMessageType getNextMessageType(int waitMilliseconds=0);
 	bool receiveMessage(NetworkMessage* networkMessage);
+	bool receiveMessage(NetworkMessage* networkMessage, NetworkMessageType type);
 
 	virtual bool isConnected();
 

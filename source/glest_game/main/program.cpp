@@ -63,6 +63,10 @@ ProgramState::ProgramState(Program *program) {
 	this->startY=0;
 }
 
+void ProgramState::restoreToStartXY() {
+	SDL_WarpMouseInWindow(this->program->getWindow()->getSDLWindow(), startX, startY);
+}
+
 void ProgramState::incrementFps() {
 	fps++;
 }
@@ -199,12 +203,13 @@ Program::Program() {
 
 void Program::initNormal(WindowGl *window){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
+	Config &config = Config::getInstance();
 	init(window);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	setState(new Intro(this));
+	showCursor(config.getBool("No2DMouseRendering","false"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -314,6 +319,19 @@ void Program::restoreStateFromSystemError() {
 	else {
 		setState(this->programStateOldSystemError);
 	}
+}
+
+bool Program::textInput(std::string text) {
+	if(msgBox.getEnabled()) {
+		return false;
+	}
+	//delegate event
+	return programState->textInput(text);
+}
+
+bool Program::sdlKeyDown(SDL_KeyboardEvent key) {
+	//delegate event
+	return programState->sdlKeyDown(key);
 }
 
 void Program::keyDown(SDL_KeyboardEvent key) {
@@ -599,7 +617,6 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		this->programStateOldSystemError = this->programState;
 		bool msgBoxEnabled = msgBox.getEnabled();
 
-		bool showingOSCursor = isCursorShowing();
 		if(dynamic_cast<Game *>(programStateNew) != NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -662,16 +679,11 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		updateCameraTimer.reset();
 		fpsTimer.reset();
 
-		if(showingOSCursor == false) {
-			Config &config = Config::getInstance();
-			if(config.getBool("No2DMouseRendering","false") == false) {
-				showCursor(false);
-			}
-			sleep(0);
-
-			if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
-				showCursor(true);
-			}
+		Config &config = Config::getInstance();
+		if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
+			showCursor(true);
+		} else {
+			showCursor(config.getBool("No2DMouseRendering","false"));
 		}
 
 		this->programStateOldSystemError = NULL;
@@ -734,6 +746,23 @@ void Program::exit() {
 
 // ==================== PRIVATE ====================
 
+void Program::initResolution() {
+	const Metrics &metrics = Metrics::getInstance();
+	if(window->getScreenWidth() != metrics.getScreenW() ||
+		window->getScreenHeight() != metrics.getScreenH()) {
+
+		int oldW = metrics.getScreenW();
+		int oldH = metrics.getScreenH();
+
+		Config &config= Config::getInstance();
+		config.setInt("ScreenWidth",window->getScreenWidth(),true);
+		config.setInt("ScreenHeight",window->getScreenHeight(),true);
+
+		metrics.reload(window->getScreenWidth(), window->getScreenHeight());
+		printf("MainWindow forced change of resolution to desktop values (%d x %d) instead of (%d x %d)\n",metrics.getScreenW(), metrics.getScreenH(),oldW,oldH);
+	}
+}
+
 void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -750,7 +779,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//window
-	window->setText("MegaGlest");
+	//window->setText("MegaGlest");
 	window->setStyle(config.getBool("Windowed")? wsWindowedFixed: wsFullscreen);
 	window->setPos(0, 0);
 	window->setSize(config.getInt("ScreenWidth"), config.getInt("ScreenHeight"));
@@ -801,10 +830,11 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			       config.getBool("HardwareAcceleration","false"),
 			       config.getBool("FullScreenAntiAliasing","false"),
 			       config.getFloat("GammaValue","0.0"));
-
+	window->setText(config.getString("WindowTitle","MegaGlest"));
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	window->makeCurrentGl();
+	initResolution();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -887,7 +917,7 @@ void Program::restoreDisplaySettings(){
 	Config &config= Config::getInstance();
 
 	if(!config.getBool("Windowed")){
-		restoreVideoMode();
+		restoreVideoMode(this->getWindow()->getSDLWindow());
 	}
 }
 
@@ -943,6 +973,8 @@ void Program::reInitGl() {
 				       config.getBool("HardwareAcceleration","false"),
 				       config.getBool("FullScreenAntiAliasing","false"),
 				       config.getFloat("GammaValue","0.0"));
+		window->setText(config.getString("WindowTitle","MegaGlest"));
+		initResolution();
 	}
 }
 

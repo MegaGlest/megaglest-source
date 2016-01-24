@@ -85,6 +85,7 @@ private:
 	string fileName;
 
 public:
+	OggSoundFileLoader();
 	virtual void open(const string &path, SoundInfo *soundInfo);
 	virtual uint32 read(int8 *samples, uint32 size);
 	virtual void close();

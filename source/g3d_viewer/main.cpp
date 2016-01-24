@@ -25,13 +25,11 @@
 #include "game_constants.h"
 #include <wx/stdpaths.h>
 #include <platform_util.h>
-//#include "interpolation.h"
+#include "common_scoped_ptr.h"
 
 #ifndef WIN32
 #include <errno.h>
 #endif
-
-//#include <wx/filename.h>
 
 #ifndef WIN32
   #define stricmp strcasecmp
@@ -58,7 +56,7 @@ const char *folderDelimiter = "/";
 //int GameConstants::updateFps= 40;
 //int GameConstants::cameraFps= 100;
 
-const string g3dviewerVersionString= "v3.11.1";
+const string g3dviewerVersionString= "v3.12.0";
 
 // Because g3d should always support alpha transparency
 string fileFormat = "png";
@@ -303,12 +301,10 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	model= NULL;
 
 	Config &config = Config::getInstance();
-    //getGlPlatformExtensions();
 
 	isControlKeyPressed = false;
-	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
-	//int args[] = { WX_GL_RGBA, WX_GL_MIN_ALPHA,  0  }; // to prevent flicker
-	glCanvas = new GlCanvas(this, args);
+
+	initGlCanvas();
 
 #if wxCHECK_VERSION(2, 9, 1)
 
@@ -438,10 +434,9 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     fileDialog->SetDirectory(ToUnicode(defaultPath.c_str()));
 
 
-	glCanvas->SetFocus();
-
-	//timer = new wxTimer(this);
-	//timer->Start(100);
+	if(glCanvas != NULL) {
+		glCanvas->SetFocus();
+	}
 
 	// For windows register g3d file extension to launch this app
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -457,7 +452,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	DWORD dwDisposition;
 	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
 	//Set the value.
-	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	
 	wstring launchApp = wstring(wstr.get()) + L" \"%1\"";
 	DWORD len = (DWORD)launchApp.length() + 1;
@@ -482,7 +477,19 @@ void MainWindow::setupTimer() {
 
 void MainWindow::setupStartupSettings() {
 
+	//printf("In setupStartupSettings #1\n");
+	if(glCanvas == NULL) {
+		initGlCanvas();
+
+#if wxCHECK_VERSION(2, 9, 1)
+
+#else
+	    glCanvas->SetCurrent();
+#endif
+
+	}
 	glCanvas->setCurrentGLContext();
+	//printf("In setupStartupSettings #2\n");
 
 	GLuint err = glewInit();
 	if (GLEW_OK != err) {
@@ -563,54 +570,44 @@ MainWindow::~MainWindow(){
 	delete renderer;
 	renderer = NULL;
 
-	//delete glCanvas;
-	if(glCanvas) glCanvas->Destroy();
+	if(glCanvas) {
+		glCanvas->Destroy();
+	}
 	glCanvas = NULL;
 
+}
+
+void MainWindow::initGlCanvas(){
+	if(glCanvas == NULL) {
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+		glCanvas = new GlCanvas(this, args);
+	}
 }
 
 void MainWindow::init() {
 
 #if wxCHECK_VERSION(2, 9, 3)
-	//glCanvas->setCurrentGLContext();
-	//printf("setcurrent #1\n");
+
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
 	glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
-
-	//renderer->init();
-
-	//wxCommandEvent event;
-	//onMenuRestart(event);
 }
 
 void MainWindow::onPaint(wxPaintEvent &event) {
-	if(!IsShown()) return;
+	if(!IsShown()) {
+		event.Skip();
+		return;
+	}
 	
-#if wxCHECK_VERSION(2, 9, 4)
-	//glCanvas->setCurrentGLContext();
-#elif wxCHECK_VERSION(2, 9, 3)
-
-#elif wxCHECK_VERSION(2, 9, 1)
-	glCanvas->setCurrentGLContext();
-#endif
-
+	bool isFirstWindowShownEvent = !startupSettingsInited ;
 	if(startupSettingsInited == false) {
 		startupSettingsInited = true;
 		setupStartupSettings();
 	}
-
-	//wxClientDC &dc = event.GetDC();
-//	wxPaintDC dc(this);
-//	if(overrideSize.first > 0 && overrideSize.second > 0) {
-//		wxRect r(0,0,100,100);
-//		dc.SetDeviceClippingRegion(r);
-//		// Then I destroy the clipping region
-//		dc.DestroyClippingRegion();
-//	}
+	glCanvas->setCurrentGLContext();
 
 	static float autoScreenshotRender = -1;
 	if(autoScreenShotAndExit == true && autoScreenshotRender >= 0) {
@@ -667,6 +664,12 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 
 	renderer->renderParticleManager();
 	
+	if(isFirstWindowShownEvent) {
+		this->Refresh();
+		glCanvas->Refresh();
+		glCanvas->SetFocus();
+	}
+
 	bool haveLoadedParticles = (particleProjectilePathList.empty() == false || particleSplashPathList.empty() == false);
 
 	if(autoScreenShotAndExit == true && viewportW > 0 && viewportH > 0) {
@@ -770,7 +773,9 @@ void MainWindow::onClose(wxCloseEvent &event){
 	renderer = NULL;
 
 	//delete glCanvas;
-	if(glCanvas) glCanvas->Destroy();
+	if(glCanvas) {
+		glCanvas->Destroy();
+	}
 	glCanvas = NULL;
 
 	this->Destroy();
@@ -859,7 +864,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
 
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -894,7 +899,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -928,7 +933,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -963,7 +968,7 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
 
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
+			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
 			file = utf8_encode(wstr.get());
 #else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
@@ -1257,12 +1262,6 @@ void MainWindow::loadUnit(string path, string skillName) {
 				this->particleSplashPathList.push_back(skillParticleSplashFile);
 				printf("Added skill splash particle [%s]\n",skillParticleSplashFile.c_str());
 			}
-
-			//glCanvas->SetCurrent();
-			//renderer->init();
-
-			//wxCommandEvent event;
-			//onMenuRestart(event);
 		}
 		SetTitle(ToUnicode(titlestring));
 	}
@@ -1271,7 +1270,6 @@ void MainWindow::loadUnit(string path, string skillName) {
 		std::cout << e.what() << std::endl;
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
-	//timer->Start(100);
 }
 
 void MainWindow::loadModel(string path) {
@@ -2030,8 +2028,8 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 // to prevent flicker
 GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 #if wxCHECK_VERSION(2, 9, 1)
-		: wxGLCanvas(mainWindow, -1, args, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas")) {
-	this->context = NULL;
+		: wxGLCanvas(mainWindow, wxID_ANY, args, wxDefaultPosition, mainWindow->GetClientSize(), wxFULL_REPAINT_ON_RESIZE, wxT("GLCanvas")) {
+	this->context = new wxGLContext(this);
 #else
 		: wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
 	this->context = NULL;
@@ -2040,14 +2038,28 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 }
 
 GlCanvas::~GlCanvas() {
-	if(this->context) delete this->context;
+	if(this->context) {
+		delete this->context;
+	}
 	this->context = NULL;
 }
 
 void GlCanvas::setCurrentGLContext() {
 #ifndef __APPLE__
 
-#if wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(3, 0, 0)
+	//printf("Setting glcontext 3x!\n");
+
+	//if(!IsShown()) {}
+	if(this->context == NULL) {
+		//printf("Make new ctx!\n");
+		this->context = new wxGLContext(this);
+		//printf("Set ctx [%p]\n",this->context);
+	}
+#elif wxCHECK_VERSION(2, 9, 1)
+	//printf("Setting glcontext 29x!\n");
+
+	//if(!IsShown()) {}
 	if(this->context == NULL) {
 		this->context = new wxGLContext(this);
 		//printf("Set ctx [%p]\n",this->context);
@@ -2080,6 +2092,12 @@ void GlCanvas::onKeyDown(wxKeyEvent &event) {
 	mainWindow->onKeyDown(event);
 }
 
+void GlCanvas::OnSize(wxSizeEvent&event) {
+
+	//printf("OnSize %dx%d\n",event.m_size.GetWidth(),event.m_size.GetHeight());
+	Update();
+}
+
 //    EVT_SPIN_DOWN(GlCanvas::onMouseDown)
 //    EVT_SPIN_UP(GlCanvas::onMouseDown)
 //    EVT_MIDDLE_DOWN(GlCanvas::onMouseWheel)
@@ -2089,6 +2107,7 @@ BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
     EVT_MOUSEWHEEL(GlCanvas::onMouseWheel)
     EVT_MOTION(GlCanvas::onMouseMove)
     EVT_KEY_DOWN(GlCanvas::onKeyDown)
+    EVT_SIZE(GlCanvas::OnSize)
 END_EVENT_TABLE()
 
 // ===============================================
@@ -2154,7 +2173,7 @@ bool App::OnInit() {
 			for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
 
 #ifdef WIN32
-				std::auto_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
+				auto_ptr<wchar_t> wstr(Ansi2WideString(autoScreenShotParams[i].c_str()));
 				autoScreenShotParams[i] = utf8_encode(wstr.get());
 #endif
 
@@ -2199,14 +2218,14 @@ bool App::OnInit() {
             if(delimitedList.size() >= 2) {
             	unitToLoad.first = delimitedList[0];
   				#ifdef WIN32
-				std::auto_ptr<wchar_t> wstr(Ansi2WideString(unitToLoad.first.c_str()));
+            	auto_ptr<wchar_t> wstr(Ansi2WideString(unitToLoad.first.c_str()));
 				unitToLoad.first = utf8_encode(wstr.get());
 				#endif
 
             	for(unsigned int i = 1; i < delimitedList.size(); ++i) {
 					string value = delimitedList[i];
   					#ifdef WIN32
-					std::auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
+					auto_ptr<wchar_t> wstr(Ansi2WideString(value.c_str()));
 					value = utf8_encode(wstr.get());
 					#endif
 
@@ -2245,7 +2264,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             modelPath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
+            auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
 			modelPath = utf8_encode(wstr.get());
 			#endif
 
@@ -2275,7 +2294,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             particlePath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(particlePath.c_str()));
+            auto_ptr<wchar_t> wstr(Ansi2WideString(particlePath.c_str()));
 			particlePath = utf8_encode(wstr.get());
 			#endif
         }
@@ -2303,7 +2322,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             projectileParticlePath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(projectileParticlePath.c_str()));
+            auto_ptr<wchar_t> wstr(Ansi2WideString(projectileParticlePath.c_str()));
 			projectileParticlePath = utf8_encode(wstr.get());
 			#endif
         }
@@ -2331,7 +2350,7 @@ bool App::OnInit() {
             string customPathValue = paramPartTokens[1];
             splashParticlePath = customPathValue;
 			#ifdef WIN32
-			std::auto_ptr<wchar_t> wstr(Ansi2WideString(splashParticlePath.c_str()));
+            auto_ptr<wchar_t> wstr(Ansi2WideString(splashParticlePath.c_str()));
 			splashParticlePath = utf8_encode(wstr.get());
 			#endif
         }
@@ -2490,7 +2509,7 @@ bool App::OnInit() {
 #ifdef WIN32
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
 		modelPath = tmp_buf;
-		std::auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
+		auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
 		modelPath = utf8_encode(wstr.get());
 #else
 		modelPath = wxFNCONV(argv[1]);
@@ -2520,7 +2539,7 @@ bool App::OnInit() {
 	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
 	string appPath = tmp_buf;
 
-	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
+	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	appPath = utf8_encode(wstr.get());
 #else
 	string appPath(wxFNCONV(exe_path));

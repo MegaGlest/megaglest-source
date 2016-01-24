@@ -58,7 +58,7 @@ private:
 
 	int hotkeyIndex;
 	//char hotkeyChar;
-	SDLKey hotkeyChar;
+	SDL_Keycode hotkeyChar;
 
 	GraphicLabel labelTestTitle;
 	GraphicLabel labelTestValue;

@@ -98,12 +98,19 @@ Windows:
 All you should need to do on Windows is to double-click the downloaded file.
 You may get to see a warning saying that this file you downloaded from the
 Internet may be unsafe. However, if you downloaded this file from a trusted
-source, i.e. megaglest.org or *.mirror.sourceforge.net, it is generally safe 
-to proceed. However, we can not make any guarantees. You are encouraged to 
-scan the downloaded installer for viruses.
+source, i.e. megaglest.org (which currently forwards to GitHub, which then 
+forwards to Amazon AWS S3), it should be safe to proceed. However, we can not 
+make any guarantees. You are encouraged to scan the downloaded installer for 
+viruses.
 
 Other platforms:
 Please refer to the packagers' installation guides.
+
+
+All platforms:
+We have lately started to cryptographically sign (OpenPGP) releases and also
+provide checksums, so please use these to iverify the authenticity of the files
+you have downloaded.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

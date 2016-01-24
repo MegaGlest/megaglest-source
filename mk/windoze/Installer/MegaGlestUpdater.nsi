@@ -2,10 +2,10 @@
 ; General Attributes
 
 !define APNAME MegaGlest
-!define APVER 3.11.1
+!define APVER 3.12.0
 !define APNAME_OLD Mega-Glest
-!define APVER_OLD 3.11.0
-!define APVER_UPDATE 3.11.1
+!define APVER_OLD 3.11.1
+!define APVER_UPDATE 3.12.0
 
 Name "${APNAME} ${APVER_UPDATE}"
 SetCompressor /FINAL /SOLID lzma
