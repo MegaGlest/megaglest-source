@@ -4,7 +4,7 @@
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
 !define APVER_OLD 3.11.1
-!define APVER 3.12-dev
+!define APVER 3.12.0
 
 !ifdef NSIS_WIN32_MAKENSIS
 !define NSISCONF_3 ";" ; NSIS 2 tries to parse some preprocessor instructions inside "!if 0" blocks!
