@@ -75,6 +75,12 @@ mkdir -p "$RELEASEDIR/tutorials/"
 cd "$RELEASEDIR/tutorials/"
 git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
 
+echo "Exporting files from 'others' directory ..."
+cd "$RELEASEDIR"
+mkdir -p "$RELEASEDIR/others/"
+cd "$RELEASEDIR/others/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:others | tar x
+
 echo "Removing non required files ..."
 cd "$CURRENTDIR"
 # START
