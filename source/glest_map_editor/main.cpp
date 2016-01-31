@@ -1332,23 +1332,11 @@ void MainWindow::uncheckRadius() {
 		return;
 	}
 
- 	if (currentBrush == btHeight || currentBrush == btGradient) { // 'height' brush
- 		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
- 			height = e.GetKeyCode() - 48; // '0'-'5' == 0-5
- 			if (e.GetModifiers() == wxMOD_CONTROL) { // Ctrl means negative
- 				height  = -height ;
- 			}
- 			int id_offset = heightCount / 2 + height + 1;
- 			if (currentBrush == btHeight) {
- 				wxCommandEvent evt(wxEVT_NULL, miBrushHeight + id_offset);
- 				onMenuBrushHeight(evt);
- 			} else {
- 				wxCommandEvent evt(wxEVT_NULL, miBrushGradient + id_offset);
- 				onMenuBrushGradient(evt);
- 			}
- 			return;
- 		}
- 	}
+	if(e.GetModifiers() == wxMOD_CONTROL || e.GetModifiers() == wxMOD_ALT){
+		e.Skip();
+	}
+	// WARNING: don't add any Ctrl or ALt key shortcuts below those are reserved for internal menu use.
+
  	if (currentBrush == btSurface) { // surface texture
  		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '5') {
  			surface = e.GetKeyCode() - 48; // '1'-'5' == 1-5
@@ -1432,9 +1420,6 @@ void MainWindow::uncheckRadius() {
  	    program->setUndoPoint(ctAll);
  	    program->shiftDown();
  		setDirty();
- 	} else if (e.GetKeyCode() == WXK_BACK && e.GetModifiers() == wxMOD_ALT) { // undo
- 	    wxCommandEvent evt(wxEVT_NULL, 0);
-        onMenuEditUndo(evt);
  	} else {
  		e.Skip();
 	}
