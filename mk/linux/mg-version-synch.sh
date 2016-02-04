@@ -33,16 +33,16 @@ if [ "$modifymore" = "yes" ]; then
 	echo
 fi
 if [ "$modifymore" = "yes" ] && [ "$(git status >/dev/null 2>&1; echo "$?")" -eq "0" ]; then
-	# const string GIT_RawRev			= "$4446.1a8673f$";
+	# const string GIT_RawRev		= "$4446.1a8673f$";
 	GitCommitForRelease="`git rev-list HEAD --count`.`git log -1 --format=%h`";
 	echo 'GitCommitForRelease # before:'
 	grep -E '^GitCommitForRelease = "[^"]*";$' "$VERSION_INFO_FILE"
-	grep -E '^const string GIT_RawRev			= "\$[^"$]*\$";$' ../../source/glest_game/facilities/game_util.cpp
+	grep -E '^	const string GIT_RawRev		= "\$[^"$]*\$";$' ../../source/glest_game/facilities/game_util.cpp
 	sed -i 's/^GitCommitForRelease = "[^"]*";$/GitCommitForRelease = "'$GitCommitForRelease'";/' "$VERSION_INFO_FILE"
-	sed -i 's/^const string GIT_RawRev			= "$[^"]*";$/const string GIT_RawRev			= "$'$GitCommitForRelease'$";/' ../../source/glest_game/facilities/game_util.cpp
+	sed -i 's/^	const string GIT_RawRev		= "$[^"]*";$/	const string GIT_RawRev		= "$'$GitCommitForRelease'$";/' ../../source/glest_game/facilities/game_util.cpp
 	echo 'GitCommitForRelease # after:'
 	grep -E '^GitCommitForRelease = "[^"]*";$' "$VERSION_INFO_FILE"
-	grep -E '^const string GIT_RawRev			= "\$[^"$]*\$";$' ../../source/glest_game/facilities/game_util.cpp
+	grep -E '^	const string GIT_RawRev		= "\$[^"$]*\$";$' ../../source/glest_game/facilities/game_util.cpp
 fi
 echo
 if [ "$modifymore" = "yes" ]; then

@@ -30,22 +30,20 @@ namespace Glest { namespace Game {
 const char *mailString				= " http://bugs.megaglest.org";
 
 // !! Use minor versions !!  Only major and minor version control compatibility!
-// typical version numbers look like this: v3.11-beta1.0   v3.12-dev   v3.12.0
-// don't forget to update source/version.txt
+// typical version numbers look like this: v3.13-beta1.0   v3.12-dev   v3.12.1
+// don't forget to update file: source/version.txt
 const string glestVersionString 	= "v3.12-dev";
 const string lastCompatibleSaveGameVersionString 	= "v3.11.1";
 
-#if defined(GITVERSION)
-    const string GIT_RawRev			= string(GITVERSION);
-    const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
-#elif defined(GITVERSIONHEADER)
-#include "gitversion.h"
-    const string GIT_RawRev			= string(GITVERSION);
-    const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
-#else
-const string GIT_RawRev			= "$5421.18cad36$";
-const string GIT_Rev 			= "$Rev$";
+#if defined(GITVERSIONHEADER)
+	#include "gitversion.h"
 #endif
+#if defined(GITVERSION) || defined(GITVERSIONHEADER)
+	const string GIT_RawRev		= string(GITVERSION);
+#else
+	const string GIT_RawRev		= "$5421.18cad36$";
+#endif
+const string GIT_Rev 			= string("Rev: ") + string(GIT_RawRev);
 
 string getRAWGITRevisionString() {
 	return GIT_RawRev;
