@@ -33,8 +33,8 @@ To build this archive open a terminal and from the mk/linux folder run:
 This will produce megaglest-source-<VERSION>.tar.xz in the release subfolder
 
 #2. The embedded source archive:
-This archive contains 3rd party source code for binary compilation of the application and 
-tools (which is often already included in Linux distros)
+This archive contains 3rd party source code for binary (and data) compilation of the
+application and tools (which is often already included in Linux distros)
 
 The naming convention for the source archive is:
 megaglest-source-embedded-<VERSION>.tar.xz
@@ -100,37 +100,22 @@ Linux Installer(s):
 mojosetup on the platform that is building the installer.
 
 For either 32 or 64 bit Linux installers open a terminal and navigate to:
+mk/linux/tools-for-standalone-client/installer
 
-mk/linux/mojosetup
-
-mkdir build
-cd build
-cmake ../
-make
-cd ../
-
------------------------
--- deprecation start --
-NOTE this part is now deprecated as it is handled by the synch script above
-but the info is left here for education
-
-#2 Navigate into the megaglest-installer subfolder and modify  / save changes:
+#2 Occasionally navigate into the 'scripts' subfolder and modify  / save changes:
 
 - config.lua
 local GAME_INSTALL_SIZE = 680000000;
-local GAME_VERSION = "3.6.0";
--- deprecation end --
----------------------
 
-Now in a terminal session from inside the megaglest-installer folder run:
+ ------------------------
 
+Now in a terminal session from inside the 'installer' folder run:
 ./make.sh
 
 When complete this will produce the platform specific installer in the same
-folder called: 
+folder called:
 
-MegaGlest-Installer_<architecture>_<kernel>.run
+MegaGlest-Installer_<version>_<architecture>_<kernel>.run
 
-This is a native binary installer that wil install MegaGlest on the same 
+This is a native binary installer that wil install MegaGlest on the same
 platform as was sued to build it. (ie: 32 or 64 bit Linux)
-

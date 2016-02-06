@@ -23,15 +23,15 @@ around on the forums, e.g. http://forum.megaglest.org/?topic=1426#).
 The game depends on some tools and libraries to be present, before you can
 start compiling it:
 
-* Standard GNU compiler and additional tools (g++ version 3.2 or later is
+* Standard GNU compiler and additional tools (g++ version 4.6.3 or later is
   required at the moment)
 
-* Kitware CMake 2.8 or later (used as build tool)
+* Kitware CMake 2.8.2 or later (used as build tool)
 
 * X11 libraries + headers
   http://x.org/
 
-* SDL 1.2.5 or later
+* SDL 2.0.0 or later
   http://libsdl.org/
 
 * OpenGL
@@ -45,9 +45,6 @@ start compiling it:
 
 * wxWidgets
   http://wxwidgets.org/
-
-* Xerces-C
-  http://xerces.apache.org/xerces-c/
 
 * OpenAL
   http://openal.org/
