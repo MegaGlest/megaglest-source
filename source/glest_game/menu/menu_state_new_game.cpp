@@ -106,7 +106,17 @@ void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
 	else if(buttonMasterserverGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
-		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+		if (Config::getInstance().getString("InternetGamesBlockScenario", "") != ""
+				&& Config::getInstance().getBool("InternetGamesAllowed", "false") == false) {
+			mainMenu->setState(
+					new MenuStateScenario(program, mainMenu, false,
+							Config::getInstance().getPathListForType(
+									ptScenarios),
+							Config::getInstance().getString(
+									"InternetGamesBlockScenario")));
+		} else {
+			mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
+		}
     }
 	else if(buttonTutorial.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
