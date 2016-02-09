@@ -74,14 +74,11 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(stats->getVictory(stats->getThisFactionIndex())==true){
-		printf("I won\n");
 		if (Config::getInstance().getString("InternetGamesBlockScenario", "") != ""
 				&& Config::getInstance().getBool("InternetGamesAllowed", "false") == false) {
-			printf("won=%s\n",gameSettings->getScenario().c_str());
 			if(Config::getInstance().getString("InternetGamesBlockScenario")==gameSettings->getScenario()){
 				Config::getInstance().setBool("InternetGamesAllowed",true);
 				Config::getInstance().save();
-				printf("give it to me baby!\n");
 			}
 		}
 	}
