@@ -106,15 +106,26 @@ void MenuStateNewGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
 	else if(buttonMasterserverGame.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundB());
+		bool playScenario=false;
 		if (Config::getInstance().getString("InternetGamesBlockScenario", "") != ""
 				&& Config::getInstance().getBool("InternetGamesAllowed", "false") == false) {
-			mainMenu->setState(
-					new MenuStateScenario(program, mainMenu, false,
-							Config::getInstance().getPathListForType(
-									ptScenarios),
-							Config::getInstance().getString(
-									"InternetGamesBlockScenario")));
-		} else {
+
+			// check if scenario exists;
+			vector<string> dirList=Config::getInstance().getPathListForType(ptScenarios);
+			string scenarioName=Config::getInstance().getString(
+					"InternetGamesBlockScenario");
+
+			string scenarioPath = Scenario::getScenarioPath(dirList, scenarioName);
+
+			if (scenarioPath != "") {
+				mainMenu->setState(
+						new MenuStateScenario(program, mainMenu, false, dirList,
+								scenarioName));
+				playScenario=true;
+			}
+		}
+
+		if(playScenario==false){
 			mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
 		}
     }
