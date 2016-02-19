@@ -1437,7 +1437,7 @@ int CoreData::computeFontSize(int size) {
 			rs= 10;
 		}
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize orginal %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fontsize original %d      calculated:%d   \n",__FILE__,__FUNCTION__,__LINE__,size,rs);
 	return rs;
 }
 

@@ -1451,11 +1451,11 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 			cc= ccAttack;
 		}
 		else {
-			throw megaglest_runtime_error("Invalid position commmand: " + commandName,true);
+			throw megaglest_runtime_error("Invalid position command: " + commandName,true);
 		}
 
 		if(unit->getType()->getFirstCtOfClass(cc) == NULL) {
-			throw megaglest_runtime_error("Invalid commmand: [" + commandName + "] for unit: [" + unit->getType()->getName(false) + "] id [" + intToStr(unit->getId()) + "]",true);
+			throw megaglest_runtime_error("Invalid command: [" + commandName + "] for unit: [" + unit->getType()->getName(false) + "] id [" + intToStr(unit->getId()) + "]",true);
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName(false).c_str());
 		unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), pos ));

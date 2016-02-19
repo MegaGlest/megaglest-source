@@ -3,9 +3,10 @@
 # script to create HTML-pages and diagrams from the glest-factions techtree
 # 20110120, bugs & feedback to olaus@rupp.de
 # Copyright 2011 olaus
+# Copyright 2012-2016 olaus & MegaGlest Team
 # license: GPLv3 or newer
 
-our $version = "0.8 beta";
+our $version = "0.8.1 beta";
 
 # This tool requires jquery and the jquery dataTables plugin (run setupDeps.sh which uses curl to try to download these into the media folder). 
 # These are NOT required to run the script but are used to display the resulting html.
@@ -909,7 +910,7 @@ foreach my $faction_path ( @factions ) {
 
 
 		# show levels
-		if ( defined @{ $u_levels{ $u }} ) {
+		if ( $u_levels{ $u } ) {
 
 			my $level_num = 0;
 
@@ -943,7 +944,7 @@ foreach my $faction_path ( @factions ) {
 		}
 
 		# show available upgrades for this unit
-		if ( defined @{ $upgrades_for{ $u }} ) {
+		if ( $upgrades_for{ $u } ) {
 
 			$full_attack_tmp .= "<TR><TD>Upgrades Available:</TD><TD>";
 

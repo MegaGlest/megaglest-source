@@ -3,7 +3,7 @@
 # Use this script to make autodocumentation for docs in data's repository
 # ----------------------------------------------------------------------------
 # 2015 Written by filux <heross(@@)o2.pl>
-# Copyright (c) 2015 under GNU GPL v3.0+
+# Copyright (c) 2015-2016 under GNU GPL v3.0+
 LANG=C
 
 if [ "$1" = "" ]; then
@@ -21,10 +21,33 @@ if [ "$3" = "" ]; then
 else
 	rel_path_tech_test="$3"
 fi
+if [ "$4" = "" ]; then
+	remote_logo="https://megaglest.org/uploads/megaglest2011/logo/logo.png"
+else
+	remote_logo="$4"
+fi
+if [ "$5" = "" ]; then
+	remote_footer_logo="https://megaglest.org/uploads/megaglest2011/logo/gpl_osi.png"
+else
+	remote_footer_logo="$5"
+fi
 SCRIPTDIR="$(dirname "$(readlink -f "$0")")"
 cd "$SCRIPTDIR"
-rm -rf html
+rm -rf html; sleep 0.1s
+mkdir -p html/images
 sed "s|^generate_g3d_images = .*|generate_g3d_images = 0|" "$techtree.ini" > "$techtree-temp.ini"
+if [ "$(which curl 2>/dev/null)" != "" ]; then
+	if [ "$(grep -c "$remote_logo" "$techtree-temp.ini")" -gt "0" ]; then
+		curl -L -s "$remote_logo" -o "html/images/logo.png"
+		if [ "$?" -eq "0" ]; then sed -i "s|$remote_logo|images/logo.png|" "$techtree-temp.ini"; sleep 0.1s; fi
+	fi
+	if [ "$(grep -c "$remote_footer_logo" "$techtree-temp.ini")" -gt "0" ]; then
+		curl -L -s "$remote_footer_logo" -o "html/images/footer_logo.png"
+		if [ "$?" -eq "0" ]; then sed -i "s|$remote_footer_logo|images/footer_logo.png|" "$techtree-temp.ini"; sleep 0.1s; fi
+	fi
+else
+	echo "Downloading tool 'curl' DOES NOT EXIST on this system, please install it."
+fi
 ./convert_faction_xml2html.pl "$techtree-temp.ini"
 
 cd html
