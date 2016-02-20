@@ -18,7 +18,10 @@ cd "$CURRENTDIR"
 #export XZ_OPT="$XZ_OPT -9e"
 
 if [ "$1" = "-CI" ] || [ "$1" = "-" ] || [ "$(echo "$1" | grep '\--show-result-path')" != "" ]; then
-    if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
+    if [ "$2" != "" ]; then
+	SOURCE_BRANCH="$2"
+	if [ "$3" != "" ]; then NUMCORES="$3"; fi
+    fi
 fi
 
 VERSION="$(../linux/mg-version.sh --version)"
@@ -55,7 +58,9 @@ if [ "$skipbinarybuild" -eq "0" ]; then
 	echo "building binaries ..."
 	cd "$CURRENTDIR"
 	if [ -d "build" ]; then rm -rf "build"; fi
-	./build-mg.sh -b
+	build_command="./build-mg.sh -b"
+	if [ "$NUMCORES" != "" ]; then build_command="$build_command -c $NUMCORES"; fi
+	$build_command
 	if [ "$?" -ne "0" ]; then echo 'ERROR: "./build-mg.sh" failed.' >&2; exit 1; fi
 else
 	echo "SKIPPING build of binaries ..."
