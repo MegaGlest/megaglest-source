@@ -451,7 +451,8 @@ float Ai::getRatioOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFr
 		return 0;
 	}
 	else {
-		return static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount();
+		//return static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount();
+		return truncateDecimal<float>(static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount(),6);
 	}
 }
 

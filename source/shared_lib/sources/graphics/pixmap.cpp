@@ -1145,7 +1145,8 @@ float Pixmap2D::getPixelf(int x, int y) const {
 		snprintf(szBuf,8096,"Invalid pixmap index: " MG_SIZE_T_SPECIFIER " for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
 		throw megaglest_runtime_error(szBuf);
 	}
-	return pixels[index] / 255.f;
+	float result = pixels[index] / 255.f;
+	return truncateDecimal<float>(result,6);
 }
 
 float Pixmap2D::getComponentf(int x, int y, int component) const {
