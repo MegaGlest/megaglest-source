@@ -686,7 +686,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		for(int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
 			Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
 
-		   //printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
+		   printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
 		   if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
 		   if(strlen(myhostaddr) > 0 &&
@@ -709,6 +709,16 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	intfTypes.push_back("vboxnet");
 	intfTypes.push_back("br-lan");
 	intfTypes.push_back("br-gest");
+	intfTypes.push_back("enp0s");
+	intfTypes.push_back("enp1s");
+	intfTypes.push_back("enp2s");
+	intfTypes.push_back("enp3s");
+	intfTypes.push_back("enp4s");
+	intfTypes.push_back("enp5s");
+	intfTypes.push_back("enp6s");
+	intfTypes.push_back("enp7s");
+	intfTypes.push_back("enp8s");
+	intfTypes.push_back("enp9s");
 
 	for(int intfIdx = 0; intfIdx < (int)intfTypes.size(); intfIdx++) {
 		string intfName = intfTypes[intfIdx];

@@ -892,7 +892,8 @@ Vec2f Unit::getFloatCenteredPos() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
+	return Vec2f(truncateDecimal<float>(pos.x-0.5f+type->getSize()/2.f,6),
+			     truncateDecimal<float>(pos.y-0.5f+type->getSize()/2.f,6));
 }
 
 Vec2i Unit::getCellPos() const {
