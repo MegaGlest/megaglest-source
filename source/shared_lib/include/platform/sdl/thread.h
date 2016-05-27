@@ -79,6 +79,7 @@ private:
 	static Mutex mutexthreadList;
 	static vector<Thread *> threadList;
 	static bool enableVerboseMode;
+	static unsigned long mainThreadId;
 
 protected:
 	void addThreadToList();
@@ -89,6 +90,11 @@ protected:
 public:
 	Thread();
 	virtual ~Thread();
+
+	static unsigned long getCurrentThreadId();
+	static unsigned long getMainThreadId() { return mainThreadId; }
+	static void setMainThreadId();
+	static bool isCurrentThreadMainThread();
 
 	static void setEnableVerboseMode(bool value) { enableVerboseMode = value; }
 	static bool getEnableVerboseMode() { return enableVerboseMode; }

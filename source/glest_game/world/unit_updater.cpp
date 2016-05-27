@@ -282,7 +282,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		
 		//move unit in cells
 		if(unit->getCurrSkill()->getClass() == scMove) {
-			world->moveUnitCells(unit);
+			world->moveUnitCells(unit, true);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after world->moveUnitCells()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -750,6 +750,13 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 				}
 				else {
 					//if unit arrives destPos order has ended
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
+							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"#1 [updateAttack] tsValue = %d",tsValue);
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
+
 					switch (tsValue) {
 						case tsMoving:
 							unit->setCurrSkill(act->getMoveSkillType());
@@ -804,9 +811,10 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 					}
 	*/
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
+							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"[updateAttack]");
+						snprintf(szBuf,8096,"#2 [updateAttack] tsValue = %d",tsValue);
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 
@@ -1254,7 +1262,7 @@ void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateHarvestEmergencyReturn]");
-		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	//printf("\n#1 updateHarvestEmergencyReturn\n");
@@ -2304,7 +2312,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//place unit creates the unit
-			if(!world->placeUnit(unit->getCenteredPos(), 10, produced)) {
+			if(!world->placeUnit(unit->getCenteredPos(), 10, produced, false, frameIndex < 0)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,produced->getId());
 				delete produced;
 			}
@@ -2437,7 +2445,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 		if(map->canMorph(unit->getPos(),unit,mct->getMorphUnit())){
 			unit->setCurrSkill(mct->getMorphSkillType());
 			// block space for morphing units ( block space before and after morph ! )
-			map->putUnitCells(unit, unit->getPos());
+			map->putUnitCells(unit, unit->getPos(), false, frameIndex < 0);
 		}
 		else{
 			if(unit->getFactionIndex()==world->getThisFactionIndex()){
@@ -2460,7 +2468,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     	    }
 
 			//finish the command
-			if(unit->morph(mct)){
+			if(unit->morph(mct, frameIndex)){
 				unit->finishCommand();
 				if(gui->isSelected(unit)){
 					gui->onSelectionChanged();
@@ -2966,7 +2974,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
     	unit->getRandom()->addLastCaller(randomInfoData);
 
-    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
+    	if( attackingEnemySeen != NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
+    	//if( attackingEnemySeen != NULL) {
     		*rangedPtr 	= attackingEnemySeen;
     		enemySeen 	= attackingEnemySeen;
     		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());

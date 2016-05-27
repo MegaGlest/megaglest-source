@@ -132,9 +132,9 @@ SurfaceCell::SurfaceCell() {
 	nearSubmerged = false;
 	cellChangedFromOriginalMapLoad = false;
 
-	for(int i = 0; i < GameConstants::maxPlayers + GameConstants::specialFactions; ++i) {
-		visible[i] = false;
-		explored[i] = false;
+	for(int index = 0; index < GameConstants::maxPlayers + GameConstants::specialFactions; ++index) {
+		setVisible(index,false);
+		setExplored(index,false);
 	}
 }
 
@@ -190,6 +190,45 @@ void SurfaceCell::setVisible(int teamIndex, bool visible) {
 	}
 
     this->visible[teamIndex]= visible;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+			SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In setVisible() teamIndex %d visible %d",teamIndex,visible);
+
+//		if(frameIndex < 0) {
+//			unit->logSynchData(__FILE__,__LINE__,szBuf);
+//		}
+//		else {
+//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+//		}
+
+		if(Thread::isCurrentThreadMainThread()) {
+			//unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,szBuf);
+		}
+		else {
+			//unit->logSynchData(__FILE__,__LINE__,szBuf);
+			printf("%s",szBuf);
+		}
+
+	}
+
+}
+
+string SurfaceCell::isVisibleString() const	{
+	string result = "isVisibleList = ";
+	for(int index = 0; index < GameConstants::maxPlayers + GameConstants::specialFactions; ++index) {
+		result += string(visible[index] ? "true" : "false");
+	}
+	return result;
+}
+string SurfaceCell::isExploredString() const {
+	string result = "isExploredList = ";
+	for(int index = 0; index < GameConstants::maxPlayers + GameConstants::specialFactions; ++index) {
+		result += string(explored[index] ? "true" : "false");
+	}
+	return result;
 }
 
 void SurfaceCell::saveGame(XmlNode *rootNode,int index) const {
@@ -1309,12 +1348,12 @@ bool Map::isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,
 }
 
 //put a units into the cells
-void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
+void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill, bool threaded) {
 	assert(unit != NULL);
 	if(unit == NULL) {
 		throw megaglest_runtime_error("ut == NULL");
 	}
-	putUnitCellsPrivate(unit, pos, unit->getType(), false);
+	putUnitCellsPrivate(unit, pos, unit->getType(), false, threaded);
 
 	// block space for morphing units
 	if(ignoreSkill==false &&
@@ -1323,13 +1362,13 @@ void Map::putUnitCells(Unit *unit, const Vec2i &pos, bool ignoreSkill) {
 		Command *command= unit->getCurrCommand();
 		if(command != NULL && command->getCommandType()->commandTypeClass == ccMorph){
 			const MorphCommandType *mct= static_cast<const MorphCommandType*>(command->getCommandType());
-			putUnitCellsPrivate(unit, pos, mct->getMorphUnit(),true);
+			putUnitCellsPrivate(unit, pos, mct->getMorphUnit(),true, threaded);
 			unit->setMorphFieldsBlocked(true);
 		}
 	}
 }
 
-void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph) {
+void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph, bool threaded) {
 	assert(unit != NULL);
 	if(unit == NULL) {
 		throw megaglest_runtime_error("ut == NULL");
@@ -1409,7 +1448,7 @@ void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, 
 		}
 	}
 	if(canPutInCell == true) {
-        unit->setPos(pos);
+        unit->setPos(pos, false, threaded);
 	}
 }
 

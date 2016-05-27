@@ -686,7 +686,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		for(int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
 			Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
 
-		   printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
+		   //printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
 		   if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
 
 		   if(strlen(myhostaddr) > 0 &&

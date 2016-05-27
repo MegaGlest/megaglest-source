@@ -4129,6 +4129,7 @@ int glestMain(int argc, char** argv) {
 
 #endif
 
+	Thread::setMainThreadId();
 //	printf("START ALLOC char 200\n");
 	//char *ptr = new char[200];
 //	printf("END ALLOC char 200\n");

@@ -74,6 +74,7 @@ public:
         debugNetwork,
 		debugPerformance,
 		debugWorldSynch,
+		debugWorldSynchMax,
 		debugUnitCommands,
 		debugPathFinder,
 		debugLUA,

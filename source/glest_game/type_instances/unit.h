@@ -626,9 +626,9 @@ public:
     inline void setLoadCount(int loadCount)					{this->loadCount= loadCount;}
     inline void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
     inline void setProgress2(int progress2)					{this->progress2= progress2;}
-	void setPos(const Vec2i &pos,bool clearPathFinder=false);
+	void setPos(const Vec2i &pos,bool clearPathFinder=false, bool threaded=false);
 	void refreshPos(bool forceRefresh=false);
-	void setTargetPos(const Vec2i &targetPos);
+	void setTargetPos(const Vec2i &targetPos, bool threaded=false);
 	void setTarget(const Unit *unit);
 	//void setTargetVec(const Vec3f &targetVec);
 	void setMeetingPos(const Vec2i &meetingPos);
@@ -683,7 +683,7 @@ public:
     int update2();
     bool update();
 	void tick();
-	RandomGen* getRandom() { return &random; }
+	RandomGen* getRandom(bool threadAccessAllowed=false);
 
 	bool applyAttackBoost(const AttackBoost *boost, const Unit *source);
 	void deapplyAttackBoost(const AttackBoost *boost, const Unit *source);
@@ -691,7 +691,7 @@ public:
 	void applyUpgrade(const UpgradeType *upgradeType);
 	void computeTotalUpgrade();
 	void incKills(int team);
-	bool morph(const MorphCommandType *mct);
+	bool morph(const MorphCommandType *mct, int frameIndex);
 	std::pair<CommandResult,string> checkCommand(Command *command) const;
 	void applyCommand(Command *command);
 

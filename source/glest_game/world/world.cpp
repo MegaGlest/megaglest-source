@@ -39,6 +39,7 @@ namespace Glest{ namespace Game{
 
 // This limit is to keep RAM use under control while offering better performance.
 int MaxExploredCellsLookupItemCache = 9500;
+//int MaxExploredCellsLookupItemCache = 0;
 time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
@@ -1127,7 +1128,7 @@ const UnitType * World::findUnitTypeByName(const string factionName, const strin
 }
 
 //looks for a place for a unit around a start location, returns true if succeded
-bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated) {
+bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated, bool threaded) {
     if(unit == NULL) {
     	throw megaglest_runtime_error("unit == NULL");
     }
@@ -1149,7 +1150,7 @@ bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spacia
 				}
 
                 if(freeSpace) {
-                    unit->setPos(pos);
+                    unit->setPos(pos, false, threaded);
                     Vec2i meetingPos = pos-Vec2i(1);
 					unit->setMeetingPos(meetingPos);
                     return true;
@@ -1161,7 +1162,7 @@ bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spacia
 }
 
 //clears a unit old position from map and places new position
-void World::moveUnitCells(Unit *unit) {
+void World::moveUnitCells(Unit *unit, bool threaded) {
 	if(unit == NULL) {
     	throw megaglest_runtime_error("unit == NULL");
     }
@@ -1174,7 +1175,7 @@ void World::moveUnitCells(Unit *unit) {
 	// from the old one
 	if(newPos != unit->getPos()) {
 		map.clearUnitCells(unit, unit->getPos());
-		map.putUnitCells(unit, newPos);
+		map.putUnitCells(unit, newPos, false, threaded);
 	}
 	// Add resources close by to the faction's cache
 	unit->getFaction()->addCloseResourceTargetToCache(newPos);
@@ -1182,6 +1183,12 @@ void World::moveUnitCells(Unit *unit) {
 	//water splash
 	if(tileset.getWaterEffects() && unit->getCurrField() == fLand) {
 		if(map.getSubmerged(map.getCell(unit->getLastPos()))) {
+
+			if(Thread::isCurrentThreadMainThread() == false) {
+				throw megaglest_runtime_error("#1 Invalid access to World random from outside main thread current id = " +
+						intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+			}
+
 			int unitSize= unit->getType()->getSize();
 			for(int i = 0; i < 3; ++i) {
 				waterEffects.addWaterSplash(
@@ -1808,7 +1815,7 @@ void World::setUnitPosition(int unitId, Vec2i pos) {
 		throw megaglest_runtime_error("Can not find unit to set position unitId = " + intToStr(unitId),true);
 	}
 	unit->setTargetPos(pos);
-	this->moveUnitCells(unit);
+	this->moveUnitCells(unit, false);
 }
 
 void World::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile) {
@@ -1960,9 +1967,19 @@ void World::initCells(bool fogOfWar) {
 				sc->setExplored(k, (game->getGameSettings()->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources);
 				sc->setVisible(k, !fogOfWar);
 			}
+
 			for (int k = GameConstants::maxPlayers; k < GameConstants::maxPlayers + GameConstants::specialFactions; k++) {
 				sc->setExplored(k, true);
 				sc->setVisible(k, true);
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In initCells() x = %d y = %d %s %s",i,j,sc->isVisibleString().c_str(),sc->isExploredString().c_str());
+				if(Thread::isCurrentThreadMainThread()) {
+					//unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,szBuf);
+				}
 			}
 		}
     }
@@ -2333,7 +2350,7 @@ void World::exploreCells(int teamIndex, ExploredCellsLookupItem &exploredCellsCa
 
 // ==================== exploration ====================
 
-ExploredCellsLookupItem World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
+ExploredCellsLookupItem World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex, Unit *unit) {
 	// cache lookup of previously calculated cells + sight range
 	if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
@@ -2413,13 +2430,28 @@ ExploredCellsLookupItem World::exploreCells(const Vec2i &newPos, int sightRange,
 
 				//explore
 				float posLength = currRelPos.length();
-				if(posLength < surfSightRange + indirectSightRange + 1) {
+				bool updateExplored = (posLength < surfSightRange + indirectSightRange + 1);
+				bool updateVisible = (posLength < surfSightRange);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In exploreCells() currRelPos = %s currPos = %s posLength = %f updateExplored = %d updateVisible = %d sightRange = %d teamIndex = %d",
+							currRelPos.getString().c_str(), currPos.getString().c_str(),posLength,updateExplored, updateVisible, sightRange, teamIndex);
+					if(Thread::isCurrentThreadMainThread() == false) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
+				if(updateExplored) {
                     sc->setExplored(teamIndex, true);
                     exploredCellsCache.exploredCellList.push_back(sc);
 				}
-
 				//visible
-				if(posLength < surfSightRange) {
+				if(updateVisible) {
 					sc->setVisible(teamIndex, true);
 					exploredCellsCache.visibleCellList.push_back(sc);
 				}
@@ -2509,7 +2541,7 @@ void World::computeFow() {
 
 	// Once we have calculated fog of war texture alpha, they are cached so we
 	// restore the default texture in one shot for speed
-	if(cacheFowAlphaTexture == true) {
+	if(fogOfWar && cacheFowAlphaTexture == true) {
 		if(cacheFowAlphaTextureFogOfWarValue != fogOfWar) {
 			cacheFowAlphaTexture = false;
 		}
@@ -2521,7 +2553,18 @@ void World::computeFow() {
 	for(int indexFaction = 0;
 			indexFaction < GameConstants::maxPlayers + GameConstants::specialFactions;
 			++indexFaction) {
-		if(fogOfWar || indexFaction != thisTeamIndex) {
+
+		// If fog of war enabled set cell visible to false and later set those close to units to true
+		if(fogOfWar) {
+			for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
+				for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
+					// set all cells to not visible
+					map.getSurfaceCell(indexSurfaceW, indexSurfaceH)->setVisible(indexFaction, false);
+				}
+			}
+		}
+
+		if(!fogOfWar || (indexFaction != thisTeamIndex)) {
 			bool showWorldForFaction = showWorldForPlayer(indexFaction);
 			if(showWorldForFaction == true) {
 				resetFowAlphaFactionCount++;
@@ -2529,13 +2572,10 @@ void World::computeFow() {
 
 			for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
 				for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
-					// set all cells to not visible
-					map.getSurfaceCell(indexSurfaceW, indexSurfaceH)->setVisible(indexFaction, false);
-
 					// reset fog of ware texture alpha values
-					if(cacheFowAlphaTexture == false &&
+					if(!fogOfWar || (cacheFowAlphaTexture == false &&
 						showWorldForFaction == true &&
-							resetFowAlphaFactionCount <= 1) {
+							resetFowAlphaFactionCount <= 1)) {
 						const Vec2i surfPos(indexSurfaceW,indexSurfaceH);
 
 						//compute max alpha
@@ -2558,12 +2598,13 @@ void World::computeFow() {
 				}
 			}
 		}
+
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	}
 
 	// Once we have calculated fog of war texture alpha, will we cache it so that we
 	// can restore it later
-	if(cacheFowAlphaTexture == false && resetFowAlphaFactionCount > 0) {
+	if(fogOfWar && cacheFowAlphaTexture == false && resetFowAlphaFactionCount > 0) {
 		cacheFowAlphaTexture = true;
 		cacheFowAlphaTextureFogOfWarValue = fogOfWar;
 		minimap.copyFowTexAlphaSurface();

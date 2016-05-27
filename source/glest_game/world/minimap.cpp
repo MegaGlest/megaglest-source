@@ -205,8 +205,8 @@ void Minimap::resetFowTex() {
 			for(int indexPixelHeight = 0;
 					indexPixelHeight < fowTex->getPixmap()->getH();
 					++indexPixelHeight){
-				if ((fogOfWar == false && overridefogOfWarValue == false) &&
-					(gameSettings->getFlagTypes1() & ft1_show_map_resources) != ft1_show_map_resources) {
+				if ((fogOfWar == false && overridefogOfWarValue == false)) {
+					//(gameSettings->getFlagTypes1() & ft1_show_map_resources) != ft1_show_map_resources) {
 					//printf("Line: %d\n",__LINE__);
 
 					float p0 = fowPixmap0->getPixelf(indexPixelWidth, indexPixelHeight);
@@ -219,7 +219,7 @@ void Minimap::resetFowTex() {
 					}
 				}
 				else if((fogOfWar && overridefogOfWarValue) ||
-					(gameSettings->getFlagTypes1() & ft1_show_map_resources) != ft1_show_map_resources) {
+					(gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources) {
 					//printf("Line: %d\n",__LINE__);
 
 					float p0= fowPixmap0->getPixelf(indexPixelWidth, indexPixelHeight);

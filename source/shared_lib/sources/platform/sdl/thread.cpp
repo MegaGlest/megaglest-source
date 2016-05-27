@@ -26,6 +26,7 @@ namespace Shared { namespace Platform {
 bool Thread::enableVerboseMode = false;
 Mutex Thread::mutexthreadList;
 vector<Thread *> Thread::threadList;
+unsigned long Thread::mainThreadId = -1;
 
 auto_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
 vector<Mutex *> Mutex::mutexList;
@@ -136,6 +137,16 @@ Thread::Thread() : thread(NULL),
 		mutexthreadAccessor(new Mutex(CODE_AT_LINE)),
 		deleteAfterExecute(false), currentState(thrsNew) {
 	addThreadToList();
+}
+
+unsigned long Thread::getCurrentThreadId() {
+	return SDL_ThreadID();
+}
+void Thread::setMainThreadId() {
+	mainThreadId = getCurrentThreadId();
+}
+bool Thread::isCurrentThreadMainThread() {
+	return getCurrentThreadId() == mainThreadId;
 }
 
 void Thread::addThreadToList() {

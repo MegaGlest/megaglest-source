@@ -260,7 +260,6 @@ public:
 
 	inline float dist(const Vec2<T> &v) const{
 		float distance = Vec2<T>(v-*this).length();
-		distance = truncateDecimal<float>(distance,6);
 		return distance;
 	}
 
@@ -270,8 +269,12 @@ public:
 	}
 
 	inline float length() const {
+#ifdef USE_STREFLOP
+		float len = static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
+#else
 		float len = static_cast<float>(std::sqrt(static_cast<float>(x*x + y*y)));
 		len = truncateDecimal<float>(len,6);
+#endif
 		return len;
 	}
 
@@ -494,13 +497,16 @@ public:
 
 	inline float dist(const Vec3<T> &v) const {
 		float distance = Vec3<T>(v-*this).length();
-		distance = truncateDecimal<float>(distance,6);
 		return distance;
 	}
 
 	inline float length() const {
+#ifdef USE_STREFLOP
+		float len = static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
+#else
 		float len = static_cast<float>(std::sqrt(x*x + y*y + z*z));
 		len = truncateDecimal<float>(len,6);
+#endif
 		return len;
 	}
 

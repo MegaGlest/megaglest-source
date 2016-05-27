@@ -1542,7 +1542,13 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 			// First look immediately around the unit's position
 
 			// 0 means start looking leftbottom to top right
+//			if(Thread::isCurrentThreadMainThread() == false) {
+//				throw megaglest_runtime_error("#1 Invalid access to Faction random from outside main thread current id = " +
+//						intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+//			}
 			int tryRadius = random.randRange(0,1);
+			//int tryRadius = unit->getRandom(true)->randRange(0,1);
+			//int tryRadius = 0;
 			if(tryRadius == 0) {
 				for(int j = -harvestDistance; j <= harvestDistance && foundCloseResource == false; ++j) {
 					for(int k = -harvestDistance; k <= harvestDistance && foundCloseResource == false; ++k) {
@@ -1665,6 +1671,10 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 			bool foundCloseResource = false;
 
 			// 0 means start looking leftbottom to top right
+//			if(Thread::isCurrentThreadMainThread() == false) {
+//				throw megaglest_runtime_error("#2 Invalid access to Faction random from outside main thread current id = " +
+//						intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+//			}
 			int tryRadius = random.randRange(0,1);
 			if(tryRadius == 0) {
 				// First look immediately around the given position

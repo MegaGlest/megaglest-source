@@ -329,6 +329,14 @@ Ai::~Ai() {
 	aiInterface = NULL;
 }
 
+RandomGen* Ai::getRandom() {
+//	if(Thread::isCurrentThreadMainThread() == false) {
+//		throw megaglest_runtime_error("Invalid access to AI random from outside main thread current id = " +
+//				intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+//	}
+	return &random;
+}
+
 void Ai::update() {
 
 	Chrono chrono;
