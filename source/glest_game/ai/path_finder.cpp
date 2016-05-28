@@ -330,10 +330,10 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					int factionIndex = unit->getFactionIndex();
 					FactionState &faction = factions.getFactionState(factionIndex);
 
-					if(Thread::isCurrentThreadMainThread() == false) {
-						throw megaglest_runtime_error("#2 Invalid access to FactionState random from outside main thread current id = " +
-								intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
-					}
+					//if(Thread::isCurrentThreadMainThread() == false) {
+					//	throw megaglest_runtime_error("#2 Invalid access to FactionState random from outside main thread current id = " +
+					//			intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+					//}
 
 					int tryRadius = faction.random.randRange(1,2);
 					//int tryRadius = faction.random.IRandomX(1,2);
