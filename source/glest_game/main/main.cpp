@@ -5966,7 +5966,7 @@ __try {
 
 	initSpecialStrings();
 	int result = 0;
-	try {
+
 #ifdef WIN32
 	winSockManager = new SocketManager();
 #endif
@@ -5977,14 +5977,12 @@ __try {
 	cleanupProcessObjects();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	}
-	catch(const exception &e) {
+
 #ifdef WIN32
 		delete winSockManager;
 		winSockManager = NULL;
 #endif
-		throw e;
-	}
+
     if(sdl_quitCalled == false) {
     	sdl_quitCalled = true;
     	SDL_Quit();
