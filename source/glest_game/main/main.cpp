@@ -5947,11 +5947,6 @@ void EnableCrashingOnCrashes() {
 
 int glestMainSEHWrapper(int argc, char** argv) {
 
-#ifdef WIN32
-	//winSockManager = new SocketManager();
-	SocketManager winSockManager;
-#endif
-
 #ifdef WIN32_STACK_TRACE
 	//printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
@@ -6050,6 +6045,11 @@ int glestMainWrapper(int argc, char** argv) {
 	  //printf("MTRACE will be called...\n");
       //mtrace ();
 //#endif
+#endif
+
+#ifdef WIN32
+	//winSockManager = new SocketManager();
+	SocketManager winSockManager;
 #endif
 
 	int result = glestMainSEHWrapper(argc, argv);
