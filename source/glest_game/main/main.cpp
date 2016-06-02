@@ -127,7 +127,7 @@ static FileCRCPreCacheThread *preCacheThread	= NULL;
 #ifdef WIN32
 static string runtimeErrorMsg 					= "";
 // keeps in scope for duration of the application
-SocketManager *winSockManager = NULL;
+//SocketManager *winSockManager = NULL;
 
 #endif
 
@@ -5946,6 +5946,12 @@ void EnableCrashingOnCrashes() {
 #endif
 
 int glestMainSEHWrapper(int argc, char** argv) {
+
+#ifdef WIN32
+	//winSockManager = new SocketManager();
+	SocketManager winSockManager;
+#endif
+
 #ifdef WIN32_STACK_TRACE
 	//printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
@@ -5967,9 +5973,6 @@ __try {
 	initSpecialStrings();
 	int result = 0;
 
-#ifdef WIN32
-	winSockManager = new SocketManager();
-#endif
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
 	result = glestMain(argc, argv);
 
@@ -5979,8 +5982,8 @@ __try {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 #ifdef WIN32
-		delete winSockManager;
-		winSockManager = NULL;
+		//delete winSockManager;
+		//winSockManager = NULL;
 #endif
 
     if(sdl_quitCalled == false) {
