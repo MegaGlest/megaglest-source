@@ -127,7 +127,7 @@ static FileCRCPreCacheThread *preCacheThread	= NULL;
 #ifdef WIN32
 static string runtimeErrorMsg 					= "";
 // keeps in scope for duration of the application
-auto_ptr<SocketManager> winSockManager(new SocketManager());
+SocketManager *winSockManager = NULL;
 
 #endif
 
@@ -5965,14 +5965,26 @@ __try {
 #endif
 
 	initSpecialStrings();
+	int result = 0;
+	try {
+#ifdef WIN32
+	winSockManager = new SocketManager();
+#endif
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
-	int result = glestMain(argc, argv);
+	result = glestMain(argc, argv);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	cleanupProcessObjects();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	}
+	catch(const exception &e) {
+#ifdef WIN32
+		delete winSockManager;
+		winSockManager = NULL;
+#endif
+		throw e;
+	}
     if(sdl_quitCalled == false) {
     	sdl_quitCalled = true;
     	SDL_Quit();
