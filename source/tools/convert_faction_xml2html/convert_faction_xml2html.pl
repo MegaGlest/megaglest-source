@@ -1158,13 +1158,13 @@ foreach my $faction_path ( @factions ) {
 			$found = 0;
 
 			if ( $relation =~ /Require/i ) {
-				$full_tmp = "<TR><TD>$unit_pretty is a $relation for:</TD><TD>";
+				$full_tmp = "<TR><TD>'$unit_pretty' is a $relation for:</TD><TD>";
 			}
 			elsif ( $relation =~ /Command/i ) {
-				$full_tmp = "<TR><TD>$unit_pretty enables commands:</TD><TD>";
+				$full_tmp = "<TR><TD>'$unit_pretty' enables commands:</TD><TD>";
 			}
 			else {
-				$full_tmp = "<TR><TD>$unit_pretty is able to $relation:</TD><TD>";
+				$full_tmp = "<TR><TD>'$unit_pretty' is able to $relation:</TD><TD>";
 			}
 	
 			my $last_command="";
@@ -1176,7 +1176,7 @@ foreach my $faction_path ( @factions ) {
 				if ( $command ) {
 					$full_tmp .= &format_name($command)." : ".&link_unit($faction, $req_unit)."<br>\n";
 					if ( $command ne $last_command ) {
-						$req_overview_tmp .= "Enables command <i>".&format_name($command)."</i> for: ";
+						$req_overview_tmp .= "Enables command '<i>".&format_name($command)."</i>' for: ";
 					}
 					$req_overview_tmp .= &link_unit($faction, $req_unit).", ";
 					$last_command=$command;
@@ -1192,20 +1192,25 @@ foreach my $faction_path ( @factions ) {
 			if ( $found ) {
 				print "found enables for $u\n";
 				$full .= $full_tmp;
-				chop $req_overview_tmp;
-				chop $req_overview_tmp;
-				$req_overview_tmp = "<TD>$req_overview_tmp";
+				# detect unit & command in one cell
+				my $found_unit_command = grep /<A HREF=.*Enables command/, $req_overview_tmp;
+				if ( !$found_unit_command ) {
+					$req_overview_tmp = "<TD>$req_overview_tmp";
+				}
 			}
 
 		}
-
+		if ( defined $req_overview_tmp && length $req_overview_tmp ) {
+			chop $req_overview_tmp;
+			chop $req_overview_tmp;
+		}
 		$req_overview_tmp = $req_overview_tmp || "<TD>&nbsp;";
 
 
 
 		# print what's needed to build this unit and what is enabled to built by this unit
 		$found = 0;
-		$full_tmp = "<TR><TD>Needed to build $unit_pretty:</TD><TD>";
+		$full_tmp = "<TR><TD>Needed to build '$unit_pretty':</TD><TD>";
 		foreach my $unit_requirement ( @{$c_unit_requires{"$faction:$unit"}} ) {
 			my ( $faction, $req_unit ) = split(/:/, $unit_requirement );
 			my $req_unit_pretty = &format_name( $req_unit );
@@ -2361,7 +2366,7 @@ sub show_attack {
 	my $target;
 
 
-	my $full_attack_tmp = "<TR><TD>Attack Command: $command_pretty".&html_icon_command( $c, 32 )."</TD><TD>\n";
+	my $full_attack_tmp = "<TR><TD>Attack Command: $command_pretty<BR>".&html_icon_command( $c, 32 )."</TD><TD>\n";
 
 	my $skill = $attack_skill{ $c };
 	# attacks have own move_skills (charge)

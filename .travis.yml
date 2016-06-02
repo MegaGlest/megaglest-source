@@ -12,7 +12,7 @@ compiler:
   - clang
 
 env:
-  - GCC_VERSION="5"
+  - GCC_VERSION="6"
   - GCC_VERSION="native"
   - LLVM_VERSION="3.7"
   - LLVM_VERSION="native"
@@ -24,7 +24,7 @@ matrix:
     - compiler: gcc
       env: LLVM_VERSION="native"
     - compiler: clang
-      env: GCC_VERSION="5"
+      env: GCC_VERSION="6"
     - compiler: clang
       env: GCC_VERSION="native"
     - os: linux
@@ -35,7 +35,9 @@ matrix:
     - os: osx
       compiler: clang
       env: LLVM_VERSION="3.7" # missing compiler by brew
-  #allow_failures:
+  allow_failures:
+    - os: linux
+      env: LLVM_VERSION="3.7" # "APT mirror was temporary switched off ..."
   #  - os: osx
 
 git:
