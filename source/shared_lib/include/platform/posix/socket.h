@@ -129,9 +129,9 @@ public:
 class Socket {
 
 protected:
-#ifdef WIN32
-	static SocketManager wsaManager;
-#endif
+//#ifdef WIN32
+	//static SocketManager wsaManager;
+//#endif
 	PLATFORM_SOCKET sock;
 	time_t lastDebugEvent;
 	static int broadcast_portno;

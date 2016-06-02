@@ -228,7 +228,7 @@ Mutex UPNP_Tools::mutexUPNP;
 	}
 
 	// keeps in scope for duration of the application
-	SocketManager Socket::wsaManager;
+	//SocketManager Socket::wsaManager;
 
 	SocketManager::SocketManager() {
 		WSADATA wsaData;

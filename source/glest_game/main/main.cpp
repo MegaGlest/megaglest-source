@@ -126,6 +126,9 @@ static Program *mainProgram 					= NULL;
 static FileCRCPreCacheThread *preCacheThread	= NULL;
 #ifdef WIN32
 static string runtimeErrorMsg 					= "";
+// keeps in scope for duration of the application
+auto_ptr<SocketManager> winSockManager(new SocketManager());
+
 #endif
 
 #ifdef HAVE_GOOGLE_BREAKPAD
@@ -4246,9 +4249,9 @@ int glestMain(int argc, char** argv) {
 
 
 
-#ifdef WIN32
-	SocketManager winSockManager;
-#endif
+//#ifdef WIN32
+	//SocketManager winSockManager;
+//#endif
 
     bool haveSpecialOutputCommandLineOption = false;
 
