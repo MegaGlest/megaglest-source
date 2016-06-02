@@ -17,5 +17,5 @@ if [ -d "$GAMEDIR/$LIBDIR" ]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}"
 fi
 BeginTime="$(date +"%s")"
-"$GAMEDIR/$EXC_BINARY" $@
+"$GAMEDIR/$EXC_BINARY" "$@"
 "$GAMEDIR/$BASIC_SCRIPT" --tool-buginfo "$?" "$WARNINGS" "$BeginTime" "$(date +"%s")" "$EXC_BINARY"
