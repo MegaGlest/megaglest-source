@@ -69,6 +69,7 @@ bool Socket::disableNagle = false;
 int Socket::DEFAULT_SOCKET_SENDBUF_SIZE = -1;
 int Socket::DEFAULT_SOCKET_RECVBUF_SIZE = -1;
 string Socket::host_name = "";
+std::vector<string> Socket::intfTypes;
 
 int Socket::broadcast_portno    = 61357;
 int ServerSocket::ftpServerPort = 61358;
@@ -701,27 +702,29 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 #ifndef WIN32
 
 	// Now check all linux network devices
-	std::vector<string> intfTypes;
-	intfTypes.push_back("lo");
-	intfTypes.push_back("eth");
-	intfTypes.push_back("wlan");
-	intfTypes.push_back("vlan");
-	intfTypes.push_back("vboxnet");
-	intfTypes.push_back("br-lan");
-	intfTypes.push_back("br-gest");
-	intfTypes.push_back("enp0s");
-	intfTypes.push_back("enp1s");
-	intfTypes.push_back("enp2s");
-	intfTypes.push_back("enp3s");
-	intfTypes.push_back("enp4s");
-	intfTypes.push_back("enp5s");
-	intfTypes.push_back("enp6s");
-	intfTypes.push_back("enp7s");
-	intfTypes.push_back("enp8s");
-	intfTypes.push_back("enp9s");
+	//std::vector<string> intfTypes;
+	if(Socket::intfTypes.empty()) {
+		Socket::intfTypes.push_back("lo");
+		Socket::intfTypes.push_back("eth");
+		Socket::intfTypes.push_back("wlan");
+		Socket::intfTypes.push_back("vlan");
+		Socket::intfTypes.push_back("vboxnet");
+		Socket::intfTypes.push_back("br-lan");
+		Socket::intfTypes.push_back("br-gest");
+		Socket::intfTypes.push_back("enp0s");
+		Socket::intfTypes.push_back("enp1s");
+		Socket::intfTypes.push_back("enp2s");
+		Socket::intfTypes.push_back("enp3s");
+		Socket::intfTypes.push_back("enp4s");
+		Socket::intfTypes.push_back("enp5s");
+		Socket::intfTypes.push_back("enp6s");
+		Socket::intfTypes.push_back("enp7s");
+		Socket::intfTypes.push_back("enp8s");
+		Socket::intfTypes.push_back("enp9s");
+	}
 
-	for(int intfIdx = 0; intfIdx < (int)intfTypes.size(); intfIdx++) {
-		string intfName = intfTypes[intfIdx];
+	for(unsigned int intfIdx = 0; intfIdx < Socket::intfTypes.size(); intfIdx++) {
+		string intfName = Socket::intfTypes[intfIdx];
 		for(int idx = 0; idx < 10; ++idx) {
 			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
 			//PLATFORM_SOCKET fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);

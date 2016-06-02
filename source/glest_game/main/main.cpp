@@ -4615,6 +4615,14 @@ int glestMain(int argc, char** argv) {
         	removeFile(binaryNameOld);
         }
 
+        string netInterfaces = config.getString("NetworkInterfaces","");
+        if(netInterfaces != "") {
+        	//printf("Using network interfaces: %s\n",netInterfaces.c_str());
+    		std::vector<std::string> intfList;
+    		Tokenize(netInterfaces,intfList,",");
+        	Socket::setIntfTypes(intfList);
+        }
+
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_USE_PORTS]) + string("="),&foundParamIndIndex);

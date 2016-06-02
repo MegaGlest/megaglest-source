@@ -153,6 +153,7 @@ protected:
 	time_t lastSocketError;
 
 	static string host_name;
+	static std::vector<string> intfTypes;
 
 public:
 	Socket(PLATFORM_SOCKET sock);
@@ -163,6 +164,7 @@ public:
 	static const char * getLastSocketErrorText(int *errNumber=NULL);
 	static string getLastSocketErrorFormattedText(int *errNumber=NULL);
 
+	static void setIntfTypes(std::vector<string> intfTypes) { Socket::intfTypes = intfTypes; }
 	static bool disableNagle;
 	static int DEFAULT_SOCKET_SENDBUF_SIZE;
 	static int DEFAULT_SOCKET_RECVBUF_SIZE;
