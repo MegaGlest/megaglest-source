@@ -300,12 +300,12 @@ bool Window::handleEvent() {
 
 					//printf("In SDL_TEXTINPUT key [%s] keyName [%s] mod: %d global_window: %p\n",event.text.text,keyName.c_str(),event.key.keysym.mod,global_window);
 
-					/* handle ALT+Return */
-					if((keyName == "Return" || keyName == "Enter")
-							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-						toggleFullscreen();
-					}
+//					/* handle ALT+Return */
+//					if((keyName == "Return" || keyName == "Enter")
+//							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
+//						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//						toggleFullscreen();
+//					}
 #ifdef WIN32
 					/* handle ALT+f4 */
 					if((keyName == "f4" || keyName == "F4")
