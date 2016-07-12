@@ -44,13 +44,22 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	LDconfigType=9
     fi
     LibsWarnings="$LibsWarnings
-    ||    If for some reason you see an error related with library, then you should try install this library
-    || in your linux. Hints with full names and with default versions of just detected missing libraries you
-    || see below.
-    || You can also perform mini update by launch '${SHORT_GAME_NAME}-mini-update.sh' script, which may solve tiny problems.
-    || If it is other problem or after your tries it still doesn't work then please report a bug
-    || here: '$BugReportEngine',
-    || or here: '$BugReportBoth'."
+    || MegaGlest requires some libraries to be present on this system.
+    || Missing libraries (if any) will be listed next, along with full names
+    || and default versions. Use the package manager your Linux distribution
+    || provides to install them. Most Linux distributions provide a web search
+    || allowing you to identify the packages containing these libraries.
+    || Once you installed additional libraries, just run this script again.
+    ||
+    || Other issues preventing MegaGlest from starting can occur if this
+    || version of MegaGlest has not been tested with this version of your Linux
+    || distribution. If so, we may provide compatibility updates which can be
+    || downloaded and installed by running this script:
+    ||    '${SHORT_GAME_NAME}-mini-update.sh'
+    ||
+    || If, after this, MegaGlest still fails to start, please report a bug at
+    ||    '$BugReportEngine'
+    ||    or '$BugReportBoth'"
     LibsWarnings="$LibsWarnings
     ||
     || Found LDCONFIG variable [$LDconfigType][$LDCONFIG]...
@@ -316,7 +325,7 @@ if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$Op
 	if [ "$DiffTime" -le "15" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
 	    echo "$LibsWarnings" | sed 's/^[\t ]*||//g' >&2; echo
 	    if [ "$IgnoredLibs" != "" ]; then
-		echo "... and as information useful only for game developers, List of ignored libs:" >&2
+		echo "Ignored libraries (please include in bug reports):" >&2
 		echo "$IgnoredLibs" >&2; echo
 	    fi
 	else
