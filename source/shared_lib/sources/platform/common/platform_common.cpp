@@ -124,7 +124,9 @@ tm threadsafe_localtime(const time_t &time) {
 // extracting std::time_t from std:chrono for "now"
 time_t systemtime_now() {
 #if __cplusplus > 199711L
-	system_time_point system_now = std::chrono::system_clock::now();
+	// typedef std::chrono::time_point<std::chrono::system_clock>  system_time_point;
+	typedef std::chrono::time_point<std::chrono::system_clock>  system_time_point_x;
+	system_time_point_x system_now = std::chrono::system_clock::now();
 	return std::chrono::system_clock::to_time_t(system_now);
 #else
 	return time(NULL);
