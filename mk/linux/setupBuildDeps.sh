@@ -104,13 +104,13 @@ case $distribution in
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
-			testing|unstable|9|9.0)
-				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
+			unstable)
+				installcommand="apt-get install $APT_OPTIONS $packages_for_debian_sid"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
-			sid)
-				installcommand="apt-get install $APT_OPTIONS $packages_for_debian_sid"
+			testing|9|9.0)
+				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
