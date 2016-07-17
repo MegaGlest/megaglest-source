@@ -3,47 +3,45 @@ language: cpp
 
 sudo: required
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
-
-env:
-  - GCC_VERSION="6"
-  - GCC_VERSION="5"
-  - GCC_VERSION="native"
-  - LLVM_VERSION="3.7"
-  - LLVM_VERSION="native"
-
 matrix:
-  exclude:
-    - compiler: gcc
-      env: LLVM_VERSION="3.7"
-    - compiler: gcc
-      env: LLVM_VERSION="native"
-    - compiler: clang
-      env: GCC_VERSION="6"
-    - compiler: clang
-      env: GCC_VERSION="5"
-    - compiler: clang
-      env: GCC_VERSION="native"
+  include:
+    - os: linux
+      compiler: gcc
+      env: Tr_Compiler_Version="6"
+      # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+    - os: linux
+      compiler: gcc
+      env: Tr_Compiler_Version="5"
+    - os: linux
+      compiler: gcc
+      env: Tr_Compiler_Version="default"
     - os: linux
       compiler: clang
-      env: LLVM_VERSION="native" # broken compiler
-    - os: osx
-      compiler: gcc # unsupported compiler
-    - os: osx
+      env: Tr_Compiler_Version="3.8"
+      # http://apt.llvm.org/
+    - os: linux
       compiler: clang
-      env: LLVM_VERSION="3.7" # missing compiler by brew
+      env: Tr_Compiler_Version="3.7"
+    #- os: linux
+      #compiler: clang
+      #env: Tr_Compiler_Version="default" # broken compiler
+    - os: osx
+      osx_image: xcode8
+      env: Tr_Xcode_Version="8"
+      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
+    - os: osx
+      env: Tr_Xcode_Version="default"
+  fast_finish: true
   allow_failures:
     - os: linux
-      env: LLVM_VERSION="3.7" # "APT mirror was temporary switched off ..."
+      compiler: gcc
+      env: Tr_Compiler_Version="6"
     - os: linux
-      env: GCC_VERSION="6"
-  #  - os: osx
+      compiler: clang
+      env: Tr_Compiler_Version="3.8"
+    - os: osx
+      osx_image: xcode8
+      env: Tr_Xcode_Version="8"
 
 git:
   submodules: false
@@ -53,25 +51,14 @@ git:
 #    - master
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$GCC_VERSION" != "native" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
-  # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main'; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-${LLVM_VERSION} main"; fi
-  # http://llvm.org/apt/
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; fi # UPDATE REPOS
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.travis-before_install.sh "$CC" "$Tr_Compiler_Version"; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
-  #- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get upgrade -qq; fi # UPGRADE SYSTEM TO LATEST PATCH LEVEL
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y -qq; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then sudo apt-get install -qq gcc-${GCC_VERSION} g++-${GCC_VERSION}; fi
-  - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install clang-${LLVM_VERSION}; fi
-  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then export CXX="clang++-${LLVM_VERSION}" CC="clang-${LLVM_VERSION}"; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo mk/linux/setupBuildDeps.sh --quiet; fi # INSTALL OUR DEPENDENCIES
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
+  - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
+  - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
+  - $CC --version
   - $CXX --version
   - cmake --version
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ./.travis-before_install.sh; fi
 
 script:
 # ALL THE BUILD COMMANDS HERE
@@ -87,7 +74,4 @@ notifications:
     use_notice: true
     on_success: change
     template:
-      #- "[%{repository_slug}#%{branch} @%{commit}] %{author}): %{message}"
-      #- "Diff: %{compare_url}"
-      #- "Build: %{build_url}"
       - "[%{repository_name}#%{branch}@%{commit}] %{author}: %{message} %{build_url}"

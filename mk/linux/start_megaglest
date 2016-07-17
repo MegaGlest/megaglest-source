@@ -18,6 +18,9 @@ BugReportBoth2="$BugReportBoth"
 BugReportData="https://github.com/MegaGlest/megaglest-data/issues"
 EXC_BINARY="megaglest"
 SHORT_GAME_NAME="megaglest"
+# if long game name contain spaces then write it inside quotes
+# e.g. "\"long name with spaces\""
+LONG_GAME_NAME="MegaGlest"
 # -------
 LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""
 if [ ! -d "$GAMEDIR/$LIBDIR" ]; then mkdir "$GAMEDIR/$LIBDIR"; fi
@@ -44,20 +47,20 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	LDconfigType=9
     fi
     LibsWarnings="$LibsWarnings
-    || MegaGlest requires some libraries to be present on this system.
+    || $LONG_GAME_NAME requires some libraries to be present on this system.
     || Missing libraries (if any) will be listed next, along with full names
-    || and default versions. Use the package manager your Linux distribution
-    || provides to install them. Most Linux distributions provide a web search
+    || and default versions. Use the package manager provided by your Linux
+    || distribution to install them. Most Linux distributions provide a web search
     || allowing you to identify the packages containing these libraries.
     || Once you installed additional libraries, just run this script again.
     ||
-    || Other issues preventing MegaGlest from starting can occur if this
-    || version of MegaGlest has not been tested with this version of your Linux
+    || Other issues preventing $LONG_GAME_NAME from starting can occur if
+    || this version of game has not been tested with this version of your Linux
     || distribution. If so, we may provide compatibility updates which can be
     || downloaded and installed by running this script:
     ||    '${SHORT_GAME_NAME}-mini-update.sh'
     ||
-    || If, after this, MegaGlest still fails to start, please report a bug at
+    || If, after this, $LONG_GAME_NAME still fails to start, please report a bug at
     ||    '$BugReportEngine'
     ||    or '$BugReportBoth'"
     LibsWarnings="$LibsWarnings

@@ -88,8 +88,7 @@ if [ "$quiet" -eq "1" ]; then
 	URPMI_OPTIONS="$URPMI_OPTIONS -q --auto"
 fi
 
-packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
-packages_for_debian_sid="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 
 case $distribution in
 	Debian)
@@ -104,12 +103,7 @@ case $distribution in
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
-			unstable)
-				installcommand="apt-get install $APT_OPTIONS $packages_for_debian_sid"
-				$installcommand
-				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-				;;
-			testing|9|9.0)
+			testing|unstable|9|9.0)
 				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
@@ -130,24 +124,19 @@ case $distribution in
 				exit 1
 				;;
 			12.04*)
-				#LTS
+				#LTS, name > precise
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
 			14.04*)
-				#LTS
+				#LTS, name > trusty
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
-			15.10)
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
-				$installcommand
-				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-				;;
 			16.04*)
-				#LTS
+				#LTS, name > xenial
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
@@ -163,14 +152,20 @@ case $distribution in
 	LinuxMint)
 		case $release in
 			13|13.*)
-				#LTS
+				#LTS, based on Ubuntu 12.04
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
 			17|17.*)
-				#LTS
+				#LTS, based on Ubuntu 14.04
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
+				$installcommand
+				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
+				;;
+			18|18.*)
+				#LTS, based on Ubuntu 16.04
+				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
