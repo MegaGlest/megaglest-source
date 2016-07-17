@@ -40,7 +40,7 @@ if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
     if [ "$Compiler_name" = "gcc" ]; then
 	sudo apt-get install -qq gcc-${Compiler_version} g++-${Compiler_version}
     elif [ "$Compiler_name" = "clang" ]; then
-	sudo apt-get install -qq clang-${Compiler_version}
+	sudo apt-get --allow-unauthenticated install -qq --force-yes clang-${Compiler_version}
     fi
 fi
 
