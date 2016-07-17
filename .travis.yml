@@ -23,20 +23,16 @@ matrix:
     #- os: linux
       #compiler: clang
       #env: Tr_Compiler_Version="default" # broken compiler on 12.04
-    - os: osx
-      osx_image: xcode7
-      env: Tr_Xcode_Version="7"
+    #- os: osx
+      #osx_image: xcode8
+      #env: Tr_Xcode_Version="8" # odd linking problems related with brew which is not creating links
+      # e.g. solution (quite bad) "brew link gettext", or showing in cmake direct paths (also not so good)
       # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
       env: Tr_Xcode_Version="default"
   fast_finish: true
   allow_failures:
-    - os: linux
-      compiler: gcc
-      env: Tr_Compiler_Version="6"
-    - os: osx
-      osx_image: xcode7
-      env: Tr_Xcode_Version="7"
+    #- os: osx
 
 git:
   submodules: false
