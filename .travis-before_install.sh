@@ -44,6 +44,10 @@ if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
     fi
 fi
 
+# what available versions we can use
+apt-cache search ^g[c+][c+]-[0-9] | grep -v '[0-9]-[a-zA-Z]'
+apt-cache search ^clang-[0-9] | grep -v '[0-9]-[a-zA-Z]'
+
 # INSTALL OUR DEPENDENCIES
 sudo $SCRIPTDIR/mk/linux/setupBuildDeps.sh --quiet
 

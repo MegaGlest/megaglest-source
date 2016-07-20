@@ -163,14 +163,21 @@ fi
 case $distribution in
 	Debian)
 		case $release in
-			6.*|7.*) ;;
-			*)
+			6|6.*|7|7.*) ;;
+			8|8.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-					# ^ static jpeg seems to work again, debian testing 18.01.2016
 				fi
 				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
+				;;
+			*)
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
+				# ^ may be removed ~ when default clang's version will be 3.9+
 				;;
 		esac
 		;;
@@ -178,22 +185,36 @@ case $distribution in
 	Ubuntu)
 		case $release in
 			10.*|11.*|12.*|13.*|14.*) ;;
-			*)
+			15.*|16.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-				fi;;
+				fi
+				;;
+			*)
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				;;
 		esac
 		;;
 
 	LinuxMint)
 		case $release in
 			13|13.*|14|15|16|17|17.*) ;;
-			*)
+			18|18.*|19|19.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-				fi;;
+				fi
+				;;
+			*)
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				;;
 		esac
 		;;
 
