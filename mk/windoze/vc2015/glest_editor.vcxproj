@@ -223,6 +223,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_WITHOUT_STREFLOP|Win32'">
@@ -258,6 +259,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -295,6 +297,7 @@
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <IgnoreSpecificDefaultLibraries>;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_WITHOUT_STREFLOP|x64'">
@@ -332,6 +335,7 @@
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <IgnoreSpecificDefaultLibraries>;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">
@@ -361,6 +365,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|x64'">
@@ -389,6 +394,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

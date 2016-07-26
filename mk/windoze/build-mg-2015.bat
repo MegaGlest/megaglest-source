@@ -85,11 +85,11 @@ ECHO --------------------------------
 Echo Updating Code from GIT to latest Revision...
 cd ..\..\
 set GIT_NORM_BRANCH=.
-for /f "delims=" %%a in ('git branch ^| findstr /rc:"^\* (detached"') do @set GIT_NORM_BRANCH=%%a
+for /f "delims=" %%a in ('git branch ^| findstr /rc:"^\*[^(]*([^) d]*[ ]*detached"') do @set GIT_NORM_BRANCH=%%a
 if "%GIT_NORM_BRANCH%" == "." git pull
 cd data\glest_game
 set GIT_NORM_BRANCH=.
-for /f "delims=" %%a in ('git branch ^| findstr /rc:"^\* (detached"') do @set GIT_NORM_BRANCH=%%a
+for /f "delims=" %%a in ('git branch ^| findstr /rc:"^\*[^(]*([^) d]*[ ]*detached"') do @set GIT_NORM_BRANCH=%%a
 if "%GIT_NORM_BRANCH%" == "." git pull
 cd ..\..\
 git submodule update
@@ -166,5 +166,6 @@ rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=fal
 rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=%MSBUILD_CONFIG%;Platform=x64;PlatformToolset=v140 /m Glest_vc2015.sln
 if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=%MSBUILD_CONFIG%;Platform=x64;PlatformToolset=v140 /m Glest_vc2015.sln
 
+ECHO ... End.
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
