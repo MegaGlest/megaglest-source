@@ -686,7 +686,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 						}
 						catch(const exception &e) {
 							printf("\n=====================================\n");
-							printf("\n** Already in error handler exiting errror rendering, msg [%s]\n",e.what());
+							printf("\n** Already in error handler exiting error rendering, msg [%s]\n",e.what());
 							fflush(stdout);
 							break;
 						}
@@ -706,7 +706,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 						}
 						catch(const exception &e) {
 							printf("\n=====================================\n");
-							printf("\n** Already in error handler exiting errror rendering, msg [%s]\n",e.what());
+							printf("\n** Already in error handler exiting error rendering, msg [%s]\n",e.what());
 							fflush(stdout);
 							break;
 						}

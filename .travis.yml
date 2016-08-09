@@ -8,11 +8,13 @@ matrix:
     - os: linux
       compiler: gcc
       env: Tr_Compiler_Version="6"
-      dist: trusty # broken compiler on 12.04
       # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+      dist: trusty # broken compiler on 12.04
     - os: linux
       compiler: gcc
       env: Tr_Compiler_Version="5"
+      # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+      dist: trusty
     - os: linux
       compiler: gcc
       env: Tr_Compiler_Version="default"
@@ -20,19 +22,24 @@ matrix:
       compiler: clang
       env: Tr_Compiler_Version="3.8"
       # http://apt.llvm.org/
-    #- os: linux
-      #compiler: clang
-      #env: Tr_Compiler_Version="default" # broken compiler on 12.04
+      dist: trusty
+    - os: linux
+      compiler: clang
+      env: Tr_Compiler_Version="default"
+      dist: trusty # broken compiler on 12.04
     #- os: osx
-      #osx_image: xcode8
-      #env: Tr_Xcode_Version="8" # odd linking problems related with brew which is not creating links
-      # e.g. solution (quite bad) "brew link gettext", or showing in cmake direct paths (also not so good)
+    #  osx_image: xcode8
+    #  env: Tr_Xcode_Version="8"
       # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
+      # odd linking problems related with brew which is not creating links, e.g. solution
+      # (quite bad) "brew link gettext", or showing in cmake direct paths (also not so good)
     - os: osx
       env: Tr_Xcode_Version="default"
   fast_finish: true
   allow_failures:
-    #- os: osx
+    - os: linux
+      compiler: clang
+      env: Tr_Compiler_Version="default"
 
 git:
   submodules: false

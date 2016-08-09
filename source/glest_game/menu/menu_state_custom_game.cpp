@@ -250,7 +250,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelLocalGameVersion.setText(glestVersionString);
 	}
 	else {
-		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelLocalGameVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	xoffset=65;
@@ -744,7 +745,12 @@ string MenuStateCustomGame::createGameName(string controllingPlayer){
 			return "Headless (" + defaultPlayerName + ")";
 		}
 	} else {
-		return defaultPlayerName+"'s game";
+		string defaultPlayerNameEnd = defaultPlayerName.substr(defaultPlayerName.size()-1, 1);
+		if(defaultPlayerNameEnd == "s") {
+			return defaultPlayerName+"' game";
+		} else {
+			return defaultPlayerName+"'s game";
+		}
 	}
 }
 
@@ -760,7 +766,8 @@ void MenuStateCustomGame::reloadUI() {
 		labelLocalGameVersion.setText(glestVersionString);
 	}
 	else {
-		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelLocalGameVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	//vector<string> teamItems, controlItems, results , rMultiplier;

@@ -94,7 +94,7 @@ done
 
 # Compiler selection
 # Unless both the CC and CXX environment variables point to clang and clang++
-# respectively, we use GCC. To enforce clang compilation: 
+# respectively, we use GCC. To enforce clang compilation:
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
@@ -113,9 +113,9 @@ cd ${SCRIPTDIR}
 BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 
 # CMake options
-# The default configuration works fine for regular developers and is also used 
+# The default configuration works fine for regular developers and is also used
 # by our installers.
-# For more cmake/build options refer to 
+# For more cmake/build options refer to
 #   http://wiki.megaglest.org/Linux_Compiling#Building_using_CMake_by_Hand
 EXTRA_CMAKE_OPTIONS=
 
@@ -135,13 +135,13 @@ echo "CPU cores to be used: $NUMCORES"
 
 # ----------------------------------------------------------------------------
 
-if [ $MAKE_ONLY = 0 ]; then 
+if [ $MAKE_ONLY = 0 ]; then
         mkdir -p build
 fi
 
 cd build
 
-if [ $MAKE_ONLY = 0 ]; then 
+if [ $MAKE_ONLY = 0 ]; then
         if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 fi
 
@@ -158,6 +158,10 @@ fi
 
 if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FontConfig=OFF"
+fi
+
+if [ "$distribution" != "Mageia" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_USE_OpenSSL=OFF"
 fi
 
 case $distribution in
@@ -218,17 +222,7 @@ case $distribution in
 		esac
 		;;
 
-	SuSE|SUSE?LINUX|Opensuse)
-		case $release in
-			*)
-				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-					echo 'Turning ON dynamic CURL ...'
-					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
-				fi;;
-		esac
-		;;
-
-	Fedora)
+	SuSE|SUSE?LINUX|Opensuse|Fedora|Mageia)
 		case $release in
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
@@ -246,9 +240,9 @@ case $distribution in
 		;;
 esac
 
-# If, in the configuration section on top of this script, the user has 
+# If, in the configuration section on top of this script, the user has
 # indicated they want to use clang in favor of the default of GCC, use clang.
-if [ $CLANG_FORCED = 1 ]; then 
+if [ $CLANG_FORCED = 1 ]; then
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH} -DCMAKE_CXX_COMPILER=${CLANGPP_BIN_PATH}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
@@ -312,6 +306,6 @@ else
         echo ''
         echo 'To launch MegaGlest from the current directory, use:'
         echo '  ./megaglest'
-        echo 'Or change into mk/linux and run it from there:'
-        echo '  ./megaglest --ini-path=./ --data-path=./'
+        #echo 'Or change into mk/linux and run it from there:'
+        #echo '  ./megaglest --ini-path=./ --data-path=./'
 fi

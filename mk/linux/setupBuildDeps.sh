@@ -5,28 +5,24 @@
 # Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Rewritten by Tom Reynolds <tomreyn@megaglest.org>
 # Copyright (c) 2012-2016 Mark Vejvoda, Tom Reynolds under GNU GPL v3.0
-
-
 LANG=C
 
-SCRIPTDIR="$(dirname $(readlink -f $0))"
-gitcommit=`git log -1 --pretty=tformat:"%H" $SCRIPTDIR/../..`
+SCRIPTDIR="$(dirname "$(readlink -f "$0")")"
 
 # Load shared functions
 . $SCRIPTDIR/mg_shared.sh
 
 # Got root?
 if [ `id -u`'x' != '0x' ]
-then 
+then
 	echo 'This script must be run as root (UID 0).' >&2
 	exit 1
 fi
 
-# Do you have the 'git' command?
-if [ `which git`'x' = 'x' ]
-then
-	echo 'Could not find "git", please make sure it is installed.' >&2
-	exit 1
+if [ "$(which git 2>/dev/null)" != "" ]; then
+	gitcommit="$(git log -1 --pretty=tformat:"%H" $SCRIPTDIR/../..)"
+else
+	gitcommit="- 'git' tool not available -"
 fi
 
 # Allow for quiet/silent installs
@@ -86,6 +82,8 @@ error_during_installation () {
 if [ "$quiet" -eq "1" ]; then
 	APT_OPTIONS="$APT_OPTIONS -y -q"
 	URPMI_OPTIONS="$URPMI_OPTIONS -q --auto"
+	PACMAN_OPTIONS="$PACMAN_OPTIONS -q --noconfirm"
+	DNF_OPTIONS="$DNF_OPTIONS -y -q"
 fi
 
 packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
@@ -185,8 +183,13 @@ case $distribution in
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
+			42.1)
+				installcommand="zypper install gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxWidgets-devel lua-devel libjpeg8-devel libpng16-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel libminiupnpc-devel vlc-devel"
+				$installcommand
+				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
+				;;
 			*)
-				installcommand="zypper install gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel"
+				installcommand="zypper install gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxWidgets-devel lua-devel libjpeg8-devel libpng16-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel libminiupnpc-devel vlc-devel"
 				unsupported_release
 				exit 1
 				;;
@@ -195,17 +198,8 @@ case $distribution in
 
 	Fedora)
 		case $release in
-			#18)
-			#	installcommand='yum groupinstall development-tools'
-			#	$installcommand
-			#	if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-
-			#	installcommand='yum install cmake SDL2-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
-			#	$installcommand
-			#	if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-			#	;;
 			*)
-				installcommand='yum groupinstall "Development Tools"; yum install cmake SDL2-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand="dnf $DNF_OPTIONS install gcc gcc-c++ redhat-rpm-config cmake SDL2-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel miniupnpc-devel"
 				unsupported_release
 				exit 1
 				;;
@@ -214,27 +208,23 @@ case $distribution in
 
 	Mageia)
 		if [ "$architecture" = "x86_64" ]; then lib="lib64"; else lib="lib"; fi
+		static="-static" #static=""
 		case $release in
-			#4)
-			#	installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}SDL2-devel ${lib}openal-devel ${lib}lua-devel ${lib}jpeg-devel ${lib}png-devel ${lib}freetype6-devel ${lib}wxgtku2.9-devel ${lib}cppunit-devel ${lib}fribidi-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}vlc-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel"
-			#	$installcommand
-			#	if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-			#	;;
 			*)
-				installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}SDL2-devel ${lib}openal-devel ${lib}lua-devel ${lib}jpeg-devel ${lib}png-devel ${lib}freetype6-devel ${lib}wxgtku2.9-devel ${lib}cppunit-devel ${lib}fribidi-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}vlc-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel"
-				# ^ probably should be added ssl/openssl-devel to the list
+				installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}sdl2.0-devel ${lib}openal-devel ${lib}lua${static}-devel ${lib}jpeg${static}-devel ${lib}png-devel ${lib}freetype6${static}-devel ${lib}wxgtku3.0-devel ${lib}cppunit-devel ${lib}fribidi${static}-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg${static}-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}vlc-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel ${lib}openssl${static}-devel"
 				unsupported_release
 				exit 1
 				;;
 		esac
 		;;
 
-	archlinux)
+	ManjaroLinux)
+		if [ "$architecture" = "x86_64" ]; then lib=""; else lib="lib32-"; fi
 		case $release in
-			rolling)
+			*)
+				installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 ${lib}wxgtk cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient vlc ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
 				unsupported_release
 				exit 1
-				;;
 		esac
 		;;
 
