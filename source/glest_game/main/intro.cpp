@@ -85,7 +85,7 @@ IntroText::IntroText(const Texture2D *texture, const Vec2i &pos, const Vec2i &si
 int Intro::introTime	= 50000;
 int Intro::appearTime	= 2500;
 int Intro::showTime		= 3500;
-int Intro::disapearTime	= 2500;
+int Intro::disappearTime	= 2500;
 
 Intro::Intro(Program *program):
 	ProgramState(program)
@@ -136,7 +136,7 @@ Intro::Intro(Program *program):
 	Intro::introTime = 3000;
 	Intro::appearTime = 500;
 	Intro::showTime = 500;
-	Intro::disapearTime = 500;
+	Intro::disappearTime = 500;
 	int showIntroPics = 0;
 	int showIntroPicsTime = 0;
 	bool showIntroPicsRandom = false;
@@ -184,7 +184,7 @@ Intro::Intro(Program *program):
 		const XmlNode *showTimeNode= introNode->getChild("show-time");
 		Intro::showTime = showTimeNode->getAttribute("value")->getIntValue();
 		const XmlNode *disappearTimeNode= introNode->getChild("disappear-time");
-		Intro::disapearTime = disappearTimeNode->getAttribute("value")->getIntValue();
+		Intro::disappearTime = disappearTimeNode->getAttribute("value")->getIntValue();
 		const XmlNode *showIntroPicturesNode= introNode->getChild("show-intro-pictures");
 		showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
 		showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
@@ -255,7 +255,7 @@ Intro::Intro(Program *program):
 
 	int displayItemNumber = 1;
 	int appear= Intro::appearTime;
-	int disappear= Intro::showTime+Intro::appearTime+(Intro::disapearTime * 2);
+	int disappear= Intro::showTime+Intro::appearTime+(Intro::disappearTime * 2);
 
 	const unsigned int maxIntroLines = 100;
 	Lang &lang= Lang::getInstance();
@@ -686,15 +686,15 @@ void Intro::render() {
 
 		int difTime= 1000 * timer / GameConstants::updateFps - text->getTime();
 
-		if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
+		if(difTime > 0 && difTime < appearTime + showTime + disappearTime) {
 			float alpha= 1.f;
 			if(difTime > 0 && difTime < appearTime) {
 				//apearing
 				alpha= static_cast<float>(difTime) / appearTime;
 			}
-			else if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
+			else if(difTime > 0 && difTime < appearTime + showTime + disappearTime) {
 				//disappearing
-				alpha= 1.f- static_cast<float>(difTime - appearTime - showTime) / disapearTime;
+				alpha= 1.f- static_cast<float>(difTime - appearTime - showTime) / disappearTime;
 			}
 
 			if(text->getText().empty() == false) {
