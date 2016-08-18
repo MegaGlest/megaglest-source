@@ -22,7 +22,7 @@ within the game at no cost.
 [![intro](http://megaglest.org/uploads/images/trailer3.png)]
 (http://downloads.megaglest.org/videos/megaglest_game_trailer_lq.webm)
 
-If you want compile MegaGlest yourself then you should read the
+If you want to compile MegaGlest yourself then you should read the
 [**tutorial**](https://docs.megaglest.org/MG/Development) or
 [tutorial2](https://github.com/MegaGlest/megaglest-source/wiki/Git-How-To)
 
