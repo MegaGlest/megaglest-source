@@ -81,6 +81,16 @@ bool Selection::select(Unit *unit) {
 			return false;
 		}
 
+		//check if multitypesel
+		if(selectedUnits.size() > 0) {
+			if(selectedUnits.front()->getType()->getUniformSelect() == true && selectedUnits.front()->getType() != unit->getType()) {
+				return false;
+			}
+			if(unit->getType()->getUniformSelect() == true && selectedUnits.front()->getType() != unit->getType()) {
+				return false;
+			}
+		}
+
 		//check if enemy
 		if(canSelectUnitFactionCheck(unit) == false && isEmpty() == false) {
 			return false;
@@ -266,6 +276,19 @@ bool Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 		Unit* unitInGroup=groups[groupIndex][0];
 		if( !unitInGroup->getType()->getMultiSelect()){
 			//dont add a unit to a group which has a single selection unit
+			return false;
+		}
+	}
+
+	// check for uniformselect units
+	if((int)groups[groupIndex].size()>0 ){
+		Unit* unitInGroup=groups[groupIndex][0];
+		if( unit->getType()->getUniformSelect() && unitInGroup->getType() != unit->getType()) {
+			//dont add uniform selection unit
+			return false;
+		}
+		if( unitInGroup->getType()->getUniformSelect() && unitInGroup->getType() != unit->getType()){
+			//dont add another unit to a group of uniform selection units
 			return false;
 		}
 	}

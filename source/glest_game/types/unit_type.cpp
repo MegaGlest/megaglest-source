@@ -93,6 +93,7 @@ UnitType::UnitType() : ProducibleType() {
 	healthbarthickness=-1.0f;
 	healthbarVisible=hbvUndefined;
     multiSelect= false;
+    uniformSelect= false;
     commandable= true;
 	armorType= NULL;
 	rotatedBuildPos=0;
@@ -355,6 +356,11 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//multi selection
 		multiSelect= parametersNode->getChild("multi-selection")->getAttribute("value")->getBoolValue();
+
+		//uniform selection
+		if(parametersNode->hasChild("uniform-selection")) {
+			uniformSelect= parametersNode->getChild("uniform-selection")->getAttribute("value")->getBoolValue();
+		}
 
 		//commandable
 		if(parametersNode->hasChild("commandable")){
@@ -1307,6 +1313,7 @@ std::string UnitType::toString() const {
 	result += " light = " + intToStr(light);
 	result += " lightColor = " + lightColor.getString();
 	result += " multiSelect = " + intToStr(multiSelect);
+	result += " uniformSelect = " + intToStr(uniformSelect);
 	result += " commandable = " + intToStr(commandable);
 	result += " sight = " + intToStr(sight);
 	result += " size = " + intToStr(size);

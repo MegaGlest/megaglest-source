@@ -192,6 +192,7 @@ private:
 	float healthbarthickness;
 	int healthbarVisible;
     bool multiSelect;
+    bool uniformSelect;
     bool commandable;
     int sight;
     int size;							//size in cells
@@ -283,6 +284,7 @@ public:
 	inline float getHealthbarThickness() const							{return healthbarthickness;}
 	inline int getHealthbarVisible() const							{return healthbarVisible;}
 	inline bool getMultiSelect() const							{return multiSelect;}
+	inline bool getUniformSelect() const							{return uniformSelect;}
 	inline bool isCommandable() const							{return commandable;}
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
