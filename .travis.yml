@@ -10,18 +10,19 @@ matrix:
       env: Tr_Compiler_Version="6"
       # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
       dist: trusty # broken compiler on 12.04
-    - os: linux
-      compiler: gcc
-      env: Tr_Compiler_Version="5"
+    #- os: linux
+    #  compiler: gcc
+    #  env: Tr_Compiler_Version="5"
       # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
-      dist: trusty
+    #  dist: trusty
     - os: linux
       compiler: gcc
       env: Tr_Compiler_Version="default"
     - os: linux
       compiler: clang
       env: Tr_Compiler_Version="3.8"
-      # http://apt.llvm.org/
+      # http://apt.llvm.org/, compiler not newer than available on debian testing
+      # https://packages.debian.org/search?suite=testing&keywords=clang-
       dist: trusty
     - os: linux
       compiler: clang
@@ -31,15 +32,13 @@ matrix:
     #  osx_image: xcode8
     #  env: Tr_Xcode_Version="8"
       # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
-      # odd linking problems related with brew which is not creating links, e.g. solution
-      # (quite bad) "brew link gettext", or showing in cmake direct paths (also not so good)
     - os: osx
       env: Tr_Xcode_Version="default"
   fast_finish: true
   allow_failures:
-    - os: linux
-      compiler: clang
-      env: Tr_Compiler_Version="default"
+    #- os: osx
+    #  osx_image: xcode8
+    #  env: Tr_Xcode_Version="8"
 
 git:
   submodules: false
@@ -52,6 +51,8 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.travis-before_install.sh "$CC" "$Tr_Compiler_Version"; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" != "default" ]; then brew link --force gettext; fi
+    # ^ odd linking problems related with brew which is not creating links, not on travis also needed are: cmake + pkgconfig + xquartz (find by "search") + (maybe) git
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
   - $CC --version

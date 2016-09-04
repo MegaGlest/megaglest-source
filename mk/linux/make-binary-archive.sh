@@ -66,12 +66,12 @@ fi
 cd $PROJDIR
 mkdir -p "$RELEASEDIR/lib"
 
-[[ -d "lib" ]] && rm -rf "lib"
+if [ -d "lib" ]; then rm -rf "lib"; fi
 echo "building binary dependencies ..."
-./makedeps_folder.sh megaglest
-if [ $? -ne 0 ]; then
-  echo 'ERROR: "./makedeps_folder.sh megaglest" failed.' >&2; exit 2
-fi
+for mg_bin in megaglest megaglest_editor megaglest_g3dviewer; do
+    ./makedeps_folder.sh "$mg_bin"
+    if [ "$?" -ne "0" ]; then echo "ERROR: \"./makedeps_folder.sh $mg_bin\" failed." >&2; exit 2; fi
+done
 
 # copy binary info
 cd $PROJDIR
