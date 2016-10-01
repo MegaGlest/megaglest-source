@@ -23,21 +23,21 @@ Also see Build Instructions for Linux
 
 To build the game, the following tools and libraries must be present:
 
+- Pick 1:
 * Microsoft Visual Studio Community 2015
   https://www.microsoft.com/en-us/download/details.aspx?id=48146
   (Experimental Microsoft Visual C++ Express 2012 projects also exist in the vc2012
   folder)
-OR
 * mingw32
   http://mingw.org/
-
+  
+- Pick 1:
 * MegaGlest dependencies for building with VC++, which which will be downloaded
   automatically in 'Option A' (see below)
-OR
 * MegaGlest Windows 32 bit dependencies for building with mingw:
   https://github.com/MegaGlest/megaglest-source/releases/download/3.2.3/win32_deps_mingw.7z
 
-These include:
+- These include:
 * Xerces-C
   http://xerces.apache.org/xerces-c/
 * wxWidgets
