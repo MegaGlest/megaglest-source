@@ -33,7 +33,11 @@ matrix:
     #  env: Tr_Xcode_Version="8"
       # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
-      env: Tr_Xcode_Version="default"
+      osx_image: xcode6.4
+      #env: Tr_Xcode_Version="default"
+      env: Tr_Xcode_Version="6.4"
+      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
+      # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
   fast_finish: true
   allow_failures:
     #- os: osx
@@ -51,7 +55,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.travis-before_install.sh "$CC" "$Tr_Compiler_Version"; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" != "default" ]; then brew link --force gettext; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew link --force gettext; fi
     # ^ odd linking problems related with brew which is not creating links, not on travis also needed are: cmake + pkgconfig + xquartz (find by "search") + (maybe) git
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
