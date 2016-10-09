@@ -827,6 +827,7 @@ void MapPreview::loadFromFile(const string &path) {
 		if(bytes != 1) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",bytes,__LINE__);
+			fclose(f1);
 			throw megaglest_runtime_error(szBuf);
 		}
 		fromEndianMapFileHeader(header);
