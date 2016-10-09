@@ -16,8 +16,8 @@ around on the forums, e.g. http://forum.megaglest.org/?topic=1426#).
 
 --- 2.1 Prerequesites ---
 
-The game depends on some tools and libraries to be present, before you can
-start compiling it:
+Before you can start compiling it, the game depends on and needs the following
+tools and libraries to be present:
 
 * Standard GNU compiler and additional tools (g++ version 4.6.3 or later is
   required at the moment)
@@ -105,7 +105,7 @@ BSD distributions. Please see the website, forums and wiki for details.
 ~~~~~~~~~~~~~~~~~~~~~~ 3. Troubleshooting ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 --- In General ---
-* Make sure both hard- and software of your system match the requirements
+* Make sure both the hardware and software of your system match the requirements
 * If you cannot find what you are looking for on here please check the FAQs
   (https://docs.megaglest.org/MG/FAQ) before contacting.
 
