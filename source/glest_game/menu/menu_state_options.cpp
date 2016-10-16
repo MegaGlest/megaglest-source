@@ -1033,7 +1033,7 @@ bool MenuStateOptions::textInput(std::string text) {
 }
 
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
-	if (activeInputLabel == NULL) {
+	if (activeInputLabel != NULL) {
 		keyPressEditLabel(c, &activeInputLabel);
 	} else {
 		Config &configKeys = Config::getInstance(
