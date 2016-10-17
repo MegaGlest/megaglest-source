@@ -115,7 +115,7 @@ case $distribution in
 
 	Ubuntu)
 		case $release in
-			12.04.2|12.04.3|12.04.4)
+			12.04.2|12.04.3|12.04.4|14.04.2|14.04.3|14.04.4)
 				# "not so LTS" are those LTS v xD
 				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
 				unsupported_release
@@ -136,6 +136,12 @@ case $distribution in
 			16.04*)
 				#LTS, name > xenial
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+				$installcommand
+				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
+				;;
+			16.10)
+				#name > yakkety
+				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
