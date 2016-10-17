@@ -51,7 +51,7 @@ bool Selection::canSelectUnitFactionCheck(const Unit *unit) const {
 	return true;
 }
 
-bool Selection::select(Unit *unit) {
+bool Selection::select(Unit *unit, bool addToSelection) {
 	bool result = false;
 	if((int)selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
 		return result;
@@ -84,8 +84,13 @@ bool Selection::select(Unit *unit) {
 		//check if multitypesel
 		if(selectedUnits.size() > 0) {
 			if(selectedUnits.front()->getType()->getUniformSelect() == true && selectedUnits.front()->getType() != unit->getType()) {
-				return false;
+				if(addToSelection)
+					return false;
+				else
+					clear();
 			}
+		}
+		if(selectedUnits.size() > 0) {
 			if(unit->getType()->getUniformSelect() == true && selectedUnits.front()->getType() != unit->getType()) {
 				return false;
 			}
@@ -135,11 +140,11 @@ bool Selection::select(Unit *unit) {
 	return result;
 }
 
-void Selection::select(const UnitContainer &units){
+void Selection::select(const UnitContainer &units, bool addToSelection){
 
 	//add units to gui
 	for(UnitIterator it = units.begin(); it != units.end(); ++it) {
-		select(*it);
+		select(*it,addToSelection);
 	}
 }
 
@@ -332,7 +337,7 @@ void Selection::recallGroup(int groupIndex,bool clearSelection){
 		clear();
 	}
 	for(int i = 0; i < (int)groups[groupIndex].size(); ++i) {
-		select(groups[groupIndex][i]);
+		select(groups[groupIndex][i],!clearSelection);
 	}
 }
 

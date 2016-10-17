@@ -3341,7 +3341,7 @@ bool Game::addUnitToSelection(Unit *unit) {
 	try {
 		Selection *selection= gui.getSelectionPtr();
 		if(selection != NULL) {
-			result = selection->select(unit);
+			result = selection->select(unit,true);
 		}
 	}
 	catch(const exception &ex) {

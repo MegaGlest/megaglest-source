@@ -588,7 +588,7 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 
 		if(previousFound == true) {
 			if(unit->isInteresting(iut)) {
-				selection.select(unit);
+				selection.select(unit,false);
 				break;
 			}
 		}
@@ -605,7 +605,7 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 			Unit* unit = thisFaction->getUnit(index);
 
 			if(unit->isInteresting(iut)) {
-				selection.select(unit);
+				selection.select(unit,false);
 				break;
 			}
 		}
@@ -1154,7 +1154,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 
 		if(!controlDown){
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
-			selection.select(units);
+			selection.select(units,shiftDown);
 			if(!selection.isEmpty()){
 				selectedResourceObject=NULL;
 			}

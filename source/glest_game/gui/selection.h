@@ -68,8 +68,8 @@ public:
 	void init(Gui *gui, int factionIndex, int teamIndex, bool allowSharedTeamUnits);
 	virtual ~Selection();
 
-	bool select(Unit *unit);
-	void select(const UnitContainer &units);
+	bool select(Unit *unit, bool addToSelection);
+	void select(const UnitContainer &units, bool addToSelection);
 	void unSelect(const UnitContainer &units);
 	void unSelect(int unitIndex);
 	void clear();
