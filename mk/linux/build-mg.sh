@@ -20,12 +20,13 @@ MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
+GCC_FORCED_VERSION=0
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:defhl:mnwx" option; do
+while getopts "c:defg:hl:mnwx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -43,14 +44,19 @@ while getopts "c:defhl:mnwx" option; do
            CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
+        g)
+           GCC_FORCED_VERSION=${OPTARG}
+           echo "${option} value: ${OPTARG} GCC_FORCED_VERSION [${GCC_FORCED_VERSION}]"
+        ;;
         h)
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
+                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
                 echo "       -e   : Force compile with EMBEDDED libraries"
                 echo "       -f   : Force using CLANG compiler"
+                echo "       -g x : Force using GCC version x - example: -g 6"
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
@@ -262,6 +268,11 @@ elif [ "`echo $CC | grep -oF 'clang'`" = 'clang' -a "`echo $CXX | grep -oF 'clan
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_CC} -DCMAKE_CXX_COMPILER=${CLANG_CXX}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
+fi
+
+if [ "$GCC_FORCED_VERSION" != "0" ] && [ "$GCC_FORCED_VERSION" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=$(which gcc-$GCC_FORCED_VERSION) -DCMAKE_CXX_COMPILER=$(which g++-$GCC_FORCED_VERSION)"
+	echo "USER WANTS TO FORCE USE of GCC $GCC_FORCED_VERSION"
 fi
 
 if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then

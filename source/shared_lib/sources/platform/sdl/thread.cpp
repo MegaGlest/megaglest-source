@@ -156,16 +156,18 @@ void Thread::addThreadToList() {
 }
 void Thread::removeThreadFromList() {
 	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
-	std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
-	if(iterFind == Thread::threadList.end()) {
-		if(this != cleanupThread.get()) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8095,"In [%s::%s Line: %d] iterFind == Thread::threadList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			throw megaglest_runtime_error(szBuf);
+	if(Thread::threadList.empty() == false) {
+		std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
+		if(iterFind == Thread::threadList.end()) {
+			if(this != cleanupThread.get()) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8095,"In [%s::%s Line: %d] iterFind == Thread::threadList.end() Thread::threadList.size() = %ld",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Thread::threadList.size());
+				throw megaglest_runtime_error(szBuf);
+			}
 		}
-	}
-	else {
-		Thread::threadList.erase(iterFind);
+		else {
+			Thread::threadList.erase(iterFind);
+		}
 	}
 	safeMutex.ReleaseLock();
 }
