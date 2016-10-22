@@ -48,28 +48,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     else
 	LDconfigType=9
     fi
-    LibsWarnings="$LibsWarnings
-    || $LONG_GAME_NAME requires some libraries to be present on this operating system.
-    || Missing libraries (if any) will be listed next, along with full names
-    || and default versions. Use the package manager provided by your Linux
-    || distribution to install them. Most Linux distributions provide a web search
-    || allowing you to identify the packages containing these libraries.
-    || Once you installed additional libraries, just run this script again.
-    ||
-    || Other issues preventing $LONG_GAME_NAME from starting can occur if
-    || this version of game has not been tested with this version of your Linux
-    || distribution. If so, we may provide compatibility updates which can be
-    || downloaded and installed by running this script:
-    ||    '${SHORT_GAME_NAME}-mini-update.sh'
-    ||
-    || If after this, $LONG_GAME_NAME still fails to start, please report a bug at
-    ||    '$BugReportEngine'
-    ||    or '$BugReportBoth'"
-    LibsWarnings="$LibsWarnings
-    ||
-    || Found LDCONFIG variable [$LDconfigType][$LDCONFIG]...
-    || OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]"
-
+    LibsWarnings="Found LDCONFIG variable [$LDconfigType][$LDCONFIG]..."
     if [ "$ARCHITECTURE" = "x86_64" ]; then GrepPattern="x86[_-]64"
 	else GrepPattern="$ARCHITECTURE"; fi
     LDCONFIG_P="$($LDCONFIG -p)"; ArchSortLibs="no"
@@ -185,7 +164,6 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	    done
 	fi
     }
-
     # Each line /.../.../|/ .
     # First entry libs_list="...\n...\n..." ,
     # each next libs_list="$libs_list\n...\n..." .
@@ -376,6 +354,28 @@ if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$Op
 	DiffTime="$(($ErrorTime-$BeginTime))"
 	if [ "$OperatingMode" = "--game" ]; then ShowLibsTime=35; else ShowLibsTime=45; fi
 	if [ "$DiffTime" -le "$ShowLibsTime" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
+	    if [ "$OperatingMode" = "--game" ] || [ "$OperatingMode" = "--tool-buginfo" ]; then
+		LibsWarnings="
+		|| $LONG_GAME_NAME requires some libraries to be present on this operating system.
+		|| Missing libraries (if any) will be listed next, along with full names
+		|| and default versions. Use the package manager provided by your Linux
+		|| distribution to install them. Most Linux distributions provide a web search
+		|| allowing you to identify the packages containing these libraries.
+		|| Once you installed additional libraries, just run this script again.
+		||
+		|| Other issues preventing $LONG_GAME_NAME from starting can occur if
+		|| this version of game has not been tested with this version of your Linux
+		|| distribution. If so, we may provide compatibility updates which can be
+		|| downloaded and installed by running this script:
+		||    '${SHORT_GAME_NAME}-mini-update.sh'
+		||
+		|| If after this, $LONG_GAME_NAME still fails to start, please report a bug at
+		||    '$BugReportEngine'
+		||    or '$BugReportBoth'
+		||
+		|| OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]
+		|| $LibsWarnings"
+	    fi
 	    echo "$LibsWarnings" | sed 's/^[\t ]*||//g' >&2; echo
 	    if [ "$OperatingMode" != "--tool-buginfo" ]; then
 		IgnoredLibs="$(echo "$IgnoredLibs" | sed -e 's/  */ /g' -e 's/^ //g')"
