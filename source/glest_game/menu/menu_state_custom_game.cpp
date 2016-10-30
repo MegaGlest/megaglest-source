@@ -4914,6 +4914,7 @@ void MenuStateCustomGame::processScenario() {
 			setupTechList("", false);
 			reloadFactions(false,"");
 			setupTilesetList("");
+			updateControlers();
 		}
 		SetupUIForScenarios();
 	}
