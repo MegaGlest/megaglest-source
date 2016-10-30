@@ -2706,13 +2706,13 @@ void Renderer::renderSelectionQuad() {
 Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	if(font == NULL) {
 		//abort();
-		throw megaglest_runtime_error("font == NULL (1)");
+		throw megaglest_runtime_error("font == NULL (1) text = " + text);
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw megaglest_runtime_error("fontMetrics == NULL (1)");
+		throw megaglest_runtime_error("fontMetrics == NULL (1) text = " + text);
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text)/2.f) : 5);
@@ -2729,13 +2729,13 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 
 Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	if(font == NULL) {
-		throw megaglest_runtime_error("font == NULL (2)");
+		throw megaglest_runtime_error("font == NULL (2) text = " + text);
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw megaglest_runtime_error("fontMetrics == NULL (2)");
+		throw megaglest_runtime_error("fontMetrics == NULL (2) text = " + text);
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text) / 2.f) : 5);
@@ -2861,10 +2861,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	if(centeredW == true) {
 		if(font == NULL) {
 			//abort();
-			throw megaglest_runtime_error("font == NULL (5)");
+			throw megaglest_runtime_error("font == NULL (5) text = " + text);
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw megaglest_runtime_error("font->getTextHandler() == NULL (5)");
+			throw megaglest_runtime_error("font->getTextHandler() == NULL (5) text = " + text);
 		}
 
 		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
@@ -2875,10 +2875,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 	if(centeredH) {
 		if(font == NULL) {
-			throw megaglest_runtime_error("font == NULL (6)");
+			throw megaglest_runtime_error("font == NULL (6) text = " + text);
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw megaglest_runtime_error("font->getTextHandler() == NULL (6)");
+			throw megaglest_runtime_error("font->getTextHandler() == NULL (6) text = " + text);
 		}
 
 		//const Metrics &metrics= Metrics::getInstance();
@@ -3080,7 +3080,7 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 	}
 
 	if(font == NULL) {
-		throw megaglest_runtime_error("font == NULL (3)");
+		throw megaglest_runtime_error("font == NULL (3) text = " + text);
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
@@ -3108,7 +3108,7 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 	}
 
 	if(font == NULL) {
-		throw megaglest_runtime_error("font == NULL (4)");
+		throw megaglest_runtime_error("font == NULL (4) text = " + text);
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
