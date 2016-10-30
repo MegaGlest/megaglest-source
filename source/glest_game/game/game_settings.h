@@ -108,7 +108,7 @@ private:
 	int factionCount;
 	int teams[GameConstants::maxPlayers];
 	int startLocationIndex[GameConstants::maxPlayers];
-	int mapFilterIndex;
+	int mapFilter;
 
 	int fallbackCpuMultiplier;
 	bool defaultUnits;
@@ -147,7 +147,7 @@ public:
     	defaultUnits=false;
     	defaultResources=false;
     	defaultVictoryConditions=false;
-    	mapFilterIndex						= 0;
+    	mapFilter						= 0;
     	factionCount						= 0;
     	thisFactionIndex					= 0;
     	fogOfWar 							= true;
@@ -373,7 +373,7 @@ public:
 		return -1;
 	}
 
-	int getMapFilterIndex() const 						{return mapFilterIndex;}
+	int getMapFilter() const 						{return mapFilter;}
 
 	bool getDefaultUnits() const				{return defaultUnits;}
 	bool getDefaultResources() const			{return defaultResources;}
@@ -516,7 +516,7 @@ public:
 
 		this->startLocationIndex[factionIndex]= startLocationIndex;
 	}
-	void setMapFilterIndex(int mapFilterIndex)								{this->mapFilterIndex=mapFilterIndex;}
+	void setMapFilter(int mapFilter)								{this->mapFilter=mapFilter;}
 
 	void setDefaultUnits(bool defaultUnits) 						{this->defaultUnits= defaultUnits;}
 	void setDefaultResources(bool defaultResources) 				{this->defaultResources= defaultResources;}
@@ -561,7 +561,7 @@ public:
 		result += "Game ID = " + gameUUID + "\n";
 		result += "gameName = " + gameName + "\n";
 		result += "description = " + description + "\n";
-		result += "mapFilterIndex = " + intToStr(mapFilterIndex) + "\n";
+		result += "mapFilterIndex = " + intToStr(mapFilter) + "\n";
 		result += "map = " + map + "\n";
 		result += "tileset = " + tileset + "\n";
 		result += "tech = " + tech + "\n";
@@ -700,7 +700,7 @@ public:
 		}
 
 //		int mapFilterIndex;
-		gameSettingsNode->addAttribute("mapFilterIndex",intToStr(mapFilterIndex), mapTagReplacements);
+		gameSettingsNode->addAttribute("mapFilterIndex",intToStr(mapFilter), mapTagReplacements);
 //
 //
 //		bool defaultUnits;
@@ -847,7 +847,7 @@ public:
 		}
 
 //		int mapFilterIndex;
-		mapFilterIndex = gameSettingsNode->getAttribute("mapFilterIndex")->getIntValue();
+		mapFilter = gameSettingsNode->getAttribute("mapFilterIndex")->getIntValue();
 //
 //
 //		bool defaultUnits;

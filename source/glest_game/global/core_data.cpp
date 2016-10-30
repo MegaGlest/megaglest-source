@@ -1462,7 +1462,7 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 #endif
 
 	saveGameFile << "Description=" << gameSettings->getDescription() << std::endl;
-	saveGameFile << "MapFilterIndex=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getMapFilterIndex()) << std::endl;
+	saveGameFile << "MapFilterIndex=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getMapFilter()) << std::endl;
 	saveGameFile << "Map=" << gameSettings->getMap() << std::endl;
 	saveGameFile << "Tileset=" << gameSettings->getTileset() << std::endl;
 	saveGameFile << "TechTree=" << gameSettings->getTech() << std::endl;
@@ -1533,7 +1533,7 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
-	gameSettings->setMapFilterIndex(properties.getInt("MapFilterIndex","0"));
+	gameSettings->setMapFilter(properties.getInt("MapFilterIndex","0"));
 	gameSettings->setDescription(properties.getString("Description"));
 	gameSettings->setMap(properties.getString("Map"));
 	gameSettings->setTileset(properties.getString("Tileset"));

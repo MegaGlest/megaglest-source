@@ -330,6 +330,7 @@ private:
 		NetworkString<maxSmallStringSize> networkPlayerLanguages[GameConstants::maxPlayers];
 
 		uint32 mapCRC;
+		int8 mapFilter;
 		uint32 tilesetCRC;
 		uint32 techCRC;
 		NetworkString<maxSmallStringSize> factionNameList[maxFactionCRCCount];
