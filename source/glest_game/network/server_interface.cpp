@@ -160,7 +160,7 @@ ServerInterface::ServerInterface(bool publishEnabled, ClientLagCallbackInterface
 	MapInfo mapInfo;
 	// fill playerSortedMaps according to map player count
 	for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
-		printf("mapFiles.at(i) %s allMaps.at[i] %s\n",mapFiles[i].c_str(),allMaps.at(i).c_str());
+		//printf("mapFiles.at(i) %s allMaps.at[i] %s\n",mapFiles[i].c_str(),allMaps.at(i).c_str());
 		MapPreview::loadMapInfo(Config::getMapPath(mapFiles.at(i)), &mapInfo, "MaxPlayers","Size",true) ;
 		playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
 	}
