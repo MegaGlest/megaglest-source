@@ -165,6 +165,15 @@ Object *Gui::getHighlightedResourceObject()	const{
 		return NULL;
 	}
 	else {
+		if(world == NULL) {
+			throw megaglest_runtime_error("world == NULL");
+		}
+		if(world->getMap() == NULL) {
+			throw megaglest_runtime_error("world->getMap() == NULL");
+		}
+		if(world->getMap()->getSurfaceCell(highlightedResourceObjectPos) == NULL) {
+			throw megaglest_runtime_error("world->getMap()->getSurfaceCell(highlightedResourceObjectPos) == NULL");
+		}
 		return world->getMap()->getSurfaceCell(highlightedResourceObjectPos)->getObject();
 	}
 }
