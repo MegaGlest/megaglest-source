@@ -2483,6 +2483,12 @@ bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) cons
 			ret = true;
 		}
 		else if(factionIndex == thisFactionIndex && game != NULL) {
+
+			//printf("Show FOW thisTeamIndex = %d (%d) game->getGameOver() = %d game->getGameSettings()->isNetworkGame() = %d game->getGameSettings()->getEnableObserverModeAtEndGame() = %d thisFactionIndex = %d Is Winning Faction = %d\n",
+			//		thisTeamIndex,(GameConstants::maxPlayers -1 + fpt_Observer),game->getGameOver(),
+			//		game->getGameSettings()->isNetworkGame(),game->getGameSettings()->getEnableObserverModeAtEndGame(),
+			//		thisFactionIndex,getStats()->getVictory(thisFactionIndex));
+
 			// Player is an Observer
 			if(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
 				ret = true;
@@ -2520,6 +2526,7 @@ bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) cons
 			}
 		}
     }
+    //printf("showWorldForPlayer for %d is: %d\n",factionIndex,ret);
     return ret;
 }
 
@@ -2550,26 +2557,33 @@ void World::computeFow() {
 		}
 	}
 	int resetFowAlphaFactionCount = 0;
-	for(int indexFaction = 0;
-			indexFaction < GameConstants::maxPlayers + GameConstants::specialFactions;
-			++indexFaction) {
+
+	for(int factionIndex = 0; factionIndex < GameConstants::maxPlayers + GameConstants::specialFactions; ++factionIndex) {
+		if(factionIndex >= getFactionCount()) {
+			continue;
+		}
+		Faction *faction = getFaction(factionIndex);
+//	for(int indexTeamFaction = 0;
+//			indexTeamFaction < GameConstants::maxPlayers + GameConstants::specialFactions;
+//			++indexTeamFaction) {
 
 		// If fog of war enabled set cell visible to false and later set those close to units to true
 		if(fogOfWar) {
 			for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
 				for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
 					// set all cells to not visible
-					map.getSurfaceCell(indexSurfaceW, indexSurfaceH)->setVisible(indexFaction, false);
+					map.getSurfaceCell(indexSurfaceW, indexSurfaceH)->setVisible(faction->getTeam(), false);
 				}
 			}
 		}
 
-		if(!fogOfWar || (indexFaction != thisTeamIndex)) {
-			bool showWorldForFaction = showWorldForPlayer(indexFaction);
+		// Remove fog of war for factions NOT on my team which i can see
+		if(!fogOfWar || (faction->getTeam() != thisTeamIndex)) {
+			bool showWorldForFaction = showWorldForPlayer(factionIndex);
+			//printf("showWorldForFaction indexFaction = %d thisTeamIndex = %d showWorldForFaction = %d\n",indexFaction,thisTeamIndex,showWorldForFaction);
 			if(showWorldForFaction == true) {
 				resetFowAlphaFactionCount++;
 			}
-
 			for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
 				for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
 					// reset fog of ware texture alpha values
@@ -2598,6 +2612,39 @@ void World::computeFow() {
 				}
 			}
 		}
+		// Remove fog of war for factions on my team
+		else if(fogOfWar && (faction->getTeam() == thisTeamIndex)) {
+			bool showWorldForFaction = showWorldForPlayer(factionIndex);
+			//printf("#2 showWorldForFaction thisFactionIndex = %d thisTeamIndex = %d showWorldForFaction = %d\n",thisFactionIndex,thisTeamIndex,showWorldForFaction);
+			if(showWorldForFaction == true) {
+				for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
+					for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
+						// reset fog of ware texture alpha values
+						if(!fogOfWar || (cacheFowAlphaTexture == false &&
+							showWorldForFaction == true)) {
+							const Vec2i surfPos(indexSurfaceW,indexSurfaceH);
+
+							//compute max alpha
+							float maxAlpha= 0.0f;
+							if(surfPos.x > 1 && surfPos.y > 1 &&
+							   surfPos.x < map.getSurfaceW() - 2 &&
+							   surfPos.y < map.getSurfaceH() - 2) {
+								maxAlpha= 1.f;
+							}
+							else if(surfPos.x > 0 && surfPos.y > 0 &&
+									surfPos.x < map.getSurfaceW() - 1 &&
+									surfPos.y < map.getSurfaceH() - 1){
+								maxAlpha= 0.3f;
+							}
+
+							// compute alpha
+							float alpha = maxAlpha;
+							minimap.incFowTextureAlphaSurface(surfPos, alpha);
+						}
+					}
+				}
+			}
+		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	}
@@ -2620,10 +2667,11 @@ void World::computeFow() {
 	for(int factionIndex = 0; factionIndex < getFactionCount(); ++factionIndex) {
 		Faction *faction = getFaction(factionIndex);
 		bool cellVisibleForFaction = showWorldForPlayer(thisFactionIndex);
+		//printf("computeFow thisFactionIndex = %d factionIndex = %d thisTeamIndex = %d faction->getTeam() = %d cellVisibleForFaction = %d\n",thisFactionIndex,factionIndex,thisTeamIndex,faction->getTeam(),cellVisibleForFaction);
+
 		int unitCount = faction->getUnitCount();
 		for(int unitIndex = 0; unitIndex < unitCount; ++unitIndex) {
 			Unit *unit= faction->getUnit(unitIndex);
-
 			// exploration
 			unit->exploreCells();
 
@@ -2646,6 +2694,8 @@ void World::computeFow() {
 			if(fogOfWar == true &&
 				faction->getTeam() == thisTeamIndex &&
 					unit->isOperative() == true) {
+
+				//printf("computeFow unit->isOperative() == true\n");
 
 				const FowAlphaCellsLookupItem &cellList = unit->getCachedFow();
 				for(std::map<Vec2i,float>::const_iterator iterMap = cellList.surfPosAlphaList.begin();
