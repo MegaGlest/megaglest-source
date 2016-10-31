@@ -87,6 +87,7 @@ private:
     bool masterserverAdminRequestLaunch;
 
 	vector<string> mapFiles;
+	vector<string> playerSortedMaps[GameConstants::maxPlayers+1];
 	vector<string> techTreeFiles;
 	vector<string> tilesetFiles;
 
