@@ -302,6 +302,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		listBoxMapFilter.pushBackItem(intToStr(i));
 	}
 	listBoxMapFilter.setSelectedItemIndex(0);
+	listBoxMapFilter.setEditable(false);
 
 
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
@@ -2059,8 +2060,8 @@ void MenuStateConnectedGame::switchToMapGroup(int filterIndex){
 	listBoxMapFilter.setSelectedItemIndex(i);
 	listBoxMap.setItems(formattedPlayerSortedMaps[i]);
 	listBoxMap.setSelectedItemIndex(0);
-	printf("switching map group to filter=%d mapgroup has %d maps. map=%s \n",i,
-			(int)formattedPlayerSortedMaps[i].size(),formattedPlayerSortedMaps[i][0].c_str());
+//	printf("switching map group to filter=%d mapgroup has %d maps. map=%s \n",i,
+//			(int)formattedPlayerSortedMaps[i].size(),formattedPlayerSortedMaps[i][0].c_str());
 }
 
 string MenuStateConnectedGame::getCurrentMapFile(){
@@ -2942,6 +2943,7 @@ void MenuStateConnectedGame::update() {
 		checkBoxAllowNativeLanguageTechtree.setEnabled(isHeadlessAdmin());
 
 		listBoxMap.setEditable(isHeadlessAdmin());
+		listBoxMapFilter.setEditable(isHeadlessAdmin());
 		buttonPlayNow.setVisible(isHeadlessAdmin() ||
 				clientInterface->getJoinGameInProgress() == true);
 		buttonRestoreLastSettings.setVisible(isHeadlessAdmin());
@@ -2955,7 +2957,6 @@ void MenuStateConnectedGame::update() {
 
 		checkBoxAllowTeamUnitSharing.setEditable(isHeadlessAdmin());
 		checkBoxAllowTeamResourceSharing.setEditable(isHeadlessAdmin());
-
 
 		if(isHeadlessAdmin() == true) {
 			bool hasOtherPlayer=false;
