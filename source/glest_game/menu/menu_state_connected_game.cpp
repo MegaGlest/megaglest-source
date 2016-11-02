@@ -1777,8 +1777,7 @@ void MenuStateConnectedGame::broadCastGameSettingsToHeadlessServer(bool forceNow
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("broadcast settings:\n%s\n",displayedGamesettings.toString().c_str());
 
 			//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
-
-			printf("sending Settings map filter=%d\n",displayedGamesettings.getMapFilter());
+			//printf("sending Settings map filter=%d\n",displayedGamesettings.getMapFilter());
 			clientInterface->broadcastGameSetup(&displayedGamesettings);
 			noReceiveTimer=time(NULL);
 		}
@@ -4762,7 +4761,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		}
 	}
 
-	if( isHeadlessAdmin() && listBoxMapFilter.getSelectedItemIndex()!=gameSettings->getMapFilter()){
+	if( listBoxMapFilter.getSelectedItemIndex()!=gameSettings->getMapFilter()){
 		switchToMapGroup(gameSettings->getMapFilter());
 //		printf("Switching to Map filter group %d \n",gameSettings->getMapFilter());
 	}
