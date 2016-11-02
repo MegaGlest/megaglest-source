@@ -11,6 +11,7 @@ CURRENT_VERSION=`./mg-version.sh --version`
 OLD_VERSION=`./mg-version.sh --oldversion_binary`
 VERSION_INFO_FILE="$(dirname "$(readlink -f "$0")")/../../source/version.txt"
 LastCompatibleSaveGameVersion="$(awk -F '=' '/^LastCompatibleSaveGameVersion =/ {print $2}' "$VERSION_INFO_FILE" | awk -F '"' '{print $2}')"
+CurrYear="$(date +%y)"
 MapeditorVersion="$CURRENT_VERSION"
 G3dviewerVersion="$CURRENT_VERSION"
 modifymore="yes"
@@ -22,6 +23,15 @@ grep -E '^const string glestVersionString 	= "[^"]*";$' ../../source/glest_game/
 sed -i 's/^const string glestVersionString 	= "[^"]*";$/const string glestVersionString 	= "v'$CURRENT_VERSION'";/' ../../source/glest_game/facilities/game_util.cpp
 echo 'Game version # after:'
 grep -E '^const string glestVersionString 	= "[^"]*";$' ../../source/glest_game/facilities/game_util.cpp
+echo
+echo 'Game Copyright date # before:'
+grep -E 'Copyright 2010-20[0-9][0-9] The MegaGlest Team' ../../source/glest_game/facilities/game_util.cpp
+sed -i 's/Copyright 2010-20[0-9][0-9] The MegaGlest Team/Copyright 2010-20'$CurrYear' The MegaGlest Team/' ../../source/glest_game/facilities/game_util.cpp
+grep -E '© 2001-20[0-9][0-9] The MegaGlest Team' ../../mk/macosx/bundle_resources/Info.plist.in
+sed -i 's/© 2001-20[0-9][0-9] The MegaGlest Team/© 2001-20'$CurrYear' The MegaGlest Team/' ../../mk/macosx/bundle_resources/Info.plist.in
+echo 'Game Copyright date # after:'
+grep -E 'Copyright 2010-20[0-9][0-9] The MegaGlest Team' ../../source/glest_game/facilities/game_util.cpp
+grep -E '© 2001-20[0-9][0-9] The MegaGlest Team' ../../mk/macosx/bundle_resources/Info.plist.in
 echo
 if [ "$modifymore" = "yes" ]; then
 	# const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
@@ -53,6 +63,12 @@ if [ "$modifymore" = "yes" ]; then
 	sed -i 's/^const string mapeditorVersionString = "[^"]*";$/const string mapeditorVersionString = "v'$MapeditorVersion'";/' ../../source/glest_map_editor/main.cpp
 	echo 'Mapeditor version # after:'
 	grep -E '^const string mapeditorVersionString = "[^"]*";$' ../../source/glest_map_editor/main.cpp
+	echo
+	echo 'Mapeditor Copyright date # before:'
+	grep -E 'Copyright 2010-20[0-9][0-9] The MegaGlest Team' ../../source/glest_map_editor/main.cpp
+	sed -i 's/Copyright 2010-20[0-9][0-9] The MegaGlest Team/Copyright 2010-20'$CurrYear' The MegaGlest Team/' ../../source/glest_map_editor/main.cpp
+	echo 'Mapeditor Copyright date # after:'
+	grep -E 'Copyright 2010-20[0-9][0-9] The MegaGlest Team' ../../source/glest_map_editor/main.cpp
 	echo
 	echo '===== Updating G3dviewer ======'
 	# const string g3dviewerVersionString= "v1.3.6";
