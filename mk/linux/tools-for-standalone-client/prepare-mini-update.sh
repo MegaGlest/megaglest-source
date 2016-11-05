@@ -61,8 +61,8 @@ exit 0' > "megaglest-mini-update.sh"
 	if [ -d "megaglest-mini_update" ]; then rm -rf "megaglest-mini_update"; fi
 	mkdir -p "megaglest-mini_update"
 
-	cp -f --no-dereference --preserve=all ../start_megaglest \
-	    ../start_megaglest_mapeditor ../start_megaglest_g3dviewer \
+	cp -f --no-dereference --preserve=all start_megaglest \
+	    start_megaglest_mapeditor start_megaglest_g3dviewer \
 	    megaglest-mini-update.sh megaglest-configure-desktop.sh "megaglest-mini_update"
 	cp -R -f --no-dereference --preserve=all lib-x86 lib-x86_64 "megaglest-mini_update"
 	sleep 0.5s

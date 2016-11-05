@@ -83,12 +83,12 @@ cd $REPO_DATADIR/others/icons
 cp *.bmp *.png *.xpm "$RELEASEDIR/"
 if [ "$1" != "--installer" ]; then cd $REPO_DATADIR/others/desktop; cp *.desktop "$RELEASEDIR/"; fi
 cd $PROJDIR
-cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest \
-	start_megaglest_mapeditor start_megaglest_g3dviewer \
-	start_megaglest_gameserver "$RELEASEDIR/"
+cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest_gameserver "$RELEASEDIR/"
 
 cd "$CURRENTDIR/tools-for-standalone-client"
+cp start_megaglest start_megaglest_mapeditor start_megaglest_g3dviewer "$RELEASEDIR/"
 if [ "$1" != "--installer" ]; then cp megaglest-configure-desktop.sh "$RELEASEDIR/"; fi
+
 if [ "$(echo "$VERSION" | grep -v '\-dev$')" != "" ]; then
     ./prepare-mini-update.sh --only_script; sleep 0.5s
     cp megaglest-mini-update.sh "$RELEASEDIR/"
