@@ -48,7 +48,7 @@ MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
 bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
-int64 Window::lastToggle = -5000;
+int64 Window::lastToggle = -1000;
 
 bool Window::isActive = false;
 #ifdef WIN32
@@ -145,7 +145,7 @@ Window::Window()  {
 	Window::isActive = true;
 
 	lastMouseEvent = 0;
-	lastToggle = -5000;
+	lastToggle = -1000;
 	mousePos = Vec2i(0);
 	mouseState.clear();
 
@@ -175,7 +175,7 @@ Window::Window(SDL_Window *sdlWindow)  {
 	Window::isActive = true;
 
 	lastMouseEvent = 0;
-	lastToggle = -5000;
+	lastToggle = -1000;
 	mousePos = Vec2i(0);
 	mouseState.clear();
 
@@ -370,7 +370,7 @@ bool Window::handleEvent() {
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-						if(Chrono::getCurMillis()-getLastToggle()>5000){
+						if(Chrono::getCurMillis()-getLastToggle()>1000){
 							toggleFullscreen();
 							setLastToggle(Chrono::getCurMillis());
 						}
@@ -422,10 +422,12 @@ bool Window::handleEvent() {
 					if(global_window) {
 						global_window->eventKeyUp(event.key);
 					}
-					string keyName = SDL_GetKeyName(event.key.keysym.sym);
-					if(  (keyName == "Return" || keyName == "Enter")){
-						setLastToggle(-5000);
-					}
+
+					// here is the problem, we have with too many key up events:
+//					string keyName = SDL_GetKeyName(event.key.keysym.sym);
+//					if(  (keyName == "Return" || keyName == "Enter")){
+//						setLastToggle(-1000);
+//					}
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYUP ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -436,7 +438,7 @@ bool Window::handleEvent() {
 					codeLocation = "k";
 //					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT event.active.state = %d event.active. = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.active.state,event.active.gain);
 //
-//					if(SystemFlags::VERBreturnOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d event.active.state = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive,event.active.state);
+//					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d event.active.state = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive,event.active.state);
 //
 //					// Check if the program has lost window focus
 //					if ((event.active.state & (SDL_APPACTIVE | SDL_APPINPUTFOCUS))) {

@@ -108,7 +108,7 @@ private:
 	static bool tryVSynch;
 	static int64 lastToggle;
 
-    static void setLastToggle(int64 lastMouseEvent)	{Window::lastToggle = lastToggle;}
+    static void setLastToggle(int64 lastToggle)	{Window::lastToggle = lastToggle;}
     static int64 getLastToggle() 				    {return Window::lastToggle;}
 
     static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
