@@ -48,7 +48,6 @@ MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
 bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
-int64 Window::lastToggle = -1000;
 
 bool Window::isActive = false;
 #ifdef WIN32
@@ -145,7 +144,6 @@ Window::Window()  {
 	Window::isActive = true;
 
 	lastMouseEvent = 0;
-	lastToggle = -1000;
 	mousePos = Vec2i(0);
 	mouseState.clear();
 
@@ -175,7 +173,6 @@ Window::Window(SDL_Window *sdlWindow)  {
 	Window::isActive = true;
 
 	lastMouseEvent = 0;
-	lastToggle = -1000;
 	mousePos = Vec2i(0);
 	mouseState.clear();
 
@@ -350,7 +347,7 @@ bool Window::handleEvent() {
 //					// also prevent ` and/or ~ appearing in console every time it's toggled.
 					SDL_Keymod mod = SDL_GetModState();
 					if (!isUnprintableChar(event.key.keysym,mod)) {
-						//printf("In SDL_KEYDOWN key SKIP [%d]\n",event.key.keysym.sym);
+						printf("In SDL_KEYDOWN key SKIP [%d]\n",event.key.keysym.sym);
 						break;
 					}
 					codeLocation = "i";
@@ -368,12 +365,7 @@ bool Window::handleEvent() {
 					// handle ALT+Return
 					if(  (keyName == "Return" || keyName == "Enter")
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-						if(Chrono::getCurMillis()-getLastToggle()>1000){
-							toggleFullscreen();
-							setLastToggle(Chrono::getCurMillis());
-						}
+						toggleFullscreen();
 						keyDownConsumed=true;
 					}
 #ifdef WIN32

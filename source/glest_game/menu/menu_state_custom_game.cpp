@@ -4037,7 +4037,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
 	}
 	else {
-		printf("gameSettings.getMapFilter()=%d \n",gameSettings.getMapFilter());
+		//printf("gameSettings.getMapFilter()=%d \n",gameSettings.getMapFilter());
 		if(gameSettings.getMapFilter() == 0) {
 			listBoxMapFilter.setSelectedItemIndex(0);
 		}
