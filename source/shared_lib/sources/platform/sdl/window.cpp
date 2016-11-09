@@ -48,6 +48,7 @@ MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
 bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
+int64 Window::lastToggle = -1000;
 
 bool Window::isActive = false;
 #ifdef WIN32
@@ -315,7 +316,7 @@ bool Window::handleEvent() {
 				case SDL_KEYDOWN: {
 					//printf("In SDL_KEYDOWN\n");
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
+					if(event.key.repeat!=0) break;
 					keystate = event.key.keysym;
 					bool keyDownConsumed=false;
 					if(global_window) {
@@ -365,7 +366,10 @@ bool Window::handleEvent() {
 					// handle ALT+Return
 					if(  (keyName == "Return" || keyName == "Enter")
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
-						toggleFullscreen();
+						if (Chrono::getCurMillis() - getLastToggle() > 100) {
+							toggleFullscreen();
+							setLastToggle(Chrono::getCurMillis());
+						};
 						keyDownConsumed=true;
 					}
 #ifdef WIN32
