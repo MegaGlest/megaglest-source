@@ -4990,7 +4990,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				console.addLine(Lang::getInstance().getString("HeadlessServerDoesNotHaveMap","",true));
 			}
 		}
-		//listBoxMap.setItems(maps);
+		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings->getMapFilter()]);
 
 		//printf("Setting map from game settings map:%s , settingsfilter=%d , boxfilter=%d \n",gameSettings->getMap().c_str(),gameSettings->getMapFilter(),listBoxMapFilter.getSelectedItemIndex());
 		listBoxMap.setSelectedItem(mapFile);
