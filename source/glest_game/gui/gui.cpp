@@ -1185,6 +1185,19 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	if(uc.empty() == false){
 		targetUnit= getRelevantObjectFromSelection(&uc);
 		targetPos= targetUnit->getPosNotThreadSafe();
+		// we need to respect cellmaps. Searching for a cell which is really occupied
+		int size=targetUnit->getType()->getSize();
+		bool foundUnit=false;
+		for ( int x= 0;x<size;++x){
+			for ( int y= 0;y<size;++y){
+				if(world->getMap()->getCell(Vec2i(targetPos.x+x,targetPos.y+y))->getUnit(targetUnit->getType()->getField())==targetUnit){
+					targetPos=Vec2i(targetPos.x+x,targetPos.y+y);
+					foundUnit=true;
+					break;
+				}
+			}
+			if(foundUnit) break;
+		}
 		highlightedUnitId=targetUnit->getId();
 		getHighlightedUnit()->resetHighlight();
 		return true;
