@@ -80,16 +80,6 @@ static HWND GetSDLWindow()
 #endif
 
 static bool isUnprintableChar(SDL_keysym key, SDL_Keymod mod) {
-	if(mod) {
-
-	    if ((mod & (KMOD_SHIFT)) && (key.sym <= 127 || key.sym >= 0x20)) {
-	    	return false;
-	    }
-
-		//if((mod & (KMOD_SHIFT)) && (key.sym == SDLK_QUESTION || key.sym == SDLK_SLASH)) {
-		//	return false;
-		//}
-	}
     switch (key.sym) {
         // We want to allow some, which are handled specially
 		case SDLK_RETURN:
@@ -105,23 +95,25 @@ static bool isUnprintableChar(SDL_keysym key, SDL_Keymod mod) {
 		case SDLK_PAGEUP:
 		case SDLK_PAGEDOWN:
 			return true;
-		default:
-			// U+0000 to U+001F are control characters
-			/* Don't post text events for unprintable characters */
-		    if (key.sym > 127) {
-		    	return true;
-		    }
-		    if(key.sym < 0x20) {
-		    	return true;
-		    }
-
-			if(mod) {
-				return true;
-			}
-
-		    //printf("isUnprintableChar returns false for [%d]\n",key.sym);
-		    return false;
+		default:// do nothing
+			break;
     }
+		// U+0000 to U+001F are control characters
+		/* Don't post text events for unprintable characters */
+
+    if(StartsWith(SDL_GetKeyName(key.sym),"SDLK_KP")){
+    	return false;
+    }
+	if (key.sym > 127) {
+		return true;
+	}
+	if(key.sym < 0x20) {
+		return true;
+	}
+
+	//printf("isUnprintableChar returns false for [%d]\n",key.sym);
+	return false;
+
 }
 
 Window::Window()  {
@@ -343,11 +335,10 @@ bool Window::handleEvent() {
 						}
 					}
 
-//					// Stop unprintable characters (ctrl+, alt+ and escape),
-//					// also prevent ` and/or ~ appearing in console every time it's toggled.
+//					// Stop keys which would be handled twice ( one time as text input, one time as key down )
 					SDL_Keymod mod = SDL_GetModState();
 					if (!isUnprintableChar(event.key.keysym,mod)) {
-						printf("In SDL_KEYDOWN key SKIP [%d]\n",event.key.keysym.sym);
+						//printf("In SDL_KEYDOWN key SKIP [%d]\n",event.key.keysym.sym);
 						break;
 					}
 					codeLocation = "i";
