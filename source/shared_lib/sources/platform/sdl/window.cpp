@@ -371,7 +371,7 @@ bool Window::handleEvent() {
 						return false;
 					}
 					// handle windows key
-					if((keyName == "Application" || (event.key.keysym.mod & (KMOD_LGUI | KMOD_LGUI))
+					if(keyName == "Application" || (event.key.keysym.mod & (KMOD_LGUI | KMOD_LGUI)))
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ALT-F4 pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						return false;
 					}
