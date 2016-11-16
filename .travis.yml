@@ -10,17 +10,12 @@ matrix:
       env: Tr_Compiler_Version="6"
       # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
       dist: trusty # broken compiler on 12.04
-    #- os: linux
-    #  compiler: gcc
-    #  env: Tr_Compiler_Version="5"
-      # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
-    #  dist: trusty
     - os: linux
       compiler: gcc
       env: Tr_Compiler_Version="default"
     - os: linux
       compiler: clang
-      env: Tr_Compiler_Version="3.8"
+      env: Tr_Compiler_Version="3.9"
       # http://apt.llvm.org/, compiler not newer than available on debian testing
       # https://packages.debian.org/search?suite=testing&keywords=clang-
       dist: trusty
@@ -28,10 +23,6 @@ matrix:
       compiler: clang
       env: Tr_Compiler_Version="default"
       dist: trusty # broken compiler on 12.04
-    #- os: osx
-    #  osx_image: xcode8
-    #  env: Tr_Xcode_Version="8"
-      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
       osx_image: xcode6.4
       #env: Tr_Xcode_Version="default"
@@ -41,8 +32,6 @@ matrix:
   fast_finish: true
   allow_failures:
     #- os: osx
-    #  osx_image: xcode8
-    #  env: Tr_Xcode_Version="8"
 
 git:
   submodules: false
@@ -57,7 +46,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew link --force gettext; fi
     # ^ odd linking problems related with brew which is not creating links, not on travis also needed are: cmake + pkgconfig + xquartz (find by "search") + (maybe) git
-  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" = "6.4" ]; then brew install Caskroom/cask/xquartz; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" = "6.4" ]; then brew uninstall --force brew-cask; brew update; brew install Caskroom/cask/xquartz; fi
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
   - $CC --version

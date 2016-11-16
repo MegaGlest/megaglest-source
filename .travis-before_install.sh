@@ -83,7 +83,7 @@ sudo $SCRIPTDIR/mk/linux/setupBuildDeps.sh --quiet
 if [ "$distribution" = "Ubuntu" ]; then
     case $release in
 	12.04*)
-	    SDL2_version="2.0.4"
+	    SDL2_version="2.0.5"
 	    wget https://www.libsdl.org/release/SDL2-${SDL2_version}.tar.gz
 	    tar xf SDL2-${SDL2_version}.tar.gz
 	    ( cd SDL2-${SDL2_version}
