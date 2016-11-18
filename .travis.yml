@@ -24,21 +24,9 @@ matrix:
       env: Tr_Compiler_Version="default"
       dist: trusty # broken compiler on 12.04
     - os: osx
-      osx_image: xcode6.4
-      #env: Tr_Xcode_Version="default"
-      env: Tr_Xcode_Version="6.4"
-      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
-      # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
-    - os: osx
-      #osx_image: xcode6.4
+      #osx_image: xcode6.4 # seems broken and has lower priority in queue than default one
       env: Tr_Xcode_Version="default"
       #env: Tr_Xcode_Version="6.4"
-      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
-      # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
-    - os: osx
-      #osx_image: xcode6.4
-      #env: Tr_Xcode_Version="default"
-      env: Tr_Xcode_Version="6.4"
       # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
       # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
   fast_finish: true
@@ -60,7 +48,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew outdated cmake || brew upgrade cmake; brew outdated pkgconfig || brew upgrade pkgconfig; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew link --force gettext; fi
     # ^ odd linking problems related with brew which is not creating links
-  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" = "6.4" ]; then brew update; brew cleanup; brew cask cleanup; brew uninstall --force brew-cask; brew update; brew install Caskroom/cask/xquartz; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" = "6.4" ]; then brew install Caskroom/cask/xquartz; fi
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
   - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
   - $CC --version
@@ -70,7 +58,7 @@ before_install:
 script:
 # ALL THE BUILD COMMANDS HERE
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mk/linux/build-mg.sh -c 4; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macosx/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macos/build-mg.sh -c 4; fi
 
 # https://docs.travis-ci.com/user/notifications/#IRC-notification
 notifications:

@@ -33,7 +33,7 @@ cp -r "$BINARY_DIR/"* "$APP_GAME_DIR"
 cp -r "$DATA_DIR/"* "$APP_GAME_DIR"; sleep 0.5s
 if [ -f "$APP_GAME_DIR/MegaGlest.sh" ]; then rm -f "$APP_GAME_DIR/MegaGlest.sh"; fi
 
-cp "$CURRENTDIR/build/mk/macosx/bundle_resources/Info.plist" "$APP_PLIST_DIR"
+cp "$CURRENTDIR/build/mk/macos/bundle_resources/Info.plist" "$APP_PLIST_DIR"
 cp "$CURRENTDIR/bundle_resources/MegaGlest.icns" "$APP_RES_DIR"
 cp "$CURRENTDIR/bundle_resources/MegaGlest.sh" "$APP_BIN_DIR"
 mv "$APP_BIN_DIR/MegaGlest.sh" "$APP_BIN_DIR/MegaGlest"

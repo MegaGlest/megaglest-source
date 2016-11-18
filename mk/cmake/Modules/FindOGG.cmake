@@ -25,7 +25,7 @@ ELSE()
 	FIND_LIBRARY(VORBIS_LIBRARY NAMES vorbis)
 ENDIF()
 
-#on macosx the vorbisfile library is part of the vorbisone...
+#on macos the vorbisfile library is part of the vorbisone...
 #IF(NOT APPLE)
 # comment above is full of lies
 

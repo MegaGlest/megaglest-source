@@ -71,7 +71,7 @@ string getPlatformTypeNameString() {
 	platform = "OpenBSD";
 
 #elif defined(__APPLE__)
-	platform = "MacOSX";
+	platform = "MacOS";
 #elif defined(_AIX)
 	platform = "AIX";
 #elif defined(__ANDROID__)

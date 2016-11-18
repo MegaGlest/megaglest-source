@@ -27,11 +27,11 @@ echo
 echo 'Game Copyright date # before:'
 grep -E 'Copyright 2010-20[0-9][0-9] The MegaGlest Team' ../../source/glest_game/facilities/game_util.cpp
 sed -i 's/Copyright 2010-20[0-9][0-9] The MegaGlest Team/Copyright 2010-20'$CurrYear' The MegaGlest Team/' ../../source/glest_game/facilities/game_util.cpp
-grep -E '© 2001-20[0-9][0-9] The MegaGlest Team' ../../mk/macosx/bundle_resources/Info.plist.in
-sed -i 's/© 2001-20[0-9][0-9] The MegaGlest Team/© 2001-20'$CurrYear' The MegaGlest Team/' ../../mk/macosx/bundle_resources/Info.plist.in
+grep -E '© 2001-20[0-9][0-9] The MegaGlest Team' ../../mk/macos/bundle_resources/Info.plist.in
+sed -i 's/© 2001-20[0-9][0-9] The MegaGlest Team/© 2001-20'$CurrYear' The MegaGlest Team/' ../../mk/macos/bundle_resources/Info.plist.in
 echo 'Game Copyright date # after:'
 grep -E 'Copyright 2010-20[0-9][0-9] The MegaGlest Team' ../../source/glest_game/facilities/game_util.cpp
-grep -E '© 2001-20[0-9][0-9] The MegaGlest Team' ../../mk/macosx/bundle_resources/Info.plist.in
+grep -E '© 2001-20[0-9][0-9] The MegaGlest Team' ../../mk/macos/bundle_resources/Info.plist.in
 echo
 if [ "$modifymore" = "yes" ]; then
 	# const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
