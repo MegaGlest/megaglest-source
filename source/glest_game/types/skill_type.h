@@ -476,15 +476,30 @@ public:
 class DieSkillType: public SkillType {
 private:
 	bool fade;
+	bool spawn;
+	float spawnStartTime;
+	string spawnUnit;
+	int spawnUnitcount;
+	int spawnUnitHealthPercentMin;
+	int spawnUnitHealthPercentMax;
+	int spawnProbability;
 
 public:
     DieSkillType();
-    bool getFade() const	{return fade;}
 	
 	virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
 			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
 	virtual string toString(bool translatedValue) const;
+
+    bool getFade() const	{return fade;}
+    bool getSpawn() const	{return spawn;}
+	inline int getSpawnStartTime() const			{return spawnStartTime;}
+	inline string getSpawnUnit() const					{return spawnUnit;}
+	inline int getSpawnUnitCount() const				{return spawnUnitcount;}
+	inline int getSpawnUnitHealthPercentMin() const		{return spawnUnitHealthPercentMin;}
+	inline int getSpawnUnitHealthPercentMax() const		{return spawnUnitHealthPercentMax;}
+	inline int getSpawnProbability() const				{return spawnProbability;}
 
 	virtual void saveGame(XmlNode *rootNode);
 	StaticSound *getSound() const;

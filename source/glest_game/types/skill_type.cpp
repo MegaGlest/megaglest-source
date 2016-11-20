@@ -1354,6 +1354,13 @@ void MorphSkillType::saveGame(XmlNode *rootNode) {
 DieSkillType::DieSkillType(){
     skillClass= scDie;
     fade=false;
+    spawn=false;
+    spawnStartTime=0;
+    spawnUnit="";
+    spawnUnitcount=0;
+	spawnUnitHealthPercentMin=100;
+	spawnUnitHealthPercentMax=100;
+	spawnProbability=100;
 }
 
 void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
@@ -1363,6 +1370,18 @@ void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();
+	if(sn->hasChild("spawn")){
+		const XmlNode *spawnNode= sn->getChild("spawn");
+		spawn=true;
+		spawnStartTime=spawnNode->getAttribute("start-time")->getFloatValue();
+		spawnUnit = spawnNode->getChild("unit")->getAttribute("value")->getValue();
+		spawnUnitcount = spawnNode->hasChild("amount")?spawnNode->getChild("amount")->getAttribute("value")->getIntValue():0;
+		if(spawnNode->hasChild("health-percent")){
+			spawnUnitHealthPercentMin = spawnNode->getChild("health-percent")->getAttribute("min")->getIntValue();
+			spawnUnitHealthPercentMax = spawnNode->getChild("health-percent")->getAttribute("max")->getIntValue();
+		}
+		spawnProbability = spawnNode->hasChild("probability")?spawnNode->getChild("probability")->getAttribute("value")->getIntValue():spawnProbability;
+	} // else keep defaults
 }
 
 string DieSkillType::toString(bool translatedValue) const{
@@ -1379,6 +1398,7 @@ void DieSkillType::saveGame(XmlNode *rootNode) {
 	XmlNode *dieSkillTypeNode = rootNode->addChild("DieSkillType");
 
 	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
+	// no need to save spawn attributes
 }
 
 StaticSound *DieSkillType::getSound() const{

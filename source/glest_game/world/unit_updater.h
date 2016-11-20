@@ -103,7 +103,6 @@ public:
 
 	//update skills
     bool updateUnit(Unit *unit);
-	void spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos=Vec2i(-10,-10));
 
     //update commands
     void updateUnitCommand(Unit *unit, int frameIndex);
@@ -152,6 +151,10 @@ private:
     bool attackableOnRange(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast, bool evalMode=false);
 	bool unitOnRange(Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast,bool evalMode=false);
 	void enemiesAtDistance(const Unit *unit, const Unit *priorityUnit, int distance, vector<Unit*> &enemies);
+
+	void spawn(Unit *unit,string spawnUnit,int spawnUnitcount,int healthMin,int healthMax,int probability);
+	void spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,int healthMin,int healthMax,int probability,bool spawnUnitAtTarget,Vec2i targetPos=Vec2i(-10,-10));
+	Unit* spawnUnit(Unit *unit,string spawnUnit,Vec2i targetPos=Vec2i(-10,-10));
 
 	Unit * findPeerUnitBuilder(Unit *unit);
 	void SwapActiveCommand(Unit *unitSrc, Unit *unitDest);
