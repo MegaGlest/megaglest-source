@@ -1122,8 +1122,6 @@ void Game::load(int loadTypes) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     set<string> factions;
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
 		factions.insert(gameSettings.getFactionTypeName(i));
 	}
@@ -2683,9 +2681,7 @@ void Game::update() {
 				renderer.endScenario();
 				world.clearTileset();
 				this->setGameSettings(&gameSettings);
-
 				this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
-
 				try {
 					world.init(this, gameSettings.getDefaultUnits(),false);
 				}
