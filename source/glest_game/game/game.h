@@ -243,6 +243,7 @@ public:
     GameSettings *getGameSettings() 	    		{return &gameSettings;}
     void setGameSettings(GameSettings *settings) 	{ gameSettings = *settings;}
 	const GameSettings *getReadOnlyGameSettings() const	{return &gameSettings;}
+	void setQuitPendingIndicator() 	{ quitPendingIndicator = true;}
 
 	const GameCamera *getGameCamera() const	{return &gameCamera;}
 	GameCamera *getGameCameraPtr()			{return &gameCamera;}

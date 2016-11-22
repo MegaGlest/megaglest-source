@@ -706,6 +706,7 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 				try {
 					Game *game = dynamic_cast<Game *>(programStateNew);
 					Renderer &renderer= Renderer::getInstance();
+					game->setQuitPendingIndicator();// by this the world is no more updated
 					renderer.initGame(game,game->getGameCameraPtr());
 				}
 				catch(megaglest_runtime_error& ex2) {
