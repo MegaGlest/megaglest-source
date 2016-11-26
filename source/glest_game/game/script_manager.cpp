@@ -425,7 +425,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	//setup message box
 	messageBox.init( Lang::getInstance().getString("Ok") );
 	messageBox.setEnabled(false);
-	messageBox.setAutoWordWrap(false);
+	//messageBox.setAutoWordWrap(false);
 
 	//last created unit
 	lastCreatedUnitId= -1;
@@ -469,8 +469,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		//string sErrBuf = "";
 		//if(ex.wantStackTrace() == true) {
 		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+		//snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("The game may no longer be stable!\n\n\t [") + string(ex.what()) + string("]\n");
 		//}
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
@@ -505,11 +505,11 @@ void ScriptManager::onMessageBoxOk(bool popFront) {
 
 				messageBox.setEnabled(true);
 
-				string msgText   = wrapString(messageQueue.front().getText(), messageWrapCount);
+				string msgText   = messageQueue.front().getText();
 				string msgHeader = messageQueue.front().getHeader();
 				if(messageQueue.front().getMessageNotTranslated() == false) {
 
-					msgText   = wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount);
+					msgText   = lang.getScenarioString(messageQueue.front().getText());
 					msgHeader = lang.getScenarioString(messageQueue.front().getHeader());
 				}
 				messageBox.setText(msgText);
@@ -2061,15 +2061,7 @@ int ScriptManager::networkShowMessageForFaction(LuaHandle* luaHandle){
 		thisScriptManager->networkShowMessageForFaction(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2082,15 +2074,7 @@ int ScriptManager::networkShowMessageForTeam(LuaHandle* luaHandle){
 		thisScriptManager->networkShowMessageForTeam(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2103,15 +2087,7 @@ int ScriptManager::networkSetCameraPositionForFaction(LuaHandle* luaHandle){
 		thisScriptManager->networkSetCameraPositionForFaction(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2124,15 +2100,7 @@ int ScriptManager::networkSetCameraPositionForTeam(LuaHandle* luaHandle){
 		thisScriptManager->networkSetCameraPositionForTeam(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2146,15 +2114,7 @@ int ScriptManager::setDisplayText(LuaHandle* luaHandle){
 		thisScriptManager->setDisplayText(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2167,15 +2127,7 @@ int ScriptManager::addConsoleText(LuaHandle* luaHandle){
 		thisScriptManager->addConsoleText(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2188,15 +2140,7 @@ int ScriptManager::clearDisplayText(LuaHandle* luaHandle){
 		thisScriptManager->clearDisplayText();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2209,15 +2153,7 @@ int ScriptManager::setCameraPosition(LuaHandle* luaHandle){
 		thisScriptManager->setCameraPosition(Vec2i(luaArguments.getVec2i(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2230,15 +2166,7 @@ int ScriptManager::shakeCamera(LuaHandle* luaHandle){
 		thisScriptManager->shakeCamera(luaArguments.getInt(-2),luaArguments.getInt(-1),false,0);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2251,15 +2179,7 @@ int ScriptManager::shakeCameraOnUnit(LuaHandle* luaHandle){
 		thisScriptManager->shakeCamera(luaArguments.getInt(-3),luaArguments.getInt(-2),true,luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2277,18 +2197,34 @@ int ScriptManager::createUnit(LuaHandle* luaHandle) {
 			luaArguments.getVec2i(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
+}
+
+void ScriptManager::error(LuaHandle* luaHandle,const megaglest_runtime_error *mgErr, const char* file, const char* function, int line){
+	char szErrBuf[8096]="";
+	memset(szErrBuf, 0, sizeof szErrBuf);
+
+	int luaLine=-1;
+	if(luaHandle != NULL){
+	  lua_Debug ar;
+	  lua_getstack(luaHandle, 1, &ar);
+	  lua_getinfo(luaHandle, "nSl", &ar);
+	  luaLine = ar.currentline;
+	}
+	snprintf(szErrBuf,8096,"in %s::%s %d ",extractFileFromDirectoryPath(file).c_str(),function,line);
+	//string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nhahaha="+luaLine) + string(" [") + string(mgErr->what()) + string("]\n");
+	string sErrBuf = string("Error! The game may no longer be stable!\n\n")
+			+ string(szErrBuf) + "\nLuaLine=" + intToStr(luaLine) + "\n\n"
+			+ string(mgErr->what());
+
+	SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+	thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+	thisScriptManager->onMessageBoxOk(false);
 }
 
 int ScriptManager::createUnitNoSpacing(LuaHandle* luaHandle) {
@@ -2303,15 +2239,7 @@ int ScriptManager::createUnitNoSpacing(LuaHandle* luaHandle) {
 			luaArguments.getVec2i(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2326,15 +2254,7 @@ int ScriptManager::destroyUnit(LuaHandle* luaHandle) {
 		thisScriptManager->destroyUnit(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2352,15 +2272,7 @@ int ScriptManager::setLockedUnitForFaction(LuaHandle* luaHandle) {
 			(luaArguments.getInt(-1) == 0 ? false : true));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2375,15 +2287,7 @@ int ScriptManager::giveKills(LuaHandle* luaHandle) {
 		thisScriptManager->giveKills(luaArguments.getInt(-2),luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2398,15 +2302,7 @@ int ScriptManager::morphToUnit(LuaHandle* luaHandle) {
 		thisScriptManager->morphToUnit(luaArguments.getInt(-3),luaArguments.getString(-2),luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2421,15 +2317,7 @@ int ScriptManager::moveToUnit(LuaHandle* luaHandle) {
 		thisScriptManager->moveToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2443,15 +2331,7 @@ int ScriptManager::playStaticSound(LuaHandle* luaHandle) {
 		thisScriptManager->playStaticSound(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2465,15 +2345,7 @@ int ScriptManager::playStreamingSound(LuaHandle* luaHandle) {
 		thisScriptManager->playStreamingSound(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2487,15 +2359,7 @@ int ScriptManager::stopStreamingSound(LuaHandle* luaHandle) {
 		thisScriptManager->stopStreamingSound(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2509,15 +2373,7 @@ int ScriptManager::stopAllSound(LuaHandle* luaHandle) {
 		thisScriptManager->stopAllSound();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2531,15 +2387,7 @@ int ScriptManager::playStaticVideo(LuaHandle* luaHandle) {
 		thisScriptManager->playStaticVideo(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2553,15 +2401,7 @@ int ScriptManager::playStreamingVideo(LuaHandle* luaHandle) {
 		thisScriptManager->playStreamingVideo(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2575,15 +2415,7 @@ int ScriptManager::stopStreamingVideo(LuaHandle* luaHandle) {
 		thisScriptManager->stopStreamingVideo(luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2598,15 +2430,7 @@ int ScriptManager::stopAllVideo(LuaHandle* luaHandle) {
 		thisScriptManager->stopAllVideo();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2620,15 +2444,7 @@ int ScriptManager::togglePauseGame(LuaHandle* luaHandle) {
 		thisScriptManager->togglePauseGame(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2639,15 +2455,7 @@ int ScriptManager::giveResource(LuaHandle* luaHandle){
 		thisScriptManager->giveResource(luaArguments.getString(-3), luaArguments.getInt(-2), luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2662,15 +2470,7 @@ int ScriptManager::givePositionCommand(LuaHandle* luaHandle){
 			luaArguments.getVec2i(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2684,15 +2484,7 @@ int ScriptManager::giveAttackCommand(LuaHandle* luaHandle){
 			luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2706,15 +2498,7 @@ int ScriptManager::giveProductionCommand(LuaHandle* luaHandle){
 			luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2728,15 +2512,7 @@ int ScriptManager::giveUpgradeCommand(LuaHandle* luaHandle){
 			luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2751,15 +2527,7 @@ int ScriptManager::giveAttackStoppedCommand(LuaHandle* luaHandle){
 			luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2771,15 +2539,7 @@ int ScriptManager::disableAi(LuaHandle* luaHandle){
 		thisScriptManager->disableAi(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2791,15 +2551,7 @@ int ScriptManager::enableAi(LuaHandle* luaHandle){
 		thisScriptManager->enableAi(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2812,15 +2564,7 @@ int ScriptManager::getAiEnabled(LuaHandle* luaHandle){
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2832,15 +2576,7 @@ int ScriptManager::disableConsume(LuaHandle* luaHandle){
 		thisScriptManager->disableConsume(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2852,15 +2588,7 @@ int ScriptManager::enableConsume(LuaHandle* luaHandle){
 		thisScriptManager->enableConsume(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2873,15 +2601,7 @@ int ScriptManager::getConsumeEnabled(LuaHandle* luaHandle){
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2894,15 +2614,7 @@ int ScriptManager::registerCellTriggerEventForUnitToUnit(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2915,15 +2627,7 @@ int ScriptManager::registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandl
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2936,15 +2640,7 @@ int ScriptManager::registerCellAreaTriggerEventForUnitToLocation(LuaHandle* luaH
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2957,15 +2653,7 @@ int ScriptManager::registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2978,15 +2666,7 @@ int ScriptManager::registerCellTriggerEventForFactionToLocation(LuaHandle* luaHa
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -2999,15 +2679,7 @@ int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(LuaHandle* l
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3020,15 +2692,7 @@ int ScriptManager::registerCellAreaTriggerEvent(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3041,15 +2705,7 @@ int ScriptManager::getCellTriggerEventCount(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3061,15 +2717,7 @@ int ScriptManager::unregisterCellTriggerEvent(LuaHandle* luaHandle) {
 		thisScriptManager->unregisterCellTriggerEvent(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3082,15 +2730,7 @@ int ScriptManager::startTimerEvent(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3103,15 +2743,7 @@ int ScriptManager::startEfficientTimerEvent(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3124,15 +2756,7 @@ int ScriptManager::stopTimerEvent(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3145,15 +2769,7 @@ int ScriptManager::resetTimerEvent(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3166,15 +2782,7 @@ int ScriptManager::getTimerEventSecondsElapsed(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3186,15 +2794,7 @@ int ScriptManager::setPlayerAsWinner(LuaHandle* luaHandle){
 		thisScriptManager->setPlayerAsWinner(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3206,15 +2806,7 @@ int ScriptManager::endGame(LuaHandle* luaHandle){
 		thisScriptManager->endGame();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3226,15 +2818,7 @@ int ScriptManager::startPerformanceTimer(LuaHandle* luaHandle){
 		thisScriptManager->startPerformanceTimer();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3246,15 +2830,7 @@ int ScriptManager::endPerformanceTimer(LuaHandle* luaHandle){
 		thisScriptManager->endPerformanceTimer();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3267,15 +2843,7 @@ int ScriptManager::getPerformanceTimerResults(LuaHandle* luaHandle){
 		luaArguments.returnVec2i(results);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3288,15 +2856,7 @@ int ScriptManager::getStartLocation(LuaHandle* luaHandle){
 		luaArguments.returnVec2i(pos);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3309,15 +2869,7 @@ int ScriptManager::getUnitPosition(LuaHandle* luaHandle){
 		luaArguments.returnVec2i(pos);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3329,15 +2881,7 @@ int ScriptManager::setUnitPosition(LuaHandle* luaHandle){
 		thisScriptManager->setUnitPosition(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3368,15 +2912,7 @@ int ScriptManager::addCellMarker(LuaHandle* luaHandle){
 		thisScriptManager->addCellMarker(pos,factionIndex,note,texture);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3392,15 +2928,7 @@ int ScriptManager::removeCellMarker(LuaHandle* luaHandle){
 		thisScriptManager->removeCellMarker(pos,factionIndex);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3432,15 +2960,7 @@ int ScriptManager::showMarker(LuaHandle* luaHandle){
 		thisScriptManager->showMarker(pos,factionIndex,note,texture,flashCount);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3453,15 +2973,7 @@ int ScriptManager::getUnitFaction(LuaHandle* luaHandle){
 		luaArguments.returnInt(factionIndex);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3474,15 +2986,7 @@ int ScriptManager::getUnitName(LuaHandle* luaHandle){
 		luaArguments.returnString(unitname);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3495,15 +2999,7 @@ int ScriptManager::getUnitDisplayName(LuaHandle* luaHandle){
 		luaArguments.returnString(unitname);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3516,15 +3012,7 @@ int ScriptManager::getResourceAmount(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getResourceAmount(luaArguments.getString(-2), luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3536,15 +3024,7 @@ int ScriptManager::getLastCreatedUnitName(LuaHandle* luaHandle){
 		luaArguments.returnString(thisScriptManager->getLastCreatedUnitName());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3556,15 +3036,7 @@ int ScriptManager::getLastCreatedUnitId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getLastCreatedUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3576,15 +3048,7 @@ int ScriptManager::getCellTriggeredEventId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3596,15 +3060,7 @@ int ScriptManager::getTimerTriggeredEventId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getTimerTriggeredEventId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3616,15 +3072,7 @@ int ScriptManager::getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaEntryUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3636,15 +3084,7 @@ int ScriptManager::getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaExitUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3656,15 +3096,7 @@ int ScriptManager::getCellTriggeredEventUnitId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3676,15 +3108,7 @@ int ScriptManager::setRandomGenInit(LuaHandle* luaHandle){
 		thisScriptManager->setRandomGenInit(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3696,15 +3120,7 @@ int ScriptManager::getRandomGen(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getRandomGen(luaArguments.getInt(-2),luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3716,15 +3132,7 @@ int ScriptManager::getWorldFrameCount(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getWorldFrameCount());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3736,15 +3144,7 @@ int ScriptManager::getLastDeadUnitName(LuaHandle* luaHandle){
 		luaArguments.returnString(thisScriptManager->getLastDeadUnitName());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3756,15 +3156,7 @@ int ScriptManager::getLastDeadUnitId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getLastDeadUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3776,15 +3168,7 @@ int ScriptManager::getLastDeadUnitCauseOfDeath(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getLastDeadUnitCauseOfDeath());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3796,15 +3180,7 @@ int ScriptManager::getLastDeadUnitKillerName(LuaHandle* luaHandle){
 		luaArguments.returnString(thisScriptManager->getLastDeadUnitKillerName());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3816,15 +3192,7 @@ int ScriptManager::getLastDeadUnitKillerId(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getLastDeadUnitKillerId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3836,15 +3204,7 @@ int ScriptManager::getLastAttackedUnitName(LuaHandle* luaHandle) {
 		luaArguments.returnString(thisScriptManager->getLastAttackedUnitName());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3856,15 +3216,7 @@ int ScriptManager::getLastAttackedUnitId(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getLastAttackedUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3876,15 +3228,7 @@ int ScriptManager::getLastAttackingUnitName(LuaHandle* luaHandle) {
 		luaArguments.returnString(thisScriptManager->getLastAttackingUnitName());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3896,15 +3240,7 @@ int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getLastAttackingUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3916,15 +3252,7 @@ int ScriptManager::getSystemMacroValue(LuaHandle* luaHandle) {
 		luaArguments.returnString(thisScriptManager->getSystemMacroValue(luaArguments.getString(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3936,15 +3264,7 @@ int ScriptManager::scenarioDir(LuaHandle* luaHandle) {
 		luaArguments.returnString(thisScriptManager->getSystemMacroValue("$SCENARIO_PATH"));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3956,15 +3276,7 @@ int ScriptManager::getPlayerName(LuaHandle* luaHandle) {
 		luaArguments.returnString(thisScriptManager->getPlayerName(luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3976,15 +3288,7 @@ int ScriptManager::getUnitCount(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getUnitCount(luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -3996,15 +3300,7 @@ int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getUnitCountOfType(luaArguments.getInt(-2), luaArguments.getString(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4091,15 +3387,7 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 		//lua_unlock(luaHandle);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return 1;
@@ -4214,15 +3502,7 @@ int ScriptManager::addConsoleLangText(LuaHandle* luaHandle){
 		//lua_unlock(luaHandle);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return 1;
@@ -4310,15 +3590,7 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return 1;
@@ -4330,15 +3602,7 @@ int ScriptManager::getGameWon(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getGameWon());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4350,15 +3614,7 @@ int ScriptManager::getIsGameOver(LuaHandle* luaHandle){
 		luaArguments.returnInt(thisScriptManager->getIsGameOver());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4370,15 +3626,7 @@ int ScriptManager::loadScenario(LuaHandle* luaHandle) {
 		thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1) != 0);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4391,15 +3639,7 @@ int ScriptManager::getUnitsForFaction(LuaHandle* luaHandle) {
 		luaArguments.returnVectorInt(units);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4412,15 +3652,7 @@ int ScriptManager::getUnitCurrentField(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getUnitCurrentField(luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4432,15 +3664,7 @@ int ScriptManager::getIsUnitAlive(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getIsUnitAlive(luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4458,15 +3682,7 @@ int ScriptManager::isFreeCellsOrHasUnit(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4484,15 +3700,7 @@ int ScriptManager::isFreeCells(LuaHandle* luaHandle) {
 		luaArguments.returnInt(result);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4505,15 +3713,7 @@ int ScriptManager::getHumanFactionId(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getHumanFactionId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4525,15 +3725,7 @@ int ScriptManager::highlightUnit(LuaHandle* luaHandle) {
 		thisScriptManager->highlightUnit(luaArguments.getInt(-4), luaArguments.getFloat(-3), luaArguments.getFloat(-2), luaArguments.getVec4f(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4545,15 +3737,7 @@ int ScriptManager::unhighlightUnit(LuaHandle* luaHandle) {
 		thisScriptManager->unhighlightUnit(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4565,15 +3749,7 @@ int ScriptManager::giveStopCommand(LuaHandle* luaHandle) {
 		thisScriptManager->giveStopCommand(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4585,15 +3761,7 @@ int ScriptManager::selectUnit(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->selectUnit(luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4605,15 +3773,7 @@ int ScriptManager::unselectUnit(LuaHandle* luaHandle) {
 		thisScriptManager->unselectUnit(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4625,15 +3785,7 @@ int ScriptManager::addUnitToGroupSelection(LuaHandle* luaHandle) {
 		thisScriptManager->addUnitToGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4645,15 +3797,7 @@ int ScriptManager::recallGroupSelection(LuaHandle* luaHandle) {
 		thisScriptManager->recallGroupSelection(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4665,15 +3809,7 @@ int ScriptManager::removeUnitFromGroupSelection(LuaHandle* luaHandle) {
 		thisScriptManager->removeUnitFromGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4685,15 +3821,7 @@ int ScriptManager::setAttackWarningsEnabled(LuaHandle* luaHandle) {
 		thisScriptManager->setAttackWarningsEnabled((luaArguments.getInt(-1) == 0 ? false : true));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4704,15 +3832,7 @@ int ScriptManager::getAttackWarningsEnabled(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getAttackWarningsEnabled());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4724,15 +3844,7 @@ int ScriptManager::getIsDayTime(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getIsDayTime());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4743,15 +3855,7 @@ int ScriptManager::getIsNightTime(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getIsNightTime());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4762,15 +3866,7 @@ int ScriptManager::getTimeOfDay(LuaHandle* luaHandle) {
 		luaArguments.returnFloat(thisScriptManager->getTimeOfDay());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4782,15 +3878,7 @@ int ScriptManager::registerDayNightEvent(LuaHandle* luaHandle) {
 		thisScriptManager->registerDayNightEvent();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4801,15 +3889,7 @@ int ScriptManager::unregisterDayNightEvent(LuaHandle* luaHandle) {
 		thisScriptManager->unregisterDayNightEvent();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4821,15 +3901,7 @@ int ScriptManager::registerUnitTriggerEvent(LuaHandle* luaHandle) {
 		thisScriptManager->registerUnitTriggerEvent(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4840,15 +3912,7 @@ int ScriptManager::unregisterUnitTriggerEvent(LuaHandle* luaHandle) {
 		thisScriptManager->unregisterUnitTriggerEvent(luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4859,15 +3923,7 @@ int ScriptManager::getLastUnitTriggerEventUnitId(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getLastUnitTriggerEventUnitId());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4878,15 +3934,7 @@ int ScriptManager::getLastUnitTriggerEventType(LuaHandle* luaHandle) {
 		luaArguments.returnInt(static_cast<int>(thisScriptManager->getLastUnitTriggerEventType()));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4899,15 +3947,7 @@ int ScriptManager::getUnitProperty(LuaHandle* luaHandle) {
 		luaArguments.returnInt(value);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4919,15 +3959,7 @@ int ScriptManager::getUnitPropertyName(LuaHandle* luaHandle) {
 		luaArguments.returnString(unitname);
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4939,15 +3971,7 @@ int ScriptManager::disableSpeedChange(LuaHandle* luaHandle) {
 		thisScriptManager->disableSpeedChange();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4958,15 +3982,7 @@ int ScriptManager::enableSpeedChange(LuaHandle* luaHandle) {
 		thisScriptManager->enableSpeedChange();
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4977,15 +3993,7 @@ int ScriptManager::getSpeedChangeEnabled(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getSpeedChangeEnabled());
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -4997,15 +4005,7 @@ int ScriptManager::storeSaveGameData(LuaHandle* luaHandle) {
 		thisScriptManager->storeSaveGameData(luaArguments.getString(-2),luaArguments.getString(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -5017,15 +4017,7 @@ int ScriptManager::loadSaveGameData(LuaHandle* luaHandle) {
 		luaArguments.returnString(thisScriptManager->loadSaveGameData(luaArguments.getString(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -5037,15 +4029,7 @@ int ScriptManager::getFactionPlayerType(LuaHandle* luaHandle) {
 		luaArguments.returnInt(thisScriptManager->getFactionPlayerType(luaArguments.getInt(-1)));
 	}
 	catch(const megaglest_runtime_error &ex) {
-		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
-
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
-		thisScriptManager->onMessageBoxOk(false);
+		error(luaHandle,&ex,__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	return luaArguments.getReturnCount();
@@ -5219,7 +4203,7 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 
 //	GraphicMessageBox messageBox;
 	messageBox.setEnabled(scriptManagerNode->getAttribute("messageBox_enabled")->getIntValue() != 0);
-	messageBox.setText(wrapString(scriptManagerNode->getAttribute("messageBox_text")->getValue(),messageWrapCount));
+	messageBox.setText(scriptManagerNode->getAttribute("messageBox_text")->getValue());
 	messageBox.setHeader(scriptManagerNode->getAttribute("messageBox_header")->getValue());
 
 //	string displayText;

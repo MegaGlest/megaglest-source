@@ -310,7 +310,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 					} else if(current=="off") {
 						healthbarVisible=healthbarVisible|hbvOff;
 					} else {
-						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, true);
 					}
 				}
 			}
@@ -912,7 +912,7 @@ const UnitType *FactionType::getUnitType(const string &name) const{
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
-	throw megaglest_runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]");
+	throw megaglest_runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]",true);
 }
 
 const UnitType *FactionType::getUnitTypeById(int id) const{
@@ -932,7 +932,7 @@ const UnitType *FactionType::getUnitTypeById(int id) const{
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
-	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]");
+	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]",true);
 }
 
 const UpgradeType *FactionType::getUpgradeType(const string &name) const{
@@ -952,7 +952,7 @@ const UpgradeType *FactionType::getUpgradeType(const string &name) const{
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
-	throw megaglest_runtime_error("Upgrade type not found: [" + name + "] in faction type [" + this->name + "]");
+	throw megaglest_runtime_error("Upgrade type not found: [" + name + "] in faction type [" + this->name + "]",true);
 }
 
 int FactionType::getStartingResourceAmount(const ResourceType *resourceType) const{

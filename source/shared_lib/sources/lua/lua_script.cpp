@@ -547,7 +547,7 @@ void LuaScript::loadCode(string code, string name){
 		printf("Function name [%s]\ncode:\n%s\n",name.c_str(),code.c_str());
 		printf("=========================================================\n");
 
-		throw megaglest_runtime_error("Error loading lua code: " + errorToString(errorCode));
+		throw megaglest_runtime_error("Error loading lua code: " + errorToString(errorCode),true);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] name [%s], errorCode = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),errorCode);
@@ -559,7 +559,7 @@ void LuaScript::loadCode(string code, string name){
 		printf("Error calling lua pcall: %s\n",errorToString(errorCode).c_str());
 		printf("=========================================================\n");
 
-		throw megaglest_runtime_error("Error initializing lua: " + errorToString(errorCode));
+		throw megaglest_runtime_error("Error initializing lua: " + errorToString(errorCode),true);
 	}
 
 	//const char *errMsg = lua_tostring(luaState, -1);
@@ -622,7 +622,7 @@ void LuaScript::endCall() {
 			printf("Trying to execute [%s]\n",safeWrapper.c_str());
 			int errorCode= runCode(safeWrapper);
 			if(errorCode !=0 ) {
-				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode),true);
 			}
 
 			//printf("Trying to execute [%s]\n",currentLuaFunction.c_str());
@@ -638,7 +638,7 @@ void LuaScript::endCall() {
 		else {
 			int errorCode= lua_pcall(luaState, argumentCount, 0, 0);
 			if(errorCode !=0 ) {
-				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode));
+				throw megaglest_runtime_error("Error calling lua function [" + currentLuaFunction + "] error: " + errorToString(errorCode),true);
 			}
 		}
 	}
@@ -1139,7 +1139,7 @@ void LuaArguments::throwLuaError(const string &message) const{
 	Lua_STREFLOP_Wrapper streflopWrapper;
 
 	string stackString = getStackText();
-	throw megaglest_runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString);
+	throw megaglest_runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString,true);
 }
 
 }}//end namespace
