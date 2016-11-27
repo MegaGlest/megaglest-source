@@ -2205,19 +2205,25 @@ int ScriptManager::createUnit(LuaHandle* luaHandle) {
 
 void ScriptManager::error(LuaHandle* luaHandle,const megaglest_runtime_error *mgErr, const char* file, const char* function, int line){
 	char szErrBuf[8096]="";
-	memset(szErrBuf, 0, sizeof szErrBuf);
+	char szErrBuf2[8096]="";
 
 	int luaLine=-1;
+	const char* luaSource="";
+
 	if(luaHandle != NULL){
 	  lua_Debug ar;
 	  lua_getstack(luaHandle, 1, &ar);
 	  lua_getinfo(luaHandle, "nSl", &ar);
+
 	  luaLine = ar.currentline;
+	  luaSource=ar.source;
+
 	}
 	snprintf(szErrBuf,8096,"in %s::%s %d ",extractFileFromDirectoryPath(file).c_str(),function,line);
+	snprintf(szErrBuf2,8096,"Lua: tag=<%s> line=%d ",luaSource,luaLine-1);
 	//string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nhahaha="+luaLine) + string(" [") + string(mgErr->what()) + string("]\n");
 	string sErrBuf = string("Error! The game may no longer be stable!\n\n")
-			+ string(szErrBuf) + "\nLuaLine=" + intToStr(luaLine) + "\n\n"
+			+ string(szErrBuf) + "\n"+ string(szErrBuf2) + "\n\n"
 			+ string(mgErr->what());
 
 	SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
