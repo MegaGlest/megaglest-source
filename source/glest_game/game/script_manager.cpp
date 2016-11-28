@@ -202,6 +202,7 @@ ScriptManager::ScriptManager() {
 	currentCellTriggeredEventAreaExitUnitId = 0;
 	lastDayNightTriggerStatus = 0;
 	registeredDayNightEvent = false;
+	errorCount = 0;
 
 	lastUnitTriggerEventUnitId = -1;
 	lastUnitTriggerEventType = utet_None;
@@ -2221,7 +2222,6 @@ void ScriptManager::error(LuaHandle* luaHandle,const megaglest_runtime_error *mg
 	}
 	snprintf(szErrBuf,8096,"in %s::%s %d ",extractFileFromDirectoryPath(file).c_str(),function,line);
 	snprintf(szErrBuf2,8096,"Lua: tag=<%s> line=%d ",luaSource,luaLine-1);
-	//string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nhahaha="+luaLine) + string(" [") + string(mgErr->what()) + string("]\n");
 	string sErrBuf = string("Error! The game may no longer be stable!\n\n")
 			+ string(szErrBuf) + "\n"+ string(szErrBuf2) + "\n\n"
 			+ string(mgErr->what());
@@ -2229,7 +2229,8 @@ void ScriptManager::error(LuaHandle* luaHandle,const megaglest_runtime_error *mg
 	SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-	thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+	thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error " + intToStr(thisScriptManager->errorCount),-1,-1,true));
+	thisScriptManager->errorCount++;
 	thisScriptManager->onMessageBoxOk(false);
 }
 

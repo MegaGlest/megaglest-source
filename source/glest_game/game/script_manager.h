@@ -170,6 +170,7 @@ private:
 	MessageQueue messageQueue;
 	GraphicMessageBox messageBox;
 	string displayText;
+	int errorCount;
 
 	//last created unit
 	string lastCreatedUnitName;
