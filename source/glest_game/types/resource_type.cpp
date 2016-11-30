@@ -186,6 +186,10 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 			displayInHud=true;
 		}
 	}
+    catch(megaglest_runtime_error& ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		throw megaglest_runtime_error("Error loading resource type: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace());
+    }
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error loading resource type: " + path + "\n" + e.what());

@@ -482,13 +482,12 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				animationAttributes.push_back(animationAttributeList);
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] ERROR CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+				throw megaglest_runtime_error("Error: cannot load model ["+path+"] for skill ["+name+"]  ",true);
 			}
 		}
 		if(animations.empty() == true) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
-			throw megaglest_runtime_error(szBuf,true);
+			throw megaglest_runtime_error("Error no animations found for skill ["+name+"] for parentLoader ["+parentLoader+"]",true);
 		}
 	}
 
