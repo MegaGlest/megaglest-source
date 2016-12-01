@@ -416,6 +416,9 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 		}
 #endif
 	}
+	catch(megaglest_runtime_error& ex) {
+			throw megaglest_runtime_error("Error loading XML: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
+	    }
 	catch(const exception &ex) {
 		char szBuf[8096]="";
 
