@@ -402,7 +402,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
         xml_document<> doc;
-        doc.parse<parse_no_data_nodes>(&buffer.front());
+        doc.parse<parse_no_data_nodes|parse_validate_closing_tags>(&buffer.front());
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -416,9 +416,14 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 		}
 #endif
 	}
+	catch(parse_error& ex) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8096,"%s",ex.where<char>());
+		throw megaglest_runtime_error("Error loading XML: "+ path + "\nMessage: " + ex.what() ,true);
+	}
 	catch(megaglest_runtime_error& ex) {
-			throw megaglest_runtime_error("Error loading XML: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
-	    }
+		throw megaglest_runtime_error("Error loading XML: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
+	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
 
