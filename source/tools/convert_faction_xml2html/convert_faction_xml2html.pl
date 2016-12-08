@@ -82,7 +82,6 @@ our $version = "0.8.1 beta";
 
 # strange stuff in the techtrees:
 # - persian magician splash radius 0?
-# - tech workers move faster with load?
 # - tech upgrades piercing/blade weapon don't work for battle machine?
 # - f.e. battle machine with "hold" will only attack land units
 # - workers are able to help a technician build an aerodrome faster. is that wanted?
@@ -1927,18 +1926,20 @@ sub get_value {
 	my $nodeset = $xpath->find("$location");
 	print "doing location $location\n";
 	my ($node) = $nodeset->get_nodelist;
-
 	my $value;
 	if ( $node ) {
 		my $attribute = XML::XPath::XMLParser::as_string( $node );
-
 		# get only the value of an attribute, XML::Xpath returns f.e. regeneration="3", we want just 3
-		if ( $attribute =~ /\"(.+?)\"/ ) {
+		if ( $attribute =~ /(?<!value-percent-multiplier)[ \t]*=[ \t]*\"[ \t]*(.+?)[ \t]*\"/ ) {
 			$value = $1;
+
+			if ( $attribute =~ /value-percent-multiplier[ \t]*=[ \t]*\"[ \t]*true[ \t]*\"/ ) {
+				$value = "$value%";
+			}
 		}
-		else {
-			$value = $attribute;
-		}
+		#else {
+		#	$value = $attribute;
+		#}
 	}
 	return $value;
 
