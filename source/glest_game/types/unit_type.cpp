@@ -141,6 +141,7 @@ UnitType::UnitType() : ProducibleType() {
 	armor=0;
 	sight=0;
 	size=0;
+	aiBuildSize=-1;
 	renderSize=0;
 	height=0;
 	burnHeight=0;
@@ -232,6 +233,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		renderSize=size;
 		if(parametersNode->hasChild("render-size")){
 			renderSize=parametersNode->getChild("render-size")->getAttribute("value")->getIntValue();
+		}
+		aiBuildSize=size;
+		if(parametersNode->hasChild("ai-build-size")){
+			aiBuildSize= parametersNode->getChild("ai-build-size")->getAttribute("value")->getIntValue();
 		}
 
 		//height

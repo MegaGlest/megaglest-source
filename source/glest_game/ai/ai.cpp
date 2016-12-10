@@ -663,7 +663,7 @@ bool Ai::findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Ve
         for(int i=searchPos.x - currRadius; i < searchPos.x + currRadius; ++i) {
             for(int j=searchPos.y - currRadius; j < searchPos.y + currRadius; ++j) {
                 outPos= Vec2i(i, j);
-                if(aiInterface->isFreeCells(outPos - Vec2i(minBuildSpacing), building->getSize() + minBuildSpacing * 2, fLand)) {
+                if(aiInterface->isFreeCells(outPos - Vec2i(minBuildSpacing), building->getAiBuildSize() + minBuildSpacing * 2, fLand)) {
                		return true;
                 }
             }

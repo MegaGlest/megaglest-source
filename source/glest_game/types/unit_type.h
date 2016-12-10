@@ -196,6 +196,7 @@ private:
     bool commandable;
     int sight;
     int size;							//size in cells
+    int aiBuildSize;
     int renderSize;						//size to render in cells
     int height;
     int burnHeight;
@@ -288,6 +289,7 @@ public:
 	inline bool isCommandable() const							{return commandable;}
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
+	inline int getAiBuildSize() const							{return aiBuildSize;}
 	inline int getRenderSize() const								{return renderSize;}
 	int getHeight() const										{return height;}
 	int getBurnHeight() const								{return burnHeight;}
