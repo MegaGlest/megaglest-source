@@ -838,7 +838,10 @@ void Gui::computeInfoString(int posDisplay){
 					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
 						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 					} else {
-						display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+						bool translatedValue= game->showTranslatedTechTree();
+					    string str=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(bct->getBuilding(posDisplay)->getProductionTime())+"\n\n";
+						str+=bct->getBuilding(posDisplay)->getReqDesc(translatedValue);
+					    display.setInfoText(str);
 					}
 				}
 			}
