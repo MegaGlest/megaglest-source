@@ -749,7 +749,7 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
         str+="+" + intToStr(totalUpgrade->getProdSpeed(produceSkillType));
 	}
     str+="\n";
-    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getProducedUnit()->getProductionTime())+"\n\n";
+    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getProducedUnit()->getProductionTime())+"\n";
 
     //mpcost
 	if(produceSkillType->getEpCost()!=0){
@@ -815,8 +815,12 @@ string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
 	Lang &lang= Lang::getInstance();
 
     str=getName(translatedValue)+"\n";
-    str+= lang.getString("UpgradeSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(upgradeSkillType->getSpeed())+"\n";
-    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getProducedUpgrade()->getProductionTime())+"\n\n";
+    str+= lang.getString("UpgradeSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(upgradeSkillType->getSpeed());
+    if(totalUpgrade->getProdSpeed(upgradeSkillType) != 0) {
+            str+= "+" + intToStr(totalUpgrade->getProdSpeed(upgradeSkillType));
+    }
+    str+="\n";
+    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getProducedUpgrade()->getProductionTime())+"\n";
     if(upgradeSkillType->getEpCost()!=0)
         str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(upgradeSkillType->getEpCost())+"\n";
     if(upgradeSkillType->getHpCost()!=0)
@@ -891,8 +895,12 @@ string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translat
 	Lang &lang= Lang::getInstance();
 
     //prod speed
-    str+= lang.getString("MorphSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(morphSkillType->getSpeed())+"\n";
-    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getMorphUnit()->getProductionTime())+"\n\n";
+    str+= lang.getString("MorphSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(morphSkillType->getSpeed());
+	if(totalUpgrade->getProdSpeed(morphSkillType)!=0){
+        str+="+" + intToStr(totalUpgrade->getProdSpeed(morphSkillType));
+	}
+    str+="\n";
+    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getMorphUnit()->getProductionTime())+"\n";
 
     //mpcost
 	if(morphSkillType->getEpCost()!=0){
