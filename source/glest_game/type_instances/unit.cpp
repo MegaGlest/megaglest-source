@@ -3294,7 +3294,7 @@ void Unit::tick() {
 //		}
 //		addItemToVault(&this->ep,this->ep);
 
-		if(!isBuilt()){
+		if(!isBeingBuilt()){
 			//regenerate ep upgrade / or boost
 			checkItemInVault(&this->ep,this->ep);
 			//regenerate ep
