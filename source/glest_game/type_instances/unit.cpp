@@ -3294,21 +3294,22 @@ void Unit::tick() {
 //		}
 //		addItemToVault(&this->ep,this->ep);
 
-		//regenerate ep upgrade / or boost
-		checkItemInVault(&this->ep,this->ep);
-		//regenerate ep
-		int original_ep = this->ep;
-		this->ep += type->getTotalMaxEpRegeneration(&totalUpgrade);
-		if(this->ep > type->getTotalMaxEp(&totalUpgrade)){
-			this->ep = type->getTotalMaxEp(&totalUpgrade);
+		if(!isBuilt()){
+			//regenerate ep upgrade / or boost
+			checkItemInVault(&this->ep,this->ep);
+			//regenerate ep
+			int original_ep = this->ep;
+			this->ep += type->getTotalMaxEpRegeneration(&totalUpgrade);
+			if(this->ep > type->getTotalMaxEp(&totalUpgrade)){
+				this->ep = type->getTotalMaxEp(&totalUpgrade);
+			}
+			if(original_ep != this->ep) {
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+				game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+			}
+			addItemToVault(&this->ep,this->ep);
 		}
-		if(original_ep != this->ep) {
-			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-			game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
-			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-		}
-		addItemToVault(&this->ep,this->ep);
-
 	}
 }
 
