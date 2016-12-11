@@ -839,8 +839,15 @@ void Gui::computeInfoString(int posDisplay){
 						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 					} else {
 						bool translatedValue= game->showTranslatedTechTree();
-					    string str=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(bct->getBuilding(posDisplay)->getProductionTime())+"\n\n";
-						str+=bct->getBuilding(posDisplay)->getReqDesc(translatedValue);
+						const UnitType *building=bct->getBuilding(posDisplay);
+						string str= lang.getString("BuildSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(bct->getBuildSkillType()->getSpeed())+"\n";
+					    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(building->getProductionTime())+"\n";
+					    int64 speed=bct->getBuildSkillType()->getSpeed()+bct->getBuildSkillType()->getTotalSpeed(unit->getTotalUpgrade());
+					    int64 time=building->getProductionTime();
+					    int64 seconds=time*100/speed;
+					    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+":"+intToStr(seconds);
+					    str+="\n\n";
+					    str+=building->getReqDesc(translatedValue);
 					    display.setInfoText(str);
 					}
 				}

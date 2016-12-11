@@ -750,6 +750,11 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
 	}
     str+="\n";
     str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getProducedUnit()->getProductionTime())+"\n";
+    int64 speed=produceSkillType->getSpeed()+totalUpgrade->getProdSpeed(produceSkillType);
+    int64 time=getProducedUnit()->getProductionTime();
+    int64 seconds=time*100/speed;
+    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+":"+intToStr(seconds);
+    str+="\n";
 
     //mpcost
 	if(produceSkillType->getEpCost()!=0){
@@ -821,6 +826,12 @@ string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
     }
     str+="\n";
     str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getProducedUpgrade()->getProductionTime())+"\n";
+    int64 speed=upgradeSkillType->getSpeed()+totalUpgrade->getProdSpeed(upgradeSkillType);
+    int64 time=getProducedUpgrade()->getProductionTime();
+    int64 seconds=time*100/speed;
+    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+":"+intToStr(seconds);
+    str+="\n";
+
     if(upgradeSkillType->getEpCost()!=0)
         str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(upgradeSkillType->getEpCost())+"\n";
     if(upgradeSkillType->getHpCost()!=0)
@@ -901,6 +912,11 @@ string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translat
 	}
     str+="\n";
     str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(getMorphUnit()->getProductionTime())+"\n";
+    int64 speed=morphSkillType->getSpeed()+totalUpgrade->getProdSpeed(morphSkillType);
+    int64 time=getMorphUnit()->getProductionTime();
+    int64 seconds=time*100/speed;
+    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+":"+intToStr(seconds);
+    str+="\n";
 
     //mpcost
 	if(morphSkillType->getEpCost()!=0){
