@@ -566,7 +566,8 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			showMessageBox(lang.getString("RestartNeeded"), lang.getString("FontSizeAdjustmentChanged"), false);
 			return;
 		}
-
+		reloadingUI=true;
+		sleep(100);
 		saveConfig();
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
 		reloadUI();
