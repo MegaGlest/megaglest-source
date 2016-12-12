@@ -23,7 +23,7 @@ namespace Glest{ namespace Game{
 
 class MenuStateOptions: public MenuState{
 private:
-
+    bool reloadingUI;
 	GraphicButton buttonOk;
 	GraphicButton buttonReturn;
 
@@ -43,11 +43,8 @@ private:
 	GraphicLabel labelFontSizeAdjustment;
 	GraphicListBox listFontSizeAdjustment;
 
-
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-
-
 
 	GraphicLabel labelScreenShotType;
 	GraphicListBox listBoxScreenShotType;
@@ -105,7 +102,6 @@ public:
     virtual bool isInSpecialKeyCaptureEvent();
 
     virtual void reloadUI();
-
 
 private:
 	void saveConfig();

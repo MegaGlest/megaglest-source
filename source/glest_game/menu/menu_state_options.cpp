@@ -39,6 +39,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 	MenuState(program, mainMenu, "config")
 {
 	try {
+		reloadingUI=false;
 		containerName = "Options";
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
@@ -384,65 +385,73 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 void MenuStateOptions::reloadUI() {
 	Lang &lang= Lang::getInstance();
+	reloadingUI=true;
+	try {
+		console.resetFonts();
+		GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+		mainMessageBox.init(lang.getString("Ok"));
+		luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
 
-	console.resetFonts();
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
-	mainMessageBox.init(lang.getString("Ok"));
-	luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
+		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+		buttonAudioSection.setText(lang.getString("Audio"));
 
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonAudioSection.setText(lang.getString("Audio"));
+		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+		buttonVideoSection.setText(lang.getString("Video"));
 
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonVideoSection.setText(lang.getString("Video"));
+		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+		buttonMiscSection.setText(lang.getString("Misc"));
 
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonMiscSection.setText(lang.getString("Misc"));
+		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
+		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+		buttonNetworkSettings.setText(lang.getString("Network"));
 
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonNetworkSettings.setText(lang.getString("Network"));
+		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
+		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+		buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
-	buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
+		labelVisibleHud.setText(lang.getString("VisibleHUD"));
+		labelHealthBars.setText(lang.getString("Healthbar"));
+		labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
+		labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
-	labelVisibleHud.setText(lang.getString("VisibleHUD"));
-	labelHealthBars.setText(lang.getString("Healthbar"));
-	labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
-	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
+		labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
 
-	labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
+		labelLang.setText(lang.getString("Language"));
 
-	labelLang.setText(lang.getString("Language"));
+		labelPlayerNameLabel.setText(lang.getString("Playername"));
 
-	labelPlayerNameLabel.setText(lang.getString("Playername"));
+		labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
+		labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
-	labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+		labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
 
-	labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
+		labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
 
-	labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
+		labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
 
-	labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
-
-	labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
-	labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
+		labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
+		labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
 
 
-	buttonOk.setText(lang.getString("Save"));
-	buttonReturn.setText(lang.getString("Return"));
+		buttonOk.setText(lang.getString("Save"));
+		buttonReturn.setText(lang.getString("Return"));
 
-	labelCustomTranslation.setText(lang.getString("CustomTranslation"));
-	buttonGetNewLanguageFiles.setText(lang.getString("TransifexGetLanguageFiles"));
-	buttonDeleteNewLanguageFiles.setText(lang.getString("TransifexDeleteLanguageFiles"));
-	labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
-	labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
-	labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
+		labelCustomTranslation.setText(lang.getString("CustomTranslation"));
+		buttonGetNewLanguageFiles.setText(lang.getString("TransifexGetLanguageFiles"));
+		buttonDeleteNewLanguageFiles.setText(lang.getString("TransifexDeleteLanguageFiles"));
+		labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
+		labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
+		labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
+		reloadingUI=false;
+	}
+	catch(exception &e) {
+		reloadingUI=false;
+		throw(e);
+	}
+
 }
 
 void MenuStateOptions::setupTransifexUI() {
@@ -1047,6 +1056,7 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 }
 
 void MenuStateOptions::render(){
+	if(reloadingUI==true) return;// no render to avoid crash on windows
 	Renderer &renderer= Renderer::getInstance();
 
 	if(mainMessageBox.getEnabled()){
