@@ -23,7 +23,6 @@ namespace Glest{ namespace Game{
 
 class MenuStateOptions: public MenuState{
 private:
-    bool reloadingUI;
 	GraphicButton buttonOk;
 	GraphicButton buttonReturn;
 
