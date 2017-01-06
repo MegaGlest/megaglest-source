@@ -183,12 +183,6 @@ case $distribution in
 
 	SuSE|SUSE?LINUX|Opensuse*|openSUSE*)
 		case $release in
-			13.1)
-				#LTS
-				installcommand="zypper install gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel"
-				$installcommand
-				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-				;;
 			42.1)
 				installcommand="zypper install gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxWidgets-devel lua-devel libjpeg8-devel libpng16-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel libminiupnpc-devel vlc-devel"
 				$installcommand

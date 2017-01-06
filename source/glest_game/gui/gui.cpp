@@ -841,11 +841,11 @@ void Gui::computeInfoString(int posDisplay){
 						bool translatedValue= game->showTranslatedTechTree();
 						const UnitType *building=bct->getBuilding(posDisplay);
 						string str= lang.getString("BuildSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(bct->getBuildSkillType()->getSpeed())+"\n";
-					    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+":"+intToStr(building->getProductionTime())+"\n";
+					    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+": "+intToStr(building->getProductionTime())+"\n";
 					    int64 speed=bct->getBuildSkillType()->getSpeed()+bct->getBuildSkillType()->getTotalSpeed(unit->getTotalUpgrade());
 					    int64 time=building->getProductionTime();
 					    int64 seconds=time*100/speed;
-					    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+":"+intToStr(seconds);
+					    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+": "+intToStr(seconds);
 					    str+="\n\n";
 					    str+=building->getReqDesc(translatedValue);
 					    display.setInfoText(str);
