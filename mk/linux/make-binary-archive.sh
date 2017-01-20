@@ -5,9 +5,13 @@
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 LANG=C
 
+CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 # set this to non 0 to skip building the binary
 skipbinarybuild=0
-if [ "$1" = "-CI" ] || [ "$1" = "--installer" ]; then skipbinarybuild=1; fi
+if [ "$1" = "-CI" ] || ( [ "$1" = "--installer" ] && \
+    [ "$(find "$CURRENTDIR" -name 'megaglest' -mmin -60)" ] ); then
+    skipbinarybuild=1
+fi
 
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
@@ -16,7 +20,6 @@ if [ "$1" = "-CI" ] || [ "$1" = "--installer" ] || [ "$(echo "$1" | grep '\--sho
     if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
 fi
 
-CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 cd "$CURRENTDIR"
 VERSION=`./mg-version.sh --version`
 kernel=`uname -s | tr '[A-Z]' '[a-z]'`

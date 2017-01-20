@@ -129,7 +129,7 @@ case $distribution in
 				;;
 			14.04*)
 				#LTS, name > trusty
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
+				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
@@ -163,7 +163,7 @@ case $distribution in
 				;;
 			17|17.*)
 				#LTS, based on Ubuntu 14.04
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
+				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;

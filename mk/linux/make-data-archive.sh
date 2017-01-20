@@ -75,7 +75,7 @@ if [ "$DATA_HASH" != "" ]; then
 		if [ "$DATA_COMMIT_NR" -gt "$DATA_COMMIT_PREV_NR" ]; then DATA_COMMIT_LATEST_NR="$DATA_COMMIT_NR"; fi
 		# ^ first sync commit -gt than the wrong one = warning seen for last time, so situation still may be not fixed, but is most likely improved and we avoid endless warnings
 	    fi
-	    if [ "$(echo "$CAT_DATA_HASH_FILE" | grep "$DATA_HASH")" != "" ]; then
+	    if [ "$1" != "--installer" ] && [ "$(echo "$CAT_DATA_HASH_FILE" | grep "$DATA_HASH")" != "" ]; then
 		echo; echo " NOTE: The archive wasn't created because for almost sure it would be exactly the same like last time (the same commit) and new creation date would convince many users to download it again."; echo
 		exit 0
 	    fi
