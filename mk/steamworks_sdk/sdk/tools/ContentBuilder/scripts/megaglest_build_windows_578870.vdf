@@ -11,5 +11,6 @@
 	"depots"
 	{
 		"578872" "win_x86_build_578872.vdf"
+		"578874" "win_x64_build_578874.vdf"
 	}
 }
