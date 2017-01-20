@@ -22,17 +22,18 @@ SHORT_GAME_NAME="megaglest"
 LONG_GAME_NAME="MegaGlest"
 # -------
 LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""; FirstLnError=""
-if [ ! -d "$GAMEDIR/$LIBDIR" ]; then mkdir "$GAMEDIR/$LIBDIR"; fi
+LibDir_wP="$GAMEDIR/$LIBDIR"; if [ ! -d "$LibDir_wP" ]; then mkdir "$LibDir_wP"; fi
 if [ "$1" = "--tool-editor" ] || [ "$1" = "--tool-g3dviewer" ] || [ "$1" = "--tool-buginfo" ];
 then OperatingMode="$1"; else OperatingMode="--game"; fi
 BeginTime="$(date +"%s")"
-WhichLsbRelease="$(which lsb_release 2>/dev/null)"
-if [ "$WhichLsbRelease" != "" ]; then
-    OS_INFO="$($WhichLsbRelease -d | awk -F ':[ \t]*' '{print $2}')"
-elif [ -e "/etc/os-release" ]; then
+if [ -e "/etc/os-release" ]; then
     OS_INFO="$(cat "/etc/os-release" | grep '^PRETTY_NAME=' | awk -F '"' '{print $2}')"
+else
+    WhichLsbRelease="$(which lsb_release 2>/dev/null)"
+    if [ "$WhichLsbRelease" != "" ]; then
+	OS_INFO="$($WhichLsbRelease -d | awk -F ':[ \t]*' '{print $2}')"
+    fi
 fi
-
 if [ "$OperatingMode" != "--tool-buginfo" ]; then
     if [ "$LDCONFIG" = "" ]; then
 	WhichLdconfig="$(which ldconfig 2>/dev/null)"
@@ -72,7 +73,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     }
     findMissingSO() {
 	SO_WANTED_LIB="$1"; SO_WANTED_LIB2="$2"; SO_LIB_PATTERN="$3"
-	SO_LINKED_LIB="$GAMEDIR/$LIBDIR/$SO_WANTED_LIB2"
+	SO_LINKED_LIB="$LibDir_wP/$SO_WANTED_LIB2"
 
 	hasSO="$(hasSOlib "$SO_LIB_PATTERN" "myarch")"; CommonPart="no"
 	if [ ! -L "$SO_LINKED_LIB" ] && [ -e "$SO_LINKED_LIB" ]; then EmbLibExist="yes"; else EmbLibExist="no"; fi
@@ -132,7 +133,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	    check_nr=1
 	    while [ "$check_nr" -le "2" ]; do
 		if [ "$check_nr" -eq "1" ]; then c_required_libs="$(ldd "$ldd_target")"; else
-		    c_required_libs="$(LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}" ldd "$ldd_target")"
+		    c_required_libs="$(LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${LibDir_wP}" ldd "$ldd_target")"
 		fi
 		list_of_libs="$(echo "$1" | sed -e 's|\([^\]\)\.|\1\\.|g' -e 's|\[num\]|[0-9]\\+|g')"
 		for var in $list_of_libs; do
@@ -156,7 +157,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 			    done
 			elif [ "$WantedLibIgnored" = "no" ]; then
 			    IgnoredLibs="$IgnoredLibs $wanted_lib2"
-			    if [ -L "$GAMEDIR/$LIBDIR/$wanted_lib2" ]; then rm -f "$GAMEDIR/$LIBDIR/$wanted_lib2"; fi
+			    if [ -L "$LibDir_wP/$wanted_lib2" ]; then rm -f "$LibDir_wP/$wanted_lib2"; fi
 			fi
 		    fi
 		done
@@ -302,11 +303,10 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	/libgraphite2.so.3/libgraphite2.so/libgraphite[0-9].so/|/"
     fi
     #if [ "$ARCHITECTURE" = "x86_64" ]; then
-    #else
     #fi
 
     IfRealLibExist() {
-	RealEmbLib="$GAMEDIR/$LIBDIR/$1"
+	RealEmbLib="$LibDir_wP/$1"
 	if [ ! -L "$RealEmbLib" ] && [ -e "$RealEmbLib" ]; then
 	    if [ "$2" = "remove" ]; then rm -f "$RealEmbLib"; else return 0; fi
 	else return 1; fi
@@ -315,7 +315,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     if [ "$(echo "$OS_INFO" | grep 'Debian\|Ubuntu\|LinuxMint')" = "" ]; then IfRealLibExist "libSDL2-2.0.so.0" "remove"; fi
     if [ "$OperatingMode" = "--game" ]; then
 	if [ "$(IfRealLibExist "libvlc.so.5"; echo "$?")" -ne "0" ] && [ "$(IfRealLibExist "libvlccore.so.7"; echo "$?")" -ne "0" ] && \
-	    [ -d "$GAMEDIR/$LIBDIR/vlc" ]; then rm -rf "$GAMEDIR/$LIBDIR/vlc"; fi
+	    [ -d "$LibDir_wP/vlc" ]; then rm -rf "$LibDir_wP/vlc"; fi
     else
 	if [ "$(IfRealLibExist "libwx_gtk2u_core-3.0.so.0"; echo "$?")" -ne "0" ] || \
 	    [ "$(IfRealLibExist "libwx_baseu-3.0.so.0"; echo "$?")" -ne "0" ] || \
@@ -326,7 +326,38 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	fi
     fi
 
-    checkLibsStatus "$libs_list"
+    lw_log="$LibDir_wP/.last_w_check.log"; li_log="$LibDir_wP/.last_i_check.log"
+    pw_log="$LibDir_wP/.previous_w_check.log"; pi_log="$LibDir_wP/.previous_i_check.log"
+    LibsWarningsLogs() {
+	if [ "$1" = "create_new" ]; then
+	    echo "#" > "$lw_log"; echo "#" > "$li_log"
+	elif [ "$1" = "save_new" ] && [ "$OperatingMode" = "--game" ]; then
+	    echo "$LibsWarnings" > "$lw_log"; echo "$IgnoredLibs" > "$li_log"
+	elif [ "$1" = "read_old" ]; then
+	    LibsWarnings="$(cat "$pw_log")"; IgnoredLibs="$(cat "$pi_log")"
+	elif [ "$1" = "check_old" ]; then
+	    if [ -f "$pw_log" ] && [ -f "$pi_log" ] && \
+		[ "$(find "$LibDir_wP" -name '.previous_w_check.log' -mtime -29)" ]; then return 0
+		else return 1; fi
+	elif [ "$1" = "check_current" ] || [ "$1" = "rotate" ]; then
+	    if [ -f "$lw_log" ] && [ -f "$li_log" ]; then
+		if [ "$1" = "rotate" ] || [ "$(find "$LibDir_wP" -name '.last_w_check.log' -mmin +10)" ]; then
+		    mv -f "$lw_log" "$pw_log"; mv -f "$li_log" "$pi_log"
+		    else return 0; fi
+	    elif [ "$1" != "rotate" ]; then return 1; fi
+	fi
+    }
+    checkLibsStatus2() {
+	checkLibsStatus "$libs_list"; LibsWarningsLogs "save_new"; sleep 1s; LibsWarningsLogs "rotate"
+    }
+    if [ "$OperatingMode" = "--game" ] && [ "$(LibsWarningsLogs "check_current"; echo "$?")" -eq "0" ]; then
+	LibsWarningsLogs "read_old"
+    elif [ "$OperatingMode" = "--game" ] && [ "$(LibsWarningsLogs "check_old"; echo "$?")" -eq "0" ]; then
+	( LibsWarningsLogs "create_new"; checkLibsStatus2 ) &
+	LibsWarningsLogs "read_old"
+    else
+	checkLibsStatus2
+    fi
     if [ -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh" ]; then
 	"$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
 	rm -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
@@ -339,9 +370,9 @@ else
     BinaryToCheck="$6"
 fi
 if [ "$OperatingMode" = "--game" ]; then
-    if [ -d "$GAMEDIR/$LIBDIR" ]; then
-	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}"
-	if [ -d "$GAMEDIR/$LIBDIR/vlc" ]; then export VLC_PLUGIN_PATH="${GAMEDIR}/${LIBDIR}/vlc"; fi
+    if [ -d "$LibDir_wP" ]; then
+	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${LibDir_wP}"
+	if [ -d "$LibDir_wP/vlc" ]; then export VLC_PLUGIN_PATH="${LibDir_wP}/vlc"; fi
     fi
     "$GAMEDIR/$EXC_BINARY" "$@"
     ExitStatus="$?"
@@ -400,10 +431,6 @@ if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$Op
 	    fi
 	    echo "$BugReportInfo" | sed 's/^[\t ]*||//g' >&2; echo
 	fi
-	#if [ "$OperatingMode" = "--game" ] && [ -f "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
-	    #echo "... attempt to perform mini update, which may solve tiny problems:" >&2
-	    #"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"
-	#fi
     fi
 fi
 exit "$ExitStatus"
