@@ -57,7 +57,8 @@ before_install:
 
 script:
 # ALL THE BUILD COMMANDS HERE
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mk/linux/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CC" != "clang" ]; then mk/linux/build-mg.sh -c 4; else mk/linux/build-mg.sh -w -c 4; fi
+  # ^ -w may be removed on more modern dist: than trusty, problems related with 'new wx+clang+old gcc'
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macos/build-mg.sh -c 4; fi
 
 # https://docs.travis-ci.com/user/notifications/#IRC-notification
