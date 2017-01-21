@@ -31,7 +31,9 @@ matrix:
       # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
   fast_finish: true
   allow_failures:
-    #- os: osx
+    - os: osx
+    # it's not really acceptable to wait 40 minutes or sometimes up to even 3 hours
+    # for the result just because the queue for mac is always so long
 
 git:
   submodules: false
@@ -57,7 +59,8 @@ before_install:
 
 script:
 # ALL THE BUILD COMMANDS HERE
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" = "" ]; then mk/linux/build-mg.sh -c 4; else mk/linux/build-mg.sh -w -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" = "" ]; then mk/linux/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" != "" ]; then mk/linux/build-mg.sh -w -c 4; fi
   # ^ -w may be removed on more modern dist: than trusty, problems related with 'new wx+clang+old gcc'
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macos/build-mg.sh -c 4; fi
 

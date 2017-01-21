@@ -9,7 +9,7 @@ CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 # set this to non 0 to skip building the binary
 skipbinarybuild=0
 if [ "$1" = "-CI" ] || ( [ "$1" = "--installer" ] && \
-    [ "$(find "$CURRENTDIR" -name 'megaglest' -mmin -60)" ] ); then
+    [ "$(find "$CURRENTDIR" -maxdepth 1 -name 'megaglest' -mmin -60)" ] ); then
     skipbinarybuild=1
 fi
 
