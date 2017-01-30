@@ -22,7 +22,7 @@ using std::string;
 //class Text;
 
 namespace Shared { namespace Graphics {
-	
+
 // =====================================================
 //	class FontMetrics
 // =====================================================
@@ -90,6 +90,7 @@ protected:
 	FontMetrics metrics;
 	
 	Text *textHandler;
+	string fontUniqueId;
 
 public:
 	//constructor & destructor
@@ -97,6 +98,9 @@ public:
 	virtual ~Font();
 	virtual void init()=0;
 	virtual void end()=0;
+
+	void setFontUniqueId(string id) { fontUniqueId = id; }
+	string getFontUniqueId() { return fontUniqueId; }
 	
 	//get
 	int getWidth() const;
@@ -146,6 +150,12 @@ public:
 Font3D *ConvertFont2DTo3D(Font2D *font);
 
 const char* findFont(const char *firstFontToTry=NULL,const char *firstFontFamilyToTry=NULL);
+
+class FontChangedCallbackInterface {
+public:
+	virtual void FontChangedCallback(std::string fontUniqueId, Font *font) = 0;
+	virtual ~FontChangedCallbackInterface() {};
+};
 
 }}//end namespace
 

@@ -301,10 +301,10 @@ void MainMenu::consoleAddLine(string line) {
 
 MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateName){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	this->containerName="";
+	this->containerName = "";
 	this->program= program;
 	this->mainMenu= mainMenu;
+	console.registerGraphicComponent(containerName, "menuStateConsole");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//switch on menu music again, it might be muted
@@ -342,7 +342,7 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 		degToRad(startRotation.x),
 		degToRad(startRotation.y),
 		degToRad(startRotation.z))));
-
+		
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

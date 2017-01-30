@@ -31,6 +31,7 @@ namespace Glest{ namespace Game{
 
 Console::Console() {
 	//config
+	this->instanceName = "Generic-Console";
 	maxLines		= Config::getInstance().getInt("ConsoleMaxLines");
 	maxStoredLines	= Config::getInstance().getInt("ConsoleMaxLinesStored");
 	timeout			= Config::getInstance().getInt("ConsoleTimeout");
@@ -38,15 +39,67 @@ Console::Console() {
 	xPos=20;
 	yPos=20;
 	lineHeight=Config::getInstance().getInt("FontConsoleBaseSize","18")+2;
-	font=CoreData::getInstance().getConsoleFont();
-	font3D=CoreData::getInstance().getConsoleFont3D();
+	setFont(CoreData::getInstance().getConsoleFont());
+	setFont3D(CoreData::getInstance().getConsoleFont3D());
+	
 	stringToHighlight="";
 	onlyChatMessagesInStoredLines=true;
 }
 
+Console::~Console() {
+	CoreData::getInstance().unRegisterFontChangedCallback(this->getInstanceName());
+}
+
+void Console::setFont(Font2D *font) {
+	this->font = font;
+	if (this->font != NULL) {
+		this->font2DUniqueId = font->getFontUniqueId();
+	}
+	else {
+		this->font2DUniqueId = "";
+	}
+}
+
+void Console::setFont3D(Font3D *font) {
+	this->font3D = font;
+	if (this->font3D != NULL) {
+		this->font3DUniqueId = font->getFontUniqueId();
+	}
+	else {
+		this->font3DUniqueId = "";
+	}
+}
+
+void Console::registerGraphicComponent(std::string containerName, std::string objName) {
+	this->instanceName = objName;
+	CoreData::getInstance().registerFontChangedCallback(this->getInstanceName(), this);
+}
+
+void Console::FontChangedCallback(std::string fontUniqueId, Font *font) {
+	//printf("In FontChanged for [%s] font [%p]\n", fontUniqueId.c_str(),font);
+	if (fontUniqueId != "") {
+		if (fontUniqueId == this->font2DUniqueId) {
+			if (font != NULL) {
+				this->font = (Font2D *)font;
+			}
+			else {
+				this->font = NULL;
+			}
+		}
+		else if (fontUniqueId == this->font3DUniqueId) {
+			if (font != NULL) {
+				this->font3D = (Font3D *)font;
+			}
+			else {
+				this->font3D = NULL;
+			}
+		}
+	}
+}
+
 void Console::resetFonts() {
-	font=CoreData::getInstance().getConsoleFont();
-	font3D=CoreData::getInstance().getConsoleFont3D();
+	setFont(CoreData::getInstance().getConsoleFont());
+	setFont3D(CoreData::getInstance().getConsoleFont3D());
 }
 
 void Console::addStdMessage(const string &s,bool clearOtherLines) {

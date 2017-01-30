@@ -39,7 +39,7 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 	MenuState(program, mainMenu, "config")
 {
 	try {
-		containerName = "Options";
+		containerName = "Options_Sound";
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();

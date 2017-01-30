@@ -106,6 +106,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	menuItems.push_back("1");
 	menuItems.push_back("2");
 	menuItems.push_back("3");
+	popupMenu.registerGraphicComponentOnlyFontCallbacks(containerName, "popupMenu");
 	popupMenu.setW(100);
 	popupMenu.setH(100);
 	popupMenu.init("Test Menu",menuItems);

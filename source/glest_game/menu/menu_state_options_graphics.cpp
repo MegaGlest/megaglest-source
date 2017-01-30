@@ -40,7 +40,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 	MenuState(program, mainMenu, "config")
 {
 	try {
-		containerName = "Options";
+		containerName = "Options_Graphics";
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();

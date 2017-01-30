@@ -123,6 +123,7 @@ void ProgramState::mouseMove(int x, int y, const MouseState *mouseState) {
 Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
 		ProgramState(program) {
     userWantsExit = false;
+	msgBox.registerGraphicComponent("ShowMessageProgramState", "msgBox");
 	msgBox.init("Ok");
 
 	if(msg) {
@@ -193,6 +194,7 @@ Program::Program() {
 
 	//mesage box
 	Lang &lang= Lang::getInstance();
+	msgBox.registerGraphicComponent("Program", "msgBox");
 	msgBox.init(lang.getString("Ok"));
 	msgBox.setEnabled(false);
 }

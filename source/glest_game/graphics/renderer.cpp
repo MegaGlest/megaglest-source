@@ -2864,7 +2864,9 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			throw megaglest_runtime_error("font == NULL (5) text = " + text);
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw megaglest_runtime_error("font->getTextHandler() == NULL (5) text = " + text);
+			char szBuf[8096] = "";
+			snprintf(szBuf, 8096, "font->getTextHandler() == NULL(5) text = [%s] FontPtr = [%p]\n", text.c_str(),font);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
@@ -3773,6 +3775,7 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 	glEnable(GL_BLEND);
 
 	GraphicLabel label;
+	label.setInstanceName("ListBox_render_label");
 	if(listBox->getLeftControlled()==true){
 		label.init(listBox->getX()+listBox->getButton1()->getW()+listBox->getButton2()->getW()+2, listBox->getY(), listBox->getW(), listBox->getH(), false,listBox->getTextColor());
 	}

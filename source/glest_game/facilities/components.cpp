@@ -40,7 +40,8 @@ Vec3f GraphicComponent::customTextColor = Vec3f(1.0,1.0,1.0);
 std::map<std::string, std::map<std::string, GraphicComponent *> > GraphicComponent::registeredGraphicComponentList;
 
 GraphicComponent::GraphicComponent(std::string containerName, std::string objName) {
-	instanceName = "";
+	this->containerName = containerName;
+	this->instanceName = "";
 	if(objName != "") {
 		registerGraphicComponent(containerName,objName);
 	}
@@ -55,6 +56,10 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	font = NULL;
 	font3D = NULL;
 	textNativeTranslation = "";
+}
+
+GraphicComponent::~GraphicComponent() {
+	CoreData::getInstance().unRegisterFontChangedCallback(this->getInstanceName());
 }
 
 void GraphicComponent::clearRegisteredComponents(std::string containerName) {
@@ -80,10 +85,18 @@ void GraphicComponent::clearRegisterGraphicComponent(std::string containerName, 
 }
 
 void GraphicComponent::registerGraphicComponent(std::string containerName, std::string objName) {
-	instanceName = objName;
+	this->containerName = containerName;
+	this->instanceName = objName;
 	registeredGraphicComponentList[containerName][objName] = this;
+	CoreData::getInstance().registerFontChangedCallback(this->getInstanceName(), this);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str(),registeredGraphicComponentList[containerName].size());
+}
+
+void GraphicComponent::registerGraphicComponentOnlyFontCallbacks(std::string containerName, std::string objName) {
+	this->containerName = containerName;
+	this->instanceName = objName;
+	CoreData::getInstance().registerFontChangedCallback(this->getInstanceName(), this);
 }
 
 GraphicComponent * GraphicComponent::findRegisteredComponent(std::string containerName, std::string objName) {
@@ -208,9 +221,51 @@ bool GraphicComponent::saveCustomProperties(std::string containerName) {
 	return savedChange;
 }
 
+void GraphicComponent::setFont(Font2D *font) { 
+	this->font = font;
+	if (this->font != NULL) {
+		this->font2DUniqueId = font->getFontUniqueId();
+	}
+	else {
+		this->font2DUniqueId = "";
+	}
+}
+
+void GraphicComponent::setFont3D(Font3D *font) { 
+	this->font3D = font;
+	if (this->font3D != NULL) {
+		this->font3DUniqueId = font->getFontUniqueId();
+	}
+	else {
+		this->font3DUniqueId = "";
+	}
+}
+
+void GraphicComponent::FontChangedCallback(std::string fontUniqueId, Font *font) {
+	//printf("In FontChanged for [%s] font [%p]\n", fontUniqueId.c_str(),font);
+	if (fontUniqueId != "") {
+		if (fontUniqueId == this->font2DUniqueId) {
+			if (font != NULL) {
+				this->font = (Font2D *)font;
+			}
+			else {
+				this->font = NULL;
+			}
+		}
+		else if (fontUniqueId == this->font3DUniqueId) {
+			if (font != NULL) {
+				this->font3D = (Font3D *)font;
+			}
+			else {
+				this->font3D = NULL;
+			}
+		}
+	}
+}
+
 void GraphicComponent::reloadFonts() {
-    font= CoreData::getInstance().getMenuFontNormal();
-    font3D= CoreData::getInstance().getMenuFontNormal3D();
+	setFont(CoreData::getInstance().getMenuFontNormal());
+	setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 }
 
 void GraphicComponent::reloadFontsForRegisterGraphicComponents(std::string containerName) {
@@ -339,7 +394,9 @@ void GraphicLabel::setCenteredH(bool centered) {
 const int GraphicButton::defH= 22;
 const int GraphicButton::defW= 90;
 
-GraphicButton::GraphicButton(std::string containerName, std::string objName) : GraphicComponent(containerName,objName) {
+GraphicButton::GraphicButton(std::string containerName, std::string objName) : 
+	GraphicComponent(containerName,objName) {
+
 	lighted = false;
 	alwaysLighted = false;
 	useCustomTexture = false;
@@ -369,7 +426,8 @@ const int GraphicListBox::defH= 22;
 const int GraphicListBox::defW= 140;
 
 GraphicListBox::GraphicListBox(std::string containerName, std::string objName)
-: GraphicComponent(containerName, objName), graphButton1(), graphButton2() {
+: GraphicComponent(containerName, objName), graphButton1(containerName, instanceName + "_button1"), 
+											graphButton2(containerName, instanceName + "_button2") {
     selectedItemIndex = 0;
     lighted = false;
     leftControlled = false;
@@ -650,10 +708,10 @@ void GraphicMessageBox::init(const string &button1Str, int newWidth, int newHeig
 	addButton(button1Str);
 }
 
-void GraphicMessageBox::init(int newWidth, int newHeight){
-	font= CoreData::getInstance().getMenuFontNormal();
-	font3D= CoreData::getInstance().getMenuFontNormal3D();
-
+void GraphicMessageBox::init(int newWidth, int newHeight) {
+	setFont(CoreData::getInstance().getMenuFontNormal());
+	setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+	
 	h= (newHeight >= 0 ? newHeight : defH);
 	w= (newWidth >= 0 ? newWidth : defW);
 
@@ -664,7 +722,7 @@ void GraphicMessageBox::init(int newWidth, int newHeight){
 }
 
 void GraphicMessageBox::addButton(const string &buttonStr, int width, int height){
-	GraphicButton *newButton= new GraphicButton();
+	GraphicButton *newButton= new GraphicButton(containerName, instanceName + "_" + buttonStr);
 	newButton->init(0, 0);
 	newButton->setText(buttonStr);
 	if(width != -1){
@@ -968,8 +1026,8 @@ PopupMenu::~PopupMenu() {
 void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	header = menuHeader;
 
-	font= CoreData::getInstance().getMenuFontNormal();
-	font3D= CoreData::getInstance().getMenuFontNormal3D();
+	setFont(CoreData::getInstance().getMenuFontNormal());
+	setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	buttons.clear();
 
@@ -1019,6 +1077,7 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 
 	for(unsigned int i = 0; i < menuItems.size(); ++i) {
 		GraphicButton button;
+		button.registerGraphicComponentOnlyFontCallbacks(containerName, instanceName + "_Button_" + menuItems[i]);
 		button.init(x+(w-maxButtonWidth)/2, yStartOffset - (i*(textHeight + textHeightSpacing)));
 		button.setText(menuItems[i]);
 		button.setW(maxButtonWidth);

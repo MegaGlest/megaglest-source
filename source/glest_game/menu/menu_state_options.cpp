@@ -383,30 +383,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 }
 
 void MenuStateOptions::reloadUI() {
-	Lang &lang= Lang::getInstance();
-	console.resetFonts();
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+	Lang &lang = Lang::getInstance();
+	//console.resetFonts();
+	//GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+
 	mainMessageBox.init(lang.getString("Ok"));
 	luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
 
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonNetworkSettings.setText(lang.getString("Network"));
-
-	buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 	labelVisibleHud.setText(lang.getString("VisibleHUD"));
@@ -415,23 +402,13 @@ void MenuStateOptions::reloadUI() {
 	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
 	labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
-
 	labelLang.setText(lang.getString("Language"));
-
 	labelPlayerNameLabel.setText(lang.getString("Playername"));
-
-	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
-	labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-
 	labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
-
 	labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
-
 	labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
-
 	labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
 	labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
-
 
 	buttonOk.setText(lang.getString("Save"));
 	buttonReturn.setText(lang.getString("Return"));
