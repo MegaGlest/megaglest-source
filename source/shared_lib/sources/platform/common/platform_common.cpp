@@ -1326,7 +1326,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 #if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only get if dir..
-		int actStat = lstat( globbuf.gl_pathv[ i], &statStruct);
+		lstat( globbuf.gl_pathv[ i], &statStruct);
 		if( S_ISDIR(statStruct.st_mode) == 0)
 			continue;
 #endif
@@ -1465,7 +1465,7 @@ vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(c
 #if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only get if dir..
-		int actStat = lstat( globbuf.gl_pathv[ i], &statStruct);
+		lstat( globbuf.gl_pathv[ i], &statStruct);
 		if( S_ISDIR(statStruct.st_mode) == 0)
 			continue;
 #endif
