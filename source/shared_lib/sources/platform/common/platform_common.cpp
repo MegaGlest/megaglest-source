@@ -1145,7 +1145,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 #if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only process if dir..
-		int actStat = lstat( globbuf.gl_pathv[i], &statStruct);
+		lstat( globbuf.gl_pathv[i], &statStruct);
 		if( S_ISDIR(statStruct.st_mode) == 0)
 			continue;
 #endif
