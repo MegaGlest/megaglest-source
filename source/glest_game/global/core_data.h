@@ -114,7 +114,7 @@ private:
 	string battleEndLoseVideoFilenameFallback;
 	string battleEndLoseMusicFilename;
 
-	std::map<std::string,std::vector<FontChangedCallbackInterface *>> registeredFontChangedCallbacks;
+	std::map<std::string,std::vector<FontChangedCallbackInterface *> > registeredFontChangedCallbacks;
 public:
 
 	enum TextureSystemType {

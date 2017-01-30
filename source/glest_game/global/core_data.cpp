@@ -1173,10 +1173,10 @@ void CoreData::unRegisterFontChangedCallback(std::string entityName) {
 	}
 }
 void CoreData::triggerFontChangedCallbacks(std::string fontUniqueId, Font *font) {
-	for (std::map<std::string, std::vector<FontChangedCallbackInterface *>>::const_iterator iterMap = 
+	for (std::map<std::string, std::vector<FontChangedCallbackInterface *> >::const_iterator iterMap =
 		registeredFontChangedCallbacks.begin();
 		iterMap != registeredFontChangedCallbacks.end(); iterMap++) {
-		for (int index = 0; index < iterMap->second.size(); ++index) {
+		for (unsigned int index = 0; index < iterMap->second.size(); ++index) {
 			FontChangedCallbackInterface *cb = iterMap->second[index];
 			cb->FontChangedCallback(fontUniqueId, font);
 		}
