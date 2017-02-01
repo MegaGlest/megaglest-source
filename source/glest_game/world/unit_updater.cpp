@@ -368,6 +368,9 @@ void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,int
 					&& unit->getRandom()->randRange(1, 100) <= probability) {
 				continue;
 			}
+			if(targetPos==Vec2i(-10,-10)) {
+				targetPos=unit->getTargetPos();
+			}
 			Unit* spawned=this->spawnUnit(unit,spawnUnit,spawnUnitAtTarget?targetPos:unit->getCenteredPos());
 			if(spawned!=NULL){
 				if(healthMin>0 && healthMin<100 && healthMax>=healthMin && healthMax<=100){
@@ -379,7 +382,14 @@ void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,int
 				// world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
 				const CommandType *ct= spawned->getType()->getFirstAttackCommand(unit->getTargetField());
 				if(ct == NULL){
-					ct= spawned->computeCommandType(targetPos,map->getCell(targetPos)->getUnit(unit->getTargetField()));
+
+					Cell* cell=map->getCell(targetPos);
+
+					Field targetField=unit->getTargetField();
+
+					Unit* cellUnit=cell->getUnit(targetField);
+
+					ct= spawned->computeCommandType(targetPos,cellUnit);
 				}
 				if(ct != NULL){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
