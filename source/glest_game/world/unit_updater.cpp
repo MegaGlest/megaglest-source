@@ -382,14 +382,7 @@ void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,int
 				// world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
 				const CommandType *ct= spawned->getType()->getFirstAttackCommand(unit->getTargetField());
 				if(ct == NULL){
-
-					Cell* cell=map->getCell(targetPos);
-
-					Field targetField=unit->getTargetField();
-
-					Unit* cellUnit=cell->getUnit(targetField);
-
-					ct= spawned->computeCommandType(targetPos,cellUnit);
+					ct= spawned->computeCommandType(targetPos,map->getCell(targetPos)->getUnit(unit->getTargetField()));
 				}
 				if(ct != NULL){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
