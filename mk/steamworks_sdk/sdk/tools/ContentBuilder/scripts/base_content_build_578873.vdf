@@ -2,7 +2,7 @@
 {
 	// Set your assigned depot ID here
 	"DepotID" "578873"
-	"ContentRoot"	"/home/softcoder/Code/steamworks_sdk/sdk/tools/ContentBuilder/content/base_content"
+	"ContentRoot"	"../content/base_content"
 
 	// include all files recursivley
   "FileMapping"
