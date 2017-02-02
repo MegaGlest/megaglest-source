@@ -3127,7 +3127,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
 	    		if(world->getAttackWarningsEnabled() == true) {
 
-	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound(),true);
 	    			world->addAttackEffects(enemyUnit);
 	    		}
 	    	}

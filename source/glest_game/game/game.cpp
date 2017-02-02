@@ -3097,7 +3097,7 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 		//printf("faction [%p][%s]\n",faction,(faction != NULL ? faction->getType()->getName().c_str() : ""));
 		if((faction == NULL) ||
 				(faction->getTeam() == getWorld()->getThisFaction()->getTeam())) {
-			soundRenderer.playFx(coreData.getMarkerSound());
+			soundRenderer.playFx(coreData.getMarkerSound(),true);
 		}
 	}
 }
