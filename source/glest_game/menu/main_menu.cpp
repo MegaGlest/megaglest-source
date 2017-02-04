@@ -276,6 +276,11 @@ void MainMenu::setState(MenuState *newstate) {
 		//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		//printf("In MainMenu::setState() #5\n");
 	}
+
+	if(this->state != NULL) {
+
+	}
+
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	this->state= newstate;
 
@@ -299,9 +304,9 @@ void MainMenu::consoleAddLine(string line) {
 // 	class MenuState
 // =====================================================
 
-MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateName){
+MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	this->containerName = "";
+	this->containerName = "MenuState";
 	this->program= program;
 	this->mainMenu= mainMenu;
 	console.registerGraphicComponent(containerName, "menuStateConsole");
@@ -364,7 +369,7 @@ void MenuState::consoleAddLine(string line) {
 }
 
 void MenuState::reloadUI() {
-	console.resetFonts();
+	//console.resetFonts();
 }
 
 void MenuState::setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr) {

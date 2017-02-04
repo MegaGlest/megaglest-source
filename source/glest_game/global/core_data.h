@@ -264,6 +264,7 @@ private:
 	void loadMusicIfRequired();
 
 	void triggerFontChangedCallbacks(std::string fontUniqueId, Font *font);
+	template<typename T> T * loadFont(Font *menuFontNormal, string menuFontNameNormal, int menuFontNameNormalSize, string fontType, string fontTypeFamily, string fontUniqueKey);
 };
 
 }} //end namespace

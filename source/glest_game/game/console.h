@@ -83,14 +83,19 @@ private:
 	bool onlyChatMessagesInStoredLines;
 
 	string instanceName;
+	string fontCallbackName;
+
+	string getNewUUD();
 
 public:
+
 	Console();
 	virtual ~Console();
 
 	void registerGraphicComponent(std::string containerName, std::string objName);
 	string getInstanceName() const { return instanceName; }
 	void setInstanceName(string value) { instanceName = value; }
+	string getFontCallbackName() const { return fontCallbackName; }
 
 	int getStoredLineCount() const		{return (int)storedLines.size();}
 	int getLineCount() const			{return (int)lines.size();}

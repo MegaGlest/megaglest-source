@@ -38,7 +38,7 @@ const int Logger::logLineCount= 15;
 
 // ===================== PUBLIC ========================
 
-Logger::Logger() {
+Logger::Logger() : buttonCancel("Logger","buttonCancel"), buttonNextHint("Logger","buttonCancel") {
 	progress = 0;
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
 	if(logs_path != "") {

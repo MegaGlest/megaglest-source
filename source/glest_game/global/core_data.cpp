@@ -1156,8 +1156,8 @@ bool CoreData::hasBattleEndVideoFilename(bool won) const {
 
 void CoreData::registerFontChangedCallback(std::string entityName, FontChangedCallbackInterface *cb) {
 	if(entityName == "") {
-		//printf("Register Font Callback detected a blank entityName!\n");
-		//throw megaglest_runtime_error("Register Font Callback detected a blank entityName!");
+		printf("Register Font Callback detected a blank entityName!\n");
+		throw megaglest_runtime_error("Register Font Callback detected a blank entityName!");
 	}
 	if (entityName != "") {
 		registeredFontChangedCallbacks[entityName].push_back(cb);
@@ -1165,8 +1165,8 @@ void CoreData::registerFontChangedCallback(std::string entityName, FontChangedCa
 }
 void CoreData::unRegisterFontChangedCallback(std::string entityName) {
 	if (entityName == "") {
-		//printf("UnRegister Font Callback detected a blank entityName!\n");
-		//throw megaglest_runtime_error("UnRegister Font Callback detected a blank entityName!");
+		printf("UnRegister Font Callback detected a blank entityName!\n");
+		throw megaglest_runtime_error("UnRegister Font Callback detected a blank entityName!");
 	}
 	if(entityName != "") {
 		registeredFontChangedCallbacks.erase(entityName);
@@ -1177,13 +1177,13 @@ void CoreData::triggerFontChangedCallbacks(std::string fontUniqueId, Font *font)
 		registeredFontChangedCallbacks.begin();
 		iterMap != registeredFontChangedCallbacks.end(); iterMap++) {
 		for (unsigned int index = 0; index < iterMap->second.size(); ++index) {
+			//printf("Font Callback detected calling: Control [%s] for Font: [%s] value [%p]\n",iterMap->first.c_str(),fontUniqueId.c_str(),font);
 			FontChangedCallbackInterface *cb = iterMap->second[index];
 			cb->FontChangedCallback(fontUniqueId, font);
 		}
 	}
 }
 void CoreData::loadFonts() {
-	Renderer &renderer= Renderer::getInstance();
 	Lang &lang= Lang::getInstance();
 
 	//display font
@@ -1202,40 +1202,10 @@ void CoreData::loadFonts() {
 	if(lang.hasString("FontDisplayBaseSize") == true) {
 		displayFontSize = computeFontSize(strToInt(lang.getString("FontDisplayBaseSize")));
 	}
-
 	string displayFontName = displayFontNamePrefix + intToStr(displayFontSize) + displayFontNamePostfix;
 
-	if(displayFont) {
-		string fontUniqueId = displayFont->getFontUniqueId();
-		renderer.endFont(displayFont, rsGlobal);
-		displayFont=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, displayFont);
-	}
-	if(Renderer::renderText3DEnabled == false) {
-		displayFont= renderer.newFont(rsGlobal);
-		if(displayFont) {
-			displayFont->setType(displayFontName,config.getString("FontDisplay",""),config.getString("FontDisplayFamily",""));
-			displayFont->setSize(displayFontSize);
-			displayFont->setFontUniqueId("displayFont");
-			triggerFontChangedCallbacks(displayFont->getFontUniqueId(), displayFont);
-		}
-	}
-
-	if(displayFont3D) {
-		string fontUniqueId = displayFont3D->getFontUniqueId();
-		renderer.endFont(displayFont3D, rsGlobal);
-		displayFont3D=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, displayFont3D);
-	}
-	if(Renderer::renderText3DEnabled == true) {
-		displayFont3D= renderer.newFont3D(rsGlobal);
-		if(displayFont3D) {
-			displayFont3D->setType(displayFontName,config.getString("FontDisplay",""),config.getString("FontDisplayFamily",""));
-			displayFont3D->setSize(displayFontSize);
-			displayFont3D->setFontUniqueId("displayFont3D");
-			triggerFontChangedCallbacks(displayFont3D->getFontUniqueId(), displayFont3D);
-		}
-	}
+	displayFont   = loadFont<Font2D>(displayFont,   displayFontName, displayFontSize, "FontDisplay", "FontDisplayFamily", "displayFont");
+	displayFont3D = loadFont<Font3D>(displayFont3D, displayFontName, displayFontSize, "FontDisplay", "FontDisplayFamily", "displayFont3D");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontName = [%s] displayFontSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontName.c_str(),displayFontSize);
 
@@ -1253,48 +1223,16 @@ void CoreData::loadFonts() {
 	if(lang.hasString("FontDisplaySmallBaseSize") == true) {
 		displayFontNameSmallSize = computeFontSize(strToInt(lang.getString("FontDisplaySmallBaseSize")));
 	}
-
 	string displayFontNameSmall = displayFontNameSmallPrefix + intToStr(displayFontNameSmallSize) + displayFontNameSmallPostfix;
 
-	if(displayFontSmall) {
-		string fontUniqueId = displayFontSmall->getFontUniqueId();
-		renderer.endFont(displayFontSmall, rsGlobal);
-		displayFontSmall=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, displayFontSmall);
-	}
-	if(Renderer::renderText3DEnabled == false) {
-		displayFontSmall= renderer.newFont(rsGlobal);
-		if(displayFontSmall) {
-			displayFontSmall->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""),config.getString("FontSmallDisplayFamily",""));
-			displayFontSmall->setSize(displayFontNameSmallSize);
-			displayFontSmall->setFontUniqueId("displayFontSmall");
-			triggerFontChangedCallbacks(displayFontSmall->getFontUniqueId(), displayFontSmall);
-		}
-	}
-
-	if(displayFontSmall3D) {
-		string fontUniqueId = displayFontSmall3D->getFontUniqueId();
-		renderer.endFont(displayFontSmall3D, rsGlobal);
-		displayFontSmall3D=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, displayFontSmall3D);
-	}
-	if(Renderer::renderText3DEnabled == true) {
-		displayFontSmall3D= renderer.newFont3D(rsGlobal);
-		if(displayFontSmall3D) {
-			displayFontSmall3D->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""),config.getString("FontSmallDisplayFamily",""));
-			displayFontSmall3D->setSize(displayFontNameSmallSize);
-			displayFontSmall3D->setFontUniqueId("displayFontSmall3D");
-			triggerFontChangedCallbacks(displayFontSmall3D->getFontUniqueId(), displayFontSmall3D);
-		}
-	}
+	displayFontSmall   = loadFont<Font2D>(displayFontSmall,   displayFontNameSmall, displayFontNameSmallSize, "FontSmallDisplay", "FontSmallDisplayFamily", "displayFontSmall");
+	displayFontSmall3D = loadFont<Font3D>(displayFontSmall3D, displayFontNameSmall, displayFontNameSmallSize, "FontSmallDisplay", "FontSmallDisplayFamily", "displayFontSmall3D");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] displayFontSmallName = [%s] displayFontSmallNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,displayFontNameSmall.c_str(),displayFontNameSmallSize);
 
 	string menuFontNameNormalPrefix		= config.getString("FontMenuNormalPrefix");
 	string menuFontNameNormalPostfix	= config.getString("FontMenuNormalPostfix");
 	int menuFontNameNormalSize			= computeFontSize(config.getInt("FontMenuNormalBaseSize"));
-	//printf("#1 menuFontNameNormalSize = %d\n",menuFontNameNormalSize);
-
 	if(lang.hasString("FontMenuNormalPrefix") == true) {
 		menuFontNameNormalPrefix = lang.getString("FontMenuNormalPrefix");
 	}
@@ -1303,44 +1241,11 @@ void CoreData::loadFonts() {
 	}
 	if(lang.hasString("FontMenuNormalBaseSize") == true) {
 		menuFontNameNormalSize = computeFontSize(strToInt(lang.getString("FontMenuNormalBaseSize")));
-		//printf("#2 menuFontNameNormalSize = %d\n",menuFontNameNormalSize);
 	}
-
 	string menuFontNameNormal= menuFontNameNormalPrefix + intToStr(menuFontNameNormalSize) + menuFontNameNormalPostfix;
 
-	if(menuFontNormal) {
-		string fontUniqueId = menuFontNormal->getFontUniqueId();
-		renderer.endFont(menuFontNormal, rsGlobal);
-		menuFontNormal=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, menuFontNormal);
-	}
-	if(Renderer::renderText3DEnabled == false) {
-		menuFontNormal= renderer.newFont(rsGlobal);
-		if(menuFontNormal) {
-			menuFontNormal->setType(menuFontNameNormal,config.getString("FontMenuNormal",""),config.getString("FontMenuNormalFamily",""));
-			menuFontNormal->setSize(menuFontNameNormalSize);
-			menuFontNormal->setWidth(Font::wBold);
-			menuFontNormal->setFontUniqueId("menuFontNormal");
-			triggerFontChangedCallbacks(menuFontNormal->getFontUniqueId(), menuFontNormal);
-		}
-	}
-
-	if(menuFontNormal3D) {
-		string fontUniqueId = menuFontNormal3D->getFontUniqueId();
-		renderer.endFont(menuFontNormal3D, rsGlobal);
-		menuFontNormal3D=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, menuFontNormal3D);
-	}
-	if(Renderer::renderText3DEnabled == true) {
-		menuFontNormal3D= renderer.newFont3D(rsGlobal);
-		if(menuFontNormal3D) {
-			menuFontNormal3D->setType(menuFontNameNormal,config.getString("FontMenuNormal",""),config.getString("FontMenuNormalFamily",""));
-			menuFontNormal3D->setSize(menuFontNameNormalSize);
-			menuFontNormal3D->setWidth(Font::wBold);
-			menuFontNormal3D->setFontUniqueId("menuFontNormal3D");
-			triggerFontChangedCallbacks(menuFontNormal3D->getFontUniqueId(), menuFontNormal3D);
-		}
-	}
+	menuFontNormal   = loadFont<Font2D>(menuFontNormal, menuFontNameNormal, menuFontNameNormalSize, "FontMenuNormal", "FontMenuNormalFamily", "menuFontNormal");
+	menuFontNormal3D = loadFont<Font3D>(menuFontNormal3D, menuFontNameNormal, menuFontNameNormalSize, "FontMenuNormal", "FontMenuNormalFamily", "menuFontNormal3D");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNormalName = [%s] menuFontNormalNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameNormal.c_str(),menuFontNameNormalSize);
 
@@ -1357,40 +1262,10 @@ void CoreData::loadFonts() {
 	if(lang.hasString("FontMenuBigBaseSize") == true) {
 		menuFontNameBigSize = computeFontSize(strToInt(lang.getString("FontMenuBigBaseSize")));
 	}
-
 	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
 
-	if(menuFontBig) {
-		string fontUniqueId = menuFontBig->getFontUniqueId();
-		renderer.endFont(menuFontBig, rsGlobal);
-		menuFontBig=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, menuFontBig);
-	}
-	if(Renderer::renderText3DEnabled == false) {
-		menuFontBig= renderer.newFont(rsGlobal);
-		if(menuFontBig) {
-			menuFontBig->setType(menuFontNameBig,config.getString("FontMenuBig",""),config.getString("FontMenuBigFamily",""));
-			menuFontBig->setSize(menuFontNameBigSize);
-			menuFontBig->setFontUniqueId("menuFontBig");
-			triggerFontChangedCallbacks(menuFontBig->getFontUniqueId(), menuFontBig);
-		}
-	}
-
-	if(menuFontBig3D) {
-		string fontUniqueId = menuFontBig3D->getFontUniqueId();
-		renderer.endFont(menuFontBig3D, rsGlobal);
-		menuFontBig3D=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, menuFontBig3D);
-	}
-	if(Renderer::renderText3DEnabled == true) {
-		menuFontBig3D= renderer.newFont3D(rsGlobal);
-		if(menuFontBig3D) {
-			menuFontBig3D->setType(menuFontNameBig,config.getString("FontMenuBig",""),config.getString("FontMenuBigFamily",""));
-			menuFontBig3D->setSize(menuFontNameBigSize);
-			menuFontBig3D->setFontUniqueId("menuFontBig3D");
-			triggerFontChangedCallbacks(menuFontBig3D->getFontUniqueId(), menuFontBig3D);
-		}
-	}
+	menuFontBig   = loadFont<Font2D>(menuFontBig,   menuFontNameBig, menuFontNameBigSize, "FontMenuBig", "FontMenuBigFamily", "menuFontBig");
+	menuFontBig3D = loadFont<Font3D>(menuFontBig3D, menuFontNameBig, menuFontNameBigSize, "FontMenuBig", "FontMenuBigFamily", "menuFontBig3D");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameBig = [%s] menuFontNameBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameBig.c_str(),menuFontNameBigSize);
 
@@ -1407,40 +1282,10 @@ void CoreData::loadFonts() {
 	if(lang.hasString("FontMenuVeryBigBaseSize") == true) {
 		menuFontNameVeryBigSize = computeFontSize(strToInt(lang.getString("FontMenuVeryBigBaseSize")));
 	}
-
 	string menuFontNameVeryBig= menuFontNameVeryBigPrefix + intToStr(menuFontNameVeryBigSize) + menuFontNameVeryBigPostfix;
 
-	if(menuFontVeryBig) {
-		string fontUniqueId = menuFontVeryBig->getFontUniqueId();
-		renderer.endFont(menuFontVeryBig, rsGlobal);
-		menuFontVeryBig=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, menuFontVeryBig);
-	}
-	if(Renderer::renderText3DEnabled == false) {
-		menuFontVeryBig= renderer.newFont(rsGlobal);
-		if(menuFontVeryBig) {
-			menuFontVeryBig->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""),config.getString("FontMenuVeryBigFamily",""));
-			menuFontVeryBig->setSize(menuFontNameVeryBigSize);
-			menuFontVeryBig->setFontUniqueId("menuFontVeryBig");
-			triggerFontChangedCallbacks(menuFontVeryBig->getFontUniqueId(), menuFontVeryBig);
-		}
-	}
-
-	if(menuFontVeryBig3D) {
-		string fontUniqueId = menuFontVeryBig3D->getFontUniqueId();
-		renderer.endFont(menuFontVeryBig3D, rsGlobal);
-		menuFontVeryBig3D=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, menuFontVeryBig3D);
-	}
-	if(Renderer::renderText3DEnabled == true) {
-		menuFontVeryBig3D= renderer.newFont3D(rsGlobal);
-		if(menuFontVeryBig3D) {
-			menuFontVeryBig3D->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""),config.getString("FontMenuVeryBigFamily",""));
-			menuFontVeryBig3D->setSize(menuFontNameVeryBigSize);
-			menuFontVeryBig3D->setFontUniqueId("menuFontVeryBig3D");
-			triggerFontChangedCallbacks(menuFontVeryBig3D->getFontUniqueId(), menuFontVeryBig3D);
-		}
-	}
+	menuFontVeryBig   = loadFont<Font2D>(menuFontVeryBig,   menuFontNameVeryBig, menuFontNameVeryBigSize, "FontMenuVeryBig", "FontMenuVeryBigFamily", "menuFontVeryBig");
+	menuFontVeryBig3D = loadFont<Font3D>(menuFontVeryBig3D, menuFontNameVeryBig, menuFontNameVeryBigSize, "FontMenuVeryBig", "FontMenuVeryBigFamily", "menuFontVeryBig3D");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] menuFontNameVeryBig = [%s] menuFontNameVeryBigSize = %d\n",__FILE__,__FUNCTION__,__LINE__,menuFontNameVeryBig.c_str(),menuFontNameVeryBigSize);
 
@@ -1458,43 +1303,39 @@ void CoreData::loadFonts() {
 	if(lang.hasString("FontConsoleBaseSize") == true) {
 		consoleFontNameSize = computeFontSize(strToInt(lang.getString("FontConsoleBaseSize")));
 	}
-
 	string consoleFontName= consoleFontNamePrefix + intToStr(consoleFontNameSize) + consoleFontNamePostfix;
 
-	if(consoleFont) {
-		string fontUniqueId = consoleFont->getFontUniqueId();
-		renderer.endFont(consoleFont, rsGlobal);
-		consoleFont=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, consoleFont);
-	}
-	if(Renderer::renderText3DEnabled == false) {
-		consoleFont= renderer.newFont(rsGlobal);
-		if(consoleFont) {
-			consoleFont->setType(consoleFontName,config.getString("FontConsole",""),config.getString("FontConsoleFamily",""));
-			consoleFont->setSize(consoleFontNameSize);
-			consoleFont->setFontUniqueId("consoleFont");
-			triggerFontChangedCallbacks(consoleFont->getFontUniqueId(), consoleFont);
-		}
-	}
-
-	if(consoleFont3D) {
-		string fontUniqueId = consoleFont3D->getFontUniqueId();
-		renderer.endFont(consoleFont3D, rsGlobal);
-		consoleFont3D=NULL;
-		triggerFontChangedCallbacks(fontUniqueId, consoleFont3D);
-	}
-	if(Renderer::renderText3DEnabled == true) {
-		consoleFont3D= renderer.newFont3D(rsGlobal);
-		if(consoleFont3D) {
-			consoleFont3D->setType(consoleFontName,config.getString("FontConsole",""),config.getString("FontConsoleFamily",""));
-			consoleFont3D->setSize(consoleFontNameSize);
-			consoleFont3D->setFontUniqueId("consoleFont3D");
-			triggerFontChangedCallbacks(consoleFont3D->getFontUniqueId(), consoleFont3D);
-
-		}
-	}
+	consoleFont   = loadFont<Font2D>(consoleFont,   consoleFontName, consoleFontNameSize, "FontConsole", "FontConsoleFamily", "consoleFont");
+	consoleFont3D = loadFont<Font3D>(consoleFont3D, consoleFontName, consoleFontNameSize, "FontConsole", "FontConsoleFamily", "consoleFont3D");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] consoleFontName = [%s] consoleFontNameSize = %d\n",__FILE__,__FUNCTION__,__LINE__,consoleFontName.c_str(),consoleFontNameSize);
+}
+
+
+template<typename T> T * CoreData::loadFont(Font *menuFont, string menuFontName,
+		int menuFontNameSize, string fontType, string fontTypeFamily, string fontUniqueKey) {
+	Renderer &renderer= Renderer::getInstance();
+	if(menuFont) {
+		string fontUniqueId = menuFont->getFontUniqueId();
+		renderer.endFont(menuFont, rsGlobal);
+		menuFont = NULL;
+		triggerFontChangedCallbacks(fontUniqueId, menuFont);
+	}
+	if(Renderer::renderText3DEnabled == false) {
+		menuFont = renderer.newFont(rsGlobal);
+	}
+	else {
+		menuFont = renderer.newFont3D(rsGlobal);
+	}
+	if(menuFont) {
+		Config &config= Config::getInstance();
+		menuFont->setType(menuFontName,config.getString(fontType,""),config.getString(fontTypeFamily,""));
+		menuFont->setSize(menuFontNameSize);
+		menuFont->setWidth(Font::wBold);
+		menuFont->setFontUniqueId(fontUniqueKey);
+		triggerFontChangedCallbacks(menuFont->getFontUniqueId(), menuFont);
+	}
+	return (T *)menuFont;
 }
 
 int CoreData::computeFontSize(int size) {
