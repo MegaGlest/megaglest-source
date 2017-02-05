@@ -1028,7 +1028,7 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 		program->setUndoPoint(ctAll);//randomizeHeights(-300,400,30,3);
 
 		SimpleDialog simpleDialog;
-		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"If set to '0' no height reset is done before calculating");
+		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"(1 = true, 0 = false) If set to '0' no height reset is done before calculating");
 		simpleDialog.addValue("Min Height", intToStr(randomMinimumHeight),"Lowest random height. example: -300 or below if you want water , 0 if you don't want water.");
 		simpleDialog.addValue("Max Height", intToStr(randomMaximumHeight),"Max random height. A good value is 400");
 		simpleDialog.addValue("Chance Devider", intToStr(randomChanceDevider),"Defines how often you get a hill or hole default is 30. Bigger number, less hills/holes.");
@@ -1036,7 +1036,13 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 		if (!simpleDialog.show("Randomize Height")) return;
 
 		try {
-			randomWithReset=strToBool(simpleDialog.getValue("Initial Reset"));
+			string checkValue = simpleDialog.getValue("Initial Reset");
+			if(checkValue != "" && strToInt(checkValue) > 1) {
+				randomWithReset = true;
+			}
+			else {
+				randomWithReset = strToBool(simpleDialog.getValue("Initial Reset"));
+			}
 			randomMinimumHeight=strToInt(simpleDialog.getValue("Min Height"));
 			randomMaximumHeight=strToInt(simpleDialog.getValue("Max Height"));
 			randomChanceDevider=strToInt(simpleDialog.getValue("Chance Devider"));
