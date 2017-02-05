@@ -738,6 +738,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
 			snprintf(szBuf,100,"%s%d",intfName.c_str(),idx);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+			//printf("In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
 			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
 
 			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);
