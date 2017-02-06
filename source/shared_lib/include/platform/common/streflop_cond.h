@@ -18,7 +18,7 @@
 #define STREFLOP_COND_H
 
 #if defined(STREFLOP_X87) || defined(STREFLOP_SSE) || defined(STREFLOP_SOFT)
-#include "streflop.h"
+#include <streflop.h>
 using namespace streflop;
 
 namespace math {

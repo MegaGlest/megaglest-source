@@ -33,15 +33,53 @@ IF(BUILD_MEGAGLEST_TESTS)
 		endif()
 	endif()
 
+    find_package(PkgConfig REQUIRED)
+    IF(FORCE_STREFLOP_SOFTWRAPPER)
+        pkg_search_module(STREFLOP streflop-soft)
+    ELSE()
+        IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0")
+            pkg_search_module(STREFLOP streflop-sse)
+        ELSE()
+            IF(HAS_X87_SUPPORT)
+                pkg_search_module(STREFLOP streflop-x87)
+            ELSE()
+                pkg_search_module(STREFLOP streflop-soft)
+            ENDIF()
+        ENDIF()
+    ENDIF()
+    IF(NOT STREFLOP_FOUND)
+        pkg_search_module(STREFLOP streflop)
+    ENDIF()
+    MESSAGE(STATUS "Search for Library STREFLOP result = ${STREFLOP_FOUND} libs: ${STREFLOP_LIBRARIES} include dirs: ${STREFLOP_INCLUDE_DIRS}")
+
+    IF(FORCE_EMBEDDED_LIBS)
+        SET(STREFLOP_FOUND OFF)
+        MESSAGE(STATUS "FORCING USE of EMBEDDED Libraries...")
+    ENDIF()
+
+    IF(WANT_USE_STREFLOP)
+        IF(STREFLOP_FOUND)
+            INCLUDE_DIRECTORIES(${STREFLOP_INCLUDE_DIRS} ${STREFLOP_INCLUDE_DIRS}/streflop)
+            SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${STREFLOP_LIBRARIES})
+
+		    ADD_DEFINITIONS("-DUSE_STREFLOP_PKG")
+        ENDIF()
+    ENDIF()
+
 	#########################################################################################
 	# megaglest test code
 
 	SET(DIRS_WITH_SRC
-                ./
-                shared_lib/graphics
-                shared_lib/streflop
-                shared_lib/util
+        ./
+        shared_lib/graphics
+        shared_lib/util
 		shared_lib/xml)
+
+    IF(NOT STREFLOP_FOUND)
+	    SET(DIRS_WITH_SRC
+            ${DIRS_WITH_SRC}
+            shared_lib/streflop)
+    ENDIF()
 	
 	SET(MG_INCLUDES_ROOT "./")
 	SET(MG_SOURCES_ROOT "./")
@@ -72,10 +110,12 @@ IF(BUILD_MEGAGLEST_TESTS)
                 )
 
 	IF(WANT_USE_STREFLOP)
-		SET(GLEST_LIB_INCLUDE_DIRS
-			${GLEST_LIB_INCLUDE_DIRS}
-			${GLEST_LIB_INCLUDE_ROOT}streflop
-			${GLEST_LIB_INCLUDE_ROOT}streflop/libm_flt32_source)
+        IF(NOT STREFLOP_FOUND)
+		    SET(GLEST_LIB_INCLUDE_DIRS
+			    ${GLEST_LIB_INCLUDE_DIRS}
+			    ${GLEST_LIB_INCLUDE_ROOT}streflop
+			    ${GLEST_LIB_INCLUDE_ROOT}streflop/libm_flt32_source)
+        ENDIF()
 	ENDIF()
 
 	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
@@ -153,7 +193,7 @@ IF(BUILD_MEGAGLEST_TESTS)
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
 	IF(NOT WIN32)
-		IF(WANT_USE_STREFLOP)
+		IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)

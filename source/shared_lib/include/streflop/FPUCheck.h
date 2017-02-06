@@ -15,7 +15,7 @@
 
 //#include "LogOutput.h"
 #include "util.h"
-#include "streflop_cond.h"
+#include "../../include/platform/common/streflop_cond.h"
 
 /**
 	@brief checks FPU control registers.

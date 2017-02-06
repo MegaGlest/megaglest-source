@@ -66,6 +66,39 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 	ENDIF()
 
+    find_package(PkgConfig REQUIRED)
+    IF(FORCE_STREFLOP_SOFTWRAPPER)
+        pkg_search_module(STREFLOP streflop-soft)
+    ELSE()
+        IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0")
+            pkg_search_module(STREFLOP streflop-sse)
+        ELSE()
+            IF(HAS_X87_SUPPORT)
+                pkg_search_module(STREFLOP streflop-x87)
+            ELSE()
+                pkg_search_module(STREFLOP streflop-soft)
+            ENDIF()
+        ENDIF()
+    ENDIF()
+    IF(NOT STREFLOP_FOUND)
+        pkg_search_module(STREFLOP streflop)
+    ENDIF()
+    MESSAGE(STATUS "Search for Library STREFLOP result = ${STREFLOP_FOUND} libs: ${STREFLOP_LIBRARIES} include dirs: ${STREFLOP_INCLUDE_DIRS}")
+
+    IF(FORCE_EMBEDDED_LIBS)
+        SET(STREFLOP_FOUND OFF)
+        MESSAGE(STATUS "FORCING USE of EMBEDDED Libraries...")
+    ENDIF()
+
+    IF(WANT_USE_STREFLOP)
+        IF(STREFLOP_FOUND)
+            INCLUDE_DIRECTORIES(${STREFLOP_INCLUDE_DIRS} ${STREFLOP_INCLUDE_DIRS}/streflop)
+            SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${STREFLOP_LIBRARIES})
+
+		    ADD_DEFINITIONS("-DUSE_STREFLOP_PKG")
+        ENDIF()
+    ENDIF()
+
 	#########################################################################################
 	# megaglest map editor
 
@@ -88,7 +121,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
             ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
 	    ${GLEST_MAIN_INCLUDE_ROOT}global)
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
     			${GLEST_LIB_INCLUDE_ROOT}streflop)
@@ -147,7 +180,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 	ENDIF()
 
