@@ -5241,9 +5241,11 @@ void Renderer::renderTeamColorPlane(){
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex){
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			Vec3f currVec= unit->getCurrVectorFlat();
-			renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
-					unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0),texture);
+			if( unit->isAlive()){
+				Vec3f currVec= unit->getCurrVectorFlat();
+				renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
+						unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0),texture);
+			}
 		}
 		glDisable(GL_COLOR_MATERIAL);
 		glPopAttrib();
