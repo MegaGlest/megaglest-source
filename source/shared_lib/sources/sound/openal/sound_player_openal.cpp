@@ -516,7 +516,7 @@ void SoundPlayerOpenAL::end() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void SoundPlayerOpenAL::play(StaticSound* staticSound) {
+void SoundPlayerOpenAL::play(StaticSound* staticSound, bool force ) {
 	assert(staticSound != 0);
 
 	if(initOk == false) return;
@@ -524,8 +524,14 @@ void SoundPlayerOpenAL::play(StaticSound* staticSound) {
 	try {
 		StaticSoundSource* source = findStaticSoundSource();
 
-		if(source == 0) {
-			return;
+		if(source == 0 ) {
+			if( force == false )
+				return;
+			else {
+				// force usage of first StaticSoundSource
+				source = staticSources.front();
+				source->stop();
+			}
 		}
 		source->play(staticSound);
 	}

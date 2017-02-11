@@ -1227,7 +1227,9 @@ void ClientInterface::updateFrame(int *checkFrame) {
 							return;
 						}
 
-						throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
+						//throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
+						setQuit(true);
+						done = true;
 					}
 					setQuit(true);
 					done = true;

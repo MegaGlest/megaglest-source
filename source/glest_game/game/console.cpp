@@ -19,6 +19,7 @@
 #include "core_data.h"
 #include <stdexcept>
 #include "network_manager.h"
+#include "gen_uuid.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -30,8 +31,10 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Console::Console() {
-	//config
-	this->instanceName = "Generic-Console";
+	registerGraphicComponent("Console", "Generic-Console");
+	this->fontCallbackName = getInstanceName() + "_" + getNewUUD();
+	CoreData::getInstance().registerFontChangedCallback(this->getFontCallbackName(), this);
+
 	maxLines		= Config::getInstance().getInt("ConsoleMaxLines");
 	maxStoredLines	= Config::getInstance().getInt("ConsoleMaxLinesStored");
 	timeout			= Config::getInstance().getInt("ConsoleTimeout");
@@ -46,8 +49,14 @@ Console::Console() {
 	onlyChatMessagesInStoredLines=true;
 }
 
+string Console::getNewUUD() {
+	char  uuid_str[38];
+	get_uuid_string(uuid_str,sizeof(uuid_str));
+	return string(uuid_str);
+}
+
 Console::~Console() {
-	CoreData::getInstance().unRegisterFontChangedCallback(this->getInstanceName());
+	CoreData::getInstance().unRegisterFontChangedCallback(this->getFontCallbackName());
 }
 
 void Console::setFont(Font2D *font) {
@@ -72,11 +81,9 @@ void Console::setFont3D(Font3D *font) {
 
 void Console::registerGraphicComponent(std::string containerName, std::string objName) {
 	this->instanceName = objName;
-	CoreData::getInstance().registerFontChangedCallback(this->getInstanceName(), this);
 }
 
 void Console::FontChangedCallback(std::string fontUniqueId, Font *font) {
-	//printf("In FontChanged for [%s] font [%p]\n", fontUniqueId.c_str(),font);
 	if (fontUniqueId != "") {
 		if (fontUniqueId == this->font2DUniqueId) {
 			if (font != NULL) {

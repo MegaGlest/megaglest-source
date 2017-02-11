@@ -2,7 +2,7 @@
 
 #include "streflopC.h"
 
-#include "streflop_cond.h"
+#include "../../include/platform/common/streflop_cond.h"
 
 #ifdef __cplusplus
 extern "C" {

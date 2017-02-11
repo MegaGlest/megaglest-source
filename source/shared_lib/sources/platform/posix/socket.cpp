@@ -319,7 +319,7 @@ string Ip::getString() const{
 //	class Socket
 // ===============================================
 
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
 # define USE_GETIFADDRS 1
 # include <ifaddrs.h>
 #endif
@@ -738,6 +738,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
 			snprintf(szBuf,100,"%s%d",intfName.c_str(),idx);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+			//printf("In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
 			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
 
 			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);

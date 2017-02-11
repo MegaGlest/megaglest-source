@@ -97,7 +97,7 @@ public:
 	virtual ~SoundPlayerOpenAL();
 	virtual bool init(const SoundPlayerParams *params);
 	virtual void end();
-	virtual void play(StaticSound *staticSound);
+	virtual void play(StaticSound *staticSound, bool force=false);
 	virtual void play(StrSound *strSound, int64 fadeOn=0);
 	virtual void stop(StrSound *strSound, int64 fadeOff=0);
 	virtual void stopAllSounds(int64 fadeOff=0);

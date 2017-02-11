@@ -114,7 +114,7 @@ private:
 	string battleEndLoseVideoFilenameFallback;
 	string battleEndLoseMusicFilename;
 
-	std::map<std::string,std::vector<FontChangedCallbackInterface *>> registeredFontChangedCallbacks;
+	std::map<std::string,std::vector<FontChangedCallbackInterface *> > registeredFontChangedCallbacks;
 public:
 
 	enum TextureSystemType {
@@ -264,6 +264,7 @@ private:
 	void loadMusicIfRequired();
 
 	void triggerFontChangedCallbacks(std::string fontUniqueId, Font *font);
+	template<typename T> T * loadFont(Font *menuFontNormal, string menuFontNameNormal, int menuFontNameNormalSize, string fontType, string fontTypeFamily, string fontUniqueKey);
 };
 
 }} //end namespace

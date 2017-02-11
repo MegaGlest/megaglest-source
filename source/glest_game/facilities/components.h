@@ -69,11 +69,13 @@ protected:
 
 	string containerName;
 	string instanceName;
+	string fontCallbackName;
 
+	string getNewUUD();
 	virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
 
 public:
-	GraphicComponent(std::string containerName="", std::string objName="");
+	GraphicComponent(std::string containerName="", std::string objName="", bool registerControl=true);
 	virtual ~GraphicComponent();
 
 	static void setCustomTextColor(Vec3f value) { customTextColor = value; }
@@ -93,7 +95,9 @@ public:
 
 	virtual void init(int x, int y, int w, int h);
 
+	string getContainerName() const { return containerName; }
 	string getInstanceName() const { return instanceName; }
+	string getFontCallbackName() const { return fontCallbackName; }
 	void setInstanceName(string value) { instanceName = value; }
 
     virtual int getX() const				{return x;}
@@ -160,7 +164,7 @@ private:
 	Texture2D *texture;
 
 public:
-	GraphicLabel();
+	GraphicLabel(std::string containerName="", std::string objName="", bool registerControl=true);
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
 
 	virtual bool mouseMove(int x, int y);
@@ -224,7 +228,7 @@ private:
 	Texture *customTexture;
 		
 public:
-	GraphicButton(std::string containerName="", std::string objName="");
+	GraphicButton(std::string containerName="", std::string objName="", bool registerControl=true);
 	void init(int x, int y, int w=defW, int h=defH);
 
 	bool getUseCustomTexture() const { return useCustomTexture; }
@@ -443,7 +447,7 @@ private:
 	string header;
 
 public:
-	PopupMenu();
+	PopupMenu(std::string containerName="", std::string objName="");
 	virtual ~PopupMenu();
 	void init(string menuHeader, std::vector<string> menuItems);
 

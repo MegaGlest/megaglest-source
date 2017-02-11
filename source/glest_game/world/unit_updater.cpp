@@ -368,6 +368,9 @@ void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,int
 					&& unit->getRandom()->randRange(1, 100) <= probability) {
 				continue;
 			}
+			if(targetPos==Vec2i(-10,-10)) {
+				targetPos=unit->getTargetPos();
+			}
 			Unit* spawned=this->spawnUnit(unit,spawnUnit,spawnUnitAtTarget?targetPos:unit->getCenteredPos());
 			if(spawned!=NULL){
 				if(healthMin>0 && healthMin<100 && healthMax>=healthMin && healthMax<=100){
@@ -3124,7 +3127,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
 	    		if(world->getAttackWarningsEnabled() == true) {
 
-	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound(),true);
 	    			world->addAttackEffects(enemyUnit);
 	    		}
 	    	}

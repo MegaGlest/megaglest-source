@@ -49,6 +49,39 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		MESSAGE(STATUS " wxWidgets: ${wxWidgets_INCLUDE_DIRS} ;/;  ${wxWidgets_LIBRARIES}")
 	ENDIF()
 
+    find_package(PkgConfig REQUIRED)
+    IF(FORCE_STREFLOP_SOFTWRAPPER)
+        pkg_search_module(STREFLOP streflop-soft)
+    ELSE()
+        IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0")
+            pkg_search_module(STREFLOP streflop-sse)
+        ELSE()
+            IF(HAS_X87_SUPPORT)
+                pkg_search_module(STREFLOP streflop-x87)
+            ELSE()
+                pkg_search_module(STREFLOP streflop-soft)
+            ENDIF()
+        ENDIF()
+    ENDIF()
+    IF(NOT STREFLOP_FOUND)
+        pkg_search_module(STREFLOP streflop)
+    ENDIF()
+    MESSAGE(STATUS "Search for Library STREFLOP result = ${STREFLOP_FOUND} libs: ${STREFLOP_LIBRARIES} include dirs: ${STREFLOP_INCLUDE_DIRS}")
+
+    IF(FORCE_EMBEDDED_LIBS)
+        SET(STREFLOP_FOUND OFF)
+        MESSAGE(STATUS "FORCING USE of EMBEDDED Libraries...")
+    ENDIF()
+
+    IF(WANT_USE_STREFLOP)
+        IF(STREFLOP_FOUND)
+            INCLUDE_DIRECTORIES(${STREFLOP_INCLUDE_DIRS} ${STREFLOP_INCLUDE_DIRS}/streflop)
+            SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${STREFLOP_LIBRARIES})
+
+		    ADD_DEFINITIONS("-DUSE_STREFLOP_PKG")
+        ENDIF()
+    ENDIF()
+
 	IF(WIN32)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
@@ -107,7 +140,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	    ${GLEST_MAIN_INCLUDE_ROOT}global
 	    ${GLEST_MAIN_INCLUDE_ROOT}sound)
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
     			${GLEST_LIB_INCLUDE_ROOT}streflop)
@@ -157,7 +190,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
 	ENDIF()
 

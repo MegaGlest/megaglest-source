@@ -2,7 +2,7 @@
 {
 	// Set your assigned depot ID here
 	"DepotID" "578872"
-	"ContentRoot"	"C:\Code\steamworks_sdk\sdk\tools\ContentBuilder\content\win_x86\"
+	"ContentRoot"	"..\content\win_x86\"
 
 	// include all files recursivley
     "FileMapping"

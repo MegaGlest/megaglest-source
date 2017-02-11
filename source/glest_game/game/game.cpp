@@ -3097,7 +3097,7 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 		//printf("faction [%p][%s]\n",faction,(faction != NULL ? faction->getType()->getName().c_str() : ""));
 		if((faction == NULL) ||
 				(faction->getTeam() == getWorld()->getThisFaction()->getTeam())) {
-			soundRenderer.playFx(coreData.getMarkerSound());
+			soundRenderer.playFx(coreData.getMarkerSound(),true);
 		}
 	}
 }
@@ -5291,13 +5291,6 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderUnits]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-	// renderTeamColorPlane
-	if((renderExtraTeamColor&renderTeamColorPlaneBit)>0){
-		renderer.renderTeamColorPlane();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-	}
-
 	//water
 	renderer.renderWater();
 	renderer.renderWaterEffects();
@@ -5317,6 +5310,13 @@ void Game::render3d(){
 	//renderOnTopBars (aka Healthbars)
 	if(photoModeEnabled == false) {
 		renderer.renderHealthBars(healthbarMode);
+	}
+
+	// renderTeamColorPlane
+	if((renderExtraTeamColor&renderTeamColorPlaneBit)>0){
+		renderer.renderTeamColorPlane();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 	}
 
 	//mouse 3d

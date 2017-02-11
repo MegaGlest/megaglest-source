@@ -181,7 +181,7 @@ void Program::ShowMessageProgramState::update() {
 bool Program::rendererInitOk = false;
 bool Program::tryingRendererInit = false;
 
-Program::Program() {
+Program::Program() : msgBox("Program", "msgBox") {
 	//this->masterserverMode = false;
 	this->window = NULL;
 	this->shutdownApplicationEnabled = false;
@@ -194,7 +194,7 @@ Program::Program() {
 
 	//mesage box
 	Lang &lang= Lang::getInstance();
-	msgBox.registerGraphicComponent("Program", "msgBox");
+	//msgBox.registerGraphicComponent("Program", "msgBox");
 	msgBox.init(lang.getString("Ok"));
 	msgBox.setEnabled(false);
 }

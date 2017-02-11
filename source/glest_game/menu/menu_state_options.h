@@ -91,6 +91,7 @@ private:
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
+	virtual ~MenuStateOptions();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);

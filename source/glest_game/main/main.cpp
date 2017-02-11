@@ -816,9 +816,9 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 // 	class MainWindow
 // =====================================================
 
-MainWindow::MainWindow(Program *program) : WindowGl() {
+MainWindow::MainWindow(Program *program) : WindowGl(), popupMenu("MainWindow", "popupMenu") {
 	this->program= program;
-	this->popupMenu.registerGraphicComponentOnlyFontCallbacks("MainWindow", "popupMenu");
+	//this->popupMenu.registerGraphicComponentOnlyFontCallbacks("MainWindow", "popupMenu");
 	this->popupMenu.setEnabled(false);
 	this->popupMenu.setVisible(false);
     this->triggerLanguageToggle = false;
