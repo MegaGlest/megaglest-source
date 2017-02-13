@@ -2074,7 +2074,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 				repaired = peerUnitBuilder->getCurrCommand()->getUnit();
 				nextToRepaired = repaired != NULL && map->isNextTo(unit, repaired);
 			}
-			else {
+			else if(peerUnitBuilder->getCurrCommand()->getUnitType() != NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				Vec2i buildPos = map->findBestBuildApproach(unit, command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
 
