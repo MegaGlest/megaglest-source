@@ -151,7 +151,7 @@ public:
 	void shiftUp();
 	void shiftDown();
 
-	void randomizeMapHeights(bool withReset, int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions);;
+	void randomizeMapHeights(bool withReset, int minimumHeight, int maximumHeight, int chanceDivider, int smoothRecursions);;
 	void randomizeFactions();
 	void switchMapSurfaces(int surf1, int surf2);
 	void loadMap(const string &path);

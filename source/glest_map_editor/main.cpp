@@ -108,7 +108,7 @@ MainWindow::MainWindow(string appPath)
 	randomWithReset=true;
 	randomMinimumHeight=-300;
 	randomMaximumHeight=400;
-	randomChanceDevider=30;
+	randomChanceDivider=30;
 	randomRecursions=3;
 
 	this->appPath = appPath;
@@ -1031,7 +1031,7 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"(1 = true, 0 = false) If set to '0' no height reset is done before calculating");
 		simpleDialog.addValue("Min Height", intToStr(randomMinimumHeight),"Lowest random height. example: -300 or below if you want water , 0 if you don't want water.");
 		simpleDialog.addValue("Max Height", intToStr(randomMaximumHeight),"Max random height. A good value is 400");
-		simpleDialog.addValue("Chance Devider", intToStr(randomChanceDevider),"Defines how often you get a hill or hole default is 30. Bigger number, less hills/holes.");
+		simpleDialog.addValue("Chance Divider", intToStr(randomChanceDivider),"Defines how often you get a hill or hole default is 30. Bigger number, less hills/holes.");
 		simpleDialog.addValue("Smooth Recursions", intToStr(randomRecursions),"Number of recursions cycles to smooth the hills and holes. 0<x<50 default is 3.");
 		if (!simpleDialog.show("Randomize Height")) return;
 
@@ -1045,19 +1045,19 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 			}
 			randomMinimumHeight=strToInt(simpleDialog.getValue("Min Height"));
 			randomMaximumHeight=strToInt(simpleDialog.getValue("Max Height"));
-			randomChanceDevider=strToInt(simpleDialog.getValue("Chance Devider"));
+			randomChanceDivider=strToInt(simpleDialog.getValue("Chance Divider"));
 			randomRecursions=strToInt(simpleDialog.getValue("Smooth Recursions"));
 
 			// set insane inputs to something that does not crash
 			if(randomMinimumHeight>=randomMaximumHeight) randomMinimumHeight=randomMaximumHeight-1;
-			if(randomChanceDevider<1) randomChanceDevider=1;
+			if(randomChanceDivider<1) randomChanceDivider=1;
 
 			// set randomRecursions to something useful
 			if(randomRecursions<0) randomRecursions=0;
 			if(randomRecursions>50) randomRecursions=50;
 
 			program->randomizeMapHeights(randomWithReset, randomMinimumHeight, randomMaximumHeight,
-					randomChanceDevider, randomRecursions);
+					randomChanceDivider, randomRecursions);
 		}
 		catch (const exception &e) {
 			MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
@@ -1470,7 +1470,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(miViewResetZoomAndPos, MainWindow::onMenuViewResetZoomAndPos)
 	EVT_MENU(miViewGrid, MainWindow::onMenuViewGrid)
-	EVT_MENU(miViewHeightMap, MainWindow::onMenuViewHeightMap)	
+	EVT_MENU(miViewHeightMap, MainWindow::onMenuViewHeightMap)
 	EVT_MENU(miHideWater, MainWindow::onMenuHideWater)
 	EVT_MENU(miViewAbout, MainWindow::onMenuViewAbout)
 	EVT_MENU(miViewHelp, MainWindow::onMenuViewHelp)
@@ -1518,7 +1518,7 @@ void GlCanvas::setCurrentGLContext() {
 	}
 #endif
 
-	if(this->context) { 
+	if(this->context) {
 		this->SetCurrent(*this->context);
 	}
 #else
@@ -1657,7 +1657,7 @@ bool App::OnInit() {
 //#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[1]);
 		fileparam = tmp_buf;
-		
+
 #ifdef WIN32
 		auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
 		fileparam = utf8_encode(wstr.get());
