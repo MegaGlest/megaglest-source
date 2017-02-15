@@ -704,9 +704,9 @@ void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, i
 	hasChanged = true;
 }
 
-void MapPreview::randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions) {
+void MapPreview::randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDivider, int smoothRecursions) {
 	if(withReset) resetHeights(random.randRange(8, 10));
-	realRandomize(minimumHeight,maximumHeight,chanceDevider,smoothRecursions);
+	realRandomize(minimumHeight,maximumHeight,chanceDivider,smoothRecursions);
 	hasChanged = true;
 }
 
@@ -1017,15 +1017,15 @@ void MapPreview::resetHeights(int height) {
 	}
 }
 
-void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chanceDevider, int _smoothRecursions) {
+void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chanceDivider, int _smoothRecursions) {
 	int moduloParam=abs(maximumHeight-minimumHeight);
-	int chanceDevider=_chanceDevider;
+	int chanceDivider=_chanceDivider;
 	int smoothRecursions=_smoothRecursions;
 	if(moduloParam<2) moduloParam=2;
 	//printf("moduloParam=%d   minimumHeight=%d  maximumHeight=%d\n",moduloParam,minimumHeight,maximumHeight);
 
-	// set chanceDevider to something possible
-	if(chanceDevider<2) chanceDevider=2;
+	// set chanceDivider to something possible
+	if(chanceDivider<2) chanceDivider=2;
 
 	// set smoothRecursions to something useful
 	if(smoothRecursions<0) smoothRecursions=0;
@@ -1033,7 +1033,7 @@ void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chance
 
 	for (int i = 1; i < w-1; ++i) {
 		for (int j = 1; j < h-1; ++j) {
-			if(rand()%chanceDevider==1){
+			if(rand()%chanceDivider==1){
 				cells[i][j].height=(rand() % moduloParam)+minimumHeight;
 			}
 		}
