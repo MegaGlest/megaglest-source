@@ -25,14 +25,14 @@ if [ -f "$REPO_DATADIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     DATA_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"
     # on macos are problems with more advanced using awk ^
     DATA_COMMIT_NR="$(git rev-list HEAD --count)"
-    DATA_COMMIT="$(echo "[$DATA_COMMIT_NR.$(git log -1 --format=%h)]")"
+    DATA_COMMIT="$(echo "[$DATA_COMMIT_NR.$(git log -1 --format=%h --abbrev=7)]")"
     DATA_HASH=$(git log -1 --format=%H)
 fi
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
     if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"; fi
     # on macos are problems with more advanced using awk ^
-    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h --abbrev=7)]")"
     if [ "$DATA_HASH" = "" ]; then DATA_HASH=$(git submodule status "$REPO_DATADIR" | awk '{print $1}'); fi
 fi
 classic_snapshot_for_tests=0

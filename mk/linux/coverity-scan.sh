@@ -45,7 +45,7 @@ fi
 # exit 1
 
 GITBRANCH=$(git rev-parse --abbrev-ref HEAD | tr '/' '-')
-GITVERSION_SHA1=$(git log -1 --format=%h)
+GITVERSION_SHA1=$(git log -1 --format=%h --abbrev=7)
 GITVERSION_REV=$(git rev-list HEAD --count)
 VERSION=${GITBRANCH}.${GITVERSION_REV}.${GITVERSION_SHA1}
 

@@ -44,7 +44,7 @@ if [ "$modifymore" = "yes" ]; then
 fi
 if [ "$modifymore" = "yes" ] && [ "$(git status >/dev/null 2>&1; echo "$?")" -eq "0" ]; then
 	# const string GIT_RawRev		= "$4446.1a8673f$";
-	GitCommitForRelease="`git rev-list HEAD --count`.`git log -1 --format=%h`";
+	GitCommitForRelease="`git rev-list HEAD --count`.`git log -1 --format=%h --abbrev=7`";
 	echo 'GitCommitForRelease # before:'
 	grep -E '^GitCommitForRelease = "[^"]*";$' "$VERSION_INFO_FILE"
 	grep -E '^	const string GIT_RawRev		= "\$[^"$]*\$";$' ../../source/glest_game/facilities/game_util.cpp

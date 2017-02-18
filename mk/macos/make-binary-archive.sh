@@ -31,7 +31,7 @@ if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
     if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"; fi
     # on macos are problems with more advanced using awk ^
-    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h --abbrev=7)]")"
 fi
 
 ARCHIVE_TYPE="tar.bz2"
