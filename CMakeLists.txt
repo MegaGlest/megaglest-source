@@ -227,7 +227,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
                         # Get the current commit SHA1
                         execute_process(
-                          COMMAND git log -1 --format=%h
+                          COMMAND git log -1 --format=%h --abbrev=7
                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                           OUTPUT_VARIABLE GIT_SHA1
                           OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -241,7 +241,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
                           OUTPUT_STRIP_TRAILING_WHITESPACE
                         )
 
-                        SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h`")
+                        SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h --abbrev=7`")
 
                         MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
 
