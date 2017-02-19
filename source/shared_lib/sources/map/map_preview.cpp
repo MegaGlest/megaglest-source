@@ -726,17 +726,16 @@ void MapPreview::randomizeFactions() {
 }
 
 void MapPreview::smoothSurface(bool limitHeight) {
-	float *oldHeights = new float[w*h];
-
-	for (int i = 0; i < w; ++i) {
-		for (int j = 0; j < h; ++j) {
-			oldHeights[i*w+j] = cells[i][j].height;
-			//printf("count=%d height=%f h=%f\n",i*w+h,oldHeights[i*w+h],cells[i][j].height);
+	float oldHeights [w*h];
+	for (int j = 0; j < h; ++j) {
+		for (int i = 0; i < w; ++i) {
+			oldHeights[w*j+i] = cells[i][j].height;
+			//printf("w=%d h=%d i=%d j=%d w*h=%d  w*j+i=%d \n",w,h,i,j,w*h,w*j+i);
 		}
 	}
 
-	for (int i = 1; i < w - 1; ++i) {
-		for (int j = 1; j < h - 1; ++j) {
+	for (int j = 1; j < h - 1; ++j) {
+		for (int i = 1; i < w - 1; ++i) {
 			float height = 0.f;
 			float numUsedToSmooth = 0.f;
 			for (int k = -1; k <= 1; ++k) {
@@ -756,7 +755,6 @@ void MapPreview::smoothSurface(bool limitHeight) {
 			cells[i][j].height=height;
 		}
 	}
-	delete[] oldHeights;
 }
 
 void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
