@@ -726,7 +726,8 @@ void MapPreview::randomizeFactions() {
 }
 
 void MapPreview::smoothSurface(bool limitHeight) {
-	float oldHeights [w*h];
+	//float oldHeights [w*h];
+	float *oldHeights = new float[w*h]; // dumb microsoft compiler cannot handle dynamic arrays, doing it manually
 	for (int j = 0; j < h; ++j) {
 		for (int i = 0; i < w; ++i) {
 			oldHeights[w*j+i] = cells[i][j].height;
@@ -755,6 +756,7 @@ void MapPreview::smoothSurface(bool limitHeight) {
 			cells[i][j].height=height;
 		}
 	}
+	delete[] oldHeights;
 }
 
 void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
