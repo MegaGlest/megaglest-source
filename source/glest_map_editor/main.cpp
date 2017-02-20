@@ -1025,7 +1025,6 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 		return;
 	}
 	while(true){
-		program->setUndoPoint(ctAll);//randomizeHeights(-300,400,30,3);
 
 		SimpleDialog simpleDialog;
 		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"(1 = true, 0 = false) If set to '0' no height reset is done before calculating");
@@ -1056,6 +1055,7 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 			if(randomRecursions<0) randomRecursions=0;
 			if(randomRecursions>50) randomRecursions=50;
 
+			program->setUndoPoint(ctAll);
 			program->randomizeMapHeights(randomWithReset, randomMinimumHeight, randomMaximumHeight,
 					randomChanceDivider, randomRecursions);
 		}
