@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2005 Matthias Braun
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 #ifndef _SHARED_PLATFORM_MAIN_H_
@@ -207,13 +207,13 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tIf x is not specified we load the last game that was saved.");
 
 	printf("\n%s=x,y,z\t\t\tRun in auto test mode.",GAME_ARGS[GAME_ARG_AUTO_TEST]);
-	printf("\n                     \t\tWhere x is an optional maximum # seconds to play.");
-	printf("\n                     \t\tIf x is not specified the default is 1200 seconds (20 minutes).");
-	printf("\n                     \t\tWhere y is an optional game settings file to play.");
-	printf("\n                     \t\tIf y is not specified (or is empty) then auto test cycles through playing scenarios.");
-	printf("\n                     \t\tWhere z is the word exit indicating the game should exit after the game is finished or the time runs out.");
-	printf("\n                     \t\tIf z is not specified (or is empty) then auto test continues to cycle.");
-
+	printf("\
+\n                     \t\tWhere x is an optional maximum # seconds to play.\
+\n                     \t\tIf x is not specified the default is 1200 seconds (20 minutes).\
+\n                     \t\tWhere y is an optional game settings file to play.\
+\n                     \t\tIf y is not specified (or is empty) then auto test cycles through playing scenarios.\
+\n                     \t\tWhere z is the word exit indicating the game should exit after the game is finished or the time runs out.\
+\n                     \t\tIf z is not specified (or is empty) then auto test continues to cycle.");
 	printf("\n%s=x:y\t\t\tAuto connect to host server at IP or hostname x using port y",GAME_ARGS[GAME_ARG_CONNECT]);
 	printf("\n                     \t\tShortcut version of using %s and %s.",GAME_ARGS[GAME_ARG_CLIENT],GAME_ARGS[GAME_ARG_USE_PORTS]);
 	printf("\n                     \t\t*NOTE: to automatically connect to the first LAN");
@@ -226,28 +226,30 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);
 
 	printf("\n%s=x,x\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
-	printf("\n                     \t\tWhere x is an optional comma delimited command");
-	printf("\n                     \t\t        list of one or more of the following: ");
-	printf("\n                     \t\texit - which quits the application after a game");
-	printf("\n                     \t               has no more connected players.");
-	printf("\n                     \t\tvps  - which does NOT read commands from the");
-	printf("\n                     \t               local console (for some vps's).");
-	printf("\n                     \t\tlan  - which does not broadcast the hosting server");
-	printf("\n                     \t               to the masterserver (for local LAN games).");
+	printf("\
+\n                     \t\tWhere x is an optional comma delimited command\
+\n                     \t\t        list of one or more of the following: \
+\n                     \t\texit - which quits the application after a game\
+\n                     \t               has no more connected players.\
+\n                     \t\tvps  - which does NOT read commands from the\
+\n                     \t               local console (for some vps's).\
+\n                     \t\tlan  - which does not broadcast the hosting server\
+\n                     \t               to the masterserver (for local LAN games).");
 
 	printf("\n%s\tCheck the current status of a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
 
 	printf("\n%s=x,y,z\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
-	printf("\n\t\t\t\tx, externally on port y and game status on port z.");
-	printf("\n                     \t\tWhere x is the internal port # on the local");
-	printf("\n                     \t\t        machine to listen for connects");
-	printf("\n                     \t\t      y is the external port # on the");
-	printf("\n                     \t\t        router/proxy to forward connection");
-	printf("\n                     \t\t        from to the internal port #");
-	printf("\n                     \t\t      z is the game status port # on the");
-	printf("\n                     \t\t        local machine to listen for status requests");
-	printf("\n                     \t\t*NOTE: If enabled the FTP Server port #'s will");
-	printf("\n                     \t\t       be set to x+1 to x+9");
+	printf("\
+\n\t\t\t\tx, externally on port y and game status on port z.\
+\n                     \t\tWhere x is the internal port # on the local\
+\n                     \t\t        machine to listen for connects\
+\n                     \t\t      y is the external port # on the\
+\n                     \t\t        router/proxy to forward connection\
+\n                     \t\t        from to the internal port #\
+\n                     \t\t      z is the game status port # on the\
+\n                     \t\t        local machine to listen for status requests\
+\n                     \t\t*NOTE: If enabled the FTP Server port #'s will\
+\n                     \t\t       be set to x+1 to x+9");
 
 	printf("\n%s=x\t\tSet server title.",GAME_ARGS[GAME_ARG_SERVER_TITLE]);
 
@@ -265,27 +267,28 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your XERCES version information.",GAME_ARGS[GAME_ARG_XERCES_INFO]);
 
 	printf("\n%s=x=purgeunused=purgeduplicates=gitdelete=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-	printf("\n                     \t\tdisplay a report detailing any known problems");
-	printf("\n                     \t\trelated to your selected techtrees game data.");
-	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees");
-	printf("\n                     \t\t        to validate.");
-	printf("\n                     \t\tWhere purgeunused is an optional parameter");
-	printf("\n                     \t\t      telling the validation to delete");
-	printf("\n                     \t\t      extra files in the techtree that are");
-	printf("\n                     \t\t      not used.");
-	printf("\n                     \t\tWhere purgeduplicates is an optional parameter");
-	printf("\n                     \t\t      telling the validation to merge");
-	printf("\n                     \t\t      duplicate files in the techtree.");
-	printf("\n                     \t\tWhere gitdelete is an optional parameter");
-	printf("\n                     \t\t      telling the validation to call");
-	printf("\n                     \t\t      git rm on duplicate / unused");
-	printf("\n                     \t\t      files in the techtree.");
-	printf("\n                     \t\tWhere hideduplicates is an optional parameter");
-	printf("\n                     \t\t      telling the validation to NOT SHOW");
-	printf("\n                     \t\t      duplicate files in the techtree.");
-	printf("\n                     \t\t*NOTE: This only applies when files are");
-	printf("\n                     \t\t       purged due to the above flags being set.");
-	printf("\n                     \t\texample:");
+	printf("\
+\n                     \t\tdisplay a report detailing any known problems\
+\n                     \t\trelated to your selected techtrees game data.\
+\n                     \t\tWhere x is a comma-delimited list of techtrees\
+\n                     \t\t        to validate.\
+\n                     \t\tWhere purgeunused is an optional parameter\
+\n                     \t\t      telling the validation to delete\
+\n                     \t\t      extra files in the techtree that are\
+\n                     \t\t      not used.\
+\n                     \t\tWhere purgeduplicates is an optional parameter\
+\n                     \t\t      telling the validation to merge\
+\n                     \t\t      duplicate files in the techtree.\
+\n                     \t\tWhere gitdelete is an optional parameter\
+\n                     \t\t      telling the validation to call\
+\n                     \t\t      git rm on duplicate / unused\
+\n                     \t\t      files in the techtree.\
+\n                     \t\tWhere hideduplicates is an optional parameter\
+\n                     \t\t      telling the validation to NOT SHOW\
+\n                     \t\t      duplicate files in the techtree.\
+\n                     \t\t*NOTE: This only applies when files are\
+\n                     \t\t       purged due to the above flags being set.\
+\n                     \t\texample:");
 	printf("\n                     %s %s=megapack,vbros_pack_5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n%s=x=purgeunused=purgeduplicates=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
@@ -536,8 +539,8 @@ int mainSetup(int argc, char **argv) {
 
 	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DISABLE_STREFLOP_CAPS_CHECK])) == false) {
 // Ensure at runtime that the client has SSE
-#if defined(STREFLOP_SSE)	
-#if defined(WIN32)	
+#if defined(STREFLOP_SSE)
+#if defined(WIN32)
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] About to validate SSE support\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -584,7 +587,7 @@ int mainSetup(int argc, char **argv) {
 		has_SSE4a = (info[2] & ((int)1 <<  6)) != 0;
 		has_FMA4  = (info[2] & ((int)1 << 16)) != 0;
 		has_XOP   = (info[2] & ((int)1 << 11)) != 0;
-	}	
+	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sse check got [%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]\n",__FILE__,__FUNCTION__,__LINE__,has_x64,has_MMX,has_SSE,has_SSE2,has_SSE3,has_SSSE3,has_SSE41,has_SSE42,has_SSE4a,has_AVX,has_XOP,has_FMA3,has_FMA4);
 
@@ -644,7 +647,7 @@ int mainSetup(int argc, char **argv) {
 #ifdef USE_STREFLOP
 #define STREFLOP_NO_DENORMALS
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	
+
 	streflop_init<streflop::Simple>();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
