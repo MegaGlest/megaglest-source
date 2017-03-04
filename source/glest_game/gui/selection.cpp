@@ -83,15 +83,16 @@ bool Selection::select(Unit *unit, bool addToSelection) {
 
 		//check if multitypesel
 		if(selectedUnits.size() > 0) {
-			if(selectedUnits.front()->getType()->getUniformSelect() == true && selectedUnits.front()->getType() != unit->getType()) {
+			bool isUnifromSelectOK = ( selectedUnits.front()->getType() == unit->getType() && unit->isOperative() == selectedUnits.front()->isOperative());
+			if(selectedUnits.front()->getType()->getUniformSelect() == true && !isUnifromSelectOK ) {
 				if(addToSelection)
 					return false;
 				else
 					clear();
 			}
-		}
-		if(selectedUnits.size() > 0) {
-			if(unit->getType()->getUniformSelect() == true && selectedUnits.front()->getType() != unit->getType()) {
+
+			if (unit->getType()->getUniformSelect() == true
+					&& !isUnifromSelectOK ) {
 				return false;
 			}
 		}
@@ -286,15 +287,17 @@ bool Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 	}
 
 	// check for uniformselect units
-	if((int)groups[groupIndex].size()>0 ){
+	if((int)groups[groupIndex].size()>0 ) {
 		Unit* unitInGroup=groups[groupIndex][0];
-		if( unit->getType()->getUniformSelect() && unitInGroup->getType() != unit->getType()) {
-			//dont add uniform selection unit
-			return false;
-		}
-		if( unitInGroup->getType()->getUniformSelect() && unitInGroup->getType() != unit->getType()){
-			//dont add another unit to a group of uniform selection units
-			return false;
+		if( unit->getType()->getUniformSelect() || unitInGroup->getType()->getUniformSelect() ) {
+			if(  unit->isOperative() != unitInGroup->isOperative()) {
+				//dont add units that are not in same operative state
+				return false;
+			}
+			if( unitInGroup->getType() != unit->getType()){
+				//dont add another unit to a group of uniform selection units
+				return false;
+			}
 		}
 	}
 

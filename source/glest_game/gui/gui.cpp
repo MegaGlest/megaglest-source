@@ -1156,7 +1156,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 			for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){
 				Unit *unit= world->getFaction(factionIndex)->getUnit(i);
 				if(unit->getPos().dist(refUnit->getPosNotThreadSafe())<doubleClickSelectionRadius &&
-					unit->getType()==refUnit->getType())
+					unit->getType()==refUnit->getType() && unit->isOperative()==refUnit->isOperative() )
 				{
 					units.push_back(unit);
 				}
