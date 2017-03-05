@@ -47,7 +47,7 @@ string getGameReadWritePath(string lookupKey) {
 
 namespace MapEditor {
 
-const string mapeditorVersionString = "v3.12-dev";
+const string mapeditorVersionString = "v3.13-dev";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
@@ -1186,7 +1186,7 @@ void MainWindow::onMenuHideWater(wxCommandEvent &event) {
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
-		wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2016 The MegaGlest Team    \n"),
+		wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2017 The MegaGlest Team    \n"),
 		wxT("About")).ShowModal();
 }
 

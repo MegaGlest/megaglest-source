@@ -33,7 +33,7 @@ const char *mailString				= " http://bugs.megaglest.org";
 // typical version numbers look like this: v3.13-beta1.0   v3.12-dev   v3.12.1
 // don't forget to update file: source/version.txt
 const string glestVersionString 	= "v3.13-dev";
-const string lastCompatibleSaveGameVersionString 	= "v3.13-dev";
+const string lastCompatibleSaveGameVersionString 	= "v3.12.0";
 
 #if defined(GITVERSIONHEADER)
 	#include "gitversion.h"
@@ -41,7 +41,7 @@ const string lastCompatibleSaveGameVersionString 	= "v3.13-dev";
 #if defined(GITVERSION) || defined(GITVERSIONHEADER)
 	const string GIT_RawRev		= string(GITVERSION);
 #else
-	const string GIT_RawRev		= "$5421.18cad36$";
+	const string GIT_RawRev		= "$5597.cdfcaa8$";
 #endif
 const string GIT_Rev 			= string("Rev: ") + string(GIT_RawRev);
 
@@ -212,7 +212,7 @@ string getAboutString1(int i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return GIT_Rev;
 	case 2: return "Copyright 2001-2010 The Glest Team";
-	case 3: return "Copyright 2010-2016 The MegaGlest Team";
+	case 3: return "Copyright 2010-2017 The MegaGlest Team";
 	}
 	return "";
 }
