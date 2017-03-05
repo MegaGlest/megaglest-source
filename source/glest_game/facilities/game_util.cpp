@@ -41,7 +41,7 @@ const string lastCompatibleSaveGameVersionString 	= "v3.11.1";
 #if defined(GITVERSION) || defined(GITVERSIONHEADER)
 	const string GIT_RawRev		= string(GITVERSION);
 #else
-	const string GIT_RawRev		= "$5421.18cad36$";
+	const string GIT_RawRev		= "$5600.2a94473$";
 #endif
 const string GIT_Rev 			= string("Rev: ") + string(GIT_RawRev);
 
@@ -212,7 +212,7 @@ string getAboutString1(int i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return GIT_Rev;
 	case 2: return "Copyright 2001-2010 The Glest Team";
-	case 3: return "Copyright 2010-2016 The MegaGlest Team";
+	case 3: return "Copyright 2010-2017 The MegaGlest Team";
 	}
 	return "";
 }
