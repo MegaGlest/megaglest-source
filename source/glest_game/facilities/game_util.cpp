@@ -33,7 +33,7 @@ const char *mailString				= " http://bugs.megaglest.org";
 // typical version numbers look like this: v3.13-beta1.0   v3.12-dev   v3.12.1
 // don't forget to update file: source/version.txt
 const string glestVersionString 	= "v3.13-dev";
-const string lastCompatibleSaveGameVersionString 	= "v3.13-dev";
+const string lastCompatibleSaveGameVersionString 	= "v3.11.1";
 
 #if defined(GITVERSIONHEADER)
 	#include "gitversion.h"
