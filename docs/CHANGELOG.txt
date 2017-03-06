@@ -15,7 +15,7 @@ v3.13.0
 - option to select/command multiple buildings of same type ( uniform-selection )
 - major cross platform OOS fix which especially showed up quite often when playing without
   fog of war
-- you must proof basic game knowledge before you can play online by winning a special scenario
+- you must prove basic game knowledge before you can play online by winning a special scenario
 - less visible parts of black squares while rendering cliffs
 - possibility to let units spawn units on death
 - improved AI behavior per faction ( mostly magic )
