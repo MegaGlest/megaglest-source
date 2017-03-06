@@ -12,9 +12,9 @@ v3.13.0
 - much better error handling and messages especially for modders and xml-related problems
 - fix unwanted double event for some keys ( like alt+enter )
 - map filter option for game setup on headless server
-- option to select/command multiple buildings of same type. ( uniform-selection )
+- option to select/command multiple buildings of same type ( uniform-selection )
 - major cross platform OOS fix which especially showed up quite often when playing without
-  fog of war.
+  fog of war
 - you must proof basic game knowledge before you can play online by winning a special scenario
 - less visible parts of black squares while rendering cliffs
 - possibility to let units spawn units on death
@@ -32,12 +32,12 @@ v3.12.0
 v3.11.1
 - no more false clicks when commanding via mini map
 - map editor has a more useful and powerful map height randomizer
-- map editor saves all maps with .mgm ending by default.
+- map editor saves all maps with .mgm ending by default
 - fixed map editor ( several linux distributions had trouble )
 - for missing tilesets and techs optional download from mod center instead of server. (bugfix)
 - healthbar default set to "if needed"
 - nicer tilesets as defaults
-- improved camera startposition on game start ( main building in center ).
+- improved camera startposition on game start ( main building in center )
 - attackBoosts: Ep + Hp regeneration is shown in description
 - MegaGlest can be build easier on MacOS ( sadly noone was willing to test )
 
