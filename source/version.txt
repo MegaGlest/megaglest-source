@@ -3,11 +3,11 @@
 # Versions will be updated everywhere automatically.
 # Then you should commit changed files and that's all.
 
-CurrentGameVersion = "3.13.0";
+CurrentGameVersion = "3.13-dev";
 # ^ typical version numbers look like this: "3.14-beta1.0", "3.13-dev", "3.13.1"
 
-OldReleaseGameVersion = "3.12.0";
+OldReleaseGameVersion = "3.13.0";
 LastCompatibleSaveGameVersion = "3.11.1";
 
-GitCommitForRelease = "5604.3a5d459";
+GitCommitForRelease = "5608.a3c8464";
 # ^ will be automatically generated
