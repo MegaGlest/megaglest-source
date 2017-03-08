@@ -126,6 +126,9 @@ static Program *mainProgram 					= NULL;
 static FileCRCPreCacheThread *preCacheThread	= NULL;
 #ifdef WIN32
 static string runtimeErrorMsg 					= "";
+// keeps in scope for duration of the application
+//SocketManager *winSockManager = NULL;
+
 #endif
 
 #ifdef HAVE_GOOGLE_BREAKPAD
@@ -683,7 +686,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 						}
 						catch(const exception &e) {
 							printf("\n=====================================\n");
-							printf("\n** Already in error handler exiting errror rendering, msg [%s]\n",e.what());
+							printf("\n** Already in error handler exiting error rendering, msg [%s]\n",e.what());
 							fflush(stdout);
 							break;
 						}
@@ -703,7 +706,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 						}
 						catch(const exception &e) {
 							printf("\n=====================================\n");
-							printf("\n** Already in error handler exiting errror rendering, msg [%s]\n",e.what());
+							printf("\n** Already in error handler exiting error rendering, msg [%s]\n",e.what());
 							fflush(stdout);
 							break;
 						}
@@ -813,8 +816,9 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 // 	class MainWindow
 // =====================================================
 
-MainWindow::MainWindow(Program *program) : WindowGl() {
+MainWindow::MainWindow(Program *program) : WindowGl(), popupMenu("MainWindow", "popupMenu") {
 	this->program= program;
+	//this->popupMenu.registerGraphicComponentOnlyFontCallbacks("MainWindow", "popupMenu");
 	this->popupMenu.setEnabled(false);
 	this->popupMenu.setVisible(false);
     this->triggerLanguageToggle = false;
@@ -4129,6 +4133,7 @@ int glestMain(int argc, char** argv) {
 
 #endif
 
+	Thread::setMainThreadId();
 //	printf("START ALLOC char 200\n");
 	//char *ptr = new char[200];
 //	printf("END ALLOC char 200\n");
@@ -4245,9 +4250,9 @@ int glestMain(int argc, char** argv) {
 
 
 
-#ifdef WIN32
-	SocketManager winSockManager;
-#endif
+//#ifdef WIN32
+	//SocketManager winSockManager;
+//#endif
 
     bool haveSpecialOutputCommandLineOption = false;
 
@@ -4612,6 +4617,14 @@ int glestMain(int argc, char** argv) {
         string binaryNameOld = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary) + "__REMOVE";
         if(fileExists(binaryNameOld)) {
         	removeFile(binaryNameOld);
+        }
+
+        string netInterfaces = config.getString("NetworkInterfaces","");
+        if(netInterfaces != "") {
+        	//printf("Using network interfaces: %s\n",netInterfaces.c_str());
+    		std::vector<std::string> intfList;
+    		Tokenize(netInterfaces,intfList,",");
+        	Socket::setIntfTypes(intfList);
         }
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
@@ -5934,6 +5947,7 @@ void EnableCrashingOnCrashes() {
 #endif
 
 int glestMainSEHWrapper(int argc, char** argv) {
+
 #ifdef WIN32_STACK_TRACE
 	//printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
@@ -5953,13 +5967,20 @@ __try {
 #endif
 
 	initSpecialStrings();
+	int result = 0;
+
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
-	int result = glestMain(argc, argv);
+	result = glestMain(argc, argv);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	cleanupProcessObjects();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+#ifdef WIN32
+		//delete winSockManager;
+		//winSockManager = NULL;
+#endif
 
     if(sdl_quitCalled == false) {
     	sdl_quitCalled = true;
@@ -6025,6 +6046,11 @@ int glestMainWrapper(int argc, char** argv) {
 	  //printf("MTRACE will be called...\n");
       //mtrace ();
 //#endif
+#endif
+
+#ifdef WIN32
+	//winSockManager = new SocketManager();
+	SocketManager winSockManager;
 #endif
 
 	int result = glestMainSEHWrapper(argc, argv);

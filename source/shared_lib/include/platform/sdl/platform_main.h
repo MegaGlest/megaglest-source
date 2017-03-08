@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2005 Matthias Braun
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 #ifndef _SHARED_PLATFORM_MAIN_H_
@@ -323,7 +323,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere x is a single tileset to validate.");
 	printf("\n                     \t\tWhere purgeunused is an optional parameter");
 	printf("\n                     \t\t      telling the validation to delete extra");
-	printf("\n                     \t\t      files in the scenario that are not used.");
+	printf("\n                     \t\t      files in the tileset that are not used.");
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=desert2",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
 
@@ -536,8 +536,8 @@ int mainSetup(int argc, char **argv) {
 
 	if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_DISABLE_STREFLOP_CAPS_CHECK])) == false) {
 // Ensure at runtime that the client has SSE
-#if defined(STREFLOP_SSE)	
-#if defined(WIN32)	
+#if defined(STREFLOP_SSE)
+#if defined(WIN32)
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] About to validate SSE support\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -584,7 +584,7 @@ int mainSetup(int argc, char **argv) {
 		has_SSE4a = (info[2] & ((int)1 <<  6)) != 0;
 		has_FMA4  = (info[2] & ((int)1 << 16)) != 0;
 		has_XOP   = (info[2] & ((int)1 << 11)) != 0;
-	}	
+	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] sse check got [%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d]\n",__FILE__,__FUNCTION__,__LINE__,has_x64,has_MMX,has_SSE,has_SSE2,has_SSE3,has_SSSE3,has_SSE41,has_SSE42,has_SSE4a,has_AVX,has_XOP,has_FMA3,has_FMA4);
 
@@ -644,7 +644,7 @@ int mainSetup(int argc, char **argv) {
 #ifdef USE_STREFLOP
 #define STREFLOP_NO_DENORMALS
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	
+
 	streflop_init<streflop::Simple>();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -667,7 +667,8 @@ int mainSetup(int argc, char **argv) {
 	}
 	else {
 		 if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		 if(SDL_Init(SDL_INIT_EVERYTHING) < 0)  {
+		 if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | \
+			SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) < 0)  {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			std::cerr << "Couldn't initialize SDL: " << SDL_GetError() << "\n";
 			return 3;

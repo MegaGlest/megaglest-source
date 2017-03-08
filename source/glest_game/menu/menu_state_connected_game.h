@@ -92,6 +92,9 @@ private:
 	GraphicListBox listBoxPlayerStatus;
 	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
 
+	GraphicLabel labelMapFilter;
+	GraphicListBox listBoxMapFilter;
+
 	GraphicLabel labelAllowObservers;
 	GraphicCheckBox checkBoxAllowObservers;
 
@@ -254,7 +257,7 @@ private:
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
-	~MenuStateConnectedGame();
+	virtual ~MenuStateConnectedGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -292,6 +295,8 @@ private:
     void cleanupMapPreviewTexture();
 
     void mouseClickAdmin(int x, int y, MouseButton mouseButton,string advanceToItemStartingWith);
+    void switchToNextMapGroup(const int direction);
+    void switchToMapGroup(int filterIndex);
     string getCurrentMapFile();
     void loadGameSettings(GameSettings *gameSettings);
     void reloadFactions(bool keepExistingSelectedItem,string scenario);

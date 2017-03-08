@@ -32,8 +32,10 @@ using namespace std;
 
 namespace Glest { namespace Game {
 
+	using Shared::Graphics::Font;
 using Shared::Graphics::Font2D;
 using Shared::Graphics::Font3D;
+using Shared::Graphics::FontChangedCallbackInterface;
 using Shared::Graphics::Vec3f;
 // =====================================================
 // 	class Console
@@ -51,7 +53,7 @@ public:
 	bool teamMode;
 };
 
-class Console {
+class Console: public FontChangedCallbackInterface {
 private:
 	static const int consoleLines= 5;
 
@@ -75,10 +77,25 @@ private:
 	int lineHeight;
 	Font2D *font;
 	Font3D *font3D;
+	string font2DUniqueId;
+	string font3DUniqueId;
+
 	bool onlyChatMessagesInStoredLines;
 
+	string instanceName;
+	string fontCallbackName;
+
+	string getNewUUD();
+
 public:
+
 	Console();
+	virtual ~Console();
+
+	void registerGraphicComponent(std::string containerName, std::string objName);
+	string getInstanceName() const { return instanceName; }
+	void setInstanceName(string value) { instanceName = value; }
+	string getFontCallbackName() const { return fontCallbackName; }
 
 	int getStoredLineCount() const		{return (int)storedLines.size();}
 	int getLineCount() const			{return (int)lines.size();}
@@ -93,8 +110,8 @@ public:
 	void setLineHeight(int lineHeight)	{this->lineHeight= lineHeight;}
 	Font2D *getFont() const {return font;}
 	Font3D *getFont3D() const {return font3D;}
-	void setFont(Font2D *font)	{this->font= font;}
-	void setFont3D(Font3D *font)	{this->font3D= font;}
+	void setFont(Font2D *font);
+	void setFont3D(Font3D *font);
     string getStringToHighlight() const { return stringToHighlight;}
     void setStringToHighlight(string stringToHighlight) { this->stringToHighlight = stringToHighlight;}
     void resetFonts();
@@ -116,6 +133,8 @@ public:
 	void addLine(string line, bool playSound, Vec3f textColor) { addLine(line,playSound,"",textColor,false); }
 	void update();
 	bool isEmpty();
+
+	virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
 };
 
 }}//end namespace

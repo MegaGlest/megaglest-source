@@ -8,14 +8,14 @@ SCRIPTLOCATION="$(readlink -f "$0")"
 GAMEDIR="$(dirname "$SCRIPTLOCATION")"
 # -------
 # useful for mods
-EXC_BINARY="megaglest_editor"
+EXC_BINARY="megaglest_g3dviewer"
 BASIC_SCRIPT="start_megaglest"
 # -------
 LIBDIR="lib"
-WARNINGS="$("$GAMEDIR/$BASIC_SCRIPT" --tool-editor "$EXC_BINARY" 2>&1)"
+WARNINGS="$("$GAMEDIR/$BASIC_SCRIPT" --tool-g3dviewer "$EXC_BINARY" 2>&1)"
 if [ -d "$GAMEDIR/$LIBDIR" ]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}"
 fi
 BeginTime="$(date +"%s")"
-"$GAMEDIR/$EXC_BINARY" $@
+"$GAMEDIR/$EXC_BINARY" "$@"
 "$GAMEDIR/$BASIC_SCRIPT" --tool-buginfo "$?" "$WARNINGS" "$BeginTime" "$(date +"%s")" "$EXC_BINARY"

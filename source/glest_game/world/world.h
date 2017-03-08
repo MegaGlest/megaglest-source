@@ -215,8 +215,8 @@ public:
 	Unit* findUnitById(int id) const;
 	const UnitType* findUnitTypeById(const FactionType* factionType, int id);
 	const UnitType *findUnitTypeByName(const string factionName, const string unitTypeName);
-	bool placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated= false);
-	void moveUnitCells(Unit *unit);
+	bool placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated= false, bool threaded=false);
+	void moveUnitCells(Unit *unit, bool threaded);
 
 	bool toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const;
 	bool toRenderUnit(const Unit *unit) const;
@@ -297,7 +297,7 @@ public:
 	}
 	bool canTickWorld() const;
 
-	ExploredCellsLookupItem exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
+	ExploredCellsLookupItem exploreCells(const Vec2i &newPos, int sightRange, int teamIndex, Unit *unit);
 	void exploreCells(int teamIndex,ExploredCellsLookupItem &exploredCellsCache);
 	bool showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck=false) const;
 

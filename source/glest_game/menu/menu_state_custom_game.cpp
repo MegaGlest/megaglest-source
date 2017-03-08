@@ -250,7 +250,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelLocalGameVersion.setText(glestVersionString);
 	}
 	else {
-		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelLocalGameVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	xoffset=65;
@@ -744,7 +745,12 @@ string MenuStateCustomGame::createGameName(string controllingPlayer){
 			return "Headless (" + defaultPlayerName + ")";
 		}
 	} else {
-		return defaultPlayerName+"'s game";
+		string defaultPlayerNameEnd = defaultPlayerName.substr(defaultPlayerName.size()-1, 1);
+		if(defaultPlayerNameEnd == "s") {
+			return defaultPlayerName+"' game";
+		} else {
+			return defaultPlayerName+"'s game";
+		}
 	}
 }
 
@@ -760,7 +766,8 @@ void MenuStateCustomGame::reloadUI() {
 		labelLocalGameVersion.setText(glestVersionString);
 	}
 	else {
-		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+		labelLocalGameVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
 	}
 
 	//vector<string> teamItems, controlItems, results , rMultiplier;
@@ -2550,6 +2557,7 @@ void MenuStateCustomGame::update() {
 			//printf("#2 custom menu got map [%s]\n",settings->getMap().c_str());
 
 			setupUIFromGameSettings(*settings);
+			printf("received Settings map filter=%d\n",settings->getMapFilter());
 
             GameSettings gameSettings;
             loadGameSettings(&gameSettings);
@@ -3483,7 +3491,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	//printf("scenarioInfo.name [%s] [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str(),getCurrentMapFile().c_str());
 
-	gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
+	gameSettings->setMapFilter(listBoxMapFilter.getSelectedItemIndex());
 	gameSettings->setDescription(formatString(getCurrentMapFile()));
 	gameSettings->setMap(getCurrentMapFile());
 	if(tilesetFiles.empty() == false) {
@@ -4029,13 +4037,14 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
 	}
 	else {
-		if(gameSettings.getMapFilterIndex() == 0) {
+		//printf("gameSettings.getMapFilter()=%d \n",gameSettings.getMapFilter());
+		if(gameSettings.getMapFilter() == 0) {
 			listBoxMapFilter.setSelectedItemIndex(0);
 		}
 		else {
-			listBoxMapFilter.setSelectedItem(intToStr(gameSettings.getMapFilterIndex()));
+			listBoxMapFilter.setSelectedItem(intToStr(gameSettings.getMapFilter()));
 		}
-		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
+		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilter()]);
 	}
 
 	//printf("gameSettings.getMap() [%s] [%s]\n",gameSettings.getMap().c_str(),listBoxMap.getSelectedItem().c_str());
@@ -4905,6 +4914,7 @@ void MenuStateCustomGame::processScenario() {
 			setupTechList("", false);
 			reloadFactions(false,"");
 			setupTilesetList("");
+			updateControlers();
 		}
 		SetupUIForScenarios();
 	}
@@ -4986,13 +4996,12 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
 		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
 		vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-		// sort map list non case sensitive
-		std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		if(scenario != "") {
 			vector<string> allMaps2 = MapPreview::findAllValidMaps(config.getPathListForType(ptMaps,""),"",false,true,&invalidMapList);
 			copy(allMaps2.begin(), allMaps2.end(), std::inserter(allMaps, allMaps.begin()));
-			std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		}
+		// sort map list non case sensitive
+		std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 
 		if (allMaps.empty()) {
 			throw megaglest_runtime_error("No maps were found!");
@@ -5006,11 +5015,12 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 			formattedPlayerSortedMaps[i].clear();
 		}
 
+		// at index=0 fill in the whole list
 		copy(mapFiles.begin(), mapFiles.end(), std::back_inserter(playerSortedMaps[0]));
 		copy(playerSortedMaps[0].begin(), playerSortedMaps[0].end(), std::back_inserter(formattedPlayerSortedMaps[0]));
 		std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
-		//printf("#5\n");
 
+		// fill playerSortedMaps and formattedPlayerSortedMaps according to map player count
 		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
 			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 

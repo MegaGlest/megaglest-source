@@ -22,16 +22,22 @@ sync_support_libs(){
 	local _cp="/bin/cp"
 	#local skip_deps="libm.so libpthread.so libstdc++.so libgcc_s.so libc.so libdl.so libX11.so libpulse libfusion libdirect libnvidia libXext librt libxcb libICE libSM libXtst libwrap libdbus libXau libXdmcp libnsl libFLAC libGL"
 	local skip_deps=""
-	local keep_deps="libcurl libgnu libgcrypt libnghttp libidn librtmp libssh libnettle libicu liblua libjpeg libpng libwx libgtk libgdk libftgl libfreetype libvlc"
-	
+	local keep_deps="libcurl libgnu libgcrypt libnghttp libidn libpsl libunistring librtmp libssh libnettle libicu liblua libjpeg libpng libvorbis libogg libircclient libminiupnpc libwx_ libGLEW libftgl libfreetype libvlc libopenal libSDL2-"
+	# libwx_ - recommended to keep always just because API/ABI compatibility, huge impact for map editor
+	# libGLEW - most likely safe to keep embedded everywhere, its version matters with tools
+	# libopenal - safe to keep but if any version is available locally then should be replaced
+	# libSDL2 - safe to keep on .deb family only and even there, if any version is available locally then should be replaced
+	# liblber & libldap_r - aren't safe to keep, very nasty secondary dependencies
+	# libunistring - is it enough popular to not be necessary there? not sure
+
 	local scan_via_skiplist=1
 
 	if [ -n "$skip_deps" ]; then
 		scan_via_skiplist=1
-		echo 'scanning for deps TO SKIP...'
-	elif [ -n "$keep_deps" ]; then  
+		echo "scanning for deps TO SKIP for '$pFILE'..."
+	elif [ -n "$keep_deps" ]; then
 		scan_via_skiplist=0
-		echo 'scanning for deps TO KEEP...'
+		echo "scanning for deps TO KEEP for '$pFILE'..."
 	fi
 
 	
@@ -48,7 +54,7 @@ sync_support_libs(){
 
 		skipfile=0
 
-		if [ $scan_via_skiplist -eq 1 ]; then 
+		if [ $scan_via_skiplist -eq 1 ]; then
 			for j in $(echo $skip_deps)
 			do
 				if [ `awk "BEGIN {print index(\"$i\", \"$j\")}"` -ne 0 ]; then
@@ -57,7 +63,7 @@ sync_support_libs(){
 					break
 				fi
 			done
-		elif [ $scan_via_skiplist -eq 0 ]; then 
+		elif [ $scan_via_skiplist -eq 0 ]; then
 			skipfile=1
 			for j in $(echo $keep_deps)
 			do
@@ -69,7 +75,7 @@ sync_support_libs(){
 			done
 		fi
 
-		if [ $skipfile -eq 0 ]; then
+		if [ "$skipfile" -eq "0" ] && [ ! -e "$d/$(basename "$i")" ]; then
 			echo Including file = [$i]
 			${_cp} -f $i ${d}
 		fi
@@ -91,9 +97,7 @@ usage(){
 }
  
 [ $# -eq 0 ] && usage
-#[ ! -d $BASE ] && mkdir -p $BASE
-[ -d $BASE ] && rm -r $BASE
-mkdir -p $BASE
+if [ ! -d "$BASE" ]; then mkdir -p "$BASE"; fi
  
 # copy all files
 for f in $file

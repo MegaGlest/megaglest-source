@@ -182,6 +182,27 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after playsound]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
+
+	//start attack particle system
+	if(unit->getCurrSkill()->getClass() == scDie) {
+		const DieSkillType *dst= static_cast<const DieSkillType*>(unit->getCurrSkill());
+
+		if(dst->getSpawn() == true){
+			float spawnStartTime = truncateDecimal<float>(dst->getSpawnStartTime(),6);
+			float lastAnimProgress = truncateDecimal<float>(unit->getLastAnimProgressAsFloat(),6);
+			float animProgress = truncateDecimal<float>(unit->getAnimProgressAsFloat(),6);
+
+			bool startSpawnNow = (spawnStartTime >= lastAnimProgress && spawnStartTime < animProgress);
+			if(startSpawnNow){
+				//	spawn the units
+				spawn(unit, dst->getSpawnUnit(), dst->getSpawnUnitCount(),
+						dst->getSpawnUnitHealthPercentMin(),
+						dst->getSpawnUnitHealthPercentMax(),
+						dst->getSpawnProbability());
+			}
+		}
+	}
+
 	//start attack particle system
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
@@ -275,14 +296,17 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 				if (act != NULL && act->getAttackSkillType() != NULL
 						&& act->getAttackSkillType()->getSpawnUnit() != ""
 						&& act->getAttackSkillType()->getSpawnUnitCount() > 0) {
-					spawnAttack(unit,act->getAttackSkillType()->getSpawnUnit(),act->getAttackSkillType()->getSpawnUnitCount(),act->getAttackSkillType()->getSpawnUnitAtTarget());
+					spawnAttack(unit, act->getAttackSkillType()->getSpawnUnit(),
+							act->getAttackSkillType()->getSpawnUnitCount(), 100,
+							100, 100,
+							act->getAttackSkillType()->getSpawnUnitAtTarget());
 				}
 			}
 		}
 		
 		//move unit in cells
 		if(unit->getCurrSkill()->getClass() == scMove) {
-			world->moveUnitCells(unit);
+			world->moveUnitCells(unit, true);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after world->moveUnitCells()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -313,51 +337,49 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	return processUnitCommand;
 }
 
-void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos) {
+void UnitUpdater::spawn(Unit *unit,string spawnUnit,int spawnUnitcount,int healthMin,int healthMax,int probability) {
 	if(spawnUnit != "" && spawnUnitcount > 0) {
-
-		const FactionType *ft= unit->getFaction()->getType();
-		const UnitType *spawnUnitType = ft->getUnitType(spawnUnit);
 		int spawnCount = spawnUnitcount;
 		for (int y=0; y < spawnCount; ++y) {
-			if(spawnUnitType->getMaxUnitCount() > 0) {
-				if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
-					break;
+			if (probability > 0 && probability < 100
+					&& unit->getRandom()->randRange(1, 100) <= probability) {
+				continue;
+			}
+			Unit* spawned=this->spawnUnit(unit,spawnUnit);
+			if(spawned!=NULL){
+				if(healthMin>0 && healthMin<100 && healthMax>=healthMin && healthMax<=100){
+					int damagePercent=100-unit->getRandom()->randRange(healthMin, healthMax);
+					//printf("damagePercent=%d\n",damagePercent);
+					spawned->decHp((spawned->getHp()*damagePercent)/100);
 				}
 			}
-			UnitPathInterface *newpath = NULL;
-			switch(this->game->getGameSettings()->getPathFinderType()) {
-				case pfBasic:
-					newpath = new UnitPathBasic();
-					break;
-				default:
-					throw megaglest_runtime_error("detected unsupported pathfinder type!");
-			}
+			// no stat count !!
+			//world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
+		}
+	}
+}
 
-			Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
-					                Vec2i(0), spawnUnitType, unit->getFaction(),
-					                world->getMap(), CardinalDir::NORTH);
-			//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
-			bool placedSpawnUnit=false;
+void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,int healthMin,int healthMax,int probability,bool spawnUnitAtTarget,Vec2i targetPos) {
+	if(spawnUnit != "" && spawnUnitcount > 0) {
+
+		int spawnCount = spawnUnitcount;
+		for (int y=0; y < spawnCount; ++y) {
+			if (probability > 0 && probability < 100
+					&& unit->getRandom()->randRange(1, 100) <= probability) {
+				continue;
+			}
 			if(targetPos==Vec2i(-10,-10)) {
 				targetPos=unit->getTargetPos();
 			}
-			if(spawnUnitAtTarget) {
-				placedSpawnUnit=world->placeUnit(targetPos, 10, spawned);
-			} else {
-				placedSpawnUnit=world->placeUnit(unit->getCenteredPos(), 10, spawned);
-			}
-			if(!placedSpawnUnit) {
-				//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
-
-				// This will also cleanup newPath
-				delete spawned;
-				spawned = NULL;
-			}
-			else {
-				spawned->create();
-				spawned->born(NULL);
-				world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
+			Unit* spawned=this->spawnUnit(unit,spawnUnit,spawnUnitAtTarget?targetPos:unit->getCenteredPos());
+			if(spawned!=NULL){
+				if(healthMin>0 && healthMin<100 && healthMax>=healthMin && healthMax<=100){
+					int damagePercent=100-unit->getRandom()->randRange(healthMin, healthMax);
+					//printf("damagePercent=%d\n",damagePercent);
+					spawned->decHp((spawned->getHp()*damagePercent)/100);
+				}
+				// no stat count !!
+				// world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
 				const CommandType *ct= spawned->getType()->getFirstAttackCommand(unit->getTargetField());
 				if(ct == NULL){
 					ct= spawned->computeCommandType(targetPos,map->getCell(targetPos)->getUnit(unit->getTargetField()));
@@ -366,11 +388,53 @@ void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,boo
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					spawned->giveCommand(new Command(ct, targetPos));
 				}
-				scriptManager->onUnitCreated(spawned);
 			}
 		}
 	}
 }
+
+
+Unit* UnitUpdater::spawnUnit(Unit *unit,string spawnUnit,Vec2i spawnPos) {
+	const FactionType *ft= unit->getFaction()->getType();
+	const UnitType *spawnUnitType = ft->getUnitType(spawnUnit);
+	Vec2i _spawnPos=spawnPos;
+	if(_spawnPos==Vec2i(-10,-10)) {
+		_spawnPos=unit->getCenteredPos();
+	}
+	if(spawnUnitType->getMaxUnitCount() > 0) {
+		if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
+			return NULL;
+		}
+	}
+
+	UnitPathInterface *newpath = NULL;
+	switch(this->game->getGameSettings()->getPathFinderType()) {
+		case pfBasic:
+			newpath = new UnitPathBasic();
+			break;
+		default:
+			throw megaglest_runtime_error("detected unsupported pathfinder type!");
+	}
+
+	Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
+							Vec2i(0), spawnUnitType, unit->getFaction(),
+							world->getMap(), CardinalDir::NORTH);
+
+	bool placedSpawnUnit=world->placeUnit(_spawnPos, 10, spawned);
+
+	if(!placedSpawnUnit) {
+		// This will also cleanup newPath
+		delete spawned;
+		spawned = NULL;
+	}
+	else {
+		spawned->create();
+		spawned->born(NULL);
+		scriptManager->onUnitCreated(spawned);
+	}
+	return spawned;
+}
+
 
 // ==================== progress commands ====================
 
@@ -750,6 +814,13 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 				}
 				else {
 					//if unit arrives destPos order has ended
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
+							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"#1 [updateAttack] tsValue = %d",tsValue);
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
+
 					switch (tsValue) {
 						case tsMoving:
 							unit->setCurrSkill(act->getMoveSkillType());
@@ -804,9 +875,10 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 					}
 	*/
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
+							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"[updateAttack]");
+						snprintf(szBuf,8096,"#2 [updateAttack] tsValue = %d",tsValue);
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 
@@ -1254,7 +1326,7 @@ void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateHarvestEmergencyReturn]");
-		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	//printf("\n#1 updateHarvestEmergencyReturn\n");
@@ -2002,7 +2074,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 				repaired = peerUnitBuilder->getCurrCommand()->getUnit();
 				nextToRepaired = repaired != NULL && map->isNextTo(unit, repaired);
 			}
-			else {
+			else if(peerUnitBuilder->getCurrCommand()->getUnitType() != NULL) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				Vec2i buildPos = map->findBestBuildApproach(unit, command->getPos(), peerUnitBuilder->getCurrCommand()->getUnitType());
 
@@ -2304,7 +2376,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 			//place unit creates the unit
-			if(!world->placeUnit(unit->getCenteredPos(), 10, produced)) {
+			if(!world->placeUnit(unit->getCenteredPos(), 10, produced, false, frameIndex < 0)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,produced->getId());
 				delete produced;
 			}
@@ -2437,7 +2509,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 		if(map->canMorph(unit->getPos(),unit,mct->getMorphUnit())){
 			unit->setCurrSkill(mct->getMorphSkillType());
 			// block space for morphing units ( block space before and after morph ! )
-			map->putUnitCells(unit, unit->getPos());
+			map->putUnitCells(unit, unit->getPos(), false, frameIndex < 0);
 		}
 		else{
 			if(unit->getFactionIndex()==world->getThisFactionIndex()){
@@ -2460,7 +2532,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     	    }
 
 			//finish the command
-			if(unit->morph(mct)){
+			if(unit->morph(mct, frameIndex)){
 				unit->finishCommand();
 				if(gui->isSelected(unit)){
 					gui->onSelectionChanged();
@@ -2966,7 +3038,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
     	unit->getRandom()->addLastCaller(randomInfoData);
 
-    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
+    	if( attackingEnemySeen != NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
+    	//if( attackingEnemySeen != NULL) {
     		*rangedPtr 	= attackingEnemySeen;
     		enemySeen 	= attackingEnemySeen;
     		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
@@ -3054,7 +3127,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
 	    		if(world->getAttackWarningsEnabled() == true) {
 
-	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound(),true);
 	    			world->addAttackEffects(enemyUnit);
 	    		}
 	    	}
@@ -3330,7 +3403,9 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 
 		//check for spawnattack
 		if(projectileType->getSpawnUnit()!="" && projectileType->getSpawnUnitcount()>0 ){
-			unitUpdater->spawnAttack(attacker,projectileType->getSpawnUnit(),projectileType->getSpawnUnitcount(),projectileType->getSpawnUnitAtTarget(),targetPos);
+			unitUpdater->spawnAttack(attacker, projectileType->getSpawnUnit(), 100,
+					100, 100, projectileType->getSpawnUnitcount(),
+					projectileType->getSpawnUnitAtTarget(), targetPos);
 		}
 
 		// check for shake and shake

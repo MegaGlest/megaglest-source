@@ -26,6 +26,7 @@
 #include "xml_parser.h"
 #include "randomgen.h"
 #include "leak_dumper.h"
+#include "platform_util.h"
 
 using std::string;
 using std::list;
@@ -34,6 +35,7 @@ using Shared::Lua::LuaScript;
 using Shared::Lua::LuaHandle;
 using Shared::Xml::XmlNode;
 using Shared::Util::RandomGen;
+
 
 namespace Glest{ namespace Game{
 
@@ -168,6 +170,7 @@ private:
 	MessageQueue messageQueue;
 	GraphicMessageBox messageBox;
 	string displayText;
+	int errorCount;
 
 	//last created unit
 	string lastCreatedUnitName;
@@ -428,6 +431,8 @@ private:
 
 	ControlType getFactionPlayerType(int factionIndex);
 	// -----------------------------------------------------------------------
+
+	static void error(LuaHandle* luaHandle, const megaglest_runtime_error *mgErr, const char* file, const char* function, int line);
 
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);

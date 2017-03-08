@@ -37,6 +37,10 @@ body {
     margin: 0 auto;
     background: url("wood_panel.jpg") repeat;
 }
+img {
+    padding-right: 3px;
+    padding-bottom: 1px;
+}
 
 /* Article (core text of the page) */
 #article {

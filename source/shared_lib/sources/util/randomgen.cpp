@@ -31,7 +31,7 @@ const int RandomGen::m= 714025;
 const int RandomGen::a= 1366;
 const int RandomGen::b= 150889;
 
-RandomGen::RandomGen(){
+RandomGen::RandomGen() {
 	lastNumber= 0;
 	disableLastCallerTracking = false;
 }
@@ -77,7 +77,7 @@ int RandomGen::randRange(int min, int max,string lastCaller) {
 	}
 
 	int diff= max-min;
-	float numerator = static_cast<float>(diff + 1) * static_cast<float>(RandomGen::rand(lastCaller));
+	float numerator = static_cast<float>(diff + 1) * static_cast<float>(this->rand(lastCaller));
 	int res= min + static_cast<int>(truncateDecimal<float>(numerator / static_cast<float>(m),6));
 	if(res < min || res > max) {
 		char szBuf[8096]="";
@@ -94,7 +94,7 @@ float RandomGen::randRange(float min, float max,string lastCaller) {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	float rand01 = static_cast<float>(RandomGen::rand(lastCaller)) / (m-1);
+	float rand01 = static_cast<float>(this->rand(lastCaller)) / (m-1);
 	float res= min + (max - min) * rand01;
 	res = truncateDecimal<float>(res,6);
 

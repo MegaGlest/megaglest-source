@@ -106,6 +106,10 @@ private:
 	static bool isFullScreen;
 	static SDL_keysym keystate;
 	static bool tryVSynch;
+	static int64 lastToggle ;
+
+	static void setLastToggle(int64 lastToggle)	{Window::lastToggle = lastToggle;}
+	static int64 getLastToggle() 				    {return Window::lastToggle;}
 
     static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static int64 getLastMouseEvent() 				    {return Window::lastMouseEvent;}

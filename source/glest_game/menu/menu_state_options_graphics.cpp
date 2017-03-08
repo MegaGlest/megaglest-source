@@ -36,65 +36,116 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
+MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config"),
+	buttonOk("Options_Graphics","buttonOk"),
+	buttonReturn("Options_Graphics","buttonReturn"),
+	buttonAutoConfig("Options_Graphics","buttonAutoConfig"),
+	buttonVideoInfo("Options_Graphics","buttonVideoInfo"),
+
+	buttonKeyboardSetup("Options_Graphics","buttonKeyboardSetup"),
+	buttonVideoSection("Options_Graphics","buttonVideoSection"),
+	buttonAudioSection("Options_Graphics","buttonAudioSection"),
+	buttonMiscSection("Options_Graphics","buttonMiscSection"),
+	buttonNetworkSettings("Options_Graphics","buttonNetworkSettings"),
+
+	labelShadows("Options_Graphics","labelShadows"),
+	listBoxShadows("Options_Graphics","listBoxShadows"),
+	labelFilter("Options_Graphics","labelFilter"),
+	listBoxFilter("Options_Graphics","listBoxFilter"),
+	labelFilterMaxAnisotropy("Options_Graphics","labelFilterMaxAnisotropy"),
+	listBoxFilterMaxAnisotropy("Options_Graphics","listBoxFilterMaxAnisotropy"),
+
+	labelTextures3D("Options_Graphics","labelTextures3D"),
+	checkBoxTextures3D("Options_Graphics","checkBoxTextures3D"),
+	labelLights("Options_Graphics","labelLights"),
+	listBoxLights("Options_Graphics","listBoxLights"),
+	labelUnitParticles("Options_Graphics","labelUnitParticles"),
+	checkBoxUnitParticles("Options_Graphics","checkBoxUnitParticles"),
+
+	labelTilesetParticles("Options_Graphics","labelTilesetParticles"),
+	checkBoxTilesetParticles("Options_Graphics","checkBoxTilesetParticles"),
+	labelAnimatedTilesetObjects("Options_Graphics","labelAnimatedTilesetObjects"),
+	listBoxAnimatedTilesetObjects("Options_Graphics","listBoxAnimatedTilesetObjects"),
+
+	labelScreenModes("Options_Graphics","labelScreenModes"),
+	listBoxScreenModes("Options_Graphics","listBoxScreenModes"),
+
+	labelFullscreenWindowed("Options_Graphics","labelFullscreenWindowed"),
+	checkBoxFullscreenWindowed("Options_Graphics","checkBoxFullscreenWindowed"),
+
+	labelMapPreview("Options_Graphics","labelMapPreview"),
+	checkBoxMapPreview("Options_Graphics","checkBoxMapPreview"),
+
+	mainMessageBox("Options_Graphics","mainMessageBox"),
+
+	labelEnableTextureCompression("Options_Graphics","labelEnableTextureCompression"),
+	checkBoxEnableTextureCompression("Options_Graphics","checkBoxEnableTextureCompression"),
+
+	labelRainEffect("Options_Graphics","labelRainEffect"),
+	labelRainEffectSeparator("Options_Graphics","labelRainEffectSeparator"),
+	checkBoxRainEffect("Options_Graphics","checkBoxRainEffect"),
+	checkBoxRainEffectMenu("Options_Graphics","checkBoxRainEffectMenu"),
+
+	labelGammaCorrection("Options_Graphics","labelGammaCorrection"),
+	listBoxGammaCorrection("Options_Graphics","listBoxGammaCorrection"),
+
+	labelShadowIntensity("Options_Graphics","labelShadowIntensity"),
+	listBoxShadowIntensity("Options_Graphics","listBoxShadowIntensity"),
+
+	labelShadowTextureSize("Options_Graphics","labelShadowTextureSize"),
+	listBoxShadowTextureSize("Options_Graphics","listBoxShadowTextureSize"),
+
+	labelVideos("Options_Graphics","labelVideos"),
+	checkBoxVideos("Options_Graphics","checkBoxVideos"),
+
+	labelSelectionType("Options_Graphics","labelSelectionType"),
+	listBoxSelectionType("Options_Graphics","listBoxSelectionType")
+
 {
 	try {
-		containerName = "Options";
+		containerName = "Options_Graphics";
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
 		this->console.setOnlyChatMessagesInStoredLines(false);
 		screenModeChangedTimer= time(NULL); // just init
-		//modeinfos=list<ModeInfo> ();
+
 		::Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
 
 		int leftLabelStart=100;
 		int leftColumnStart=leftLabelStart+300;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
 		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.getString("Ok"));
 		mainMessageBox.setEnabled(false);
 		mainMessageBoxState=0;
 
-		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
 		buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
 		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonAudioSection.setText(lang.getString("Audio"));
 		// Video Section
-		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 		buttonVideoSection.init(200, 700,tabButtonWidth,tabButtonHeight+20);
 		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonVideoSection.setText(lang.getString("Video"));
-		//currentLine-=lineOffset;
 		//MiscSection
-		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 		buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
 		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonMiscSection.setText(lang.getString("Misc"));
 		//NetworkSettings
-		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
 		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonNetworkSettings.setText(lang.getString("Network"));
 
 		//KeyboardSetup
-		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
 		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
@@ -105,11 +156,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		int currentColumnStart=leftColumnStart; // set to right side
 
 		//resolution
-		labelScreenModes.registerGraphicComponent(containerName,"labelScreenModes");
 		labelScreenModes.init(currentLabelStart, currentLine);
 		labelScreenModes.setText(lang.getString("Resolution"));
 
-		listBoxScreenModes.registerGraphicComponent(containerName,"listBoxScreenModes");
 		listBoxScreenModes.init(currentColumnStart, currentLine, 200);
 
 		string currentResString = config.getString("ScreenWidth") + "x" +
@@ -130,21 +179,17 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 
 
 		//FullscreenWindowed
-		labelFullscreenWindowed.registerGraphicComponent(containerName,"labelFullscreenWindowed");
 		labelFullscreenWindowed.init(currentLabelStart, currentLine);
 
-		checkBoxFullscreenWindowed.registerGraphicComponent(containerName,"checkBoxFullscreenWindowed");
 		checkBoxFullscreenWindowed.init(currentColumnStart, currentLine);
 		labelFullscreenWindowed.setText(lang.getString("Windowed"));
 		checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
 		currentLine-=lineOffset;
 
 		//gammaCorrection
-		labelGammaCorrection.registerGraphicComponent(containerName,"labelGammaCorrection");
 		labelGammaCorrection.init(currentLabelStart, currentLine);
 		labelGammaCorrection.setText(lang.getString("GammaCorrection"));
 
-		listBoxGammaCorrection.registerGraphicComponent(containerName,"listBoxGammaCorrection");
 		listBoxGammaCorrection.init(currentColumnStart, currentLine, 200);
 		for (float f=0.5;f<3.0f;f=f+0.1f) {
 			listBoxGammaCorrection.pushBackItem(floatToStr(f));
@@ -156,11 +201,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//filter
-		labelFilter.registerGraphicComponent(containerName,"labelFilter");
 		labelFilter.init(currentLabelStart, currentLine);
 		labelFilter.setText(lang.getString("Filter"));
 
-		listBoxFilter.registerGraphicComponent(containerName,"listBoxFilter");
 		listBoxFilter.init(currentColumnStart, currentLine, 200);
 		listBoxFilter.pushBackItem("Bilinear");
 		listBoxFilter.pushBackItem("Trilinear");
@@ -168,11 +211,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//FilterMaxAnisotropy
-		labelFilterMaxAnisotropy.registerGraphicComponent(containerName,"labelFilterMaxAnisotropy");
 		labelFilterMaxAnisotropy.init(currentLabelStart, currentLine);
 		labelFilterMaxAnisotropy.setText(lang.getString("FilterMaxAnisotropy"));
 
-		listBoxFilterMaxAnisotropy.registerGraphicComponent(containerName,"listBoxFilterMaxAnisotropy");
 		listBoxFilterMaxAnisotropy.init(currentColumnStart, currentLine, 200);
 		listBoxFilterMaxAnisotropy.pushBackItem("1");
 		listBoxFilterMaxAnisotropy.pushBackItem("2");
@@ -183,11 +224,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//selectionType
-		labelSelectionType.registerGraphicComponent(containerName,"labelSelectionType");
 		labelSelectionType.init(currentLabelStart, currentLine);
 		labelSelectionType.setText(lang.getString("SelectionType"));
 
-		listBoxSelectionType.registerGraphicComponent(containerName,"listBoxSelectionType");
 		listBoxSelectionType.init(currentColumnStart, currentLine, 250);
 		listBoxSelectionType.pushBackItem("SelectBuffer (nvidia)");
 		listBoxSelectionType.pushBackItem("ColorPicking (default)");
@@ -203,11 +242,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//shadows
-		labelShadows.registerGraphicComponent(containerName,"labelShadows");
 		labelShadows.init(currentLabelStart, currentLine);
 		labelShadows.setText(lang.getString("Shadows"));
 
-		listBoxShadows.registerGraphicComponent(containerName,"listBoxShadows");
 		listBoxShadows.init(currentColumnStart, currentLine, 250);
 		for(int i= 0; i<Renderer::sCount; ++i){
 			listBoxShadows.pushBackItem(lang.getString(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
@@ -217,11 +254,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//shadows
-		labelShadowTextureSize.registerGraphicComponent(containerName,"labelShadowTextureSize");
 		labelShadowTextureSize.init(currentLabelStart, currentLine);
 		labelShadowTextureSize.setText(lang.getString("ShadowTextureSize"));
 
-		listBoxShadowTextureSize.registerGraphicComponent(containerName,"listBoxShadowTextureSize");
 		listBoxShadowTextureSize.init(currentColumnStart, currentLine, 200);
 		listBoxShadowTextureSize.pushBackItem("256");
 		listBoxShadowTextureSize.pushBackItem("512");
@@ -231,11 +266,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//shadows
-		labelShadowIntensity.registerGraphicComponent(containerName,"labelShadowIntensity");
 		labelShadowIntensity.init(currentLabelStart, currentLine);
 		labelShadowIntensity.setText(lang.getString("ShadowIntensity"));
 
-		listBoxShadowIntensity.registerGraphicComponent(containerName,"listBoxShadowIntensity");
 		listBoxShadowIntensity.init(currentColumnStart, currentLine, 200);
 		for (float f=0.5f;f<3.0f;f=f+0.1f) {
 			listBoxShadowIntensity.pushBackItem(floatToStr(f));
@@ -247,21 +280,17 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//textures 3d
-		labelTextures3D.registerGraphicComponent(containerName,"labelTextures3D");
 		labelTextures3D.init(currentLabelStart, currentLine);
 
-		checkBoxTextures3D.registerGraphicComponent(containerName,"checkBoxTextures3D");
 		checkBoxTextures3D.init(currentColumnStart, currentLine);
 		labelTextures3D.setText(lang.getString("Textures3D"));
 		checkBoxTextures3D.setValue(config.getBool("Textures3D"));
 		currentLine-=lineOffset;
 
 		//lights
-		labelLights.registerGraphicComponent(containerName,"labelLights");
 		labelLights.init(currentLabelStart, currentLine);
 		labelLights.setText(lang.getString("MaxLights"));
 
-		listBoxLights.registerGraphicComponent(containerName,"listBoxLights");
 		listBoxLights.init(currentColumnStart, currentLine, 80);
 		for(int i= 1; i<=8; ++i){
 			listBoxLights.pushBackItem(intToStr(i));
@@ -270,31 +299,25 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//unit particles
-		labelUnitParticles.registerGraphicComponent(containerName,"labelUnitParticles");
 		labelUnitParticles.init(currentLabelStart,currentLine);
 		labelUnitParticles.setText(lang.getString("ShowUnitParticles"));
 
-		checkBoxUnitParticles.registerGraphicComponent(containerName,"checkBoxUnitParticles");
 		checkBoxUnitParticles.init(currentColumnStart,currentLine);
 		checkBoxUnitParticles.setValue(config.getBool("UnitParticles","true"));
 		currentLine-=lineOffset;
 
 		//tileset particles
-		labelTilesetParticles.registerGraphicComponent(containerName,"labelTilesetParticles");
 		labelTilesetParticles.init(currentLabelStart,currentLine);
 		labelTilesetParticles.setText(lang.getString("ShowTilesetParticles"));
 
-		checkBoxTilesetParticles.registerGraphicComponent(containerName,"checkBoxTilesetParticles");
 		checkBoxTilesetParticles.init(currentColumnStart,currentLine);
 		checkBoxTilesetParticles.setValue(config.getBool("TilesetParticles","true"));
 		currentLine-=lineOffset;
 
 		//animated tileset objects
-		labelAnimatedTilesetObjects.registerGraphicComponent(containerName,"labelAnimatedTilesetObjects");
 		labelAnimatedTilesetObjects.init(currentLabelStart,currentLine);
 		labelAnimatedTilesetObjects.setText(lang.getString("AnimatedTilesetObjects"));
 
-		listBoxAnimatedTilesetObjects.registerGraphicComponent(containerName,"listBoxAnimatedTilesetObjects");
 		listBoxAnimatedTilesetObjects.init(currentColumnStart, currentLine, 80);
 		listBoxAnimatedTilesetObjects.pushBackItem("0");
 		listBoxAnimatedTilesetObjects.pushBackItem("10");
@@ -309,70 +332,55 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		currentLine-=lineOffset;
 
 		//unit particles
-		labelMapPreview.registerGraphicComponent(containerName,"labelMapPreview");
 		labelMapPreview.init(currentLabelStart,currentLine);
 		labelMapPreview.setText(lang.getString("ShowMapPreview"));
 
-		checkBoxMapPreview.registerGraphicComponent(containerName,"checkBoxMapPreview");
 		checkBoxMapPreview.init(currentColumnStart,currentLine);
 		checkBoxMapPreview.setValue(config.getBool("MapPreview","true"));
 		currentLine-=lineOffset;
 
 		// Texture Compression flag
-		labelEnableTextureCompression.registerGraphicComponent(containerName,"labelEnableTextureCompression");
 		labelEnableTextureCompression.init(currentLabelStart ,currentLine);
 		labelEnableTextureCompression.setText(lang.getString("EnableTextureCompression"));
 
-		checkBoxEnableTextureCompression.registerGraphicComponent(containerName,"checkBoxEnableTextureCompression");
 		checkBoxEnableTextureCompression.init(currentColumnStart ,currentLine );
 		checkBoxEnableTextureCompression.setValue(config.getBool("EnableTextureCompression","false"));
 		currentLine-=lineOffset;
 
-		labelRainEffect.registerGraphicComponent(containerName,"labelRainEffect");
 		labelRainEffect.init(currentLabelStart ,currentLine);
 		labelRainEffect.setText(lang.getString("RainEffectMenuGame"));
 
-		checkBoxRainEffectMenu.registerGraphicComponent(containerName,"checkBoxRainEffectMenu");
 		checkBoxRainEffectMenu.init(currentColumnStart ,currentLine );
 		checkBoxRainEffectMenu.setValue(config.getBool("RainEffectMenu","true"));
 
-		labelRainEffectSeparator.registerGraphicComponent(containerName,"labelRainEffect");
 		labelRainEffectSeparator.init(currentColumnStart+30 ,currentLine);
 		labelRainEffectSeparator.setText("/");
 
-		checkBoxRainEffect.registerGraphicComponent(containerName,"checkBoxRainEffect");
 		checkBoxRainEffect.init(currentColumnStart+42 ,currentLine );
 		checkBoxRainEffect.setValue(config.getBool("RainEffect","true"));
 		currentLine-=lineOffset;
 
-		labelVideos.registerGraphicComponent(containerName,"labelVideos");
 		labelVideos.init(currentLabelStart ,currentLine);
 		labelVideos.setText(lang.getString("EnableVideos"));
 
-		checkBoxVideos.registerGraphicComponent(containerName,"checkBoxVideos");
 		checkBoxVideos.init(currentColumnStart ,currentLine );
 		checkBoxVideos.setValue(config.getBool("EnableVideos","true"));
 
 		// end
 
 		// external server port
-		//currentLine-=lineOffset;
 
 		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
 		buttonReturn.setText(lang.getString("Return"));
 
-		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 		buttonAutoConfig.setText(lang.getString("AutoConfig"));
 
-		buttonAutoConfig.registerGraphicComponent(containerName,"buttonAutoConfig");
 		buttonAutoConfig.init(buttonStartPos+230, buttonRowPos, 175);
 
 		buttonVideoInfo.setText(lang.getString("VideoInfo"));
-		buttonVideoInfo.registerGraphicComponent(containerName,"buttonVideoInfo");
 		buttonVideoInfo.init(buttonStartPos+415, buttonRowPos, 175); // was 620
 
 		GraphicComponent::applyAllCustomProperties(containerName);
@@ -386,23 +394,11 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 void MenuStateOptionsGraphics::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	console.resetFonts();
 	mainMessageBox.init(lang.getString("Ok"));
 
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonNetworkSettings.setText(lang.getString("Network"));
 
 	std::vector<string> listboxData;
@@ -455,33 +451,21 @@ void MenuStateOptionsGraphics::reloadUI() {
 	listBoxShadows.setItems(listboxData);
 
 	labelTextures3D.setText(lang.getString("Textures3D"));
-
 	labelLights.setText(lang.getString("MaxLights"));
-
 	labelUnitParticles.setText(lang.getString("ShowUnitParticles"));
-
 	labelTilesetParticles.setText(lang.getString("ShowTilesetParticles"));
 	labelAnimatedTilesetObjects.setText(lang.getString("AnimatedTilesetObjects"));
-
 	labelMapPreview.setText(lang.getString("ShowMapPreview"));
-
 	labelEnableTextureCompression.setText(lang.getString("EnableTextureCompression"));
-
-
 	labelRainEffect.setText(lang.getString("RainEffectMenuGame"));
-
 	labelVideos.setText(lang.getString("EnableVideos"));
 
 	buttonOk.setText(lang.getString("Save"));
 	buttonReturn.setText(lang.getString("Return"));
-
 	buttonAutoConfig.setText(lang.getString("AutoConfig"));
-
 	buttonVideoInfo.setText(lang.getString("VideoInfo"));
 
 	labelSelectionType.setText(lang.getString("SelectionType"));
-
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
 

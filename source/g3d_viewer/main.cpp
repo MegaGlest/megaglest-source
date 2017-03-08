@@ -56,7 +56,7 @@ const char *folderDelimiter = "/";
 //int GameConstants::updateFps= 40;
 //int GameConstants::cameraFps= 100;
 
-const string g3dviewerVersionString= "v3.12.0";
+const string g3dviewerVersionString= "v3.13.0";
 
 // Because g3d should always support alpha transparency
 string fileFormat = "png";
@@ -455,7 +455,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	
 	wstring launchApp = wstring(wstr.get()) + L" \"%1\"";
-	DWORD len = (DWORD)launchApp.length() + 1;
+	DWORD len = (launchApp.size() + 1) * sizeof(wchar_t);
 	RegSetValueEx(keyHandle, NULL, 0, REG_SZ, (PBYTE)launchApp.c_str(), len);
 	RegCloseKey(keyHandle);
 
@@ -463,7 +463,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
 	//Set the value.
 	launchApp = L"megaglest.g3d";
-	len = (DWORD)launchApp.length() + 1;
+	len = (launchApp.size() + 1) * sizeof(wchar_t);
 	RegSetValueEx(keyHandle, NULL, 0, REG_SZ, (PBYTE)launchApp.c_str(), len);
 	RegCloseKey(keyHandle);
 

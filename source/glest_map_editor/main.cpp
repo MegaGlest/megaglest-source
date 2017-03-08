@@ -47,7 +47,7 @@ string getGameReadWritePath(string lookupKey) {
 
 namespace MapEditor {
 
-const string mapeditorVersionString = "v3.12.0";
+const string mapeditorVersionString = "v3.13.0";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
@@ -108,7 +108,7 @@ MainWindow::MainWindow(string appPath)
 	randomWithReset=true;
 	randomMinimumHeight=-300;
 	randomMaximumHeight=400;
-	randomChanceDevider=30;
+	randomChanceDivider=30;
 	randomRecursions=3;
 
 	this->appPath = appPath;
@@ -1025,33 +1025,39 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 		return;
 	}
 	while(true){
-		program->setUndoPoint(ctAll);//randomizeHeights(-300,400,30,3);
 
 		SimpleDialog simpleDialog;
-		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"If set to '0' no height reset is done before calculating");
+		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"(1 = true, 0 = false) If set to '0' no height reset is done before calculating");
 		simpleDialog.addValue("Min Height", intToStr(randomMinimumHeight),"Lowest random height. example: -300 or below if you want water , 0 if you don't want water.");
 		simpleDialog.addValue("Max Height", intToStr(randomMaximumHeight),"Max random height. A good value is 400");
-		simpleDialog.addValue("Chance Devider", intToStr(randomChanceDevider),"Defines how often you get a hill or hole default is 30. Bigger number, less hills/holes.");
+		simpleDialog.addValue("Chance Divider", intToStr(randomChanceDivider),"Defines how often you get a hill or hole default is 30. Bigger number, less hills/holes.");
 		simpleDialog.addValue("Smooth Recursions", intToStr(randomRecursions),"Number of recursions cycles to smooth the hills and holes. 0<x<50 default is 3.");
 		if (!simpleDialog.show("Randomize Height")) return;
 
 		try {
-			randomWithReset=strToBool(simpleDialog.getValue("Initial Reset"));
+			string checkValue = simpleDialog.getValue("Initial Reset");
+			if(checkValue != "" && strToInt(checkValue) > 1) {
+				randomWithReset = true;
+			}
+			else {
+				randomWithReset = strToBool(simpleDialog.getValue("Initial Reset"));
+			}
 			randomMinimumHeight=strToInt(simpleDialog.getValue("Min Height"));
 			randomMaximumHeight=strToInt(simpleDialog.getValue("Max Height"));
-			randomChanceDevider=strToInt(simpleDialog.getValue("Chance Devider"));
+			randomChanceDivider=strToInt(simpleDialog.getValue("Chance Divider"));
 			randomRecursions=strToInt(simpleDialog.getValue("Smooth Recursions"));
 
 			// set insane inputs to something that does not crash
 			if(randomMinimumHeight>=randomMaximumHeight) randomMinimumHeight=randomMaximumHeight-1;
-			if(randomChanceDevider<1) randomChanceDevider=1;
+			if(randomChanceDivider<1) randomChanceDivider=1;
 
 			// set randomRecursions to something useful
 			if(randomRecursions<0) randomRecursions=0;
 			if(randomRecursions>50) randomRecursions=50;
 
+			program->setUndoPoint(ctAll);
 			program->randomizeMapHeights(randomWithReset, randomMinimumHeight, randomMaximumHeight,
-					randomChanceDevider, randomRecursions);
+					randomChanceDivider, randomRecursions);
 		}
 		catch (const exception &e) {
 			MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
@@ -1122,7 +1128,7 @@ void MainWindow::onMenuEditAdvanced(wxCommandEvent &event) {
 	simpleDialog.addValue("Height Factor", intToStr(program->getMap()->getHeightFactor()),"lower means more hill effect. Numbers above 100 are handled like this:\nx=x/100 ,so a 150 will mean 1.5 in the game.");
 	simpleDialog.addValue("Water Level", intToStr(program->getMap()->getWaterLevel()),"water is visible below this, and walkable until 1.5 less");
 	simpleDialog.addValue("Cliff Level", intToStr(program->getMap()->getCliffLevel()),"neighboring fields with at least this heights difference are cliffs");
-	simpleDialog.addValue("Camera Height", intToStr(program->getMap()->getCameraHeight()),"you can give a camera heigth here default is 0 ;ignored if <20");
+	simpleDialog.addValue("Camera Height", intToStr(program->getMap()->getCameraHeight()),"you can give a camera height here default is 0 ;ignored if <20");
 	if (!simpleDialog.show("Advanced")) return;
 
 	try {
@@ -1180,7 +1186,7 @@ void MainWindow::onMenuHideWater(wxCommandEvent &event) {
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
-		wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2016 The MegaGlest Team    \n"),
+		wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2017 The MegaGlest Team    \n"),
 		wxT("About")).ShowModal();
 }
 
@@ -1332,23 +1338,11 @@ void MainWindow::uncheckRadius() {
 		return;
 	}
 
- 	if (currentBrush == btHeight || currentBrush == btGradient) { // 'height' brush
- 		if (e.GetKeyCode() >= '0' && e.GetKeyCode() <= '5') {
- 			height = e.GetKeyCode() - 48; // '0'-'5' == 0-5
- 			if (e.GetModifiers() == wxMOD_CONTROL) { // Ctrl means negative
- 				height  = -height ;
- 			}
- 			int id_offset = heightCount / 2 + height + 1;
- 			if (currentBrush == btHeight) {
- 				wxCommandEvent evt(wxEVT_NULL, miBrushHeight + id_offset);
- 				onMenuBrushHeight(evt);
- 			} else {
- 				wxCommandEvent evt(wxEVT_NULL, miBrushGradient + id_offset);
- 				onMenuBrushGradient(evt);
- 			}
- 			return;
- 		}
- 	}
+	if(e.GetModifiers() == wxMOD_CONTROL || e.GetModifiers() == wxMOD_ALT){
+		e.Skip();
+	}
+	// WARNING: don't add any Ctrl or ALt key shortcuts below those are reserved for internal menu use.
+
  	if (currentBrush == btSurface) { // surface texture
  		if (e.GetKeyCode() >= '1' && e.GetKeyCode() <= '5') {
  			surface = e.GetKeyCode() - 48; // '1'-'5' == 1-5
@@ -1432,9 +1426,6 @@ void MainWindow::uncheckRadius() {
  	    program->setUndoPoint(ctAll);
  	    program->shiftDown();
  		setDirty();
- 	} else if (e.GetKeyCode() == WXK_BACK && e.GetModifiers() == wxMOD_ALT) { // undo
- 	    wxCommandEvent evt(wxEVT_NULL, 0);
-        onMenuEditUndo(evt);
  	} else {
  		e.Skip();
 	}
@@ -1479,7 +1470,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(miViewResetZoomAndPos, MainWindow::onMenuViewResetZoomAndPos)
 	EVT_MENU(miViewGrid, MainWindow::onMenuViewGrid)
-	EVT_MENU(miViewHeightMap, MainWindow::onMenuViewHeightMap)	
+	EVT_MENU(miViewHeightMap, MainWindow::onMenuViewHeightMap)
 	EVT_MENU(miHideWater, MainWindow::onMenuHideWater)
 	EVT_MENU(miViewAbout, MainWindow::onMenuViewAbout)
 	EVT_MENU(miViewHelp, MainWindow::onMenuViewHelp)
@@ -1527,7 +1518,7 @@ void GlCanvas::setCurrentGLContext() {
 	}
 #endif
 
-	if(this->context) { 
+	if(this->context) {
 		this->SetCurrent(*this->context);
 	}
 #else
@@ -1666,7 +1657,7 @@ bool App::OnInit() {
 //#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[1]);
 		fileparam = tmp_buf;
-		
+
 #ifdef WIN32
 		auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
 		fileparam = utf8_encode(wstr.get());

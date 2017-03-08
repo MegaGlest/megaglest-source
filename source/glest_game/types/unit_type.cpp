@@ -93,6 +93,7 @@ UnitType::UnitType() : ProducibleType() {
 	healthbarthickness=-1.0f;
 	healthbarVisible=hbvUndefined;
     multiSelect= false;
+    uniformSelect= false;
     commandable= true;
 	armorType= NULL;
 	rotatedBuildPos=0;
@@ -140,6 +141,7 @@ UnitType::UnitType() : ProducibleType() {
 	armor=0;
 	sight=0;
 	size=0;
+	aiBuildSize=-1;
 	renderSize=0;
 	height=0;
 	burnHeight=0;
@@ -232,6 +234,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->hasChild("render-size")){
 			renderSize=parametersNode->getChild("render-size")->getAttribute("value")->getIntValue();
 		}
+		aiBuildSize=size;
+		if(parametersNode->hasChild("ai-build-size")){
+			aiBuildSize= parametersNode->getChild("ai-build-size")->getAttribute("value")->getIntValue();
+		}
 
 		//height
 		//checkItemInVault(&(this->height),this->height);
@@ -281,7 +287,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
 				parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
 					throw megaglest_runtime_error("Unit " + name +
-							" has both start-value and start-percentage for HP", validationMode);
+							" has both start-value and start-percentage for HP", true);
 		}
 
 		//startHpValue -- the *absolute* value to use for starting HP
@@ -311,7 +317,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->getChild("max-ep")->hasAttribute("start-value") &&
 				parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
 					throw megaglest_runtime_error("Unit " + name +
-							" has both start-value and start-percentage for EP", validationMode);
+							" has both start-value and start-percentage for EP", true);
 		}
 
 		//startEpValue -- the *absolute* value to use for starting EP
@@ -356,6 +362,11 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//multi selection
 		multiSelect= parametersNode->getChild("multi-selection")->getAttribute("value")->getBoolValue();
 
+		//uniform selection
+		if(parametersNode->hasChild("uniform-selection")) {
+			uniformSelect= parametersNode->getChild("uniform-selection")->getAttribute("value")->getBoolValue();
+		}
+
 		//commandable
 		if(parametersNode->hasChild("commandable")){
 			commandable= parametersNode->getChild("commandable")->getAttribute("value")->getBoolValue();
@@ -374,7 +385,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				const XmlNode *rowNode= cellMapNode->getChild("row", i);
 				string row= rowNode->getAttribute("value")->getRestrictedValue();
 				if((int)row.size() != size){
-					throw megaglest_runtime_error("Cellmap row has not the same length as unit size",validationMode);
+					throw megaglest_runtime_error("Cellmap row has not the same length as unit size",true);
 				}
 				for(int j=0; j < (int)row.size(); ++j){
 					cellMap[i*size+j]= row[j]=='0'? false: true;
@@ -405,7 +416,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				fields[fAir]= true;
 			}
 			else{
-				throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ path, validationMode);
+				throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ path, true);
 			}
 		}
 
@@ -416,7 +427,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			field = fAir;
 		}
 		else {
-			throw megaglest_runtime_error("Unit has no field: " + path, validationMode);
+			throw megaglest_runtime_error("Unit has no field: " + path, true);
 		}
 
 		//properties
@@ -433,7 +444,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				}
 			}
 			if(!found) {
-				throw megaglest_runtime_error("Unknown property: " + propertyName, validationMode);
+				throw megaglest_runtime_error("Unknown property: " + propertyName, true);
 			}
 		}
 		//damage-particles
@@ -491,7 +502,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 					} else if(current=="off") {
 						healthbarVisible=healthbarVisible|hbvOff;
 					} else {
-						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, true);
 					}
 				}
 			}
@@ -874,10 +885,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		computeFirstCtOfClass();
 
 		if(getFirstStOfClass(scStop)==NULL){
-			throw megaglest_runtime_error("Every unit must have at least one stop skill: "+ path,validationMode);
+			throw megaglest_runtime_error("Every unit must have at least one stop skill: "+ path,true);
 		}
 		if(getFirstStOfClass(scDie)==NULL){
-			throw megaglest_runtime_error("Every unit must have at least one die skill: "+ path,validationMode);
+			throw megaglest_runtime_error("Every unit must have at least one die skill: "+ path,true);
 		}
 
 	}
@@ -1307,6 +1318,7 @@ std::string UnitType::toString() const {
 	result += " light = " + intToStr(light);
 	result += " lightColor = " + lightColor.getString();
 	result += " multiSelect = " + intToStr(multiSelect);
+	result += " uniformSelect = " + intToStr(uniformSelect);
 	result += " commandable = " + intToStr(commandable);
 	result += " sight = " + intToStr(sight);
 	result += " size = " + intToStr(size);

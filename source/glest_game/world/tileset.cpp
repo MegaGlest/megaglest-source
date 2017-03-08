@@ -136,7 +136,7 @@ Checksum Tileset::loadTileset(const vector<string> pathList, const string &tiles
         }
     }
     if(found == false) {
-		throw megaglest_runtime_error("Error could not find tileset [" + tilesetName + "]\n");
+		throw megaglest_runtime_error("Error could not find tileset [" + tilesetName + "]\n",true);
 
     }
     return tilesetChecksum;
@@ -251,6 +251,10 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 					width  = pixmap->getW();
 					height = pixmap->getW();
 				}
+			    catch(megaglest_runtime_error& ex) {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+					throw megaglest_runtime_error("Error loading tileset: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
+			    }
 				catch(const exception &ex) {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 
@@ -491,7 +495,11 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 	}
 	//Exception handling (conversions and so on);
-	catch(const exception &e) {
+    catch(megaglest_runtime_error& ex) {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		throw megaglest_runtime_error("Error loading tileset: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
+    }
+    catch(const exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error: " + path + "\n" + e.what());
 	}

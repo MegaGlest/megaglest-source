@@ -28,10 +28,13 @@ namespace Glest{ namespace Game{
 
 using ::Shared::Graphics::Texture2D;
 using ::Shared::Graphics::Texture3D;
+using ::Shared::Graphics::Font;
 using ::Shared::Graphics::Font2D;
 using ::Shared::Graphics::Font3D;
+using ::Shared::Graphics::FontChangedCallbackInterface;
 using ::Shared::Sound::StrSound;
 using ::Shared::Sound::StaticSound;
+
 
 // =====================================================
 // 	class CoreData  
@@ -111,6 +114,7 @@ private:
 	string battleEndLoseVideoFilenameFallback;
 	string battleEndLoseMusicFilename;
 
+	std::map<std::string,std::vector<FontChangedCallbackInterface *> > registeredFontChangedCallbacks;
 public:
 
 	enum TextureSystemType {
@@ -232,6 +236,8 @@ public:
     void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
     bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);
 
+	void registerFontChangedCallback(std::string entityName, FontChangedCallbackInterface *cb);
+	void unRegisterFontChangedCallback(std::string entityName);
 private:
 
     CoreData();
@@ -256,6 +262,9 @@ private:
 
 	void loadWaterSoundsIfRequired();
 	void loadMusicIfRequired();
+
+	void triggerFontChangedCallbacks(std::string fontUniqueId, Font *font);
+	template<typename T> T * loadFont(Font *menuFontNormal, string menuFontNameNormal, int menuFontNameNormalSize, string fontType, string fontTypeFamily, string fontUniqueKey);
 };
 
 }} //end namespace

@@ -329,6 +329,14 @@ Ai::~Ai() {
 	aiInterface = NULL;
 }
 
+RandomGen* Ai::getRandom() {
+//	if(Thread::isCurrentThreadMainThread() == false) {
+//		throw megaglest_runtime_error("Invalid access to AI random from outside main thread current id = " +
+//				intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+//	}
+	return &random;
+}
+
 void Ai::update() {
 
 	Chrono chrono;
@@ -451,7 +459,8 @@ float Ai::getRatioOfClass(UnitClass uc,UnitClass *additionalUnitClassToExcludeFr
 		return 0;
 	}
 	else {
-		return static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount();
+		//return static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount();
+		return truncateDecimal<float>(static_cast<float>(getCountOfClass(uc,additionalUnitClassToExcludeFromCount)) / aiInterface->getMyUnitCount(),6);
 	}
 }
 
@@ -654,7 +663,13 @@ bool Ai::findPosForBuilding(const UnitType* building, const Vec2i &searchPos, Ve
         for(int i=searchPos.x - currRadius; i < searchPos.x + currRadius; ++i) {
             for(int j=searchPos.y - currRadius; j < searchPos.y + currRadius; ++j) {
                 outPos= Vec2i(i, j);
-                if(aiInterface->isFreeCells(outPos - Vec2i(minBuildSpacing), building->getSize() + minBuildSpacing * 2, fLand)) {
+                if(aiInterface->isFreeCells(outPos - Vec2i(minBuildSpacing), building->getAiBuildSize() + minBuildSpacing * 2, fLand)) {
+                	int aiBuildSizeDiff= building->getAiBuildSize()- building->getSize();
+                	if( aiBuildSizeDiff>0){
+                		int halfSize=aiBuildSizeDiff/2;
+                		outPos.x+=halfSize;
+                		outPos.y+=halfSize;
+                	}
                		return true;
                 }
             }

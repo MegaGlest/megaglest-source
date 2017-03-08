@@ -44,7 +44,7 @@ class GraphicComponent;
 //	OpenGL renderer GUI components
 // ===========================================================
 
-class GraphicComponent {
+class GraphicComponent : public FontChangedCallbackInterface {
 public:
 	static const float animSpeed;
 	static const float fadeSpeed;
@@ -57,6 +57,8 @@ protected:
     string textNativeTranslation;
 	Font2D *font;
 	Font3D *font3D;
+	string font2DUniqueId;
+	string font3DUniqueId;
 	bool enabled;
 	bool editable;
 	bool visible;
@@ -65,11 +67,16 @@ protected:
 	static float fade;
 	static Vec3f customTextColor;
 
+	string containerName;
 	string instanceName;
+	string fontCallbackName;
+
+	string getNewUUD();
+	virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
 
 public:
-	GraphicComponent(std::string containerName="", std::string objName="");
-	virtual ~GraphicComponent(){}
+	GraphicComponent(std::string containerName="", std::string objName="", bool registerControl=true);
+	virtual ~GraphicComponent();
 
 	static void setCustomTextColor(Vec3f value) { customTextColor = value; }
 	static Vec3f getCustomTextColor() { return customTextColor; }
@@ -78,6 +85,7 @@ public:
 	static void clearRegisterGraphicComponent(std::string containerName, std::string objName);
 	static void clearRegisterGraphicComponent(std::string containerName, std::vector<std::string> objNameList);
 	virtual void registerGraphicComponent(std::string containerName, std::string objName);
+	virtual void registerGraphicComponentOnlyFontCallbacks(std::string containerName, std::string objName);
 	static  GraphicComponent * findRegisteredComponent(std::string containerName, std::string objName);
 	static void applyAllCustomProperties(std::string containerName);
 	virtual void applyCustomProperties(std::string containerName);
@@ -87,7 +95,9 @@ public:
 
 	virtual void init(int x, int y, int w, int h);
 
+	string getContainerName() const { return containerName; }
 	string getInstanceName() const { return instanceName; }
+	string getFontCallbackName() const { return fontCallbackName; }
 	void setInstanceName(string value) { instanceName = value; }
 
     virtual int getX() const				{return x;}
@@ -108,8 +118,8 @@ public:
 	virtual void setH(int h)					{this->h= h;}
 	virtual void setText(const string &text)	{this->text= text;}
 	virtual void setTextNativeTranslation(const string &text)	{this->textNativeTranslation= text;}
-	virtual void setFont(Font2D *font)			{this->font= font;}
-	virtual void setFont3D(Font3D *font)		{this->font3D= font;}
+	virtual void setFont(Font2D *font);
+	virtual void setFont3D(Font3D *font);
 	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
 	virtual void setEditable(bool editable)		{this->editable= editable;}
 	virtual void setVisible(bool value)			{this->visible = value;}
@@ -154,7 +164,7 @@ private:
 	Texture2D *texture;
 
 public:
-	GraphicLabel();
+	GraphicLabel(std::string containerName="", std::string objName="", bool registerControl=true);
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
 
 	virtual bool mouseMove(int x, int y);
@@ -218,7 +228,7 @@ private:
 	Texture *customTexture;
 		
 public:
-	GraphicButton(std::string containerName="", std::string objName="");
+	GraphicButton(std::string containerName="", std::string objName="", bool registerControl=true);
 	void init(int x, int y, int w=defW, int h=defH);
 
 	bool getUseCustomTexture() const { return useCustomTexture; }
@@ -437,8 +447,8 @@ private:
 	string header;
 
 public:
-	PopupMenu();
-	~PopupMenu();
+	PopupMenu(std::string containerName="", std::string objName="");
+	virtual ~PopupMenu();
 	void init(string menuHeader, std::vector<string> menuItems);
 
 	std::vector<GraphicButton> & getMenuItems() {return buttons;}

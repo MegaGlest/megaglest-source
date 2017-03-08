@@ -9,7 +9,7 @@
 # Requires:
 # - curl, built with SSL support, in $PATH
 # - wget, built with SSL support, in $PATH
-# - 7z (command line utility of 7-zip), in $PATH
+# - tar, in $PATH
 # - Coverity Scan Build Tool, in $PATH
 # 
 
@@ -20,10 +20,7 @@ export LANG=C
 CURRENTDIR="$(dirname $(readlink -f $0))"
 echo "Script path [${CURRENTDIR}]"
 
-# Load shared functions
-. $CURRENTDIR/mg_shared.sh
-
-# Project name (case sensitive)
+# Project title on Coverity Scan (case sensitive)
 PROJECT=MegaGlest
 
 # Coverity Scan project token as listed on the Coverity Scan project page
@@ -47,19 +44,18 @@ fi
 # echo "Read config values: TOKEN [$TOKEN] EMAIL [$EMAIL] COVERITY_ANALYSIS_ROOT [$COVERITY_ANALYSIS_ROOT] NUMCORES [${NUMCORES}]"
 # exit 1
 
-GITBRANCH=$(git rev-parse --abbrev-ref HEAD | tr '/' '_')
-GITVERSION_SHA1=$(git log -1 --format=%h)
+GITBRANCH=$(git rev-parse --abbrev-ref HEAD | tr '/' '-')
+GITVERSION_SHA1=$(git log -1 --format=%h --abbrev=7)
 GITVERSION_REV=$(git rev-list HEAD --count)
 VERSION=${GITBRANCH}.${GITVERSION_REV}.${GITVERSION_SHA1}
 
-# Included from shared functions
-detect_system
-
+distribution=$(lsb_release -si | tr '[A-Z]' '[a-z]' | tr '[._]' '-')
+dist_release=$(lsb_release -sr | tr '[A-Z]' '[a-z]' | tr '[._]' '-')
+architecture=$(uname -m        | tr '[A-Z]' '[a-z]' | tr '[._]' '-')
 hostname=$(hostname)
 
-#DESCRIPTION=${distribution}-${release}-${architecture}_${hostname}
-DESCRIPTION=${GITBRANCH}.${GITVERSION_SHA1}.${distribution}-${architecture}.${hostname}
-FILENAME=${PROJECT}.${DESCRIPTION}
+DESCRIPTION=${GITBRANCH}-${GITVERSION_SHA1}_${distribution}_${architecture}_${hostname}
+FILENAME=$(echo "${PROJECT}" | tr '/' '_')_${DESCRIPTION}
 # echo "FILENAME = [${FILENAME}]"
 # exit 1
 
@@ -70,32 +66,23 @@ FILENAME=${PROJECT}.${DESCRIPTION}
 export PATH="${PATH}:${COVERITY_ANALYSIS_ROOT}/bin"
 
 # cleanup old build files
-# rm -rf ../../build && ../../build-mg.sh -m 1
-#cd ../../
 cd $CURRENTDIR
 rm -rf build
 ./build-mg.sh -m 1
 
-# Build megaglest using coverity build tool
-# cov-build --dir $BUILDTOOL ../../build-mg.sh -n 1 -c 4
+# Build using Coverity Scan build tool
 cd build/
 cov-build --dir ${BUILDTOOL} make -j ${NUMCORES}
 
 # Create archive to upload to coverity
-7z a ${FILENAME}.tar ${BUILDTOOL}/
-7z a ${FILENAME}.tar.gz ${FILENAME}.tar
-rm -rf ${FILENAME}.tar
+tar czf ${FILENAME}.tar.gz ${BUILDTOOL}/
 ls -la ${FILENAME}.tar.gz
 # exit 1
 
 echo "Running curl to upload analysis file..."
-# echo "curl --progress-bar --insecure --form \"project=${PROJECT}\" --form \"token=${TOKEN}\" --form \"email=${EMAIL}\" --form \"version=${VERSION}\" --form \"description=${DESCRIPTION}\" --form \"file=@${FILENAME}.tar.gz\" https://scan5.coverity.com/cgi-bin/upload.py"
-# exit 1
-curl --progress-bar --insecure --form "token=${TOKEN}" --form "email=${EMAIL}" --form "version=${VERSION}" --form "description=${DESCRIPTION}" --form "file=@${FILENAME}.tar.gz" "https://scan.coverity.com/builds?project=${PROJECT}" | tee -a "coverity-scan.log" ; test ${PIPESTATUS[0]} -eq 0
+curl --progress-bar --insecure --form "token=${TOKEN}" --form "email=${EMAIL}" --form "version=${VERSION}" --form "description=${DESCRIPTION}" --form "file=@${FILENAME}.tar.gz" "https://scan.coverity.com/builds?project=${PROJECT}" | tee -a "coverity-scan.log"
 
-echo "CURL returned: $?"
-
-if [ $? != 0 ]; then 
+if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
         echo "An error occurred trying to send the archive to coverity. Error: $?"
 else
         echo "CURL was SUCCESSFUL!"
@@ -105,4 +92,3 @@ fi
 
 # This currently fails to detect the following error situation, as reported in the HTML of the HTTP response (to the upload request):
 # ERROR: Too many build submitted. Wait for few days before submitting next build: Refer build frequency at https://scan.coverity.com/faq#frequency
-

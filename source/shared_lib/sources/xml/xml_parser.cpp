@@ -351,7 +351,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 	try {
 
 		if(folderExists(path) == true) {
-			throw megaglest_runtime_error("Can not open file: [" + path + "] as it is a folder!");
+			throw megaglest_runtime_error("Can not open file: [" + path + "] as it is a folder!",true);
 		}
 
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -361,7 +361,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 		ifstream xmlFile(path.c_str(),ios::binary);
 #endif
 		if(xmlFile.is_open() == false) {
-			throw megaglest_runtime_error("Can not open file: [" + path + "]");
+			throw megaglest_runtime_error("Can not open file: [" + path + "]",true);
 		}
 
 		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -402,7 +402,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
         xml_document<> doc;
-        doc.parse<parse_no_data_nodes>(&buffer.front());
+        doc.parse<parse_no_data_nodes|parse_validate_closing_tags>(&buffer.front());
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -415,6 +415,14 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 			fclose(fp);
 		}
 #endif
+	}
+	catch(parse_error& ex) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8096,"%s",ex.where<char>());
+		throw megaglest_runtime_error("Error loading XML: "+ path + "\nMessage: " + ex.what() ,true);
+	}
+	catch(megaglest_runtime_error& ex) {
+		throw megaglest_runtime_error("Error loading XML: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
@@ -620,7 +628,7 @@ XmlTree::~XmlTree() {
 
 XmlNode::XmlNode(DOMNode *node, const std::map<string,string> &mapTagReplacementValues): superNode(NULL) {
     if(node == NULL || node->getNodeName() == NULL) {
-        throw megaglest_runtime_error("XML structure seems to be corrupt!");
+        throw megaglest_runtime_error("XML structure seems to be corrupt!",true);
     }
 
 	//get name
@@ -670,7 +678,7 @@ XmlNode::XmlNode(DOMNode *node, const std::map<string,string> &mapTagReplacement
 XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues,
 		bool skipUpdatePathClimbingParts) : superNode(NULL) {
 	if(node == NULL || node->name() == NULL) {
-        throw megaglest_runtime_error("XML structure seems to be corrupt!");
+        throw megaglest_runtime_error("XML structure seems to be corrupt!",true);
     }
 
 	//get name
@@ -735,7 +743,7 @@ XmlNode::~XmlNode() {
 
 XmlAttribute *XmlNode::getAttribute(unsigned int i) const {
 	if(i >= attributes.size()) {
-		throw megaglest_runtime_error(getName()+" node doesn't have " + uIntToStr(i) + " attributes");
+		throw megaglest_runtime_error(getName()+" node doesn't have " + uIntToStr(i) + " attributes",true);
 	}
 	return attributes[i];
 }
@@ -747,7 +755,7 @@ XmlAttribute *XmlNode::getAttribute(const string &name,bool mustExist) const {
 		}
 	}
 	if(mustExist == true) {
-		throw megaglest_runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"");
+		throw megaglest_runtime_error("\"" + getName() + "\" node doesn't have a attribute named \"" + name + "\"",true);
 	}
 
 	return NULL;
@@ -779,7 +787,7 @@ int XmlNode::clearChild(const string &childName) {
 XmlNode *XmlNode::getChild(unsigned int i) const {
 	assert(!superNode);
 	if(i >= children.size()) {
-		throw megaglest_runtime_error("\"" + getName()+"\" node doesn't have "+ uIntToStr(i+1) + " children");
+		throw megaglest_runtime_error("\"" + getName()+"\" node doesn't have "+ uIntToStr(i+1) + " children", true);
 	}
 	return children[i];
 }
@@ -800,7 +808,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const {
 		return superNode->getChild(childName,i);
 	}
 	if(i >= children.size()) {
-		throw megaglest_runtime_error("\"" + name + "\" node doesn't have " + uIntToStr(i+1) +" children named \"" + childName + "\"\n\nTree: "+getTreeString());
+		throw megaglest_runtime_error("\"" + name + "\" node doesn't have " + uIntToStr(i+1) +" children named \"" + childName + "\"\n\nTree: "+getTreeString(),true);
 	}
 
 	unsigned int count= 0;
@@ -813,7 +821,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const {
 		}
 	}
 
-	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have " + uIntToStr(i+1) + " children named  \""+childName+"\"\n\nTree: "+getTreeString());
+	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have " + uIntToStr(i+1) + " children named  \""+childName+"\"\n\nTree: "+getTreeString(),true);
 }
 
 bool XmlNode::hasChildNoSuper(const string &childName) const {
@@ -832,7 +840,7 @@ XmlNode * XmlNode::getChildWithAliases(vector<string> childNameList, unsigned in
 			return superNode->getChild(childName,childIndex);
 		}
 		if(childIndex >= children.size()) {
-			throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(childIndex+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
+			throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(childIndex+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString(),true);
 		}
 
 		unsigned int count= 0;
@@ -846,7 +854,7 @@ XmlNode * XmlNode::getChildWithAliases(vector<string> childNameList, unsigned in
 		}
 	}
 
-	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(childIndex+1)+" children named  \""+ (childNameList.empty() ? "???" : childNameList[0]) +"\"\n\nTree: "+getTreeString());
+	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(childIndex+1)+" children named  \""+ (childNameList.empty() ? "???" : childNameList[0]) +"\"\n\nTree: "+getTreeString(),true);
 }
 
 bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
@@ -1026,7 +1034,7 @@ bool XmlAttribute::getBoolValue() const {
 		return false;
 	}
 	else {
-		throw megaglest_runtime_error("Not a valid bool value (true or false): " +getName()+": "+ value);
+		throw megaglest_runtime_error("Not a valid bool value (true or false): " +getName()+": "+ value,true);
 	}
 }
 
@@ -1041,7 +1049,7 @@ uint32 XmlAttribute::getUIntValue() const {
 int XmlAttribute::getIntValue(int min, int max) const {
 	int i= strToInt(value);
 	if(i<min || i>max){
-		throw megaglest_runtime_error("Xml Attribute int out of range: " + getName() + ": " + value);
+		throw megaglest_runtime_error("Xml Attribute int out of range: " + getName() + ": " + value,true);
 	}
 	return i;
 }
@@ -1054,7 +1062,7 @@ float XmlAttribute::getFloatValue(float min, float max) const{
 	float f= strToFloat(value);
 	//printf("getFloatValue f = %.10f [%s]\n",f,value.c_str());
 	if(f<min || f>max){
-		throw megaglest_runtime_error("Xml attribute float out of range: " + getName() + ": " + value);
+		throw megaglest_runtime_error("Xml attribute float out of range: " + getName() + ": " + value,true);
 	}
 	return f;
 }
@@ -1078,7 +1086,7 @@ const string XmlAttribute::getRestrictedValue(string prefixValue, bool trimValue
 			if(allowedCharacters.find(value[i])==string::npos){
 				throw megaglest_runtime_error(
 					string("The string \"" + value + "\" contains a character that is not allowed: \"") + value[i] +
-					"\"\nFor portability reasons the only allowed characters in this field are: " + allowedCharacters);
+					"\"\nFor portability reasons the only allowed characters in this field are: " + allowedCharacters,true);
 			}
 		}
 	}

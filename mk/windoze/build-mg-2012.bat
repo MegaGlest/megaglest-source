@@ -108,7 +108,7 @@ git submodule update
 
 set GITVERSION_SHA1=.
 set GITVERSION_REV=.
-set GET_GIT_SHA1="git log -1 --format=%%h"
+set GET_GIT_SHA1="git log -1 --format=%%h --abbrev=7"
 for /f "delims=" %%a in ('%GET_GIT_SHA1%') do @set GITVERSION_SHA1=%%a
 for /f "delims=" %%a in ('git rev-list HEAD --count') do @set GITVERSION_REV=%%a
 ECHO Will build using GIT Revision: [%GITVERSION_REV%.%GITVERSION_SHA1%]

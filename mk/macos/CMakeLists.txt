@@ -28,9 +28,9 @@ INCLUDE_DIRECTORIES(/usr/X11/include /opt/local/include)
 
 # This changes Info.plist from something with variables and CMakeisms to
 # something that can be installed on disk.
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/Info.plist.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/mk/macosx/bundle_resources/Info.plist")
-SET(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_BINARY_DIR}/mk/macosx/bundle_resources/Info.plist")
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macos/bundle_resources/Info.plist.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/mk/macos/bundle_resources/Info.plist")
+SET(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_BINARY_DIR}/mk/macos/bundle_resources/Info.plist")
 
 include (InstallRequiredSystemLibraries)
 
@@ -38,6 +38,6 @@ include (InstallRequiredSystemLibraries)
 SET(CPACK_GENERATOR "Bundle")
 SET(CPACK_BUNDLE_NAME "MegaGlest")
 SET(CPACK_PACKAGE_FILE_NAME "MegaGlest-game-macos-${MEGAGLEST_VERSION}")
-SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns")
-SET(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns")
-SET(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.sh")
+SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macos/bundle_resources/MegaGlest.icns")
+SET(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macos/bundle_resources/MegaGlest.icns")
+SET(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/mk/macos/bundle_resources/MegaGlest.sh")

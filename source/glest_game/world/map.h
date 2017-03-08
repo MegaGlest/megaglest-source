@@ -158,6 +158,8 @@ public:
 
 	inline bool isVisible(int teamIndex) const		{return visible[teamIndex];}
 	inline bool isExplored(int teamIndex) const		{return explored[teamIndex];}
+	string isVisibleString() const;
+	string isExploredString() const;
 
 	//set
 	inline void setVertex(const Vec3f &vertex)			{this->vertex= vertex;}
@@ -335,7 +337,7 @@ public:
 	//unit placement
 	bool aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache=NULL) const;
 	bool canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2,std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<Field,bool> > > > *lookupCache=NULL) const;
-    void putUnitCells(Unit *unit, const Vec2i &pos,bool ignoreSkill = false);
+    void putUnitCells(Unit *unit, const Vec2i &pos,bool ignoreSkill = false, bool threaded = false);
 	void clearUnitCells(Unit *unit, const Vec2i &pos,bool ignoreSkill = false);
 
 	Vec2i computeRefPos(const Selection *selection) const;
@@ -392,11 +394,23 @@ public:
 	}
 
 	//checks if a unit can move from between 2 cells using only visible cells (for pathfinding)
-	inline bool aproxCanMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
+	inline bool aproxCanMoveSoon(Unit *unit, const Vec2i &pos1, const Vec2i &pos2) const {
 		if(isInside(pos1) == false || isInsideSurface(toSurfCoords(pos1)) == false ||
 		   isInside(pos2) == false || isInsideSurface(toSurfCoords(pos2)) == false) {
 
 			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+					SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In aproxCanMoveSoon() return false");
+				if(Thread::isCurrentThreadMainThread() == false) {
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+				else {
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+			}
+
 			return false;
 		}
 
@@ -410,14 +424,93 @@ public:
 
 		//single cell units
 		if(size == 1) {
-			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),pos2, field, teamIndex) == false) {
+			bool tryPosResult = isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),pos2, field, teamIndex);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+					SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+				string extraInfo = (string("tryPosResult = ") + (tryPosResult ? string("true") : string("false")));
+				const SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos2));
+				if(sc->isVisible(teamIndex)) {
+					bool testCond = isFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(), pos2, field);
+					extraInfo += (string("isFreeCellOrMightBeFreeSoon = ") + (testCond ? string("true") : string("false")));
+				}
+				else if(sc->isExplored(teamIndex)) {
+					bool testCond = field==fLand? sc->isFree() && !getDeepSubmerged(getCell(pos2)): true;
+					extraInfo += (string("field==fLand = ") + (testCond ? string("true") : string("false")));
+				}
+
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In aproxCanMoveSoon() pos2 = %s extraInfo = %s %s %s",pos2.getString().c_str(),extraInfo.c_str(),sc->isVisibleString().c_str(),sc->isExploredString().c_str());
+				if(Thread::isCurrentThreadMainThread() == false) {
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+				else {
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+			}
+
+			if(tryPosResult == false) {
 				return false;
 			}
 			if(pos1.x != pos2.x && pos1.y != pos2.y) {
-				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
+				Vec2i tryPos = Vec2i(pos1.x, pos2.y);
+				bool tryPosResult = isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),tryPos, field, teamIndex);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					string extraInfo = (string("tryPosResult = ") + (tryPosResult ? string("true") : string("false")));
+					const SurfaceCell *sc= getSurfaceCell(toSurfCoords(tryPos));
+					if(sc->isVisible(teamIndex)) {
+						bool testCond = isFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(), tryPos, field);
+						extraInfo += (string("isFreeCellOrMightBeFreeSoon = ") + (testCond ? string("true") : string("false")));
+					}
+					else if(sc->isExplored(teamIndex)) {
+						bool testCond = field==fLand? sc->isFree() && !getDeepSubmerged(getCell(tryPos)): true;
+						extraInfo += (string("field==fLand = ") + (testCond ? string("true") : string("false")));
+					}
+
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In aproxCanMoveSoon() extraInfo = %s",extraInfo.c_str());
+					if(Thread::isCurrentThreadMainThread() == false) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
+				if(tryPosResult == false) {
 					return false;
 				}
-				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
+
+				tryPos = Vec2i(pos2.x, pos1.y);
+				tryPosResult = isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),tryPos, field, teamIndex);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					string extraInfo = (string("tryPosResult = ") + (tryPosResult ? string("true") : string("false")));
+					const SurfaceCell *sc= getSurfaceCell(toSurfCoords(tryPos));
+					if(sc->isVisible(teamIndex)) {
+						bool testCond = isFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(), tryPos, field);
+						extraInfo += (string("isFreeCellOrMightBeFreeSoon = ") + (testCond ? string("true") : string("false")));
+					}
+					else if(sc->isExplored(teamIndex)) {
+						bool testCond = field==fLand? sc->isFree() && !getDeepSubmerged(getCell(tryPos)): true;
+						extraInfo += (string("field==fLand = ") + (testCond ? string("true") : string("false")));
+					}
+
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In aproxCanMoveSoon() extraInfo = %s",extraInfo.c_str());
+					if(Thread::isCurrentThreadMainThread() == false) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
+				if(tryPosResult == false) {
+
 					return false;
 				}
 			}
@@ -432,6 +525,18 @@ public:
 			}
 
 			if(unit == NULL || isBadHarvestPos == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In aproxCanMoveSoon() return false");
+					if(Thread::isCurrentThreadMainThread() == false) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
 				return false;
 			}
 
@@ -446,11 +551,35 @@ public:
 					if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
 						if(getCell(cellPos)->getUnit(unit->getCurrField()) != unit) {
 							if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),cellPos, field, teamIndex) == false) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+										SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+									char szBuf[8096]="";
+									snprintf(szBuf,8096,"In aproxCanMoveSoon() return false");
+									if(Thread::isCurrentThreadMainThread() == false) {
+										unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+									}
+									else {
+										unit->logSynchData(__FILE__,__LINE__,szBuf);
+									}
+								}
+
 								return false;
 							}
 						}
 					}
 					else {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+								SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"In aproxCanMoveSoon() return false");
+							if(Thread::isCurrentThreadMainThread() == false) {
+								unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+							}
+							else {
+								unit->logSynchData(__FILE__,__LINE__,szBuf);
+							}
+						}
+
 						return false;
 					}
 				}
@@ -466,6 +595,18 @@ public:
 			}
 
 			if(isBadHarvestPos == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In aproxCanMoveSoon() return false");
+					if(Thread::isCurrentThreadMainThread() == false) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
 				return false;
 			}
 
@@ -483,7 +624,7 @@ private:
 	void smoothSurface(Tileset *tileset);
 	void computeNearSubmerged();
 	void computeCellColors();
-    void putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph);
+    void putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph, bool threaded);
 };
 
 

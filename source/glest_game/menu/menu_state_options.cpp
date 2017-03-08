@@ -35,64 +35,109 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
+MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config"),
+	buttonOk("Options","buttonOk"),
+	buttonReturn("Options","buttonReturn"),
+
+	labelLang("Options","labelLang"),
+	listBoxLang("Options","listBoxLang"),
+	labelPlayerName("Options","labelPlayerName"),
+	labelPlayerNameLabel("Options","labelPlayerNameLabel"),
+
+	buttonKeyboardSetup("Options","buttonKeyboardSetup"),
+	buttonVideoSection("Options","buttonVideoSection"),
+	buttonAudioSection("Options","buttonAudioSection"),
+	buttonMiscSection("Options","buttonMiscSection"),
+	buttonNetworkSettings("Options","buttonNetworkSettings"),
+
+	labelFontSizeAdjustment("Options","labelFontSizeAdjustment"),
+	listFontSizeAdjustment("Options","listFontSizeAdjustment"),
+
+	mainMessageBox("Options","mainMessageBox"),
+
+	labelScreenShotType("Options","labelScreenShotType"),
+	listBoxScreenShotType("Options","listBoxScreenShotType"),
+
+	labelDisableScreenshotConsoleText("Options","labelDisableScreenshotConsoleText"),
+	checkBoxDisableScreenshotConsoleText("Options","checkBoxDisableScreenshotConsoleText"),
+
+	labelMouseMoveScrollsWorld("Options","labelMouseMoveScrollsWorld"),
+	checkBoxMouseMoveScrollsWorld("Options","checkBoxMouseMoveScrollsWorld"),
+
+	labelCameraMoveSpeed("Options","labelCameraMoveSpeed"),
+	listCameraMoveSpeed("Options","listCameraMoveSpeed"),
+
+	labelVisibleHud("Options","labelVisibleHud"),
+	checkBoxVisibleHud("Options","checkBoxVisibleHud"),
+	labelHealthBars("Options","labelHealthBars"),
+	listBoxHealthBars("Options","listBoxHealthBars"),
+
+	labelTimeDisplay("Options","labelTimeDisplay"),
+	checkBoxTimeDisplay("Options","checkBoxTimeDisplay"),
+	labelChatStaysActive("Options","labelChatStaysActive"),
+	checkBoxChatStaysActive("Options","checkBoxChatStaysActive"),
+
+	labelLuaDisableSecuritySandbox("Options","labelLuaDisableSecuritySandbox"),
+	checkBoxLuaDisableSecuritySandbox("Options","checkBoxLuaDisableSecuritySandbox"),
+
+	luaMessageBox("Options","luaMessageBox"),
+
+	labelCustomTranslation("Options","labelCustomTranslation"),
+	checkBoxCustomTranslation("Options","checkBoxCustomTranslation"),
+
+	buttonGetNewLanguageFiles("Options","buttonGetNewLanguageFiles"),
+	buttonDeleteNewLanguageFiles("Options","buttonDeleteNewLanguageFiles"),
+	labelTransifexUserLabel("Options","labelTransifexUserLabel"),
+	labelTransifexUser("Options","labelTransifexUser"),
+	labelTransifexPwdLabel("Options","labelTransifexPwdLabel"),
+	labelTransifexPwd("Options","labelTransifexPwd"),
+	labelTransifexI18NLabel("Options","labelTransifexI18NLabel"),
+	labelTransifexI18N("Options","labelTransifexI18N")
+
 {
 	try {
 		containerName = "Options";
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
+
 		this->console.setOnlyChatMessagesInStoredLines(false);
-		//modeinfos=list<ModeInfo> ();
 		activeInputLabel=NULL;
 
 		int leftLabelStart=100;
 		int leftColumnStart=leftLabelStart+300;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
 		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.getString("Ok"));
 		mainMessageBox.setEnabled(false);
 		mainMessageBoxState=0;
 
-		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
 		buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
 		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonAudioSection.setText(lang.getString("Audio"));
 		// Video Section
-		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
 		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonVideoSection.setText(lang.getString("Video"));
-		//currentLine-=lineOffset;
 		//MiscSection
-		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 		buttonMiscSection.init(400, 700,tabButtonWidth,tabButtonHeight+20);
 		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonMiscSection.setText(lang.getString("Misc"));
 		//NetworkSettings
-		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
 		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonNetworkSettings.setText(lang.getString("Network"));
 
 		//KeyboardSetup
-		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
 		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
@@ -103,30 +148,12 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		int currentColumnStart=leftColumnStart; // set to right side
 
 		//lang
-		labelLang.registerGraphicComponent(containerName,"labelLang");
 		labelLang.init(currentLabelStart, currentLine);
 		labelLang.setText(lang.getString("Language"));
 
-		listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
 		listBoxLang.init(currentColumnStart, currentLine, 375);
 		vector<string> langResults;
 
-	//    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	//
-	//    string userDataPath = getGameCustomCoreDataPath(data_path, "");
-	//	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
-	//
-	//	vector<string> langResults2;
-	//	findAll(data_path + "data/lang/*.lng", langResults2, true);
-	//	if(langResults2.empty() && langResults.empty()) {
-	//        throw megaglest_runtime_error("There are no lang files");
-	//	}
-	//	for(unsigned int i = 0; i < langResults2.size(); ++i) {
-	//		string testLanguage = langResults2[i];
-	//		if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
-	//			langResults.push_back(testLanguage);
-	//		}
-	//	}
 		languageList = Lang::getInstance().getDiscoveredLanguageList(true);
 		for(map<string,string>::iterator iterMap = languageList.begin();
 			iterMap != languageList.end(); ++iterMap) {
@@ -143,11 +170,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		currentLine-=lineOffset;
 
 		//playerName
-		labelPlayerNameLabel.registerGraphicComponent(containerName,"labelPlayerNameLabel");
 		labelPlayerNameLabel.init(currentLabelStart,currentLine);
 		labelPlayerNameLabel.setText(lang.getString("Playername"));
 
-		labelPlayerName.registerGraphicComponent(containerName,"labelPlayerName");
 		labelPlayerName.init(currentColumnStart,currentLine);
 		labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 		labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
@@ -158,11 +183,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		currentLine-=lineOffset;
 
 		//FontSizeAdjustment
-		labelFontSizeAdjustment.registerGraphicComponent(containerName,"labelFontSizeAdjustment");
 		labelFontSizeAdjustment.init(currentLabelStart,currentLine);
 		labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
 
-		listFontSizeAdjustment.registerGraphicComponent(containerName,"listFontSizeAdjustment");
 		listFontSizeAdjustment.init(currentColumnStart, currentLine, 80);
 		for(int i=-5; i<=5; i+=1){
 			listFontSizeAdjustment.pushBackItem(intToStr(i));
@@ -171,11 +194,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		currentLine-=lineOffset;
 		// Screenshot type flag
-		labelScreenShotType.registerGraphicComponent(containerName,"labelScreenShotType");
 		labelScreenShotType.init(currentLabelStart ,currentLine);
 		labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
 
-		listBoxScreenShotType.registerGraphicComponent(containerName,"listBoxScreenShotType");
 		listBoxScreenShotType.init(currentColumnStart ,currentLine, 80 );
 		listBoxScreenShotType.pushBackItem("bmp");
 		listBoxScreenShotType.pushBackItem("jpg");
@@ -185,31 +206,25 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		currentLine-=lineOffset;
 
-		labelDisableScreenshotConsoleText.registerGraphicComponent(containerName,"lavelDisableScreenshotConsoleText");
 		labelDisableScreenshotConsoleText.init(currentLabelStart ,currentLine);
 		labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
 
-		checkBoxDisableScreenshotConsoleText.registerGraphicComponent(containerName,"checkBoxDisableScreenshotConsoleText");
 		checkBoxDisableScreenshotConsoleText.init(currentColumnStart ,currentLine );
 		checkBoxDisableScreenshotConsoleText.setValue(!config.getBool("DisableScreenshotConsoleText","false"));
 
 		currentLine-=lineOffset;
 
-		labelMouseMoveScrollsWorld.registerGraphicComponent(containerName,"labelMouseMoveScrollsWorld");
 		labelMouseMoveScrollsWorld.init(currentLabelStart ,currentLine);
 		labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
 
-		checkBoxMouseMoveScrollsWorld.registerGraphicComponent(containerName,"checkBoxMouseMoveScrollsWorld");
 		checkBoxMouseMoveScrollsWorld.init(currentColumnStart ,currentLine );
 		checkBoxMouseMoveScrollsWorld.setValue(config.getBool("MouseMoveScrollsWorld","true"));
 		currentLine-=lineOffset;
 
 		//CameraMoveSpeed
-		labelCameraMoveSpeed.registerGraphicComponent(containerName,"labelCameraMoveSpeed");
 		labelCameraMoveSpeed.init(currentLabelStart,currentLine);
 		labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
 
-		listCameraMoveSpeed.registerGraphicComponent(containerName,"listCameraMoveSpeed");
 		listCameraMoveSpeed.init(currentColumnStart, currentLine, 80);
 		for(int i=15; i<=50; i+=5){
 			listCameraMoveSpeed.pushBackItem(intToStr(i));
@@ -217,21 +232,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		listCameraMoveSpeed.setSelectedItem(intToStr((int) (config.getFloat("CameraMoveSpeed","15"))));
 		currentLine-=lineOffset;
 
-		labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
 		labelVisibleHud.init(currentLabelStart ,currentLine);
 		labelVisibleHud.setText(lang.getString("VisibleHUD"));
 
-		checkBoxVisibleHud.registerGraphicComponent(containerName,"checkBoxVisibleHud");
 		checkBoxVisibleHud.init(currentColumnStart ,currentLine );
 		checkBoxVisibleHud.setValue(config.getBool("VisibleHud","true"));
 
 		currentLine-=lineOffset;
 
-		labelHealthBars.registerGraphicComponent(containerName,"labelHealthBars");
 		labelHealthBars.init(currentLabelStart ,currentLine);
 		labelHealthBars.setText(lang.getString("Healthbar"));
 
-		listBoxHealthBars.registerGraphicComponent(containerName,"lisBoxtHealthBars");
 		listBoxHealthBars.init(currentColumnStart ,currentLine, 375);
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsFactionDefault"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsOff"));
@@ -270,35 +281,28 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		currentLine-=lineOffset;
 
-		labelChatStaysActive.registerGraphicComponent(containerName,"labelChatStaysActive");
 		labelChatStaysActive.init(currentLabelStart ,currentLine);
 		labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
 
-		checkBoxChatStaysActive.registerGraphicComponent(containerName,"checkBoxChatStaysActive");
 		checkBoxChatStaysActive.init(currentColumnStart ,currentLine );
 		checkBoxChatStaysActive.setValue(config.getBool("ChatStaysActive","false"));
 
 		currentLine-=lineOffset;
 
-		labelTimeDisplay.registerGraphicComponent(containerName,"labelTimeDisplay");
 		labelTimeDisplay.init(currentLabelStart ,currentLine);
 		labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
-		checkBoxTimeDisplay.registerGraphicComponent(containerName,"checkBoxTimeDisplay");
 		checkBoxTimeDisplay.init(currentColumnStart ,currentLine );
 		checkBoxTimeDisplay.setValue(config.getBool("TimeDisplay","true"));
 
 		currentLine-=lineOffset;
 
-		labelLuaDisableSecuritySandbox.registerGraphicComponent(containerName,"labelLuaDisableSecuritySandbox");
 		labelLuaDisableSecuritySandbox.init(currentLabelStart ,currentLine);
 		labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
 
-		checkBoxLuaDisableSecuritySandbox.registerGraphicComponent(containerName,"checkBoxLuaDisableSecuritySandbox");
 		checkBoxLuaDisableSecuritySandbox.init(currentColumnStart ,currentLine );
 		checkBoxLuaDisableSecuritySandbox.setValue(config.getBool("DisableLuaSandbox","false"));
 
-		luaMessageBox.registerGraphicComponent(containerName,"luaMessageBox");
 		luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
 		luaMessageBox.setEnabled(false);
 		luaMessageBoxState=0;
@@ -308,47 +312,38 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		currentLine-=lineOffset/2;
 
 		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
 
-		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 		buttonReturn.setText(lang.getString("Return"));
 
 		// Transifex related UI
 		currentLine-=lineOffset*3;
-		labelCustomTranslation.registerGraphicComponent(containerName,"labelCustomTranslation");
 		labelCustomTranslation.init(currentLabelStart ,currentLine);
 		labelCustomTranslation.setText(lang.getString("CustomTranslation"));
 
-		checkBoxCustomTranslation.registerGraphicComponent(containerName,"checkBoxCustomTranslation");
 		checkBoxCustomTranslation.init(currentColumnStart ,currentLine );
 		checkBoxCustomTranslation.setValue(false);
 		currentLine-=lineOffset;
 
-		labelTransifexUserLabel.registerGraphicComponent(containerName,"labelTransifexUserLabel");
 		labelTransifexUserLabel.init(currentLabelStart,currentLine);
 		labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
 
-		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
 		labelTransifexPwdLabel.init(currentLabelStart + 260 ,currentLine);
 		labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
 
-		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
 		labelTransifexI18NLabel.init(currentLabelStart + 520 ,currentLine);
 		labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
 
 		currentLine-=lineOffset;
 
-		labelTransifexUser.registerGraphicComponent(containerName,"labelTransifexUser");
 		labelTransifexUser.init(currentLabelStart,currentLine);
 		labelTransifexUser.setEditable(true);
 		labelTransifexUser.setMaxEditWidth(28);
 		labelTransifexUser.setMaxEditRenderWidth(250);
 		labelTransifexUser.setText(config.getString("TranslationGetURLUser","<none>"));
 
-		labelTransifexPwd.registerGraphicComponent(containerName,"labelTransifexPwd");
 		labelTransifexPwd.init(currentLabelStart + 260 ,currentLine);
 		labelTransifexPwd.setIsPassword(true);
 		labelTransifexPwd.setEditable(true);
@@ -356,7 +351,6 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelTransifexPwd.setMaxEditRenderWidth(250);
 		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword",""));
 
-		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
 		labelTransifexI18N.init(currentLabelStart + 520 ,currentLine);
 		labelTransifexI18N.setEditable(true);
 		labelTransifexI18N.setMaxEditWidth(6);
@@ -364,11 +358,9 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
 		currentLine-=lineOffset;
 
-		buttonGetNewLanguageFiles.registerGraphicComponent(containerName,"buttonGetNewLanguageFiles");
 		buttonGetNewLanguageFiles.init(currentLabelStart, currentLine, 250);
 		buttonGetNewLanguageFiles.setText(lang.getString("TransifexGetLanguageFiles"));
 
-		buttonDeleteNewLanguageFiles.registerGraphicComponent(containerName,"buttonDeleteNewLanguageFiles");
 		buttonDeleteNewLanguageFiles.init(currentLabelStart + 260, currentLine, 250);
 		buttonDeleteNewLanguageFiles.setText(lang.getString("TransifexDeleteLanguageFiles"));
 
@@ -382,32 +374,19 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 	}
 }
 
-void MenuStateOptions::reloadUI() {
-	Lang &lang= Lang::getInstance();
+MenuStateOptions::~MenuStateOptions() {
+}
 
-	console.resetFonts();
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+void MenuStateOptions::reloadUI() {
+	Lang &lang = Lang::getInstance();
+
 	mainMessageBox.init(lang.getString("Ok"));
 	luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
 
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonNetworkSettings.setText(lang.getString("Network"));
-
-	buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 	labelVisibleHud.setText(lang.getString("VisibleHUD"));
@@ -416,23 +395,13 @@ void MenuStateOptions::reloadUI() {
 	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
 	labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
-
 	labelLang.setText(lang.getString("Language"));
-
 	labelPlayerNameLabel.setText(lang.getString("Playername"));
-
-	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
-	labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-
 	labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
-
 	labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
-
 	labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
-
 	labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
 	labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
-
 
 	buttonOk.setText(lang.getString("Save"));
 	buttonReturn.setText(lang.getString("Return"));
@@ -557,7 +526,6 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			showMessageBox(lang.getString("RestartNeeded"), lang.getString("FontSizeAdjustmentChanged"), false);
 			return;
 		}
-
 		saveConfig();
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
 		reloadUI();
@@ -1033,7 +1001,7 @@ bool MenuStateOptions::textInput(std::string text) {
 }
 
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
-	if (activeInputLabel == NULL) {
+	if (activeInputLabel != NULL) {
 		keyPressEditLabel(c, &activeInputLabel);
 	} else {
 		Config &configKeys = Config::getInstance(
@@ -1048,6 +1016,9 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 
 void MenuStateOptions::render(){
 	Renderer &renderer= Renderer::getInstance();
+//	char szBuf[8096]="";
+//	snprintf(szBuf,8096,"\nIn [%s::%s Line: %d]\n\nRender options menu [%p]!\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this);
+//	printf(szBuf);
 
 	if(mainMessageBox.getEnabled()){
 		renderer.renderMessageBox(&mainMessageBox);

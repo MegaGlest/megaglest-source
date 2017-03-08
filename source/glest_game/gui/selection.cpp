@@ -51,7 +51,7 @@ bool Selection::canSelectUnitFactionCheck(const Unit *unit) const {
 	return true;
 }
 
-bool Selection::select(Unit *unit) {
+bool Selection::select(Unit *unit, bool addToSelection) {
 	bool result = false;
 	if((int)selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
 		return result;
@@ -79,6 +79,22 @@ bool Selection::select(Unit *unit) {
 		//check if multisel
 		if(unit->getType()->getMultiSelect() == false && isEmpty() == false) {
 			return false;
+		}
+
+		//check if multitypesel
+		if(selectedUnits.size() > 0) {
+			bool isUnifromSelectOK = ( selectedUnits.front()->getType() == unit->getType() && unit->isOperative() == selectedUnits.front()->isOperative());
+			if(selectedUnits.front()->getType()->getUniformSelect() == true && !isUnifromSelectOK ) {
+				if(addToSelection)
+					return false;
+				else
+					clear();
+			}
+
+			if (unit->getType()->getUniformSelect() == true
+					&& !isUnifromSelectOK ) {
+				return false;
+			}
 		}
 
 		//check if enemy
@@ -125,11 +141,11 @@ bool Selection::select(Unit *unit) {
 	return result;
 }
 
-void Selection::select(const UnitContainer &units){
+void Selection::select(const UnitContainer &units, bool addToSelection){
 
 	//add units to gui
 	for(UnitIterator it = units.begin(); it != units.end(); ++it) {
-		select(*it);
+		select(*it,addToSelection);
 	}
 }
 
@@ -270,6 +286,21 @@ bool Selection::addUnitToGroup(int groupIndex,Unit *unit) {
 		}
 	}
 
+	// check for uniformselect units
+	if((int)groups[groupIndex].size()>0 ) {
+		Unit* unitInGroup=groups[groupIndex][0];
+		if( unit->getType()->getUniformSelect() || unitInGroup->getType()->getUniformSelect() ) {
+			if(  unit->isOperative() != unitInGroup->isOperative()) {
+				//dont add units that are not in same operative state
+				return false;
+			}
+			if( unitInGroup->getType() != unit->getType()){
+				//dont add another unit to a group of uniform selection units
+				return false;
+			}
+		}
+	}
+
 	if(unit != NULL && !groupIsFull) {
 		groups[groupIndex].push_back(unit);
 		return true;
@@ -309,7 +340,7 @@ void Selection::recallGroup(int groupIndex,bool clearSelection){
 		clear();
 	}
 	for(int i = 0; i < (int)groups[groupIndex].size(); ++i) {
-		select(groups[groupIndex][i]);
+		select(groups[groupIndex][i],!clearSelection);
 	}
 }
 

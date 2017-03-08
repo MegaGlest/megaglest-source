@@ -25,14 +25,14 @@ if [ -f "$REPO_DATADIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     DATA_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"
     # on macos are problems with more advanced using awk ^
     DATA_COMMIT_NR="$(git rev-list HEAD --count)"
-    DATA_COMMIT="$(echo "[$DATA_COMMIT_NR.$(git log -1 --format=%h)]")"
+    DATA_COMMIT="$(echo "[$DATA_COMMIT_NR.$(git log -1 --format=%h --abbrev=7)]")"
     DATA_HASH=$(git log -1 --format=%H)
 fi
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
     if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | grep '^* ' | awk '{print $2}')"; fi
     # on macos are problems with more advanced using awk ^
-    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h --abbrev=7)]")"
     if [ "$DATA_HASH" = "" ]; then DATA_HASH=$(git submodule status "$REPO_DATADIR" | awk '{print $1}'); fi
 fi
 classic_snapshot_for_tests=0
@@ -53,16 +53,38 @@ elif [ "$1" = "--show-result-path2" ]; then echo "${RELEASEDIR_ROOT}/$RELEASENAM
 DATA_HASH_MEMORY="$RELEASEDIR_ROOT/data_memory"
 DATA_HASH_FILE="$DATA_HASH_MEMORY/$VERSION-$SOURCE_BRANCH.log"
 if [ ! -d "$DATA_HASH_MEMORY" ]; then mkdir -p "$DATA_HASH_MEMORY"; fi
+SyncNote() {
+echo; echo " This situation is allowed for \"git submodule\", but in MG case it usually mean sync to wrong data commit. In case of wrong sync, to fix the situation someone should again commit in the megaglest-source repo the recent data HASH. If sync to older data wasn't a mistake then just ignore this warning."; echo
+}
 if [ "$DATA_HASH" != "" ]; then
-    if [ ! -e "$DATA_HASH_FILE" ]; then
-	echo "$DATA_HASH $DATA_COMMIT_NR" > "$DATA_HASH_FILE"
-    elif [ "$(cat "$DATA_HASH_FILE" | grep "$DATA_HASH")" = "" ]; then
-	DATA_COMMIT_PREV_NR="$(cat "$DATA_HASH_FILE" | head -1 | awk '{print $2}')"
-	if [ "$DATA_COMMIT_PREV_NR" != "" ] && [ "$DATA_COMMIT_NR" -lt "$DATA_COMMIT_PREV_NR" ]; then
-	    echo " warning: Detected older git revision of data than previously, $DATA_COMMIT_NR < $DATA_COMMIT_PREV_NR."
+    if [ -e "$DATA_HASH_FILE" ]; then
+	CAT_DATA_HASH_FILE="$(cat "$DATA_HASH_FILE" | head -1)"
+	DATA_COMMIT_PREV_NR="$(echo "$CAT_DATA_HASH_FILE" | awk '{print $2}')"
+	DATA_COMMIT_LATEST_NR="$(echo "$CAT_DATA_HASH_FILE" | awk '{print $3}')"
+    else
+	echo "$DATA_HASH $DATA_COMMIT_NR $DATA_COMMIT_NR" > "$DATA_HASH_FILE"
+    fi
+    if [ -e "$DATA_HASH_FILE" ] && [ "$DATA_COMMIT_PREV_NR" != "" ]; then
+	if [ "$DATA_COMMIT_NR" -lt "$DATA_COMMIT_PREV_NR" ]; then
+	    echo; echo " warning: Detected older git revision of data than previously, $DATA_COMMIT_NR < $DATA_COMMIT_PREV_NR."
+	    SyncNote
+	else
+	    if [ "$DATA_COMMIT_LATEST_NR" != "" ] && [ "$DATA_COMMIT_NR" -lt "$DATA_COMMIT_LATEST_NR" ]; then
+		echo; echo " warning: Detected older git revision of data than synced in the past, $DATA_COMMIT_NR < $DATA_COMMIT_LATEST_NR."
+		SyncNote
+		if [ "$DATA_COMMIT_NR" -gt "$DATA_COMMIT_PREV_NR" ]; then DATA_COMMIT_LATEST_NR="$DATA_COMMIT_NR"; fi
+		# ^ first sync commit -gt than the wrong one = warning seen for last time, so situation still may be not fixed, but is most likely improved and we avoid endless warnings
+	    fi
+	    if [ "$1" != "--installer" ] && [ "$(echo "$CAT_DATA_HASH_FILE" | grep "$DATA_HASH")" != "" ]; then
+		echo; echo " NOTE: The archive wasn't created because for almost sure it would be exactly the same like last time (the same commit) and new creation date would convince many users to download it again."; echo
+		exit 0
+	    fi
 	fi
-	echo "$DATA_HASH $DATA_COMMIT_NR" > "$DATA_HASH_FILE"
-    else exit 0; fi
+	if [ "$DATA_COMMIT_LATEST_NR" = "" ] || [ "$DATA_COMMIT_NR" -gt "$DATA_COMMIT_LATEST_NR" ]; then
+	    DATA_COMMIT_LATEST_NR="$DATA_COMMIT_NR"
+	fi
+	echo "$DATA_HASH $DATA_COMMIT_NR $DATA_COMMIT_LATEST_NR" > "$DATA_HASH_FILE"
+    fi
 fi
 
 cd "$CURRENTDIR"

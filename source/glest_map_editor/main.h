@@ -86,7 +86,7 @@ private:
 	DECLARE_EVENT_TABLE()
 
 public:
-	
+
     MainToolBar(wxWindow *parent,
               wxWindowID id) : wxToolBar(parent,id) {}
 
@@ -200,7 +200,7 @@ private:
 	bool randomWithReset;
 	int randomMinimumHeight;
 	int randomMaximumHeight;
-	int randomChanceDevider;
+	int randomChanceDivider;
 	int randomRecursions;
 
 	ChangeType enabledGroup;

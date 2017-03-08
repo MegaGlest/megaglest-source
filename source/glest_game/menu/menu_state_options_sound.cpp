@@ -35,11 +35,33 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
+MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config"),
+	buttonOk("Options_Sound","buttonOk"),
+	buttonReturn("Options_Sound","buttonReturn"),
+
+	buttonKeyboardSetup("Options_Sound","buttonKeyboardSetup"),
+	buttonVideoSection("Options_Sound","buttonVideoSection"),
+	buttonAudioSection("Options_Sound","buttonAudioSection"),
+	buttonMiscSection("Options_Sound","buttonMiscSection"),
+	buttonNetworkSettings("Options_Sound","buttonNetworkSettings"),
+
+	labelSoundFactory("Options_Sound","labelSoundFactory"),
+	listBoxSoundFactory("Options_Sound","listBoxSoundFactory"),
+
+	labelVolumeFx("Options_Sound","labelVolumeFx"),
+	listBoxVolumeFx("Options_Sound","listBoxVolumeFx"),
+
+	labelVolumeAmbient("Options_Sound","labelVolumeAmbient"),
+	listBoxVolumeAmbient("Options_Sound","listBoxVolumeAmbient"),
+
+	labelVolumeMusic("Options_Sound","labelVolumeMusic"),
+	listBoxVolumeMusic("Options_Sound","listBoxVolumeMusic"),
+
+	mainMessageBox("Options_Sound","mainMessageBox")
 {
 	try {
-		containerName = "Options";
+		containerName = "Options_Sound";
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
@@ -47,50 +69,38 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 
 		int leftLabelStart=100;
 		int leftColumnStart=leftLabelStart+300;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
 		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.getString("Ok"));
 		mainMessageBox.setEnabled(false);
 		mainMessageBoxState=0;
 
-		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
 		buttonAudioSection.init(0, 700,tabButtonWidth,tabButtonHeight+20);
 		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonAudioSection.setText(lang.getString("Audio"));
 		// Video Section
-		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
 		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonVideoSection.setText(lang.getString("Video"));
 		//currentLine-=lineOffset;
 		//MiscSection
-		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 		buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
 		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonMiscSection.setText(lang.getString("Misc"));
 		//NetworkSettings
-		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
 		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonNetworkSettings.setText(lang.getString("Network"));
 
 		//KeyboardSetup
-		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
 		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
@@ -101,11 +111,9 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		int currentColumnStart=leftColumnStart; // set to right side
 
 		//soundboxes
-		labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
 		labelSoundFactory.init(currentLabelStart, currentLine);
 		labelSoundFactory.setText(lang.getString("SoundAndMusic2"));
 
-		listBoxSoundFactory.registerGraphicComponent(containerName,"listBoxSoundFactory");
 		listBoxSoundFactory.init(currentColumnStart, currentLine, 175);
 		listBoxSoundFactory.pushBackItem(lang.getString("None"));
 		listBoxSoundFactory.pushBackItem("OpenAL");
@@ -118,26 +126,20 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		listBoxSoundFactory.setSelectedItem(FSoundMode);
 		currentLine-=lineOffset;
 
-		labelVolumeFx.registerGraphicComponent(containerName,"labelVolumeFx");
 		labelVolumeFx.init(currentLabelStart, currentLine);
 		labelVolumeFx.setText(lang.getString("FxVolume"));
 
-		listBoxVolumeFx.registerGraphicComponent(containerName,"listBoxVolumeFx");
 		listBoxVolumeFx.init(currentColumnStart, currentLine, 80);
 		currentLine-=lineOffset;
 
-		labelVolumeAmbient.registerGraphicComponent(containerName,"labelVolumeAmbient");
 		labelVolumeAmbient.init(currentLabelStart, currentLine);
 
-		listBoxVolumeAmbient.registerGraphicComponent(containerName,"listBoxVolumeAmbient");
 		listBoxVolumeAmbient.init(currentColumnStart, currentLine, 80);
 		labelVolumeAmbient.setText(lang.getString("AmbientVolume"));
 		currentLine-=lineOffset;
 
-		labelVolumeMusic.registerGraphicComponent(containerName,"labelVolumeMusic");
 		labelVolumeMusic.init(currentLabelStart, currentLine);
 
-		listBoxVolumeMusic.registerGraphicComponent(containerName,"listBoxVolumeMusic");
 		listBoxVolumeMusic.init(currentColumnStart, currentLine, 80);
 		labelVolumeMusic.setText(lang.getString("MusicVolume"));
 		//currentLine-=lineOffset;
@@ -165,12 +167,10 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 
 
 		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
 		buttonReturn.setText(lang.getString("Return"));
 
-		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 
 		GraphicComponent::applyAllCustomProperties(containerName);
@@ -184,25 +184,12 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 void MenuStateOptionsSound::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	console.resetFonts();
 	mainMessageBox.init(lang.getString("Ok"));
 
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonNetworkSettings.setText(lang.getString("Network"));
-
 	labelSoundFactory.setText(lang.getString("SoundAndMusic2"));
 
 	std::vector<string> listboxData;
@@ -212,36 +199,14 @@ void MenuStateOptionsSound::reloadUI() {
 	listBoxSoundFactory.setItems(listboxData);
 
 	labelVolumeFx.setText(lang.getString("FxVolume"));
-
 	labelVolumeAmbient.setText(lang.getString("AmbientVolume"));
 	labelVolumeMusic.setText(lang.getString("MusicVolume"));
-
 
 	listboxData.clear();
 
 	buttonOk.setText(lang.getString("Save"));
 	buttonReturn.setText(lang.getString("Return"));
-
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
-
-
-
-//void MenuStateOptionsSound::showMessageBox(const string &text, const string &header, bool toggle){
-//	if(!toggle){
-//		mainMessageBox.setEnabled(false);
-//	}
-//
-//	if(!mainMessageBox.getEnabled()){
-//		mainMessageBox.setText(text);
-//		mainMessageBox.setHeader(header);
-//		mainMessageBox.setEnabled(true);
-//	}
-//	else{
-//		mainMessageBox.setEnabled(false);
-//	}
-//}
-
 
 void MenuStateOptionsSound::mouseClick(int x, int y, MouseButton mouseButton){
 

@@ -20,12 +20,13 @@ MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
+GCC_FORCED_VERSION=0
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:defhl:mnwx" option; do
+while getopts "c:defg:hl:mnwx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -43,14 +44,19 @@ while getopts "c:defhl:mnwx" option; do
            CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
+        g)
+           GCC_FORCED_VERSION=${OPTARG}
+           echo "${option} value: ${OPTARG} GCC_FORCED_VERSION [${GCC_FORCED_VERSION}]"
+        ;;
         h)
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
+                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
                 echo "       -e   : Force compile with EMBEDDED libraries"
                 echo "       -f   : Force using CLANG compiler"
+                echo "       -g x : Force using GCC version x - example: -g 6"
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
@@ -94,7 +100,7 @@ done
 
 # Compiler selection
 # Unless both the CC and CXX environment variables point to clang and clang++
-# respectively, we use GCC. To enforce clang compilation: 
+# respectively, we use GCC. To enforce clang compilation:
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
@@ -113,9 +119,9 @@ cd ${SCRIPTDIR}
 BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 
 # CMake options
-# The default configuration works fine for regular developers and is also used 
+# The default configuration works fine for regular developers and is also used
 # by our installers.
-# For more cmake/build options refer to 
+# For more cmake/build options refer to
 #   http://wiki.megaglest.org/Linux_Compiling#Building_using_CMake_by_Hand
 EXTRA_CMAKE_OPTIONS=
 
@@ -135,13 +141,13 @@ echo "CPU cores to be used: $NUMCORES"
 
 # ----------------------------------------------------------------------------
 
-if [ $MAKE_ONLY = 0 ]; then 
+if [ $MAKE_ONLY = 0 ]; then
         mkdir -p build
 fi
 
 cd build
 
-if [ $MAKE_ONLY = 0 ]; then 
+if [ $MAKE_ONLY = 0 ]; then
         if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 fi
 
@@ -160,17 +166,28 @@ if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FontConfig=OFF"
 fi
 
+if [ "$distribution" != "Mageia" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_USE_OpenSSL=OFF"
+fi
+
 case $distribution in
 	Debian)
 		case $release in
-			6.*|7.*) ;;
-			*)
+			6|6.*|7|7.*) ;;
+			8|8.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-					# ^ static jpeg seems to work again, debian testing 18.01.2016
 				fi
 				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
+				;;
+			*)
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
+				# ^ may be removed ~ when default clang's version will be 3.9+
 				;;
 		esac
 		;;
@@ -178,36 +195,40 @@ case $distribution in
 	Ubuntu)
 		case $release in
 			10.*|11.*|12.*|13.*|14.*) ;;
-			*)
+			15.*|16.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-				fi;;
+				fi
+				;;
+			*)
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				;;
 		esac
 		;;
 
 	LinuxMint)
 		case $release in
 			13|13.*|14|15|16|17|17.*) ;;
-			*)
+			18|18.*|19|19.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
-				fi;;
-		esac
-		;;
-
-	SuSE|SUSE?LINUX|Opensuse)
-		case $release in
+				fi
+				;;
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-					echo 'Turning ON dynamic CURL ...'
-					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
-				fi;;
+					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				;;
 		esac
 		;;
 
-	Fedora)
+	SuSE|SUSE?LINUX|Opensuse|Fedora|Mageia)
 		case $release in
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
@@ -225,9 +246,9 @@ case $distribution in
 		;;
 esac
 
-# If, in the configuration section on top of this script, the user has 
+# If, in the configuration section on top of this script, the user has
 # indicated they want to use clang in favor of the default of GCC, use clang.
-if [ $CLANG_FORCED = 1 ]; then 
+if [ $CLANG_FORCED = 1 ]; then
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH} -DCMAKE_CXX_COMPILER=${CLANGPP_BIN_PATH}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
@@ -247,6 +268,11 @@ elif [ "`echo $CC | grep -oF 'clang'`" = 'clang' -a "`echo $CXX | grep -oF 'clan
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_CC} -DCMAKE_CXX_COMPILER=${CLANG_CXX}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
+fi
+
+if [ "$GCC_FORCED_VERSION" != "0" ] && [ "$GCC_FORCED_VERSION" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=$(which gcc-$GCC_FORCED_VERSION) -DCMAKE_CXX_COMPILER=$(which g++-$GCC_FORCED_VERSION)"
+	echo "USER WANTS TO FORCE USE of GCC $GCC_FORCED_VERSION"
 fi
 
 if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then
@@ -291,6 +317,6 @@ else
         echo ''
         echo 'To launch MegaGlest from the current directory, use:'
         echo '  ./megaglest'
-        echo 'Or change into mk/linux and run it from there:'
-        echo '  ./megaglest --ini-path=./ --data-path=./'
+        #echo 'Or change into mk/linux and run it from there:'
+        #echo '  ./megaglest --ini-path=./ --data-path=./'
 fi

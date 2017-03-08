@@ -166,6 +166,7 @@ cd "$CURRENTDIR"
 rm -rf cmake-build
 mkdir cmake-build
 cd cmake-build
+# 'MOJOSETUP_GUI_*_STATIC=TRUE' > oddly it is not static after this, but isn't optional anymore so this kills portability
 cmake \
     -DCMAKE_BUILD_TYPE=$BUILDTYPE \
     -DCMAKE_C_COMPILER=$CC \
@@ -178,8 +179,9 @@ cmake \
     -DMOJOSETUP_INPUT_XZ=TRUE \
     -DMOJOSETUP_BUILD_LUAC=TRUE \
     -DMOJOSETUP_GUI_GTKPLUS2=TRUE \
+    -DMOJOSETUP_GUI_GTKPLUS2_STATIC=FALSE \
     -DMOJOSETUP_GUI_NCURSES=TRUE \
-    -DMOJOSETUP_GUI_NCURSES_STATIC=TRUE \
+    -DMOJOSETUP_GUI_NCURSES_STATIC=FALSE \
     -DMOJOSETUP_GUI_STDIO=TRUE \
     -DMOJOSETUP_GUI_STDIO_STATIC=TRUE \
     -DMOJOSETUP_GUI_WWW=FALSE \

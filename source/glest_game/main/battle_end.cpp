@@ -73,6 +73,16 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	if(stats->getVictory(stats->getThisFactionIndex())==true){
+		if (Config::getInstance().getString("InternetGamesBlockScenario", "") != ""
+				&& Config::getInstance().getBool("InternetGamesAllowed", "false") == false) {
+			if(Config::getInstance().getString("InternetGamesBlockScenario")==gameSettings->getScenario()){
+				Config::getInstance().setBool("InternetGamesAllowed",true);
+				Config::getInstance().save();
+			}
+		}
+	}
+
 	initBackgroundVideo();
 	initBackgroundMusic();
 
@@ -714,7 +724,7 @@ void BattleEnd::render() {
 		renderer.renderButton(&buttonExit);
 
 		//exit message box
-		if(mainMessageBox.getEnabled()){
+		if(mainMessageBox.getEnabled() && renderToTextureCount < 300){
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
@@ -748,7 +758,7 @@ void BattleEnd::keyDown(SDL_KeyboardEvent key){
 		}
 		else {
 			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.getString("ExitGameMenu?"), "", true);
+			showMessageBox(lang.getString("ExitToRootMenu"), "", true);
 		}
 	}
 	else if(isKeyPressed(SDLK_RETURN,key) && mainMessageBox.getEnabled()) {

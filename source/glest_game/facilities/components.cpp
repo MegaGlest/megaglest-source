@@ -19,6 +19,8 @@
 #include "util.h"
 #include "conversion.h"
 #include "lang.h"
+#include "gen_uuid.h"
+//#include <cxxabi.h>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -39,11 +41,23 @@ Vec3f GraphicComponent::customTextColor = Vec3f(1.0,1.0,1.0);
 
 std::map<std::string, std::map<std::string, GraphicComponent *> > GraphicComponent::registeredGraphicComponentList;
 
-GraphicComponent::GraphicComponent(std::string containerName, std::string objName) {
-	instanceName = "";
-	if(objName != "") {
+GraphicComponent::GraphicComponent(std::string containerName, std::string objName, bool registerControl) {
+	this->containerName = containerName;
+	this->instanceName = "";
+	if(containerName == "" || objName == "") {
+	    //char szBuf[8096]="";
+	    //snprintf(szBuf,8096,"Control not properly registered Container [%s] Control [%s]\n",containerName.c_str(),objName.c_str());
+		//throw megaglest_runtime_error(szBuf);
+	}
+	if(objName != "" && registerControl) {
 		registerGraphicComponent(containerName,objName);
 	}
+	else {
+		this->instanceName = objName;
+	}
+	this->fontCallbackName = objName + "_" + getNewUUD();
+	CoreData::getInstance().registerFontChangedCallback(this->getFontCallbackName(), this);
+
 	enabled  = true;
 	editable = true;
 	visible  = true;
@@ -55,6 +69,16 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	font = NULL;
 	font3D = NULL;
 	textNativeTranslation = "";
+}
+
+string GraphicComponent::getNewUUD() {
+	char  uuid_str[38];
+	get_uuid_string(uuid_str,sizeof(uuid_str));
+	return string(uuid_str);
+}
+
+GraphicComponent::~GraphicComponent() {
+	CoreData::getInstance().unRegisterFontChangedCallback(this->getFontCallbackName());
 }
 
 void GraphicComponent::clearRegisteredComponents(std::string containerName) {
@@ -80,10 +104,44 @@ void GraphicComponent::clearRegisterGraphicComponent(std::string containerName, 
 }
 
 void GraphicComponent::registerGraphicComponent(std::string containerName, std::string objName) {
-	instanceName = objName;
-	registeredGraphicComponentList[containerName][objName] = this;
+	// unregistered old name if we have been renamed
+	if(this->getInstanceName() != "") {
+		//printf("RENAME Register Callback detected calling: Control old [%s] new [%s]\n",this->getInstanceName().c_str(),objName.c_str());
+		clearRegisterGraphicComponent(this->containerName, this->getInstanceName());
+	}
+	else {
+		//printf("NEW Register Callback detected calling: Control container [%s] name [%s]\n",containerName.c_str(),objName.c_str());
+	}
 
+	if(containerName == "" || objName == "") {
+	    //char szBuf[8096]="";
+	    //snprintf(szBuf,8096,"Control not properly registered Container [%s] Control [%s]\n",this->containerName.c_str(),objName.c_str());
+		//throw megaglest_runtime_error(szBuf);
+	}
+
+	this->containerName = containerName;
+	this->instanceName = objName;
+	registeredGraphicComponentList[containerName][objName] = this;
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str(),registeredGraphicComponentList[containerName].size());
+}
+
+void GraphicComponent::registerGraphicComponentOnlyFontCallbacks(std::string containerName, std::string objName) {
+	if(this->getInstanceName() != "") {
+		//printf("(FONT ONLY) RENAME Register Callback detected calling: Control old [%s] new [%s]\n",this->getInstanceName().c_str(),objName.c_str());
+		clearRegisterGraphicComponent(this->containerName, this->getInstanceName());
+	}
+	else {
+		//printf("(FONT ONLY) NEW Register Callback detected calling: Control container [%s] name [%s]\n",containerName.c_str(),objName.c_str());
+	}
+
+	if(containerName == "" || objName == "") {
+	    //char szBuf[8096]="";
+	    //snprintf(szBuf,8096,"Control not properly registered Container [%s] Control [%s]\n",this->containerName.c_str(),objName.c_str());
+		//throw megaglest_runtime_error(szBuf);
+	}
+
+	this->containerName = containerName;
+	this->instanceName = objName;
 }
 
 GraphicComponent * GraphicComponent::findRegisteredComponent(std::string containerName, std::string objName) {
@@ -136,8 +194,6 @@ void GraphicComponent::applyCustomProperties(std::string containerName) {
 				ctl->w = config.getInt(containerName + "_" + iterFind2->first + "_w_" + languageToken, intToStr(ctl->w).c_str());
 				ctl->h = config.getInt(containerName + "_" + iterFind2->first + "_h_" + languageToken, intToStr(ctl->h).c_str());
 				ctl->visible = config.getBool(containerName + "_" + iterFind2->first + "_visible_" + languageToken,boolToStr(ctl->visible).c_str());
-
-				//}
 			}
 		}
 	}
@@ -208,9 +264,51 @@ bool GraphicComponent::saveCustomProperties(std::string containerName) {
 	return savedChange;
 }
 
+void GraphicComponent::setFont(Font2D *font) { 
+	this->font = font;
+	if (this->font != NULL) {
+		this->font2DUniqueId = font->getFontUniqueId();
+	}
+	else {
+		this->font2DUniqueId = "";
+	}
+}
+
+void GraphicComponent::setFont3D(Font3D *font) { 
+	this->font3D = font;
+	if (this->font3D != NULL) {
+		this->font3DUniqueId = font->getFontUniqueId();
+	}
+	else {
+		this->font3DUniqueId = "";
+	}
+}
+
+void GraphicComponent::FontChangedCallback(std::string fontUniqueId, Font *font) {
+	//printf("In FontChanged for [%s] font [%p] Control 2D [%s] 3D [%s]\n", fontUniqueId.c_str(),font,this->font2DUniqueId.c_str(),this->font3DUniqueId.c_str());
+	if (fontUniqueId != "") {
+		if (fontUniqueId == this->font2DUniqueId) {
+			if (font != NULL) {
+				this->font = (Font2D *)font;
+			}
+			else {
+				this->font = NULL;
+			}
+		}
+		else if (fontUniqueId == this->font3DUniqueId) {
+			if (font != NULL) {
+				this->font3D = (Font3D *)font;
+			}
+			else {
+				this->font3D = NULL;
+			}
+		}
+	}
+}
+
 void GraphicComponent::reloadFonts() {
-    font= CoreData::getInstance().getMenuFontNormal();
-    font3D= CoreData::getInstance().getMenuFontNormal3D();
+	setFont(CoreData::getInstance().getMenuFontNormal());
+	setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 }
 
 void GraphicComponent::reloadFontsForRegisterGraphicComponents(std::string containerName) {
@@ -272,7 +370,8 @@ void GraphicComponent::resetFade(){
 const int GraphicLabel::defH= 20;
 const int GraphicLabel::defW= 70;
 
-GraphicLabel::GraphicLabel() {
+GraphicLabel::GraphicLabel(std::string containerName, std::string objName, bool registerControl) :
+		GraphicComponent(containerName, objName, registerControl) {
 	centered = false;
 	wordWrap = false;
 	centeredW = -1;
@@ -339,7 +438,9 @@ void GraphicLabel::setCenteredH(bool centered) {
 const int GraphicButton::defH= 22;
 const int GraphicButton::defW= 90;
 
-GraphicButton::GraphicButton(std::string containerName, std::string objName) : GraphicComponent(containerName,objName) {
+GraphicButton::GraphicButton(std::string containerName, std::string objName, bool registerControl) :
+	GraphicComponent(containerName,objName,registerControl) {
+
 	lighted = false;
 	alwaysLighted = false;
 	useCustomTexture = false;
@@ -369,7 +470,8 @@ const int GraphicListBox::defH= 22;
 const int GraphicListBox::defW= 140;
 
 GraphicListBox::GraphicListBox(std::string containerName, std::string objName)
-: GraphicComponent(containerName, objName), graphButton1(), graphButton2() {
+: GraphicComponent(containerName, objName), graphButton1(containerName, objName + "_button1"),
+											graphButton2(containerName, objName + "_button2") {
     selectedItemIndex = 0;
     lighted = false;
     leftControlled = false;
@@ -439,14 +541,6 @@ void GraphicListBox::setLeftControlled(bool leftControlled) {
 			graphButton1.setW(graphButton1.getW()-4);
 			graphButton2.setY(graphButton2.getY()+2);
 			graphButton1.setY(graphButton1.getY()+2);
-
-//			graphButton2.setX(x);
-//			graphButton2.setH(graphButton2.getH()/2);
-//			graphButton2.setW(graphButton2.getW()/2);
-//			graphButton1.setH(graphButton1.getH()/2);
-//			graphButton1.setW(graphButton1.getW()/2);
-//			graphButton2.setY(graphButton2.getY()+graphButton1.getH());
-
 		}
 		else {
 			graphButton2.setX(x+w-graphButton2.getW()+4);
@@ -456,14 +550,6 @@ void GraphicListBox::setLeftControlled(bool leftControlled) {
 			graphButton1.setW(graphButton1.getW()+4);
 			graphButton2.setY(graphButton2.getY()-2);
 			graphButton1.setY(graphButton1.getY()-2);
-
-
-//			graphButton2.setY(graphButton2.getY()-graphButton1.getH());
-//			graphButton2.setH(graphButton2.getH()*2);
-//			graphButton2.setW(graphButton2.getW()*2);
-//			graphButton1.setH(graphButton1.getH()*2);
-//			graphButton1.setW(graphButton1.getW()*2);
-//			graphButton2.setX(x+w-graphButton2.getW());
 		}
 	}
 }
@@ -622,13 +708,12 @@ const int GraphicMessageBox::defH= 280;
 const int GraphicMessageBox::defW= 350;
 
 GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName) :
-	GraphicComponent(containerName, objName){
+	GraphicComponent(containerName, objName) {
 	header= "";
 	autoWordWrap=true;
 }
 
 GraphicMessageBox::~GraphicMessageBox(){
-	//remove buttons
 	removeButtons();
 }
 
@@ -650,10 +735,10 @@ void GraphicMessageBox::init(const string &button1Str, int newWidth, int newHeig
 	addButton(button1Str);
 }
 
-void GraphicMessageBox::init(int newWidth, int newHeight){
-	font= CoreData::getInstance().getMenuFontNormal();
-	font3D= CoreData::getInstance().getMenuFontNormal3D();
-
+void GraphicMessageBox::init(int newWidth, int newHeight) {
+	setFont(CoreData::getInstance().getMenuFontNormal());
+	setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+	
 	h= (newHeight >= 0 ? newHeight : defH);
 	w= (newWidth >= 0 ? newWidth : defW);
 
@@ -664,7 +749,7 @@ void GraphicMessageBox::init(int newWidth, int newHeight){
 }
 
 void GraphicMessageBox::addButton(const string &buttonStr, int width, int height){
-	GraphicButton *newButton= new GraphicButton();
+	GraphicButton *newButton= new GraphicButton(containerName, instanceName + "_Button_" + buttonStr);
 	newButton->init(0, 0);
 	newButton->setText(buttonStr);
 	if(width != -1){
@@ -956,7 +1041,9 @@ void GraphicScrollBar::arrangeComponents(vector<GraphicComponent *> &gcs) {
 const int PopupMenu::defH= 240;
 const int PopupMenu::defW= 350;
 
-PopupMenu::PopupMenu() {
+PopupMenu::PopupMenu(std::string containerName, std::string objName) : GraphicComponent(containerName, objName, false) {
+	registerGraphicComponentOnlyFontCallbacks(containerName,objName);
+
 	h= defH;
 	w= defW;
 }
@@ -968,8 +1055,8 @@ PopupMenu::~PopupMenu() {
 void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	header = menuHeader;
 
-	font= CoreData::getInstance().getMenuFontNormal();
-	font3D= CoreData::getInstance().getMenuFontNormal3D();
+	setFont(CoreData::getInstance().getMenuFontNormal());
+	setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	buttons.clear();
 
@@ -1018,7 +1105,8 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	}
 
 	for(unsigned int i = 0; i < menuItems.size(); ++i) {
-		GraphicButton button;
+		GraphicButton button(containerName, instanceName + "_Popup_Button_" + menuItems[i],false);
+		button.registerGraphicComponentOnlyFontCallbacks(containerName, instanceName + "_Popup_Button_" + menuItems[i]);
 		button.init(x+(w-maxButtonWidth)/2, yStartOffset - (i*(textHeight + textHeightSpacing)));
 		button.setText(menuItems[i]);
 		button.setW(maxButtonWidth);

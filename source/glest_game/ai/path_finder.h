@@ -24,7 +24,7 @@
 #include "skill_type.h"
 #include "map.h"
 #include "unit.h"
-
+//#include "randomc.h"
 #include "leak_dumper.h"
 
 using std::vector;
@@ -90,15 +90,16 @@ public:
 	protected:
 		Mutex *factionMutexPrecache;
 	public:
-		FactionState() :
+		FactionState(int factionIndex) :
 			//factionMutexPrecache(new Mutex) {
-			factionMutexPrecache(NULL) {
+			factionMutexPrecache(NULL) { //, random(factionIndex) {
 
 			openPosList.clear();
 			openNodesList.clear();
 			closedNodesList.clear();
 			nodePool.clear();
 			nodePoolCount = 0;
+			this->factionIndex = factionIndex;
 			useMaxNodeCount = 0;
 
 			precachedTravelState.clear();
@@ -119,7 +120,9 @@ public:
 		std::vector<Node> nodePool;
 
 		int nodePoolCount;
+		int factionIndex;
 		RandomGen random;
+		//CRandomMersenne random;
 		int useMaxNodeCount;
 
 		std::map<int,TravelState> precachedTravelState;
@@ -133,7 +136,7 @@ public:
 
 		void init() {
 			for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-				factions.push_back(new FactionState());
+				factions.push_back(new FactionState(index));
 			}
 		}
 
@@ -224,6 +227,7 @@ private:
 	}
 
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
+
 	inline static float heuristic(const Vec2i &pos, const Vec2i &finalPos) {
 		return pos.dist(finalPos);
 	}
@@ -240,29 +244,44 @@ private:
 			throw megaglest_runtime_error("openNodesList.empty() == true");
 		}
 
-		Node *result = faction.openNodesList.begin()->second[0];
+		Node *result = faction.openNodesList.begin()->second.front();
 		faction.openNodesList.begin()->second.erase(faction.openNodesList.begin()->second.begin());
-		if(faction.openNodesList.begin()->second.size() == 0) {
+		if(faction.openNodesList.begin()->second.empty()) {
 			faction.openNodesList.erase(faction.openNodesList.begin());
 		}
 		return result;
 	}
 
 	inline bool processNode(Unit *unit, Node *node,const Vec2i finalPos,
-			int i, int j, bool &nodeLimitReached,int maxNodeCount) {
+			int x, int y, bool &nodeLimitReached,int maxNodeCount) {
 		bool result = false;
-		Vec2i sucPos= node->pos + Vec2i(i, j);
+		Vec2i sucPos= node->pos + Vec2i(x, y);
 
 		int unitFactionIndex = unit->getFactionIndex();
 		FactionState &faction = factions.getFactionState(unitFactionIndex);
 
-		if(openPos(sucPos, faction) == false &&
-				canUnitMoveSoon(unit, node->pos, sucPos) == true) {
+		bool foundOpenPosForPos = openPos(sucPos, faction);
+		bool allowUnitMoveSoon = canUnitMoveSoon(unit, node->pos, sucPos);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+				SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In processNode() nodeLimitReached %d unitFactionIndex %d foundOpenPosForPos %d allowUnitMoveSoon %d maxNodeCount %d node->pos = %s finalPos = %s sucPos = %s faction.openPosList.size() %ld closedNodesList.size() %ld",
+					nodeLimitReached,unitFactionIndex,foundOpenPosForPos, allowUnitMoveSoon, maxNodeCount,node->pos.getString().c_str(),finalPos.getString().c_str(),sucPos.getString().c_str(),faction.openPosList.size(),faction.closedNodesList.size());
+
+			if(Thread::isCurrentThreadMainThread() == false) {
+				unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+			}
+			else {
+				unit->logSynchData(__FILE__,__LINE__,szBuf);
+			}
+		}
+
+		if(foundOpenPosForPos == false && allowUnitMoveSoon) {
 			//if node is not open and canMove then generate another node
 			Node *sucNode= newNode(faction,maxNodeCount);
 			if(sucNode != NULL) {
 				sucNode->pos= sucPos;
-				sucNode->heuristic= heuristic(sucNode->pos, finalPos);
+				sucNode->heuristic = heuristic(sucNode->pos, finalPos);
 				sucNode->prev= node;
 				sucNode->next= NULL;
 				sucNode->exploredCell = map->getSurfaceCell(
@@ -274,6 +293,20 @@ private:
 				faction.openPosList[sucNode->pos] = true;
 
 				result = true;
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In processNode() sucPos = %s",sucPos.getString().c_str());
+
+					if(Thread::isCurrentThreadMainThread() == false) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
 			}
 			else {
 				nodeLimitReached= true;
@@ -287,7 +320,7 @@ private:
 			Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 	int getPathFindExtendRefreshNodeCount(FactionState &faction);
 
-	inline bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
+	inline bool canUnitMoveSoon(Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
 		bool result = map->aproxCanMoveSoon(unit, pos1, pos2);
 		return result;
 	}
@@ -298,15 +331,58 @@ private:
 			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
 			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+				SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In doAStarPathSearch() nodeLimitReached %d whileLoopCount %d unitFactionIndex %d pathFound %d maxNodeCount %d",
+					nodeLimitReached,whileLoopCount,unitFactionIndex,pathFound, maxNodeCount);
+
+			if(curFrameIndex >= 0) {
+				unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+			}
+			else {
+				unit->logSynchData(__FILE__,__LINE__,szBuf);
+			}
+		}
+
 		FactionState &faction = factions.getFactionState(unitFactionIndex);
 
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
 			if(faction.openNodesList.empty() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In doAStarPathSearch() nodeLimitReached %d whileLoopCount %d unitFactionIndex %d pathFound %d maxNodeCount %d",
+							nodeLimitReached,whileLoopCount,unitFactionIndex,pathFound, maxNodeCount);
+
+					if(curFrameIndex >= 0) {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+				}
+
 				pathFound = false;
 				break;
 			}
 			node = minHeuristicFastLookup(faction);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+					SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In doAStarPathSearch() nodeLimitReached %d whileLoopCount %d unitFactionIndex %d pathFound %d maxNodeCount %d node->pos = %s finalPos = %s node->exploredCell = %d",
+						nodeLimitReached,whileLoopCount,unitFactionIndex,pathFound, maxNodeCount,node->pos.getString().c_str(),finalPos.getString().c_str(),node->exploredCell);
+
+				if(curFrameIndex >= 0) {
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+				else {
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+			}
+
 			if(node->pos == finalPos || node->exploredCell == false) {
 				pathFound = true;
 				break;
@@ -321,8 +397,30 @@ private:
 			int failureCount 	= 0;
 			int cellCount 		= 0;
 
-			int tryDirection 	= faction.random.randRange(0, 3);
-			if(tryDirection == 3) {
+//			if(Thread::isCurrentThreadMainThread() == false) {
+//				throw megaglest_runtime_error("#1 Invalid access to FactionState random from outside main thread current id = " +
+//						intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+//			}
+
+			//int tryDirection 	= 1;
+			//int tryDirection 	= faction.random.IRandomX(1, 4);
+			int tryDirection 	= faction.random.randRange(1, 4);
+			//int tryDirection 	= unit->getRandom(true)->randRange(1, 4);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+					SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In doAStarPathSearch() tryDirection %d",tryDirection);
+
+				if(curFrameIndex >= 0) {
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+				else {
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+			}
+
+			if(tryDirection == 4) {
 				for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
 					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
@@ -332,7 +430,7 @@ private:
 					}
 				}
 			}
-			else if(tryDirection == 2) {
+			else if(tryDirection == 3) {
 				for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
 					for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
@@ -342,7 +440,7 @@ private:
 					}
 				}
 			}
-			else if(tryDirection == 1) {
+			else if(tryDirection == 2) {
 				for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
 					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
@@ -363,6 +461,21 @@ private:
 				}
 			}
 		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+				SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In doAStarPathSearch() nodeLimitReached %d whileLoopCount %d unitFactionIndex %d pathFound %d maxNodeCount %d",
+					nodeLimitReached,whileLoopCount,unitFactionIndex,pathFound, maxNodeCount);
+
+			if(curFrameIndex >= 0) {
+				unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+			}
+			else {
+				unit->logSynchData(__FILE__,__LINE__,szBuf);
+			}
+		}
+
 	}
 
 };

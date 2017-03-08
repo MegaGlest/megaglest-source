@@ -123,6 +123,7 @@ void ProgramState::mouseMove(int x, int y, const MouseState *mouseState) {
 Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
 		ProgramState(program) {
     userWantsExit = false;
+	msgBox.registerGraphicComponent("ShowMessageProgramState", "msgBox");
 	msgBox.init("Ok");
 
 	if(msg) {
@@ -180,7 +181,7 @@ void Program::ShowMessageProgramState::update() {
 bool Program::rendererInitOk = false;
 bool Program::tryingRendererInit = false;
 
-Program::Program() {
+Program::Program() : msgBox("Program", "msgBox") {
 	//this->masterserverMode = false;
 	this->window = NULL;
 	this->shutdownApplicationEnabled = false;
@@ -193,6 +194,7 @@ Program::Program() {
 
 	//mesage box
 	Lang &lang= Lang::getInstance();
+	//msgBox.registerGraphicComponent("Program", "msgBox");
 	msgBox.init(lang.getString("Ok"));
 	msgBox.setEnabled(false);
 }
@@ -706,6 +708,7 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 				try {
 					Game *game = dynamic_cast<Game *>(programStateNew);
 					Renderer &renderer= Renderer::getInstance();
+					game->setQuitPendingIndicator();// by this the world is no more updated
 					renderer.initGame(game,game->getGameCameraPtr());
 				}
 				catch(megaglest_runtime_error& ex2) {

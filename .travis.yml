@@ -3,40 +3,37 @@ language: cpp
 
 sudo: required
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
-
-env:
-  - GCC_VERSION="5"
-  - GCC_VERSION="native"
-  - LLVM_VERSION="3.7"
-  - LLVM_VERSION="native"
-
 matrix:
-  exclude:
-    - compiler: gcc
-      env: LLVM_VERSION="3.7"
-    - compiler: gcc
-      env: LLVM_VERSION="native"
-    - compiler: clang
-      env: GCC_VERSION="5"
-    - compiler: clang
-      env: GCC_VERSION="native"
+  include:
+    - os: linux
+      compiler: gcc
+      env: Tr_Compiler_Version="6"
+      # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
+      dist: trusty # broken compiler on 12.04
+    - os: linux
+      compiler: gcc
+      env: Tr_Compiler_Version="default"
     - os: linux
       compiler: clang
-      env: LLVM_VERSION="native" # broken compiler
-    - os: osx
-      compiler: gcc # unsupported compiler
-    - os: osx
+      env: Tr_Compiler_Version="3.9"
+      # http://apt.llvm.org/, compiler not newer than available on debian testing
+      # https://packages.debian.org/search?suite=testing&keywords=clang-
+      dist: trusty
+    - os: linux
       compiler: clang
-      env: LLVM_VERSION="3.7" # missing compiler by brew
-  #allow_failures:
-  #  - os: osx
+      env: Tr_Compiler_Version="default"
+      dist: trusty # broken compiler on 12.04
+    - os: osx
+      #osx_image: xcode6.4 # seems broken and has lower priority in queue than default one
+      env: Tr_Xcode_Version="default"
+      #env: Tr_Xcode_Version="6.4"
+      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
+      # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
+  fast_finish: true
+  allow_failures:
+    - os: osx
+    # it's not really acceptable to wait 40 minutes or sometimes up to even 3 hours
+    # for the result just because the queue for mac is always so long
 
 git:
   submodules: false
@@ -46,30 +43,26 @@ git:
 #    - master
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$GCC_VERSION" != "native" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
-  # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main'; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo add-apt-repository --yes "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-${LLVM_VERSION} main"; fi
-  # http://llvm.org/apt/
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; fi # UPDATE REPOS
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.travis-before_install.sh "$CC" "$Tr_Compiler_Version"; fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
-  #- if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get upgrade -qq; fi # UPGRADE SYSTEM TO LATEST PATCH LEVEL
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get install -y -qq; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then sudo apt-get install -qq gcc-${GCC_VERSION} g++-${GCC_VERSION}; fi
-  - if [ "$CXX" = "g++" ] && [ "$GCC_VERSION" != "native" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then sudo apt-get --allow-unauthenticated -qq install clang-${LLVM_VERSION}; fi
-  - if [ "$CXX" == "clang++" ] && [ "$LLVM_VERSION" != "native" ]; then export CXX="clang++-${LLVM_VERSION}" CC="clang-${LLVM_VERSION}"; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo mk/linux/setupBuildDeps.sh --quiet; fi # INSTALL OUR DEPENDENCIES
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
+    # ^ not on travis also needed are: cmake + pkgconfig + xquartz (find by "search") + (maybe) git + (maybe) bash
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew outdated cmake || brew upgrade cmake; brew outdated pkgconfig || brew upgrade pkgconfig; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew link --force gettext; fi
+    # ^ odd linking problems related with brew which is not creating links
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" = "6.4" ]; then brew install Caskroom/cask/xquartz; fi
+  - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
+  - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
+  - $CC --version
   - $CXX --version
   - cmake --version
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo ./.travis-before_install.sh; fi
 
 script:
 # ALL THE BUILD COMMANDS HERE
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mk/linux/build-mg.sh -c 4; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macosx/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" = "" ]; then mk/linux/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" != "" ]; then mk/linux/build-mg.sh -w -c 4; fi
+  # ^ -w may be removed on more modern dist: than trusty, problems related with 'new wx+clang+old gcc'
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macos/build-mg.sh -c 4; fi
 
 # https://docs.travis-ci.com/user/notifications/#IRC-notification
 notifications:
@@ -80,7 +73,4 @@ notifications:
     use_notice: true
     on_success: change
     template:
-      #- "[%{repository_slug}#%{branch} @%{commit}] %{author}): %{message}"
-      #- "Diff: %{compare_url}"
-      #- "Build: %{build_url}"
       - "[%{repository_name}#%{branch}@%{commit}] %{author}: %{message} %{build_url}"

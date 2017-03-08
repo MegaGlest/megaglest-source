@@ -139,11 +139,44 @@ IF(BUILD_MEGAGLEST)
 		ENDIF()
 	ENDIF()
 
+    find_package(PkgConfig REQUIRED)
+    IF(FORCE_STREFLOP_SOFTWRAPPER)
+        pkg_search_module(STREFLOP streflop-soft)
+    ELSE()
+        IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0")
+            pkg_search_module(STREFLOP streflop-sse)
+        ELSE()
+            IF(HAS_X87_SUPPORT)
+                pkg_search_module(STREFLOP streflop-x87)
+            ELSE()
+                pkg_search_module(STREFLOP streflop-soft)
+            ENDIF()
+        ENDIF()
+    ENDIF()
+    IF(NOT STREFLOP_FOUND)
+        pkg_search_module(STREFLOP streflop)
+    ENDIF()
+    MESSAGE(STATUS "Search for Library STREFLOP result = ${STREFLOP_FOUND} libs: ${STREFLOP_LIBRARIES} include dirs: ${STREFLOP_INCLUDE_DIRS}")
+
+    IF(FORCE_EMBEDDED_LIBS)
+        SET(STREFLOP_FOUND OFF)
+        MESSAGE(STATUS "FORCING USE of EMBEDDED Libraries...")
+    ENDIF()
+
+    IF(WANT_USE_STREFLOP)
+        IF(STREFLOP_FOUND)
+            INCLUDE_DIRECTORIES(${STREFLOP_INCLUDE_DIRS} ${STREFLOP_INCLUDE_DIRS}/streflop)
+            SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${STREFLOP_LIBRARIES})
+
+		    ADD_DEFINITIONS("-DUSE_STREFLOP_PKG")
+        ENDIF()
+    ENDIF()
+
 	#########################################################################################
 	# megaglest game
 
 	SET(DIRS_WITH_SRC
-	    	ai
+	   	ai
 		facilities
 		game
 		global
@@ -174,7 +207,7 @@ IF(BUILD_MEGAGLEST)
 		${GLEST_LIB_INCLUDE_ROOT}lua
 		${GLEST_LIB_INCLUDE_ROOT}map)
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
 			${GLEST_LIB_INCLUDE_ROOT}streflop
@@ -241,7 +274,7 @@ IF(BUILD_MEGAGLEST)
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
 	SET(MG_STREFLOP "")
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		SET(MG_STREFLOP "streflop")
 	ENDIF()
 
@@ -262,7 +295,7 @@ IF(BUILD_MEGAGLEST)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
 	IF(NOT WIN32)
-		IF(WANT_USE_STREFLOP)
+		IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
@@ -329,16 +362,16 @@ IF(BUILD_MEGAGLEST)
 				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 		ELSEIF(UNIX AND APPLE)
 			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/macosx/glest.ini"
+				"${PROJECT_SOURCE_DIR}/mk/macos/glest.ini"
 				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-			IF(WANT_SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/p7zip/")
+			IF(WANT_SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macos/p7zip/")
 				INSTALL(DIRECTORY
-					"${PROJECT_SOURCE_DIR}/mk/macosx/p7zip"
+					"${PROJECT_SOURCE_DIR}/mk/macos/p7zip"
 					DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 			ENDIF()
-			IF(WANT_SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/lib/")
+			IF(WANT_SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macos/lib/")
 				INSTALL(DIRECTORY
-					"${PROJECT_SOURCE_DIR}/mk/macosx/lib/"
+					"${PROJECT_SOURCE_DIR}/mk/macos/lib/"
 					DESTINATION "${MEGAGLEST_DATA_INSTALL_PATH}/../../Frameworks/")
 			ENDIF()
 		ENDIF()
@@ -348,7 +381,7 @@ IF(BUILD_MEGAGLEST)
 			DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 		IF(UNIX AND APPLE AND NOT WANT_SINGLE_INSTALL_DIRECTORY)
 			INSTALL(FILES
-				"${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns"
+				"${PROJECT_SOURCE_DIR}/mk/macos/bundle_resources/MegaGlest.icns"
 				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
 		ENDIF()
 	ENDIF()

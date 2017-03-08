@@ -35,62 +35,88 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
+MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config"),
+	buttonOk("Options_Network","buttonOk"),
+	buttonReturn("Options_Network","buttonReturn"),
+
+	buttonKeyboardSetup("Options_Network","buttonKeyboardSetup"),
+	buttonVideoSection("Options_Network","buttonVideoSection"),
+	buttonAudioSection("Options_Network","buttonAudioSection"),
+	buttonMiscSection("Options_Network","buttonMiscSection"),
+	buttonNetworkSettings("Options_Network","buttonNetworkSettings"),
+
+	mainMessageBox("Options_Network","mainMessageBox"),
+
+	labelExternalPort("Options_Network","labelExternalPort"),
+	labelServerPortLabel("Options_Network","labelServerPortLabel"),
+
+	labelPublishServerExternalPort("Options_Network","labelPublishServerExternalPort"),
+	listBoxServerPort("Options_Network","listBoxServerPort"),
+
+	labelEnableFTP("Options_Network","labelEnableFTP"),
+	checkBoxEnableFTP("Options_Network","checkBoxEnableFTP"),
+
+	labelEnableFTPServer("Options_Network","labelEnableFTPServer"),
+	checkBoxEnableFTPServer("Options_Network","checkBoxEnableFTPServer"),
+
+	labelFTPServerPortLabel("Options_Network","labelFTPServerPortLabel"),
+	labelFTPServerPort("Options_Network","labelFTPServerPort"),
+
+	labelFTPServerDataPortsLabel("Options_Network","labelFTPServerDataPortsLabel"),
+	labelFTPServerDataPorts("Options_Network","labelFTPServerDataPorts"),
+
+	labelEnableFTPServerInternetTilesetXfer("Options_Network","labelEnableFTPServerInternetTilesetXfer"),
+	checkBoxEnableFTPServerInternetTilesetXfer("Options_Network","checkBoxEnableFTPServerInternetTilesetXfer"),
+
+	labelEnableFTPServerInternetTechtreeXfer("Options_Network","labelEnableFTPServerInternetTechtreeXfer"),
+	checkBoxEnableFTPServerInternetTechtreeXfer("Options_Network","checkBoxEnableFTPServerInternetTechtreeXfer"),
+
+	labelEnablePrivacy("Options_Network","labelEnablePrivacy"),
+	checkBoxEnablePrivacy("Options_Network","checkBoxEnablePrivacy")
+
 {
 	try {
-		containerName = "Options";
+		containerName = "Options_Network";
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
 		this->parentUI=parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
-		//modeinfos=list<ModeInfo> ();
+
 		int leftLabelStart=100;
 		int leftColumnStart=leftLabelStart+300;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
 		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.getString("Ok"));
 		mainMessageBox.setEnabled(false);
 		mainMessageBoxState=0;
 
-		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
 		buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
 		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonAudioSection.setText(lang.getString("Audio"));
 		// Video Section
-		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
 		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonVideoSection.setText(lang.getString("Video"));
 		//currentLine-=lineOffset;
 		//MiscSection
-		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 		buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
 		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonMiscSection.setText(lang.getString("Misc"));
 		//NetworkSettings
-		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		buttonNetworkSettings.init(600, 700,tabButtonWidth,tabButtonHeight+20);
 		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonNetworkSettings.setText(lang.getString("Network"));
 
 		//KeyboardSetup
-		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
 		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
@@ -102,7 +128,6 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 
 
 		// external server port
-		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
 		labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
 		labelPublishServerExternalPort.setText(lang.getString("PublishServerExternalPort"));
 
@@ -118,11 +143,9 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 
 		currentLine-=lineOffset;
 		// server port
-		labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
 		labelServerPortLabel.init(currentLabelStart,currentLine);
 		labelServerPortLabel.setText(lang.getString("ServerPort"));
 
-		listBoxServerPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
 		listBoxServerPort.init(currentColumnStart, currentLine, 160);
 
 		string portListString = config.getString("PortList",intToStr(GameConstants::serverPort).c_str());
@@ -143,59 +166,47 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		listBoxServerPort.setSelectedItemIndex(portSelectionIndex);
 
 		currentLine-=lineOffset;
-		labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
 		labelFTPServerPortLabel.init(currentLabelStart ,currentLine );
 		labelFTPServerPortLabel.setText(lang.getString("FTPServerPort"));
 
 		int FTPPort = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
-		labelFTPServerPort.registerGraphicComponent(containerName,"labelFTPServerPort");
 		labelFTPServerPort.init(currentColumnStart ,currentLine );
 		labelFTPServerPort.setText(intToStr(FTPPort));
 		currentLine-=lineOffset;
-		labelFTPServerDataPortsLabel.registerGraphicComponent(containerName,"labelFTPServerDataPortsLabel");
 		labelFTPServerDataPortsLabel.init(currentLabelStart ,currentLine );
 		labelFTPServerDataPortsLabel.setText(lang.getString("FTPServerDataPort"));
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
 
-		labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
 		labelFTPServerDataPorts.init(currentColumnStart,currentLine );
 		labelFTPServerDataPorts.setText(szBuf);
 		currentLine-=lineOffset;
-		labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
 		labelEnableFTPServer.init(currentLabelStart ,currentLine);
 		labelEnableFTPServer.setText(lang.getString("EnableFTPServer"));
 
-		checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
 		checkBoxEnableFTPServer.init(currentColumnStart ,currentLine );
 		checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
 		currentLine-=lineOffset;
 		// FTP Config - start
-		labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
 		labelEnableFTP.init(currentLabelStart ,currentLine);
 		labelEnableFTP.setText(lang.getString("EnableFTP"));
 
-		checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
 		checkBoxEnableFTP.init(currentColumnStart ,currentLine );
 		checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
 		currentLine-=lineOffset;
 
-		labelEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTilesetXfer");
 		labelEnableFTPServerInternetTilesetXfer.init(currentLabelStart ,currentLine );
 		labelEnableFTPServerInternetTilesetXfer.setText(lang.getString("EnableFTPServerInternetTilesetXfer"));
 
-		checkBoxEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"checkBoxEnableFTPServerInternetTilesetXfer");
 		checkBoxEnableFTPServerInternetTilesetXfer.init(currentColumnStart ,currentLine );
 		checkBoxEnableFTPServerInternetTilesetXfer.setValue(config.getBool("EnableFTPServerInternetTilesetXfer","true"));
 
 		currentLine-=lineOffset;
 
-		labelEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTechtreeXfer");
 		labelEnableFTPServerInternetTechtreeXfer.init(currentLabelStart ,currentLine );
 		labelEnableFTPServerInternetTechtreeXfer.setText(lang.getString("EnableFTPServerInternetTechtreeXfer"));
 
-		checkBoxEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"checkBoxEnableFTPServerInternetTechtreeXfer");
 		checkBoxEnableFTPServerInternetTechtreeXfer.init(currentColumnStart ,currentLine );
 		checkBoxEnableFTPServerInternetTechtreeXfer.setValue(config.getBool("EnableFTPServerInternetTechtreeXfer","true"));
 
@@ -205,23 +216,19 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		// FTP config end
 
 		// Privacy flag
-		labelEnablePrivacy.registerGraphicComponent(containerName,"labelEnablePrivacy");
 		labelEnablePrivacy.init(currentLabelStart ,currentLine);
 		labelEnablePrivacy.setText(lang.getString("PrivacyPlease"));
 
-		checkBoxEnablePrivacy.registerGraphicComponent(containerName,"checkBoxEnablePrivacy");
 		checkBoxEnablePrivacy.init(currentColumnStart ,currentLine );
 		checkBoxEnablePrivacy.setValue(config.getBool("PrivacyPlease","false"));
 		//currentLine-=lineOffset;
 		// end
 
 		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
 
 		buttonReturn.setText(lang.getString("Return"));
-		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 
 		GraphicComponent::applyAllCustomProperties(containerName);
@@ -235,23 +242,11 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 void MenuStateOptionsNetwork::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	console.resetFonts();
 	mainMessageBox.init(lang.getString("Ok"));
 
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 	buttonNetworkSettings.setText(lang.getString("Network"));
 
 	std::vector<string> listboxData;
@@ -273,48 +268,19 @@ void MenuStateOptionsNetwork::reloadUI() {
 
 
 	labelServerPortLabel.setText(lang.getString("ServerPort"));
-
 	labelPublishServerExternalPort.setText(lang.getString("PublishServerExternalPort"));
-
 	labelEnableFTP.setText(lang.getString("EnableFTP"));
-
 	labelEnableFTPServer.setText(lang.getString("EnableFTPServer"));
-
 	labelFTPServerPortLabel.setText(lang.getString("FTPServerPort"));
-
 	labelFTPServerDataPortsLabel.setText(lang.getString("FTPServerDataPort"));
-
 	labelEnableFTPServerInternetTilesetXfer.setText(lang.getString("EnableFTPServerInternetTilesetXfer"));
-
 	labelEnableFTPServerInternetTechtreeXfer.setText(lang.getString("EnableFTPServerInternetTechtreeXfer"));
-
 	labelEnablePrivacy.setText(lang.getString("PrivacyPlease"));
-
 	buttonOk.setText(lang.getString("Save"));
 	buttonReturn.setText(lang.getString("Return"));
-
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
-//void MenuStateOptionsNetwork::showMessageBox(const string &text, const string &header, bool toggle){
-//	if(!toggle){
-//		mainMessageBox.setEnabled(false);
-//	}
-//
-//	if(!mainMessageBox.getEnabled()){
-//		mainMessageBox.setText(text);
-//		mainMessageBox.setHeader(header);
-//		mainMessageBox.setEnabled(true);
-//	}
-//	else{
-//		mainMessageBox.setEnabled(false);
-//	}
-//}
-
-
-void MenuStateOptionsNetwork::mouseClick(int x, int y, MouseButton mouseButton){
-
-	//Config &config= Config::getInstance();
+void MenuStateOptionsNetwork::mouseClick(int x, int y, MouseButton mouseButton) {
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 

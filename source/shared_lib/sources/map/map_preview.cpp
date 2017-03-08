@@ -704,9 +704,9 @@ void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, i
 	hasChanged = true;
 }
 
-void MapPreview::randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions) {
+void MapPreview::randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDivider, int smoothRecursions) {
 	if(withReset) resetHeights(random.randRange(8, 10));
-	realRandomize(minimumHeight,maximumHeight,chanceDevider,smoothRecursions);
+	realRandomize(minimumHeight,maximumHeight,chanceDivider,smoothRecursions);
 	hasChanged = true;
 }
 
@@ -726,17 +726,17 @@ void MapPreview::randomizeFactions() {
 }
 
 void MapPreview::smoothSurface(bool limitHeight) {
-	float *oldHeights = new float[w*h];
-
-	for (int i = 0; i < w; ++i) {
-		for (int j = 0; j < h; ++j) {
-			oldHeights[i*w+j] = cells[i][j].height;
-			//printf("count=%d height=%f h=%f\n",i*w+h,oldHeights[i*w+h],cells[i][j].height);
+	//float oldHeights [w*h];
+	float *oldHeights = new float[w*h]; // dumb microsoft compiler cannot handle dynamic arrays, doing it manually
+	for (int j = 0; j < h; ++j) {
+		for (int i = 0; i < w; ++i) {
+			oldHeights[w*j+i] = cells[i][j].height;
+			//printf("w=%d h=%d i=%d j=%d w*h=%d  w*j+i=%d \n",w,h,i,j,w*h,w*j+i);
 		}
 	}
 
-	for (int i = 1; i < w - 1; ++i) {
-		for (int j = 1; j < h - 1; ++j) {
+	for (int j = 1; j < h - 1; ++j) {
+		for (int i = 1; i < w - 1; ++i) {
 			float height = 0.f;
 			float numUsedToSmooth = 0.f;
 			for (int k = -1; k <= 1; ++k) {
@@ -827,6 +827,7 @@ void MapPreview::loadFromFile(const string &path) {
 		if(bytes != 1) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",bytes,__LINE__);
+			fclose(f1);
 			throw megaglest_runtime_error(szBuf);
 		}
 		fromEndianMapFileHeader(header);
@@ -1016,15 +1017,15 @@ void MapPreview::resetHeights(int height) {
 	}
 }
 
-void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chanceDevider, int _smoothRecursions) {
+void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chanceDivider, int _smoothRecursions) {
 	int moduloParam=abs(maximumHeight-minimumHeight);
-	int chanceDevider=_chanceDevider;
+	int chanceDivider=_chanceDivider;
 	int smoothRecursions=_smoothRecursions;
 	if(moduloParam<2) moduloParam=2;
 	//printf("moduloParam=%d   minimumHeight=%d  maximumHeight=%d\n",moduloParam,minimumHeight,maximumHeight);
 
-	// set chanceDevider to something possible
-	if(chanceDevider<2) chanceDevider=2;
+	// set chanceDivider to something possible
+	if(chanceDivider<2) chanceDivider=2;
 
 	// set smoothRecursions to something useful
 	if(smoothRecursions<0) smoothRecursions=0;
@@ -1032,7 +1033,7 @@ void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chance
 
 	for (int i = 1; i < w-1; ++i) {
 		for (int j = 1; j < h-1; ++j) {
-			if(rand()%chanceDevider==1){
+			if(rand()%chanceDivider==1){
 				cells[i][j].height=(rand() % moduloParam)+minimumHeight;
 			}
 		}

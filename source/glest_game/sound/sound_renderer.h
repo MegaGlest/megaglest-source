@@ -75,7 +75,7 @@ public:
 
 	//fx
 	void playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPos);
-	void playFx(StaticSound *staticSound);
+	void playFx(StaticSound *staticSound, bool force=false);
 
 	//ambient
 	void playAmbient(StrSound *strSound);

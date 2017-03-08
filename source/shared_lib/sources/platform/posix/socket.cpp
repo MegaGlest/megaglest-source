@@ -69,6 +69,7 @@ bool Socket::disableNagle = false;
 int Socket::DEFAULT_SOCKET_SENDBUF_SIZE = -1;
 int Socket::DEFAULT_SOCKET_RECVBUF_SIZE = -1;
 string Socket::host_name = "";
+std::vector<string> Socket::intfTypes;
 
 int Socket::broadcast_portno    = 61357;
 int ServerSocket::ftpServerPort = 61358;
@@ -227,7 +228,7 @@ Mutex UPNP_Tools::mutexUPNP;
 	}
 
 	// keeps in scope for duration of the application
-	SocketManager Socket::wsaManager;
+	//SocketManager Socket::wsaManager;
 
 	SocketManager::SocketManager() {
 		WSADATA wsaData;
@@ -318,7 +319,7 @@ string Ip::getString() const{
 //	class Socket
 // ===============================================
 
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
 # define USE_GETIFADDRS 1
 # include <ifaddrs.h>
 #endif
@@ -701,17 +702,29 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 #ifndef WIN32
 
 	// Now check all linux network devices
-	std::vector<string> intfTypes;
-	intfTypes.push_back("lo");
-	intfTypes.push_back("eth");
-	intfTypes.push_back("wlan");
-	intfTypes.push_back("vlan");
-	intfTypes.push_back("vboxnet");
-	intfTypes.push_back("br-lan");
-	intfTypes.push_back("br-gest");
+	//std::vector<string> intfTypes;
+	if(Socket::intfTypes.empty()) {
+		Socket::intfTypes.push_back("lo");
+		Socket::intfTypes.push_back("eth");
+		Socket::intfTypes.push_back("wlan");
+		Socket::intfTypes.push_back("vlan");
+		Socket::intfTypes.push_back("vboxnet");
+		Socket::intfTypes.push_back("br-lan");
+		Socket::intfTypes.push_back("br-gest");
+		Socket::intfTypes.push_back("enp0s");
+		Socket::intfTypes.push_back("enp1s");
+		Socket::intfTypes.push_back("enp2s");
+		Socket::intfTypes.push_back("enp3s");
+		Socket::intfTypes.push_back("enp4s");
+		Socket::intfTypes.push_back("enp5s");
+		Socket::intfTypes.push_back("enp6s");
+		Socket::intfTypes.push_back("enp7s");
+		Socket::intfTypes.push_back("enp8s");
+		Socket::intfTypes.push_back("enp9s");
+	}
 
-	for(int intfIdx = 0; intfIdx < (int)intfTypes.size(); intfIdx++) {
-		string intfName = intfTypes[intfIdx];
+	for(unsigned int intfIdx = 0; intfIdx < Socket::intfTypes.size(); intfIdx++) {
+		string intfName = Socket::intfTypes[intfIdx];
 		for(int idx = 0; idx < 10; ++idx) {
 			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
 			//PLATFORM_SOCKET fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -725,6 +738,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
 			snprintf(szBuf,100,"%s%d",intfName.c_str(),idx);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+			//printf("In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
+
 			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
 
 			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);
@@ -2631,8 +2647,10 @@ int UPNP_Tools::upnp_init(void *param) {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP device found: %s %s\n", dev->descURL, dev->st);
 
 				//printf("UPnP device found: [%s] [%s] lanaddr [%s]\n", dev->descURL, dev->st,lanaddr);
-#if (defined(MINIUPNPC_API_VERSION)  && MINIUPNPC_API_VERSION >= 9) || (!defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6))
-				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])),0);
+#if (defined(MINIUPNPC_API_VERSION)  && MINIUPNPC_API_VERSION >= 16)
+				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])), 0, NULL);
+#elif (defined(MINIUPNPC_API_VERSION)  && MINIUPNPC_API_VERSION >= 9) || (!defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6))
+                char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])), 0);
 #else
 				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])));
 #endif

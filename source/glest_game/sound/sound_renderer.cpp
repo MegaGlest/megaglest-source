@@ -203,7 +203,7 @@ void SoundRenderer::playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPo
 	}
 }
 
-void SoundRenderer::playFx(StaticSound *staticSound) {
+void SoundRenderer::playFx(StaticSound *staticSound, bool force) {
 	if(staticSound!=NULL){
 		staticSound->setVolume(fxVolume);
 		if(soundPlayer != NULL) {
@@ -213,7 +213,7 @@ void SoundRenderer::playFx(StaticSound *staticSound) {
             }
 
 			if(soundPlayer) {
-				soundPlayer->play(staticSound);
+				soundPlayer->play(staticSound, force);
 			}
 		}
 	}

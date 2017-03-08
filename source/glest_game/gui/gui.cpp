@@ -165,6 +165,15 @@ Object *Gui::getHighlightedResourceObject()	const{
 		return NULL;
 	}
 	else {
+		if(world == NULL) {
+			throw megaglest_runtime_error("world == NULL");
+		}
+		if(world->getMap() == NULL) {
+			throw megaglest_runtime_error("world->getMap() == NULL");
+		}
+		if(world->getMap()->getSurfaceCell(highlightedResourceObjectPos) == NULL) {
+			throw megaglest_runtime_error("world->getMap()->getSurfaceCell(highlightedResourceObjectPos) == NULL");
+		}
 		return world->getMap()->getSurfaceCell(highlightedResourceObjectPos)->getObject();
 	}
 }
@@ -588,7 +597,7 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 
 		if(previousFound == true) {
 			if(unit->isInteresting(iut)) {
-				selection.select(unit);
+				selection.select(unit,false);
 				break;
 			}
 		}
@@ -605,7 +614,7 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 			Unit* unit = thisFaction->getUnit(index);
 
 			if(unit->isInteresting(iut)) {
-				selection.select(unit);
+				selection.select(unit,false);
 				break;
 			}
 		}
@@ -829,7 +838,17 @@ void Gui::computeInfoString(int posDisplay){
 					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
 						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 					} else {
-						display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+						bool translatedValue= game->showTranslatedTechTree();
+						const UnitType *building=bct->getBuilding(posDisplay);
+						string str= lang.getString("BuildSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(bct->getBuildSkillType()->getSpeed())+"\n";
+					    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+": "+intToStr(building->getProductionTime())+"\n";
+					    int64 speed=bct->getBuildSkillType()->getSpeed()+bct->getBuildSkillType()->getTotalSpeed(unit->getTotalUpgrade());
+					    int64 time=building->getProductionTime();
+					    int64 seconds=time*100/speed;
+					    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+": "+intToStr(seconds);
+					    str+="\n\n";
+					    str+=building->getReqDesc(translatedValue);
+					    display.setInfoText(str);
 					}
 				}
 			}
@@ -1137,7 +1156,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 			for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){
 				Unit *unit= world->getFaction(factionIndex)->getUnit(i);
 				if(unit->getPos().dist(refUnit->getPosNotThreadSafe())<doubleClickSelectionRadius &&
-					unit->getType()==refUnit->getType())
+					unit->getType()==refUnit->getType() && unit->isOperative()==refUnit->isOperative() )
 				{
 					units.push_back(unit);
 				}
@@ -1154,7 +1173,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 
 		if(!controlDown){
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to call selection.select(units)\n",__FILE__,__FUNCTION__,__LINE__);
-			selection.select(units);
+			selection.select(units,shiftDown);
 			if(!selection.isEmpty()){
 				selectedResourceObject=NULL;
 			}
@@ -1176,6 +1195,19 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	if(uc.empty() == false){
 		targetUnit= getRelevantObjectFromSelection(&uc);
 		targetPos= targetUnit->getPosNotThreadSafe();
+		// we need to respect cellmaps. Searching for a cell which is really occupied
+		int size=targetUnit->getType()->getSize();
+		bool foundUnit=false;
+		for ( int x= 0;x<size;++x){
+			for ( int y= 0;y<size;++y){
+				if(world->getMap()->getCell(Vec2i(targetPos.x+x,targetPos.y+y))->getUnit(targetUnit->getType()->getField())==targetUnit){
+					targetPos=Vec2i(targetPos.x+x,targetPos.y+y);
+					foundUnit=true;
+					break;
+				}
+			}
+			if(foundUnit) break;
+		}
 		highlightedUnitId=targetUnit->getId();
 		getHighlightedUnit()->resetHighlight();
 		return true;

@@ -23,7 +23,6 @@ namespace Glest{ namespace Game{
 
 class MenuStateOptions: public MenuState{
 private:
-
 	GraphicButton buttonOk;
 	GraphicButton buttonReturn;
 
@@ -43,11 +42,8 @@ private:
 	GraphicLabel labelFontSizeAdjustment;
 	GraphicListBox listFontSizeAdjustment;
 
-
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-
-
 
 	GraphicLabel labelScreenShotType;
 	GraphicListBox listBoxScreenShotType;
@@ -95,6 +91,7 @@ private:
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
+	virtual ~MenuStateOptions();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
@@ -105,7 +102,6 @@ public:
     virtual bool isInSpecialKeyCaptureEvent();
 
     virtual void reloadUI();
-
 
 private:
 	void saveConfig();

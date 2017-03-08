@@ -373,7 +373,7 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 	else {
 		char szBuf[8096] = "";
 		snprintf(szBuf, 8096,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,true);
 	}
 
     // Load the regular targets
@@ -482,13 +482,12 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				animationAttributes.push_back(animationAttributeList);
 			}
 			else {
-				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] ERROR CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+				throw megaglest_runtime_error("Error: cannot load model ["+path+"] for skill ["+name+"]  ",true);
 			}
 		}
 		if(animations.empty() == true) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
-			throw megaglest_runtime_error(szBuf);
+			throw megaglest_runtime_error("Error no animations found for skill ["+name+"] for parentLoader ["+parentLoader+"]",true);
 		}
 	}
 
@@ -889,7 +888,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
     if(attackVar < 0) {
         char szBuf[8096]="";
         snprintf(szBuf,8096,"The attack skill has an INVALID attack var value which is < 0 [%d] in file [%s]!",attackVar,dir.c_str());
-        throw megaglest_runtime_error(szBuf);
+        throw megaglest_runtime_error(szBuf,true);
     }
 
     attackRange= sn->getChild("attack-range")->getAttribute("value")->getIntValue();
@@ -922,7 +921,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 			attackFields[fAir]= true;
 		}
 		else{
-			throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ dir);
+			throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ dir,true);
 		}
 	}
 
@@ -990,7 +989,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		}
 
 		if(totalDamagePercentage!=100){
-			throw megaglest_runtime_error("Damages percentages of projectiles don't sum up to 100 %");
+			throw megaglest_runtime_error("Damages percentages of projectiles don't sum up to 100 %",true);
 		}
 
 		if(sn->hasChild("hitsound")==true){
@@ -1354,6 +1353,13 @@ void MorphSkillType::saveGame(XmlNode *rootNode) {
 DieSkillType::DieSkillType(){
     skillClass= scDie;
     fade=false;
+    spawn=false;
+    spawnStartTime=0;
+    spawnUnit="";
+    spawnUnitcount=0;
+	spawnUnitHealthPercentMin=100;
+	spawnUnitHealthPercentMax=100;
+	spawnProbability=100;
 }
 
 void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
@@ -1363,6 +1369,18 @@ void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
 
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();
+	if(sn->hasChild("spawn")){
+		const XmlNode *spawnNode= sn->getChild("spawn");
+		spawn=true;
+		spawnStartTime=spawnNode->getAttribute("start-time")->getFloatValue();
+		spawnUnit = spawnNode->getChild("unit")->getAttribute("value")->getValue();
+		spawnUnitcount = spawnNode->hasChild("amount")?spawnNode->getChild("amount")->getAttribute("value")->getIntValue():0;
+		if(spawnNode->hasChild("health-percent")){
+			spawnUnitHealthPercentMin = spawnNode->getChild("health-percent")->getAttribute("min")->getIntValue();
+			spawnUnitHealthPercentMax = spawnNode->getChild("health-percent")->getAttribute("max")->getIntValue();
+		}
+		spawnProbability = spawnNode->hasChild("probability")?spawnNode->getChild("probability")->getAttribute("value")->getIntValue():spawnProbability;
+	} // else keep defaults
 }
 
 string DieSkillType::toString(bool translatedValue) const{
@@ -1379,6 +1397,7 @@ void DieSkillType::saveGame(XmlNode *rootNode) {
 	XmlNode *dieSkillTypeNode = rootNode->addChild("DieSkillType");
 
 	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
+	// no need to save spawn attributes
 }
 
 StaticSound *DieSkillType::getSound() const{

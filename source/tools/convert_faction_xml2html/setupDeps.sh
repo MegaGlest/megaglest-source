@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------------
 # Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Rewritten by Tom Reynolds <tomreyn@megaglest.org>
-# Copyright (c) 2012 Mark Vejvoda, Tom Reynolds under GNU GPL v3.0
+# Copyright (c) 2012-2016 Mark Vejvoda, Tom Reynolds under GNU GPL v3.0
 
 SCRIPTDIR="$(dirname $(readlink -f $0))"
 
@@ -12,7 +12,7 @@ SCRIPTDIR="$(dirname $(readlink -f $0))"
 . $SCRIPTDIR/../../../mk/linux/mg_shared.sh
 
 echo 'Downloading Javascript libraries...'
-wget http://code.jquery.com/jquery-1.11.2.js -O media/jquery-1.11.2.min.js
+wget http://code.jquery.com/jquery-1.12.0.js -O media/jquery-1.12.0.min.js
 wget http://www.datatables.net/download/build/jquery.dataTables.min.js -O media/jquery.dataTables.min.js
 
 echo 'Detecting system and installing dependencies...'

@@ -24,7 +24,7 @@
 1. System requirements
 
 Hardware requirements:
-* >= 6th generation x86 CPU with 1.5 GHz or better
+* >= 6th generation x86 CPU with 2.0 GHz or better
   (modern CPU series with at least two cores of at least 1.5 Ghz recommended)
 * 1.5 GB RAM
   (2.0 GB RAM recommended)
@@ -90,7 +90,7 @@ the administrative user (root) or via sudo, but as a normal (restricted) user.
 
 The graphical installer will show up and display the MegaGlest license. Install
 the game into a directory below your home directory (the default location of
-~/.megaglest is fine) or any location of your choice (within the boundaries of
+~/megaglest is fine) or any location of your choice (within the boundaries of
 where your Linux user may write to). Once the installer completes, a MegaGlest
 starter/shortcut will show up on your window managers' application menu.
 
@@ -216,8 +216,8 @@ network slots and the other players have to join.
 
 The best ways to find people to play a multi-player game are:
 a) using the Internet Game menu
-b) scheduling a game on the Glest forums
-c) finding other players on the #megaglest IRC channel on irc.freenode.net.
+b) scheduling a game on the MegaGlest forums
+c) finding other players on the #megaglest-lobby IRC channel on irc.freenode.net.
 
 For LAN play, clients may click the 'Find LAN games' menu item to find servers
 with an open network slot on the local network (this uses UDP broadcasting).

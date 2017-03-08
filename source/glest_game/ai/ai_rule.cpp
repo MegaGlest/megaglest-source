@@ -857,7 +857,10 @@ void AiRuleProduce::produceGenericNew(const ProduceTask *pt) {
 
 	//for each unit, produce it if possible
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
-
+		if(aiInterface->getMyUnit(i)->getCurrCommand()!=NULL && aiInterface->getMyUnit(i)->getCurrCommand()->getCommandType()->getClass()==ccBuild){
+			//skip this units as it is currently building something
+			continue;
+		}
 		//for each command
 		const UnitType *ut= aiInterface->getMyUnit(i)->getType();
 
@@ -1059,7 +1062,10 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 
 	//for each unit, produce it if possible
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
-
+		if(aiInterface->getMyUnit(i)->getCurrCommand()!=NULL && aiInterface->getMyUnit(i)->getCurrCommand()->getCommandType()->getClass()==ccBuild){
+			//skip this units as it is currently building something
+			continue;
+		}
 		//for each command
 		const UnitType *ut= aiInterface->getMyUnit(i)->getType();
 		for(int j = 0; j < ut->getCommandTypeCount(); ++j) {
@@ -1144,7 +1150,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 		const CommandType *ctypeForCostCheck = NULL;
 		//for each unit
 		for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-
+			//don't use units which are currently building
+			if(aiInterface->getMyUnit(i)->getCurrCommand()!=NULL && aiInterface->getMyUnit(i)->getCurrCommand()->getCommandType()->getClass()==ccBuild){
+				//skip this units as it is currently building something
+				continue;
+			}
 			//for each command
 			const UnitType *ut= aiInterface->getMyUnit(i)->getType();
 			for(int j=0; j<ut->getCommandTypeCount(); ++j){
@@ -1208,7 +1218,10 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 		//for each unit
 		for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
-
+			if(aiInterface->getMyUnit(i)->getCurrCommand()!=NULL && aiInterface->getMyUnit(i)->getCurrCommand()->getCommandType()->getClass()==ccBuild){
+				//skip this units as it is currently building something
+				continue;
+			}
 			//for each command
 			const UnitType *ut= aiInterface->getMyUnit(i)->getType();
 			for(int j=0; j<ut->getCommandTypeCount(); ++j){

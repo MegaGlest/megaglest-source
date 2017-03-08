@@ -120,6 +120,11 @@ void UnitPathBasic::add(const Vec2i &path) {
 		}
 	}
 
+	if(Thread::isCurrentThreadMainThread() == false) {
+		throw megaglest_runtime_error("Invalid access to UnitPathBasic add from outside main thread current id = " +
+				intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+	}
+
 	pathQueue.push_back(path);
 }
 
@@ -129,6 +134,11 @@ Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 	}
 	Vec2i p= pathQueue.front();
 	if(removeFrontPos == true) {
+		if(Thread::isCurrentThreadMainThread() == false) {
+			throw megaglest_runtime_error("Invalid access to UnitPathBasic delete from outside main thread current id = " +
+					intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+		}
+
 		pathQueue.erase(pathQueue.begin());
 	}
 	return p;
@@ -892,7 +902,8 @@ Vec2f Unit::getFloatCenteredPos() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
+	return Vec2f(truncateDecimal<float>(pos.x-0.5f+type->getSize()/2.f,6),
+			     truncateDecimal<float>(pos.y-0.5f+type->getSize()/2.f,6));
 }
 
 Vec2i Unit::getCellPos() const {
@@ -1370,13 +1381,28 @@ void Unit::setTarget(const Unit *unit){
 	targetRef= unit;
 }
 
-void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
+RandomGen* Unit::getRandom(bool threadAccessAllowed) {
+	if(threadAccessAllowed == false && Thread::isCurrentThreadMainThread() == false) {
+		throw megaglest_runtime_error("Invalid access to unit random from outside main thread current id = " +
+				intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+	}
+	return &random;
+}
+
+void Unit::setPos(const Vec2i &pos, bool clearPathFinder, bool threaded) {
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw megaglest_runtime_error("#3 Invalid path position = " + pos.getString());
 	}
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
+
+	if(threaded) {
+		logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	}
+	else {
+		logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	}
 
 	if(clearPathFinder == true && this->unitPath != NULL) {
 		this->unitPath->clear();
@@ -1393,7 +1419,12 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 
 	refreshPos();
 
-	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	if(threaded) {
+		logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	}
+	else {
+		logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	}
 }
 
 void Unit::refreshPos(bool forceRefresh) {
@@ -1451,7 +1482,7 @@ void Unit::calculateFogOfWarRadius(bool forceRefresh) {
 	}
 }
 
-void Unit::setTargetPos(const Vec2i &targetPos) {
+void Unit::setTargetPos(const Vec2i &targetPos, bool threaded) {
 
 	if(map->isInside(targetPos) == false || map->isInsideSurface(map->toSurfCoords(targetPos)) == false) {
 		throw megaglest_runtime_error("#4 Invalid path position = " + targetPos.getString());
@@ -1473,7 +1504,12 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	this->targetPos= targetPos;
 	map->clampPos(this->targetPos);
 
-	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	if(threaded) {
+		logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	}
+	else {
+		logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+	}
 }
 
 void Unit::addAttackParticleSystem(ParticleSystem *ps) {
@@ -2013,7 +2049,7 @@ void Unit::born(const CommandType *ct) {
 		this->hp= type->getStartHpValue();
 	}
 	else {
-		this->hp= type->getTotalMaxHp(&totalUpgrade) * 100 / type->getStartHpPercentage();
+		this->hp= type->getTotalMaxHp(&totalUpgrade) * type->getStartHpPercentage() / 100;
 	}
 
 	if(original_hp != this->hp) {
@@ -2029,7 +2065,7 @@ void Unit::born(const CommandType *ct) {
 		this->ep= type->getStartEpValue();
 	}
 	else {
-		this->ep= type->getTotalMaxEp(&totalUpgrade) * 100 / type->getStartEpPercentage();
+		this->ep= type->getTotalMaxEp(&totalUpgrade) * type->getStartEpPercentage() / 100;
 	}
 }
 
@@ -3258,21 +3294,22 @@ void Unit::tick() {
 //		}
 //		addItemToVault(&this->ep,this->ep);
 
-		//regenerate ep upgrade / or boost
-		checkItemInVault(&this->ep,this->ep);
-		//regenerate ep
-		int original_ep = this->ep;
-		this->ep += type->getTotalMaxEpRegeneration(&totalUpgrade);
-		if(this->ep > type->getTotalMaxEp(&totalUpgrade)){
-			this->ep = type->getTotalMaxEp(&totalUpgrade);
+		if(!isBeingBuilt()){
+			//regenerate ep upgrade / or boost
+			checkItemInVault(&this->ep,this->ep);
+			//regenerate ep
+			int original_ep = this->ep;
+			this->ep += type->getTotalMaxEpRegeneration(&totalUpgrade);
+			if(this->ep > type->getTotalMaxEp(&totalUpgrade)){
+				this->ep = type->getTotalMaxEp(&totalUpgrade);
+			}
+			if(original_ep != this->ep) {
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+				game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+			}
+			addItemToVault(&this->ep,this->ep);
 		}
-		if(original_ep != this->ep) {
-			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-			game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
-			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-		}
-		addItemToVault(&this->ep,this->ep);
-
 	}
 }
 
@@ -3607,7 +3644,7 @@ void Unit::morphAttackBoosts(Unit *unit) {
 	}
 }
 
-bool Unit::morph(const MorphCommandType *mct) {
+bool Unit::morph(const MorphCommandType *mct, int frameIndex) {
 
 	if(mct == NULL) {
 		char szBuf[8096]="";
@@ -3669,7 +3706,7 @@ bool Unit::morph(const MorphCommandType *mct) {
 		Field original_field = this->currField;
 		this->currField=morphUnitField;
 		computeTotalUpgrade();
-		map->putUnitCells(this, this->pos);
+		map->putUnitCells(this, this->pos, false, frameIndex < 0);
 
 		this->faction->applyDiscount(morphUnitType, mct->getDiscount());
 		// add new storage
@@ -4444,7 +4481,7 @@ void Unit::exploreCells(bool forceRefresh) {
 		}
 		else {
 			// Try the world exploration scan or possible cache
-			cacheExploredCells = game->getWorld()->exploreCells(newPos, sightRange, teamIndex);
+			cacheExploredCells = game->getWorld()->exploreCells(newPos, sightRange, teamIndex, this);
 
 			// Cache the result for this unit
 			cacheExploredCellsKey.first = newPos;
@@ -4463,7 +4500,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,
-	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [" MG_I64_SPECIFIER "], progress2 [%d]\nUnit Path [%s]\n",
+	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [" MG_I64_SPECIFIER "], progress2 [%d] random [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
 				getFullName(false).c_str(),
@@ -4479,6 +4516,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 //				rotation,
 				progress,
 				progress2,
+				random.getLastNumber(),
 				(unitPath != NULL ? unitPath->toString().c_str() : "NULL"));
 
 	    if( lastSynchDataString != string(szBuf) ||

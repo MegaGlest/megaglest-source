@@ -1122,8 +1122,6 @@ void Game::load(int loadTypes) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     set<string> factions;
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
 		factions.insert(gameSettings.getFactionTypeName(i));
 	}
@@ -2683,9 +2681,7 @@ void Game::update() {
 				renderer.endScenario();
 				world.clearTileset();
 				this->setGameSettings(&gameSettings);
-
 				this->load(lgt_FactionPreview | lgt_TileSet | lgt_Map | lgt_Scenario);
-
 				try {
 					world.init(this, gameSettings.getDefaultUnits(),false);
 				}
@@ -3101,7 +3097,7 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 		//printf("faction [%p][%s]\n",faction,(faction != NULL ? faction->getType()->getName().c_str() : ""));
 		if((faction == NULL) ||
 				(faction->getTeam() == getWorld()->getThisFaction()->getTeam())) {
-			soundRenderer.playFx(coreData.getMarkerSound());
+			soundRenderer.playFx(coreData.getMarkerSound(),true);
 		}
 	}
 }
@@ -3341,7 +3337,7 @@ bool Game::addUnitToSelection(Unit *unit) {
 	try {
 		Selection *selection= gui.getSelectionPtr();
 		if(selection != NULL) {
-			result = selection->select(unit);
+			result = selection->select(unit,true);
 		}
 	}
 	catch(const exception &ex) {
@@ -4717,27 +4713,27 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				switch (healthbarMode) {
 					case hbvUndefined:
 						healthbarMode=hbvOff;
-						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsOff"));
+						console.addLine(lang.getString("Healthbar2")+": "+lang.getString("HealthbarsOff"));
 						break;
 					case hbvOff:
 						healthbarMode=hbvAlways;
-						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsAlways"));
+						console.addLine(lang.getString("Healthbar2")+": "+lang.getString("HealthbarsAlways"));
 						break;
 					case hbvAlways:
 						healthbarMode=hbvIfNeeded;
-						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsIfNeeded"));
+						console.addLine(lang.getString("Healthbar2")+": "+lang.getString("HealthbarsIfNeeded"));
 						break;
 					case hbvIfNeeded:
 						healthbarMode=hbvSelected;
-						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsSelected"));
+						console.addLine(lang.getString("Healthbar2")+": "+lang.getString("HealthbarsSelected"));
 						break;
 					case hbvSelected:
 						healthbarMode=hbvSelected | hbvIfNeeded;
-						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsSelectedOrNeeded"));
+						console.addLine(lang.getString("Healthbar2")+": "+lang.getString("HealthbarsSelectedOrNeeded"));
 						break;
 					case (hbvSelected | hbvIfNeeded):
 						healthbarMode=hbvUndefined;
-						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsFactionDefault"));
+						console.addLine(lang.getString("Healthbar2")+": "+lang.getString("HealthbarsFactionDefault"));
 						break;
 					default:
 						printf("In [%s::%s Line: %d] Toggle Healthbars Hotkey - Invalid Value. Setting to default.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -5295,13 +5291,6 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderUnits]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-	// renderTeamColorPlane
-	if((renderExtraTeamColor&renderTeamColorPlaneBit)>0){
-		renderer.renderTeamColorPlane();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-	}
-
 	//water
 	renderer.renderWater();
 	renderer.renderWaterEffects();
@@ -5321,6 +5310,13 @@ void Game::render3d(){
 	//renderOnTopBars (aka Healthbars)
 	if(photoModeEnabled == false) {
 		renderer.renderHealthBars(healthbarMode);
+	}
+
+	// renderTeamColorPlane
+	if((renderExtraTeamColor&renderTeamColorPlaneBit)>0){
+		renderer.renderTeamColorPlane();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderObjects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 	}
 
 	//mouse 3d

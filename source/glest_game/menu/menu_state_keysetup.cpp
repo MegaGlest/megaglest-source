@@ -36,9 +36,31 @@ namespace Glest{ namespace Game{
 
 MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		ProgramState **parentUI) :
-	MenuState(program, mainMenu, "config")
+	MenuState(program, mainMenu, "config"),
+	buttonOk("KeySetup","buttonOk"),
+	buttonDefaults("KeySetup","buttonDefaults"),
+	buttonReturn("KeySetup","buttonReturn"),
+
+	buttonKeyboardSetup("KeySetup","buttonKeyboardSetup"),
+	buttonVideoSection("KeySetup","buttonVideoSection"),
+	buttonAudioSection("KeySetup","buttonAudioSection"),
+	buttonMiscSection("KeySetup","buttonMiscSection"),
+	buttonNetworkSettings("KeySetup","buttonNetworkSettings"),
+
+	labelTitle("KeySetup","labelTitle"),
+
+	keyScrollBar("KeySetup","keyScrollBar"),
+
+	mainMessageBox("KeySetup","mainMessageBox"),
+
+	labelTestTitle("KeySetup","labelTestTitle"),
+	labelTestValue("KeySetup","labelTestValue")
+
 {
 	try {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		containerName = "KeySetup";
+
 		keyButtonsLineHeight=30;
 		keyButtonsHeight=25;
 		keyButtonsWidth=400;
@@ -46,9 +68,6 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		keyButtonsYBase=200+400-keyButtonsLineHeight;
 		keyButtonsToRender=400/keyButtonsLineHeight;
 		int labelWidth=100;
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		containerName = "KeySetup";
 
 		this->parentUI = parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
@@ -62,52 +81,44 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 			int tabButtonWidth=200;
 			int tabButtonHeight=30;
 
-			buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
 			buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
 			buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 			buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 			buttonAudioSection.setText(lang.getString("Audio"));
 			// Video Section
-			buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 			buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
 			buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 			buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 			buttonVideoSection.setText(lang.getString("Video"));
 			//currentLine-=lineOffset;
 			//MiscSection
-			buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 			buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
 			buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 			buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 			buttonMiscSection.setText(lang.getString("Misc"));
 			//NetworkSettings
-			buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 			buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
 			buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 			buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 			buttonNetworkSettings.setText(lang.getString("Network"));
 
 			//KeyboardSetup
-			buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 			buttonKeyboardSetup.init(800, 700,tabButtonWidth,tabButtonHeight+20);
 			buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 			buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 			buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 		}
 		// header
-		labelTitle.registerGraphicComponent(containerName,"labelTitle");
 		labelTitle.init(375,650);
 		labelTitle.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		labelTitle.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelTitle.setText(lang.getString("KeyboardsetupL"));
 
-		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
 		labelTestTitle.init(keyButtonsXBase,155);
 		labelTestTitle.setFont(CoreData::getInstance().getMenuFontNormal());
 		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 		labelTestTitle.setText(lang.getString("KeyboardsetupTest"));
 
-		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
 		labelTestValue.init(keyButtonsXBase,155-28);
 		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -116,7 +127,6 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		labelTestValue.setText("");
 
 		// mainMassegeBox
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.getString("Ok"));
 		mainMessageBox.setEnabled(false);
 		mainMessageBoxState=0;
@@ -128,15 +138,12 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		keyScrollBar.setVisibleStart(0);
 
 		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
 
-		buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 		buttonReturn.setText(lang.getString("Return"));
 
-		buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
 		buttonDefaults.init(buttonStartPos+230, buttonRowPos, 125);
 		buttonDefaults.setText(lang.getString("Defaults"));
 
@@ -174,11 +181,11 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 				}
 			}
 
-			GraphicButton *button=new GraphicButton();
+			GraphicButton *button = new GraphicButton(containerName,string("ScrollButton")+intToStr(i));
 			button->init(keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
 			button->setText(mergedProperties[i].first);
 			keyButtons.push_back(button);
-			GraphicLabel *label=new GraphicLabel();
+			GraphicLabel *label = new GraphicLabel(containerName,string("ScrollLabel")+intToStr(i));
 			label->init(keyButtonsXBase+keyButtonsWidth+5,keyButtonsYBase,labelWidth,20);
 			label->setRenderBackground(true);
 			label->setMaxEditRenderWidth(105);
@@ -208,17 +215,8 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 void MenuStateKeysetup::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	console.resetFonts();
-	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTitle.setText(lang.getString("KeyboardsetupL"));
-
-	labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTestTitle.setText(lang.getString("KeyboardsetupTest"));
-
-	labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTestValue.setText("");
 
 	// mainMassegeBox
@@ -226,10 +224,7 @@ void MenuStateKeysetup::reloadUI() {
 
 	buttonOk.setText(lang.getString("Save"));
 	buttonReturn.setText(lang.getString("Return"));
-
 	buttonDefaults.setText(lang.getString("Defaults"));
-
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
 void MenuStateKeysetup::cleanup() {
@@ -353,11 +348,6 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 	if(this->parentUI==NULL){
 		if(buttonKeyboardSetup.mouseClick(x, y)){
 			soundRenderer.playFx(coreData.getClickSoundA());
-			//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
-			//mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu)); // open keyboard shortcuts setup screen
-			//mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu)); // open keyboard shortcuts setup screen
-			//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
-			//showMessageBox("Not implemented yet", "Keyboard setup", false);
 			return;
 		}
 		else if(buttonAudioSection.mouseClick(x, y)){

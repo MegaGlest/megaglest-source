@@ -1,12 +1,11 @@
 #!/bin/sh
 # 2011 Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # 2014 Rewritten by filux <heross(@@)o2.pl>
-# Copyright (c) 2011-2015 under GNU GPL v3.0+
+# Copyright (c) 2011-2016 under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 # If you want to have core files generated (for debugging purposes):
 # ulimit -c unlimited
 LANG=C
-
 SCRIPTLOCATION="$(readlink -f "$0")"
 GAMEDIR="$(dirname "$SCRIPTLOCATION")"
 ARCHITECTURE="$(uname -m | tr '[A-Z]' '[a-z]')"
@@ -18,21 +17,28 @@ BugReportBoth2="$BugReportBoth"
 BugReportData="https://github.com/MegaGlest/megaglest-data/issues"
 EXC_BINARY="megaglest"
 SHORT_GAME_NAME="megaglest"
+# if long game name contain spaces then write it inside quotes
+# e.g. "\"long name with spaces\""
+LONG_GAME_NAME="MegaGlest"
 # -------
-LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""
-if [ ! -d "$GAMEDIR/$LIBDIR" ]; then mkdir "$GAMEDIR/$LIBDIR"; fi
+LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""; FirstLnError=""
+LibDir_wP="$GAMEDIR/$LIBDIR"; if [ ! -d "$LibDir_wP" ]; then mkdir "$LibDir_wP"; fi
 if [ "$1" = "--tool-editor" ] || [ "$1" = "--tool-g3dviewer" ] || [ "$1" = "--tool-buginfo" ];
 then OperatingMode="$1"; else OperatingMode="--game"; fi
 BeginTime="$(date +"%s")"
-if [ "$(which lsb_release 2>/dev/null)" != "" ]; then
-    OS_INFO_P="$(which lsb_release) -d"
-    OS_INFO="$($OS_INFO_P | awk -F ':[ \t]*' '{print $2}')"
+if [ -e "/etc/os-release" ]; then
+    OS_INFO="$(cat "/etc/os-release" | grep '^PRETTY_NAME=' | awk -F '"' '{print $2}')"
+else
+    WhichLsbRelease="$(which lsb_release 2>/dev/null)"
+    if [ "$WhichLsbRelease" != "" ]; then
+	OS_INFO="$($WhichLsbRelease -d | awk -F ':[ \t]*' '{print $2}')"
+    fi
 fi
-
 if [ "$OperatingMode" != "--tool-buginfo" ]; then
     if [ "$LDCONFIG" = "" ]; then
-	if [ "$(which ldconfig 2>/dev/null)" != "" ]; then
-	    LDCONFIG="$(which ldconfig 2>/dev/null)"; LDconfigType=1
+	WhichLdconfig="$(which ldconfig 2>/dev/null)"
+	if [ "$WhichLdconfig" != "" ]; then
+	    LDCONFIG="$WhichLdconfig"; LDconfigType=1
 	elif [ -x "/sbin/ldconfig" ]; then
 	    LDCONFIG="/sbin/ldconfig"; LDconfigType=2
 	else
@@ -43,33 +49,17 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     else
 	LDconfigType=9
     fi
-    LibsWarnings="$LibsWarnings
-    ||    If for some reason you see an error related with library, then you should try install this library
-    || in your linux. Hints with full names and with default versions of just detected missing libraries you
-    || see below.
-    || You can also perform mini update by launch '${SHORT_GAME_NAME}-mini-update.sh' script, which may solve tiny problems.
-    || If it is other problem or after your tries it still doesn't work then please report a bug
-    || here: '$BugReportEngine',
-    || or here: '$BugReportBoth'."
-    LibsWarnings="$LibsWarnings
-    ||
-    || Found LDCONFIG variable [$LDconfigType][$LDCONFIG]...
-    || OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]"
-
+    LibsWarnings="Found LDCONFIG variable [$LDconfigType][$LDCONFIG]..."
     if [ "$ARCHITECTURE" = "x86_64" ]; then GrepPattern="x86[_-]64"
-    else GrepPattern="$ARCHITECTURE"; fi
+	else GrepPattern="$ARCHITECTURE"; fi
     LDCONFIG_P="$($LDCONFIG -p)"; ArchSortLibs="no"
     LDCONFIG_P_ARCH="$(echo "$LDCONFIG_P" | grep "$GrepPattern")"
     if [ "$LDCONFIG_P_ARCH" != "" ]; then
 	LDCONFIG_P_R_ARCH="$(echo "$LDCONFIG_P" | grep -v "$GrepPattern")"
 	ArchSortLibs="yes"
     fi
-    if [ "$OperatingMode" = "--game" ]; then
-	ldd_target="$GAMEDIR/$EXC_BINARY"
-    else
-	ldd_target="$GAMEDIR/$2"
-    fi
-    c_required_libs="$(ldd "$ldd_target")"
+    if [ "$OperatingMode" = "--game" ]; then ldd_target="$GAMEDIR/$EXC_BINARY"
+	else ldd_target="$GAMEDIR/$2"; fi
 
     hasSOlib() {
 	if [ "$2" = "myarch" ]; then
@@ -83,22 +73,26 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     }
     findMissingSO() {
 	SO_WANTED_LIB="$1"; SO_WANTED_LIB2="$2"; SO_LIB_PATTERN="$3"
-	SO_LINKED_LIB="$GAMEDIR/$LIBDIR/$SO_WANTED_LIB2"
+	SO_LINKED_LIB="$LibDir_wP/$SO_WANTED_LIB2"
+
 	hasSO="$(hasSOlib "$SO_LIB_PATTERN" "myarch")"; CommonPart="no"
-	if [ "$hasSO" != "" ]; then
+	if [ ! -L "$SO_LINKED_LIB" ] && [ -e "$SO_LINKED_LIB" ]; then EmbLibExist="yes"; else EmbLibExist="no"; fi
+	if [ "$hasSO" != "" ] && ( [ "$6" != "|L" ] || [ "$EmbLibExist" = "no" ] ); then
 	    CommonPart="yes"
-	elif [ "$SO_WANTED_LIB" = "$SO_LIB_PATTERN" ] && [ ! -h "$SO_LINKED_LIB" ] && [ -e "$SO_LINKED_LIB" ]; then
+	elif [ "$SO_WANTED_LIB" = "$SO_LIB_PATTERN" ] && [ "$EmbLibExist" = "yes" ] && [ "$6" != "|H" ]; then
+	    if [ "$6" = "|L" ]; then Emb_Keyword=" is used as"; else Emb_Keyword=" is missing in your OS, using"; fi
 	    LibsWarnings="$LibsWarnings
-	    ||- default library [$SO_WANTED_LIB2] is missing in your OS, using embedded library."
+	    ||- default library ${5}[$SO_WANTED_LIB2]$Emb_Keyword embedded library."
 	    return 0
 	else
 	    hasSO="$(hasSOlib "$SO_LIB_PATTERN")"
 	    if [ "$ArchSortLibs" = "yes" ] && [ "$hasSO" != "" ]; then
 		CommonPart="yes"
 	    else
-		if [ "$SO_WANTED_LIB" = "$SO_LIB_PATTERN" ]; then
+		if [ "$SO_WANTED_LIB" = "$SO_LIB_PATTERN" ] && ( [ "$EmbLibExist" = "no" ] || [ "$6" = "|H" ] ); then
+		    if [ "$6" = "|H" ] && [ "$EmbLibExist" = "yes" ]; then Emb_Keyword2=" (ae)"; else Emb_Keyword2=""; fi
 		    LibsWarnings="$LibsWarnings
-		    ||- default library [$SO_WANTED_LIB2] is missing in your OS, attempting to find and link to different version if is available..."
+		    ||- default library ${5}[$SO_WANTED_LIB2] is missing in your OS${Emb_Keyword2}, attempting to find and link to different version if is available..."
 		fi
 		if [ "$4" != "no" ]; then
 		    LibsWarnings="$LibsWarnings
@@ -109,15 +103,24 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	fi
 	if [ "$CommonPart" = "yes" ]; then
 	    if [ "$SO_WANTED_LIB" != "$SO_LIB_PATTERN" ]; then
-		LibsWarnings="$LibsWarnings
-		||  new library link [.../$LIBDIR/$SO_WANTED_LIB2] pointed to [$hasSO]."
 		ln -f -s "$hasSO" "$SO_LINKED_LIB"
+		if [ "$?" -eq "0" ]; then
+		    LibsWarnings="$LibsWarnings
+		    ||  new library link [.../$LIBDIR/$SO_WANTED_LIB2] pointed to [$hasSO]."
+		else
+		    LibsWarnings="$LibsWarnings
+		    ||  ERROR: Detected some problems during process of creating symlink."
+		    if [ "$FirstLnError" = "" ]; then FirstLnError="no"
+			LibsWarnings="$LibsWarnings
+			||  ... lack of write permissions in game location?"
+		    fi
+		fi
 	    else
 		if [ -e "$SO_LINKED_LIB" ]; then rm -f "$SO_LINKED_LIB"; fi
-		if [ "$(echo "$c_required_libs" | grep "$SO_LIB_PATTERN[ \t]*=>[ \t]*not found")" != "" ]; then
+		if [ "$(echo "$c_required_libs" | grep "${SO_LIB_PATTERN}[ \t]*=>[ \t]*not found")" != "" ] && [ "$EmbLibExist" = "no" ]; then
 		    #rare exception
 		    LibsWarnings="$LibsWarnings
-		    ||- default library: [$SO_WANTED_LIB2] is missing in your OS, attempting to find and link to different version if is available...
+		    ||- default library: ${5}[$SO_WANTED_LIB2] is missing in your OS, attempting to find and link to different version if is available...
 		    ||  > not found !"
 		fi
 	    fi
@@ -127,28 +130,41 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 
     checkLibsStatus() {
 	if [ "$1" != "" ]; then
-	    list_of_libs="$(echo "$1" | sed -e 's|\([^\]\)\.|\1\\.|g' -e 's|\[num\]|[0-9]\\+|g')"
-	    for var in $list_of_libs; do
-		patterns="$(echo "$var" | sed -e 's|^ */||' -e 's|/| |g' -e 's/| /|/')"
-		patterns_num="$(echo "$patterns" | wc -w)"
-		wanted_lib="$(echo "$patterns" | awk '{print $1}')"; i=2
-		wanted_lib2="$(echo "$wanted_lib" | sed 's/\\//g')";
-		last_pattern="$(echo "$patterns" | awk '{print $(NF-1)}')"
-		if [ "$(echo "$c_required_libs" | grep "[^_-]$last_pattern")" != "" ]; then
-		    for var2 in $patterns; do
-			if [ "$var2" = "|" ]; then break; fi
-			lib_pattern="$(echo "$var" | awk -F '/' -v ii="$i" '{print $ii}')"
-			if [ "$i" -lt "$patterns_num" ]; then end_w="no"; else end_w="yes"; fi
-			findMissingSO "$wanted_lib" "$wanted_lib2" "$lib_pattern" "$end_w"
-			if [ "$?" -eq "0" ]; then break; else i=$((i + 1)); fi
-		    done
-		else
-		    IgnoredLibs="$IgnoredLibs $wanted_lib2"
+	    check_nr=1
+	    while [ "$check_nr" -le "2" ]; do
+		if [ "$check_nr" -eq "1" ]; then c_required_libs="$(ldd "$ldd_target")"; else
+		    c_required_libs="$(LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${LibDir_wP}" ldd "$ldd_target")"
 		fi
+		list_of_libs="$(echo "$1" | sed -e 's|\([^\]\)\.|\1\\.|g' -e 's|\[num\]|[0-9]\\+|g')"
+		for var in $list_of_libs; do
+		    patterns="$(echo "$var" | sed -e 's|^ */||' -e 's|/| |g' -e 's/\(|[HL]\?\) /\1/')"
+		    wanted_lib="$(echo "$patterns" | awk '{print $1}')"; i=2
+		    if [ "$check_nr" -ne "1" ] && [ "$(echo "$IgnoredLibs" | grep "$wanted_lib")" != "" ]; then WantedLibIgnored="yes"
+			else WantedLibIgnored="no"; fi
+		    if [ "$check_nr" -eq "1" ] || [ "$WantedLibIgnored" = "yes" ]; then
+			wanted_lib2="$(echo "$wanted_lib" | sed 's/\\//g')"; patterns_num="$(echo "$patterns" | wc -w)"
+			last_pattern="$(echo "$patterns" | awk '{print $(NF-1)}')"; end_mark="$(echo "$patterns" | awk '{print $NF}')"
+			if [ "$check_nr" -ne "1" ]; then foreign_dep="(sd) "; else foreign_dep=""; fi
+			if [ "$(echo "$c_required_libs" | grep "[^_-]$last_pattern")" != "" ]; then
+			    if [ "$WantedLibIgnored" = "yes" ]; then IgnoredLibs="$(echo "$IgnoredLibs" | sed "s|$wanted_lib||")"; fi
+			    for var2 in $patterns; do
+				if [ "$var2" = "|" ] || [ "$var2" = "|H" ] || [ "$var2" = "|L" ]; then break; fi
+				lib_pattern="$(echo "$var" | awk -F '/' -v ii="$i" '{print $ii}')"
+				if [ "$wanted_lib" != "$last_pattern" ] && [ "$i" -lt "$patterns_num" ]; then end_w="no"
+				    else end_w="yes"; fi
+				findMissingSO "$wanted_lib" "$wanted_lib2" "$lib_pattern" "$end_w" "$foreign_dep" "$end_mark"
+				if [ "$?" -eq "0" ]; then break; else i=$((i + 1)); fi
+			    done
+			elif [ "$WantedLibIgnored" = "no" ]; then
+			    IgnoredLibs="$IgnoredLibs $wanted_lib2"
+			    if [ -L "$LibDir_wP/$wanted_lib2" ]; then rm -f "$LibDir_wP/$wanted_lib2"; fi
+			fi
+		    fi
+		done
+		check_nr=$((check_nr + 1))
 	    done
 	fi
     }
-
     # Each line /.../.../|/ .
     # First entry libs_list="...\n...\n..." ,
     # each next libs_list="$libs_list\n...\n..." .
@@ -156,15 +172,20 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     # or [num] what mean "any number with one or more digits".
     # Last word should have length at least 6 chars, but use longer if string is too much common.
 
+    # If line is ended by /|H/ this mean 'H'igher priority about finding local library instead of existing
+    # (if exist) embedded version, useful in case if embedded library has a lot of own dependencies.
+    # If line is ended by /|L/ this mean 'L'ower priority about finding local library instead of existing
+    # (if exist) embedded version, (rarely) useful in case if embedded library may eliminate ABI-API
+    # conflixts, e.g. binary <> WxWidgets.
     # ignored: linux-vdso.so*, linux-gate.so*, ld-linux-*.so*, libpthread.so*, libpulsecommon-*.so, libresolv.so*
-    libs_list="/libSDL2-2.0.so.0/libSDL2-2.[num].so/libSDL2-[0-9].[num].so/libSDL2-/|/
+    libs_list="/libSDL2-2.0.so.0/libSDL2-2.[num].so/libSDL2-[0-9].[num].so/libSDL2-/|H/
     /libGLU.so.1/libGLU.so/|/
     /libGL.so.1/libGL.so/|/
     /libX11.so.6/libX11.so/|/
     /libidn.so.11/libidn.so/|/
     /librtmp.so.0/librtmp.so/|/
-    /libgcrypt.so.11/libgcrypt.so.1[0-9]/libgcrypt.so/libgcrypt/|/
-    /libgnutls.so.26/libgnutls.so.2[0-9]/libgnutls.so/libgnutls/|/
+    /libgcrypt.so.11/|/
+    /libgnutls.so.26/|/
     /libgssapi_krb5.so.2/libgssapi_krb[0-9].so/libgssapi_krb[num].so/libgssapi_krb/|/
     /liblber-2.4.so.2/liblber-2.[num].so/liblber-[0-9].[num].so/liblber-/liblber/|/
     /libldap_r-2.4.so.2/libldap_r-2.[num].so/libldap_r-[0-9].[num].so/libldap_r-/libldap_r/|/
@@ -243,14 +264,14 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     /libGLEW.so.1.10/libGLEW.so.1.[num]/libGLEW.so/|/"
     if [ "$OperatingMode" = "--game" ]; then
 	libs_list="$libs_list
-	/libopenal.so.1/libopenal.so/libopenal/|/
+	/libopenal.so.1/libopenal.so/libopenal/|H/
 	/libvlccore.so.7/libvlccore.so/libvlccore/|/
 	/libvlc.so.5/libvlc.so/|/"
     else
 	libs_list="$libs_list
-	/libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/|/
-	/libwx_baseu-3.0.so.0/libwx_baseu-3.[num].so/|/
-	/libwx_gtk2u_gl-3.0.so.0/libwx_gtk2u_gl-3.[num].so/|/
+	/libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/|L/
+	/libwx_baseu-3.0.so.0/libwx_baseu-3.[num].so/|L/
+	/libwx_gtk2u_gl-3.0.so.0/libwx_gtk2u_gl-3.[num].so/|L/
 	/libgtk-x11-2.0.so.0/libgtk-x11-2.[num].so/libgtk-x11-[0-9].[num].so/libgtk-x11-[0-9]/libgtk-x11/|/
 	/libgdk-x11-2.0.so.0/libgdk-x11-2.[num].so/libgdk-x11-[0-9].[num].so/libgdk-x11-[0-9]/libgdk-x11/|/
 	/libpangocairo-1.0.so.0/libpangocairo-1.[num].so/libpangocairo-[0-9].[num].so/libpangocairo-[0-9]/libpangocairo/|/
@@ -260,7 +281,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	/libgobject-2.0.so.0/libgobject-2.[num].so/libgobject-[0-9].[num].so/libgobject-[0-9]/libgobject/|/
 	/libglib-2.0.so.0/libglib-2.[num].so/libglib-[0-9].[num].so/libglib-[0-9]/libglib-/|/
 	/libSM.so.6/libSM.so/|/
-	/libjpeg.so.8/libjpeg.so.[0-9]/libjpeg.so/|/
+	/libjpeg.so.8/|/
 	/libtiff.so.5/libtiff.so/|/
 	/libgmodule-2.0.so.0/libgmodule-2.[num].so/libgmodule-[0-9].[num].so/libgmodule-[0-9]/libgmodule/|/
 	/libatk-1.0.so.0/libatk-1.[num].so/libatk-[0-9].[num].so/libatk-[0-9]/|/
@@ -282,10 +303,61 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	/libgraphite2.so.3/libgraphite2.so/libgraphite[0-9].so/|/"
     fi
     #if [ "$ARCHITECTURE" = "x86_64" ]; then
-    #else
     #fi
 
-    checkLibsStatus "$libs_list"
+    IfRealLibExist() {
+	RealEmbLib="$LibDir_wP/$1"
+	if [ ! -L "$RealEmbLib" ] && [ -e "$RealEmbLib" ]; then
+	    if [ "$2" = "remove" ]; then rm -f "$RealEmbLib"; else return 0; fi
+	else return 1; fi
+    }
+    # exceptions, keep them in sync with listed libraries on 'libs_list'
+    if [ "$(echo "$OS_INFO" | grep 'Debian\|Ubuntu\|LinuxMint')" = "" ]; then IfRealLibExist "libSDL2-2.0.so.0" "remove"; fi
+    if [ "$OperatingMode" = "--game" ]; then
+	if [ "$(IfRealLibExist "libvlc.so.5"; echo "$?")" -ne "0" ] && [ "$(IfRealLibExist "libvlccore.so.7"; echo "$?")" -ne "0" ] && \
+	    [ -d "$LibDir_wP/vlc" ]; then rm -rf "$LibDir_wP/vlc"; fi
+    else
+	if [ "$(IfRealLibExist "libwx_gtk2u_core-3.0.so.0"; echo "$?")" -ne "0" ] || \
+	    [ "$(IfRealLibExist "libwx_baseu-3.0.so.0"; echo "$?")" -ne "0" ] || \
+	    [ "$(IfRealLibExist "libwx_gtk2u_gl-3.0.so.0"; echo "$?")" -ne "0" ]; then
+	    IfRealLibExist "libwx_gtk2u_core-3.0.so.0" "remove"
+	    IfRealLibExist "libwx_baseu-3.0.so.0" "remove"
+	    IfRealLibExist "libwx_gtk2u_gl-3.0.so.0" "remove"
+	fi
+    fi
+
+    lw_log="$LibDir_wP/.last_w_check.log"; li_log="$LibDir_wP/.last_i_check.log"
+    pw_log="$LibDir_wP/.previous_w_check.log"; pi_log="$LibDir_wP/.previous_i_check.log"
+    LibsWarningsLogs() {
+	if [ "$1" = "create_new" ]; then
+	    echo "#" > "$lw_log"; echo "#" > "$li_log"
+	elif [ "$1" = "save_new" ] && [ "$OperatingMode" = "--game" ]; then
+	    echo "$LibsWarnings" > "$lw_log"; echo "$IgnoredLibs" > "$li_log"
+	elif [ "$1" = "read_old" ]; then
+	    LibsWarnings="$(cat "$pw_log")"; IgnoredLibs="$(cat "$pi_log")"
+	elif [ "$1" = "check_old" ]; then
+	    if [ -f "$pw_log" ] && [ -f "$pi_log" ] && \
+		[ "$(find "$LibDir_wP" -name '.previous_w_check.log' -mtime -29)" ]; then return 0
+		else return 1; fi
+	elif [ "$1" = "check_current" ] || [ "$1" = "rotate" ]; then
+	    if [ -f "$lw_log" ] && [ -f "$li_log" ]; then
+		if [ "$1" = "rotate" ] || [ "$(find "$LibDir_wP" -name '.last_w_check.log' -mmin +10)" ]; then
+		    mv -f "$lw_log" "$pw_log"; mv -f "$li_log" "$pi_log"
+		    else return 0; fi
+	    elif [ "$1" != "rotate" ]; then return 1; fi
+	fi
+    }
+    checkLibsStatus2() {
+	checkLibsStatus "$libs_list"; LibsWarningsLogs "save_new"; sleep 1s; LibsWarningsLogs "rotate"
+    }
+    if [ "$OperatingMode" = "--game" ] && [ "$(LibsWarningsLogs "check_current"; echo "$?")" -eq "0" ]; then
+	LibsWarningsLogs "read_old"
+    elif [ "$OperatingMode" = "--game" ] && [ "$(LibsWarningsLogs "check_old"; echo "$?")" -eq "0" ]; then
+	( LibsWarningsLogs "create_new"; checkLibsStatus2 ) &
+	LibsWarningsLogs "read_old"
+    else
+	checkLibsStatus2
+    fi
     if [ -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh" ]; then
 	"$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
 	rm -f "$GAMEDIR/${SHORT_GAME_NAME}-configure-desktop.sh"
@@ -298,25 +370,48 @@ else
     BinaryToCheck="$6"
 fi
 if [ "$OperatingMode" = "--game" ]; then
-    if [ -d "$GAMEDIR/$LIBDIR" ]; then
-	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}"
-	if [ -d "$GAMEDIR/$LIBDIR/vlc" ]; then
-		export VLC_PLUGIN_PATH="${GAMEDIR}/${LIBDIR}/vlc"
-	fi
+    if [ -d "$LibDir_wP" ]; then
+	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${LibDir_wP}"
+	if [ -d "$LibDir_wP/vlc" ]; then export VLC_PLUGIN_PATH="${LibDir_wP}/vlc"; fi
     fi
-    "$GAMEDIR/$EXC_BINARY" $@
+    "$GAMEDIR/$EXC_BINARY" "$@"
     ExitStatus="$?"
 
     BinaryToCheck="$EXC_BINARY"
     ErrorTime="$(date +"%s")"
 fi
 if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$OperatingMode" = "--tool-g3dviewer" ]; then
-    if [ "$(echo "$@" | grep "^[ \t]*--help[ \t]*$")" = "" ] && [ "$(echo "$@" | grep "^[ \t]*-h[ \t]*$")" = "" ]; then
+    if [ "$(echo "$@" | grep '^[ \t]*--help[ \t]*$\|^[ \t]*-h[ \t]*$')" = "" ]; then
 	DiffTime="$(($ErrorTime-$BeginTime))"
-	if [ "$DiffTime" -le "15" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
+	if [ "$OperatingMode" = "--game" ]; then ShowLibsTime=35; else ShowLibsTime=45; fi
+	if [ "$DiffTime" -le "$ShowLibsTime" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
+	    if [ "$OperatingMode" = "--game" ] || [ "$OperatingMode" = "--tool-buginfo" ]; then
+		LibsWarnings="
+		|| $LONG_GAME_NAME requires some libraries to be present on this operating system.
+		|| Missing libraries (if any) will be listed next, along with full names
+		|| and default versions. Use the package manager provided by your Linux
+		|| distribution to install them. Most Linux distributions provide a web search
+		|| allowing you to identify the packages containing these libraries.
+		|| Once you installed additional libraries, just run this script again.
+		||
+		|| Other issues preventing $LONG_GAME_NAME from starting can occur if
+		|| this version of game has not been tested with this version of your Linux
+		|| distribution. If so, we may provide compatibility updates which can be
+		|| downloaded and installed by running this script:
+		||    '${SHORT_GAME_NAME}-mini-update.sh'
+		||
+		|| If after this, $LONG_GAME_NAME still fails to start, please report a bug at
+		||    '$BugReportEngine'
+		||    or '$BugReportBoth'
+		||
+		|| OS info. [$OS_INFO], Arch.[$ARCHITECTURE], Dir.[$GAMEDIR]
+		|| $LibsWarnings"
+	    fi
 	    echo "$LibsWarnings" | sed 's/^[\t ]*||//g' >&2; echo
-	    if [ "$IgnoredLibs" != "" ]; then
-		echo "... and as information useful only for game developers, List of ignored libs:" >&2
+	    if [ "$OperatingMode" != "--tool-buginfo" ]; then
+		IgnoredLibs="$(echo "$IgnoredLibs" | sed -e 's/  */ /g' -e 's/^ //g')"
+		if [ "$IgnoredLibs" = "" ]; then IgnoredLibs="-none-"; fi
+		echo "Ignored libraries (please include in bug reports):" >&2
 		echo "$IgnoredLibs" >&2; echo
 	    fi
 	else
@@ -327,7 +422,7 @@ if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$Op
 	    || here: '$BugReportBoth2',
 	    || or if you think that bug is related with game engine here:
 	    || '$BugReportEngine'"
-	    if [ "$BugReportData" != "" ] && [ "$BugReportData" != "$BugReportBoth2" ] && [ "$BugReportData" != "$BugReportEngine" ] ; then
+	    if [ "$BugReportData" != "" ] && [ "$BugReportData" != "$BugReportBoth2" ] && [ "$BugReportData" != "$BugReportEngine" ]; then
 		BugReportInfo="$BugReportInfo,
 		|| or if you think that bug is related with game data here:
 		|| '$BugReportData'."
@@ -336,10 +431,6 @@ if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$Op
 	    fi
 	    echo "$BugReportInfo" | sed 's/^[\t ]*||//g' >&2; echo
 	fi
-	#if [ "$OperatingMode" = "--game" ] && [ -f "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
-	    #echo "... attempt to perform mini update, which may solve tiny problems:" >&2
-	    #"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"
-	#fi
     fi
 fi
 exit "$ExitStatus"

@@ -97,7 +97,7 @@ ENDIF()
 
 ## Compiler flags, CPACK configuration and other Apple specific code.
 IF(APPLE)
-	include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
+	include(${PROJECT_SOURCE_DIR}/mk/macos/CMakeLists.txt)
 ENDIF(APPLE)
 
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
@@ -227,7 +227,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
                         # Get the current commit SHA1
                         execute_process(
-                          COMMAND git log -1 --format=%h
+                          COMMAND git log -1 --format=%h --abbrev=7
                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                           OUTPUT_VARIABLE GIT_SHA1
                           OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -241,7 +241,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
                           OUTPUT_STRIP_TRAILING_WHITESPACE
                         )
 
-                        SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h`")
+                        SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h --abbrev=7`")
 
                         MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
 
@@ -282,8 +282,10 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 			ENDFOREACH()
 		ENDIF()
 
-		IF(NOT CUSTOM_DATA_INSTALL_PATH AND NOT WANT_SINGLE_INSTALL_DIRECTORY)
-			SET(CUSTOM_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
+		IF(NOT WANT_SINGLE_INSTALL_DIRECTORY)
+			IF(NOT CUSTOM_DATA_INSTALL_PATH)
+				SET(CUSTOM_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
+			ENDIF()
 			SET(CUSTOM_DATA_INSTALL_PATH_VALUE "-DCUSTOM_DATA_INSTALL_PATH=${CUSTOM_DATA_INSTALL_PATH}")
 		ENDIF()
 
@@ -337,7 +339,7 @@ OPTION(WANT_DEV_OUTPATH "Use developer friendly output paths." OFF)
 IF(UNIX AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/linux/")
 ELSEIF(UNIX AND APPLE)
-	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/macosx/")
+	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/macos/")
 ELSEIF(UNIX AND NOT APPLE)
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/other_unix/")
 ELSE()

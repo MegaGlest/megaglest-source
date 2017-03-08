@@ -561,8 +561,8 @@ void Program::shiftDown() {
 }
 
 
-void Program::randomizeMapHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions) {
-	if(map) map->randomizeHeights(withReset, minimumHeight,  maximumHeight,  chanceDevider,  smoothRecursions);
+void Program::randomizeMapHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDivider, int smoothRecursions) {
+	if(map) map->randomizeHeights(withReset, minimumHeight,  maximumHeight,  chanceDivider,  smoothRecursions);
 }
 
 void Program::randomizeFactions() {

@@ -2706,13 +2706,13 @@ void Renderer::renderSelectionQuad() {
 Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 	if(font == NULL) {
 		//abort();
-		throw megaglest_runtime_error("font == NULL (1)");
+		throw megaglest_runtime_error("font == NULL (1) text = " + text);
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw megaglest_runtime_error("fontMetrics == NULL (1)");
+		throw megaglest_runtime_error("fontMetrics == NULL (1) text = " + text);
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text)/2.f) : 5);
@@ -2729,13 +2729,13 @@ Vec2i computeCenteredPos(const string &text, Font2D *font, int x, int y) {
 
 Vec2i computeCenteredPos(const string &text, Font3D *font, int x, int y) {
 	if(font == NULL) {
-		throw megaglest_runtime_error("font == NULL (2)");
+		throw megaglest_runtime_error("font == NULL (2) text = " + text);
 	}
 	const Metrics &metrics= Metrics::getInstance();
 	FontMetrics *fontMetrics= font->getMetrics();
 
 	if(fontMetrics == NULL) {
-		throw megaglest_runtime_error("fontMetrics == NULL (2)");
+		throw megaglest_runtime_error("fontMetrics == NULL (2) text = " + text);
 	}
 
 	int virtualX = (fontMetrics->getTextWidth(text) > 0 ? static_cast<int>(fontMetrics->getTextWidth(text) / 2.f) : 5);
@@ -2861,10 +2861,12 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 	if(centeredW == true) {
 		if(font == NULL) {
 			//abort();
-			throw megaglest_runtime_error("font == NULL (5)");
+			throw megaglest_runtime_error("font == NULL (5) text = " + text);
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw megaglest_runtime_error("font->getTextHandler() == NULL (5)");
+			char szBuf[8096] = "";
+			snprintf(szBuf, 8096, "font->getTextHandler() == NULL(5) text = [%s] FontPtr = [%p]\n", text.c_str(),font);
+			throw megaglest_runtime_error(szBuf);
 		}
 
 		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
@@ -2875,10 +2877,10 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 	if(centeredH) {
 		if(font == NULL) {
-			throw megaglest_runtime_error("font == NULL (6)");
+			throw megaglest_runtime_error("font == NULL (6) text = " + text);
 		}
 		else if(font->getTextHandler() == NULL) {
-			throw megaglest_runtime_error("font->getTextHandler() == NULL (6)");
+			throw megaglest_runtime_error("font->getTextHandler() == NULL (6) text = " + text);
 		}
 
 		//const Metrics &metrics= Metrics::getInstance();
@@ -3080,7 +3082,7 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 	}
 
 	if(font == NULL) {
-		throw megaglest_runtime_error("font == NULL (3)");
+		throw megaglest_runtime_error("font == NULL (3) text = " + text);
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
@@ -3108,7 +3110,7 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 	}
 
 	if(font == NULL) {
-		throw megaglest_runtime_error("font == NULL (4)");
+		throw megaglest_runtime_error("font == NULL (4) text = " + text);
 	}
 
 	glPushAttrib(GL_CURRENT_BIT);
@@ -3246,6 +3248,7 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 	if(label->getVisible() == false) {
 		return;
 	}
+	try {
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
@@ -3314,6 +3317,16 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 		}
 	}
 	glPopAttrib();
+	}
+	catch(const exception &e) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s] For Control [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what(),label->getInstanceName().c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		throw megaglest_runtime_error(szBuf);
+	}
+
 }
 
 void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverride, bool *lightedOverride) {
@@ -3324,6 +3337,12 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 	if(button->getVisible() == false) {
 		return;
 	}
+
+	try {
+
+	//char szBuf[8096]="";
+	//snprintf(szBuf,8096,"In [%s::%s Line: %d]\n For Control container [%s] name [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,button->getContainerName().c_str(), button->getInstanceName().c_str());
+	//printf(szBuf);
 
     int x= button->getX();
     int y= button->getY();
@@ -3452,6 +3471,15 @@ void Renderer::renderButton(GraphicButton *button, const Vec4f *fontColorOverrid
 	}
 
     glPopAttrib();
+	}
+	catch(const exception &e) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s] For Control container [%s] name [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what(),button->getContainerName().c_str(), button->getInstanceName().c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		throw megaglest_runtime_error(szBuf);
+	}
 }
 
 void Renderer::renderCheckBox(const GraphicCheckBox *box) {
@@ -3772,7 +3800,8 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
-	GraphicLabel label;
+	GraphicLabel label("ListBox_render_label","label",false);
+	//label.setInstanceName("ListBox_render_label");
 	if(listBox->getLeftControlled()==true){
 		label.init(listBox->getX()+listBox->getButton1()->getW()+listBox->getButton2()->getW()+2, listBox->getY(), listBox->getW(), listBox->getH(), false,listBox->getTextColor());
 	}
@@ -5212,9 +5241,11 @@ void Renderer::renderTeamColorPlane(){
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex){
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			Vec3f currVec= unit->getCurrVectorFlat();
-			renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
-					unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0),texture);
+			if( unit->isAlive()){
+				Vec3f currVec= unit->getCurrVectorFlat();
+				renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
+						unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0),texture);
+			}
 		}
 		glDisable(GL_COLOR_MATERIAL);
 		glPopAttrib();
@@ -9297,10 +9328,24 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 							}
 						}
 						else {
-							SurfaceCell *sc = map->getSurfaceCell(pos);
+							bool insideQuad = false;
 
-							// 2 as last param for CubeInFrustum to get rid of annoying black squares
-							bool insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 2);
+							if( !insideQuad) {
+								SurfaceCell *sc = map->getSurfaceCell(pos.x, pos.y);
+								insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);
+							}
+							if( !insideQuad) {
+								SurfaceCell *sc = map->getSurfaceCell(pos.x+1, pos.y);
+								insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);
+							}
+							if( !insideQuad) {
+								SurfaceCell *sc = map->getSurfaceCell(pos.x, pos.y+1);
+								insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);
+							}
+							if( !insideQuad) {
+								SurfaceCell *sc = map->getSurfaceCell(pos.x+1, pos.y+1);
+								insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);
+							}
 
 							if(insideQuad == true) {
 								quadCache.visibleScaledCellList.push_back(pos);

@@ -490,7 +490,7 @@ void ChatManager::updateNetwork() {
 			        		if(msg.chatText.find(playerName) != string::npos){
 			        			CoreData &coreData= CoreData::getInstance();
 			        			SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-			        			soundRenderer.playFx(coreData.getHighlightSound());
+			        			soundRenderer.playFx(coreData.getHighlightSound(),true);
 			        		}
 			        		console->addLine(msg.chatText.substr(1,msg.chatText.size()), true, msg.chatPlayerIndex,Vec3f(1.f, 1.f, 1.f),teamMode);
 			        	}

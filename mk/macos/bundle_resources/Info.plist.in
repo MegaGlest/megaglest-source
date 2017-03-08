@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>MegaGlest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>v${MEGAGLEST_VERSION}, © 2001-2015 The MegaGlest Team.</string>
+	<string>v${MEGAGLEST_VERSION}, © 2001-2017 The MegaGlest Team.</string>
 	<key>CFBundleIconFile</key>
 	<string>MegaGlest</string>
 	<key>CFBundleIdentifier</key>

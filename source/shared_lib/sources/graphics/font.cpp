@@ -99,6 +99,7 @@ void Font::resetToDefaults() {
 
 FontMetrics::FontMetrics(Text *textHandler) {
 	this->textHandler 	= textHandler;
+	//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler,this);
 	this->widths		= new float[Font::charCount];
 	this->height		= 0;
 
@@ -114,6 +115,7 @@ FontMetrics::~FontMetrics() {
 
 void FontMetrics::setTextHandler(Text *textHandler) {
 	this->textHandler = textHandler;
+	//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler, this);
 }
 
 Text * FontMetrics::getTextHandler() {
@@ -214,7 +216,8 @@ Font::Font(FontTextHandlerType type) {
 	this->type	= fontTypeName;
 	width		= 400;
 	size 		= 10;
-	textHandler = NULL;
+	this->textHandler = NULL;
+	//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler, this);
 
 #if defined(USE_FTGL)
 
@@ -225,8 +228,9 @@ Font::Font(FontTextHandlerType type) {
 				TextFTGL::faceResolution = Font::faceResolution;
 				TextFTGL::langHeightText = Font::langHeightText;
 
-				textHandler = NULL;
-				textHandler = new TextFTGL(type);
+				this->textHandler = NULL;
+				this->textHandler = new TextFTGL(type);
+				//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler, this);
 
 				TextFTGL::faceResolution = Font::faceResolution;
 				TextFTGL::langHeightText = Font::langHeightText;
@@ -237,6 +241,7 @@ Font::Font(FontTextHandlerType type) {
 		catch(exception &ex) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 			textHandler = NULL;
+			//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler, this);
 		}
 	}
 
@@ -244,10 +249,12 @@ Font::Font(FontTextHandlerType type) {
 }
 
 Font::~Font() {
-	if(textHandler) {
-		delete textHandler;
+	if(this->textHandler) {
+		delete this->textHandler;
 	}
-	textHandler = NULL;
+	this->textHandler = NULL;
+	metrics.setTextHandler(this->textHandler);
+	//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler, this);
 }
 
 string Font::getType() const {
@@ -264,6 +271,7 @@ void Font::setType(string typeX11, string typeGeneric, string typeGenericFamily)
 		catch(exception &ex) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 			textHandler = NULL;
+			//SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] this->textHandler = [%p] Owner = [%p]\n", __FILE__, __FUNCTION__, __LINE__, this->textHandler, this);
 		}
 	}
 	if(textHandler == NULL) {

@@ -732,6 +732,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	this->messageType = messageType;
 	compressedLength = 0;
 
+    data.mapFilter  = gameSettings->getMapFilter();
     data.mapCRC     = gameSettings->getMapCRC();
     data.tilesetCRC = gameSettings->getTilesetCRC();
     data.techCRC    = gameSettings->getTechCRC();
@@ -812,6 +813,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	gameSettings->setFlagTypes1(data.flagTypes1);
 
     gameSettings->setMapCRC(data.mapCRC);
+    gameSettings->setMapFilter(data.mapFilter);
     gameSettings->setTilesetCRC(data.tilesetCRC);
     gameSettings->setTechCRC(data.techCRC);
 
@@ -894,6 +896,7 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 		packedData.flagTypes1 = 0;
 		packedData.fogOfWar = 0;
 		packedData.mapCRC = 0;
+		packedData.mapFilter = 0;
 		packedData.masterserver_admin = 0;
 		packedData.masterserver_admin_factionIndex = 0;
 		messageType = 0;
@@ -953,6 +956,7 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 				packedData.networkPlayerLanguages[6].getBuffer(),
 				packedData.networkPlayerLanguages[7].getBuffer(),
 				packedData.mapCRC,
+				packedData.mapFilter,
 				packedData.tilesetCRC,
 				packedData.techCRC,
 				packedData.factionNameList[0].getBuffer(),
@@ -1107,6 +1111,7 @@ void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 			data.networkPlayerLanguages[5].getBuffer(),
 			data.networkPlayerLanguages[6].getBuffer(),
 			data.networkPlayerLanguages[7].getBuffer(),
+			&data.mapFilter,
 			&data.mapCRC,
 			&data.tilesetCRC,
 			&data.techCRC,
@@ -1261,6 +1266,7 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 			data.networkPlayerLanguages[5].getBuffer(),
 			data.networkPlayerLanguages[6].getBuffer(),
 			data.networkPlayerLanguages[7].getBuffer(),
+			data.mapFilter,
 			data.mapCRC,
 			data.tilesetCRC,
 			data.techCRC,
@@ -1568,6 +1574,7 @@ void NetworkMessageLaunch::toEndian() {
 			data.teams[i] = Shared::PlatformByteOrder::toCommonEndian(data.teams[i]);
 			data.startLocationIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.startLocationIndex[i]);
 		}
+		data.mapFilter = Shared::PlatformByteOrder::toCommonEndian(data.mapFilter);
 		data.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.mapCRC);
 		data.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.tilesetCRC);
 		data.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.techCRC);
@@ -1607,6 +1614,7 @@ void NetworkMessageLaunch::fromEndian() {
 			data.teams[i] = Shared::PlatformByteOrder::fromCommonEndian(data.teams[i]);
 			data.startLocationIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.startLocationIndex[i]);
 		}
+		data.mapFilter = Shared::PlatformByteOrder::fromCommonEndian(data.mapFilter);
 		data.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.mapCRC);
 		data.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.tilesetCRC);
 		data.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.techCRC);

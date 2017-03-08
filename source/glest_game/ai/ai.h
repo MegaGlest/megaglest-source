@@ -198,7 +198,7 @@ public:
 
     //state requests
 	AiInterface *getAiInterface() const		{return aiInterface;}
-	RandomGen* getRandom()					{return &random;}
+	RandomGen* getRandom();
     int getCountOfType(const UnitType *ut);
 	
     int getMinWarriors() const { return minWarriors; }

@@ -1,9 +1,42 @@
 #########################################################################################
 # streflop
 
+OPTION(FORCE_EMBEDDED_LIBS "Force use of embedded libraries' code." OFF)
+
 # IMPORTANT: should come BEFORE finding packages
+find_package(PkgConfig REQUIRED)
+IF(FORCE_STREFLOP_SOFTWRAPPER)
+    pkg_search_module(STREFLOP streflop-soft)
+ELSE()
+    IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0")
+        pkg_search_module(STREFLOP streflop-sse)
+    ELSE()
+        IF(HAS_X87_SUPPORT)
+            pkg_search_module(STREFLOP streflop-x87)
+        ELSE()
+            pkg_search_module(STREFLOP streflop-soft)
+        ENDIF()
+    ENDIF()
+ENDIF()
+IF(NOT STREFLOP_FOUND)
+    pkg_search_module(STREFLOP streflop)
+ENDIF()
+MESSAGE(STATUS "Search for Library STREFLOP result = ${STREFLOP_FOUND} libs: ${STREFLOP_LIBRARIES} include dirs: ${STREFLOP_INCLUDE_DIRS}")
+
+IF(FORCE_EMBEDDED_LIBS)
+    SET(STREFLOP_FOUND OFF)
+    MESSAGE(STATUS "FORCING USE of EMBEDDED Libraries...")
+ENDIF()
+
 IF(WANT_USE_STREFLOP)
-	ADD_SUBDIRECTORY(sources/streflop)
+    IF(NOT STREFLOP_FOUND)
+    	ADD_SUBDIRECTORY(sources/streflop)
+    ELSE()
+        INCLUDE_DIRECTORIES(${STREFLOP_INCLUDE_DIRS} ${STREFLOP_INCLUDE_DIRS}/streflop)
+        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${STREFLOP_LIBRARIES})
+
+		ADD_DEFINITIONS("-DUSE_STREFLOP_PKG")
+    ENDIF()
 ENDIF()
 
 #########################################################################################
@@ -63,7 +96,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
 		ELSE()
 		    # mageia
-		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ${OPENSSL_SSL_LIBRARY})
+		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
 		ENDIF()
 	ENDIF()
 
@@ -228,7 +261,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	# megaglest lib
 
 	SET(DIRS_WITH_SRC
-                compression
+        compression
 		feathery_ftp	
 		glew
 		graphics
@@ -241,15 +274,14 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		util
 		xml)
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		SET(DIRS_WITH_SRC
-			${DIRS_WITH_SRC}
+            ${DIRS_WITH_SRC}
 			streflop
 			streflop/libm_flt32_source
-                        streflop/softfloat)
+            streflop/softfloat)
 	ENDIF()
-
-	OPTION(FORCE_EMBEDDED_LIBS "Force use of embedded libraries' code." OFF)
+	
 	IF(FORCE_EMBEDDED_LIBS)
 		SET(FORCE_USE_EMBEDDED_Miniupnpc ON)
 	ELSE()
@@ -452,9 +484,6 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		MESSAGE(STATUS "Building shared game library as a SHARED library and saving to [${LIBRARY_OUTPUT_PATH}]")
 	ENDIF()
 
-	# ADD_LIBRARY(libmegaglest SHARED ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
-	# ADD_LIBRARY(libmegaglest STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
-
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
 
 	OPTION(MINIUPNP_DEBUG_BUILD "Build MegaGlest with UPNP DEBUG enabled" OFF)
@@ -468,7 +497,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	  TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
 
-	IF(WANT_USE_STREFLOP)
+	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
 	ENDIF()
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})

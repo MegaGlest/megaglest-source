@@ -5,7 +5,7 @@
 # Using this script, a headless game server is started, waiting for players to
 # connect (if your firewall configuration permits). Players connect and start a
 # game. As soon as the game ends, the server will quit, and this script will
-# start up a new server immidiately. This is a stability measure to  rule out
+# start up a new server again. This is a stability measure to rule out
 # the unlikely case where side effects (such as memory leaks or corruption)
 # could drain on system resources.
 #
@@ -21,34 +21,36 @@
 # user connecting to a headless server controls it. If this user disconnects,
 # the next user who connects (or had already connected) takes control.
 #
-# Please read http://wiki.megaglest.org/Dedicated_Server for more information
+# Please read https://docs.megaglest.org/MG/Dedicated_Server for more information
 #
 # ----------------------------------------------------------------------------
 # 2013 Written by Tom Reynolds <tomreyn[at]megaglest.org>
 # 2015 Rewritten by filux <heross(@@)o2.pl>
-# Copyright (c) 2013-2015 under GNU GPL v3.0+
+# Copyright (c) 2013-2017 under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 LANG=C
 trap "kill -- -$$" HUP INT QUIT TERM EXIT
 
 KERNEL="$(uname -s | tr '[A-Z]' '[a-z]')"
-if [ "$(echo "$(readlink -f "$0" >/dev/null 2>&1; echo $?)" | grep '^[0-9]$')" -eq "0" ]; then
+if [ "$KERNEL" = "linux" ] || [ "$(echo "$(readlink -f "$0" >/dev/null 2>&1; echo $?)" | grep '^[0-9]$')" -eq "0" ]; then
     GAMEDIR="$(dirname "$(readlink -f "$0")")"
 else
     GAMEDIR="$(cd "$(dirname "$0")"; pwd)"
 fi
 HOME_DIR="$HOME"
-B_SCRIPT_DIR="$GAME_DIR"
+B_SCRIPT_DIR="$GAMEDIR"
 
 # -------
 # useful for mods
 BASIC_SCRIPT="start_megaglest"
 FAKE_EXC_BINARY_MAC="MegaGlest"
 EXC_BINARY="megaglest"
+EXC_BINARY_DISTRO="megaglest"
 SHORT_GAME_NAME="megaglest"
 # -------
 PORTSTART=62001
-NUM_OA_SERVERS=2
+NUM_OM_SERVERS=2
+NUM_OA_SERVERS=1
 # Log file location (beware, this can grow large)
 # LOG_SERVER=/dev/null
 
@@ -56,11 +58,11 @@ if [ "$(which curl 2>/dev/null)" = "" ]; then
     echo "WARNING: Downloading tool 'curl' DOES NOT EXIST on this system, please install it." >&2
 fi
 if [ "$KERNEL" = "darwin" ]; then
-	if [ -e "$GAMEDIR/../../MacOS/$FAKE_EXC_BINARY_MAC" ]; then
-		BASIC_SCRIPT="$FAKE_EXC_BINARY_MAC"; B_SCRIPT_DIR="$(cd "${GAMEDIR}/../../MacOS/"; pwd)"
-	elif [ -e "$GAMEDIR/$FAKE_EXC_BINARY_MAC.sh" ]; then
-		BASIC_SCRIPT="$FAKE_EXC_BINARY_MAC.sh"
-	fi
+    if [ -e "$GAMEDIR/../../MacOS/$FAKE_EXC_BINARY_MAC" ]; then
+	BASIC_SCRIPT="$FAKE_EXC_BINARY_MAC"; B_SCRIPT_DIR="$(cd "${GAMEDIR}/../../MacOS/"; pwd)"
+    elif [ -e "$GAMEDIR/$FAKE_EXC_BINARY_MAC.sh" ]; then
+	BASIC_SCRIPT="$FAKE_EXC_BINARY_MAC.sh"
+    fi
 fi
 if [ "$(which lscpu 2>/dev/null)" != "" ]; then NUMCORES="$(lscpu -p | grep -cv '^#')"
     elif [  "$(which sysctl 2>/dev/null)" != "" ]; then NUMCORES="$(sysctl -n hw.ncpu)"; fi
@@ -76,43 +78,83 @@ if [ "$1" != "" ] && [ "$(echo "$1" | grep '^[0-9]\+$')" != "" ]; then SERVERCOU
 if [ "$2" != "" ] && [ "$(echo "$2" | grep '[0-9.:]\+' | grep -v '[A-Za-z]')" != "" ]; then
     SERVER_GREP_IP="$(echo "$2" | sed 's/\./\\./g')"; else SERVER_GREP_IP=""; fi
 if [ "$3" != "" ] && [ "$(echo "$3" | grep '^[0-9]\+$')" != "" ]; then PORTSTART="$3"; fi
-PORT="$(($PORTSTART + $(($(($SERVERCOUNT - 1)) * 11))))"
-STATUSPORT="$(($PORT - 1))"
-PORT_FD="$(echo "$PORT" | cut -c1-3)"
+if [ "$4" != "" ]; then SERVERTITLE="$4"; fi
+PORT="$(($PORTSTART + (($SERVERCOUNT - 1) * 11)))"; STATUSPORT="$(($PORT - 1))"
+PORT_FD="$(echo "$PORT" | cut -c1-2)"; PORT_NLD="$((${#PORT} - ${#PORT_FD}))"
+PORT_FDX="$PORT_FD"; c=1; while [ "$c" -le "$PORT_NLD" ]; do PORT_FDX="$(echo "${PORT_FDX}X")"; c="$(($c + 1))"; done
+
+IDLE_TIME_MOD=12
+if [ "$NUM_OA_SERVERS" -ge "$NUM_OM_SERVERS" ]; then NUM_OS_MOD="$NUM_OA_SERVERS"
+    else NUM_OS_MOD="$NUM_OM_SERVERS"; fi
+if [ "$NUM_OS_MOD" -lt "3" ]; then NUM_OS_SMOD="$(($NUM_OS_MOD + 1))"
+    else NUM_OS_SMOD="$(($NUM_OS_MOD + ($NUM_OS_MOD / 3)))"; fi
+if [ "$SERVERCOUNT" -ge "1" ]; then
+    IDLE_TIME_MOD="$((18 + ($NUM_OS_MOD * 2) - ($SERVERCOUNT * 2)))"
+    if [ "$IDLE_TIME_MOD" -lt "2" ]; then IDLE_TIME_MOD=2
+	elif [ "$IDLE_TIME_MOD" -gt "24" ]; then IDLE_TIME_MOD=24; fi
+fi
+MAX_IDLE_TIME="$(($IDLE_TIME_MOD * 3600))"
 
 SERVER_SCRIPT="$(basename "$0")"
 if [ -f "$GAMEDIR/glest.ini" ]; then
-    GLEST_INI="$(cat "$GAMEDIR/glest.ini")"
-    LOG_DIR="$(echo "$GLEST_INI" | awk -F '=' '/^LogPath=/ {print $2}' | sed -e 's:\$HOME:'"$HOME_DIR"':g')"
-    MASTER_SERVER="$(echo "$GLEST_INI" | awk -F '=' '/^Masterserver=/ {print $2}')"
+    GLEST_INI="$(cat "$GAMEDIR/glest.ini" | sed -e 's:\$HOME:'"$HOME_DIR"':g')"
+    LOG_DIR="$(echo "$GLEST_INI" | grep '^LogPath=' | awk -F '=' '{print $2}')"
+    # e.g. on macos are problems with more advanced using awk ^
+    if [ "$LOG_DIR" != "" ] && [ "$(echo "$LOG_DIR" | grep '/$')" ]; then LOG_DIR="${LOG_DIR%?}"; fi
+    MASTER_SERVER="$(echo "$GLEST_INI" | grep '^Masterserver=' | awk -F '=' '{print $2}')"
     if [ "$(echo "$MASTER_SERVER" | grep '/$')" ]; then CLEAR_M_SERVER="${MASTER_SERVER}showServersForGlest.php"
 	else CLEAR_M_SERVER="$MASTER_SERVER/showServersForGlest.php"; fi
+    if [ "$SERVERCOUNT" -gt "0" ]; then
+	USER_DATA_DIR="$(echo "$GLEST_INI" | grep '^UserData_Root=' | awk -F '=' '{print $2}')"
+	if [ "$USER_DATA_DIR" != "" ] && [ "$(echo "$USER_DATA_DIR" | grep '/$')" ]; then
+	    USER_DATA_DIR="${USER_DATA_DIR%?}"
+	fi
+	if [ "$SERVERTITLE" = "" ] && [ -f "$USER_DATA_DIR/glestuser.ini" ]; then
+	    GLEST_USER_INI="$(cat "$USER_DATA_DIR/glestuser.ini")"
+	    SERVERNAME="$(echo "$GLEST_USER_INI" | grep '^NetPlayerName=' | awk -F '=' '{print $2}')"
+	    if [ "$SERVERNAME" = "" ]; then SERVERNAME="Unknown"; fi
+	fi
+    fi
 elif [ "$SERVER_GREP_IP" != "" ]; then
     echo "WARNING: file 'glest.ini' not found, maybe '$SERVER_SCRIPT' script is placed in the wrong location." >&2
 fi
 
+EXC_BINARY_FPID="$EXC_BINARY"; EXC_BINARY_DISTRO_W="$(which "$EXC_BINARY_DISTRO" 2>/dev/null)"
 if [ -e "$B_SCRIPT_DIR/$BASIC_SCRIPT" ]; then SERVER_EXEC="$B_SCRIPT_DIR/$BASIC_SCRIPT"
     elif [ -e "$GAMEDIR/$EXC_BINARY" ]; then SERVER_EXEC="$GAMEDIR/$EXC_BINARY"
-    else SERVER_EXEC="$EXC_BINARY"; fi
+    else SERVER_EXEC="$EXC_BINARY_DISTRO_W"; EXC_BINARY_FPID="$EXC_BINARY_DISTRO"; fi
 if [ "$SERVERCOUNT" -eq "0" ]; then
-    if [ "$SERVER_EXEC" != "$EXC_BINARY" ]; then ulimit -c unlimited; fi
+    #if [ "$SERVER_EXEC" != "$EXC_BINARY_DISTRO_W" ]; then ulimit -c unlimited; fi
     USED_PORTS=""; LOG_FILE="server.log"
+    RestartMarker="${SHORT_GAME_NAME}-server-restart.log"
 else
-    USED_PORTS=" --use-ports=$PORT,$PORT,$STATUSPORT"
+    USED_PORTS="--use-ports=$PORT,$PORT,$STATUSPORT "
+    RestartMarker="${SHORT_GAME_NAME}-server-restart-${PORT}.log"
+    WaitMarker="${SHORT_GAME_NAME}-server-wait-${PORT_FDX}.log"
     LOG_FILE="server_${SERVERCOUNT}.log"
-    echo "Info: Server nr. $SERVERCOUNT ($2 ; $PORT)." >&2
+    SERVERNAME="$SERVERNAME-${SERVERCOUNT}"
 fi
-SER_PARAMETERS="--headless-server-mode=vps,exit$USED_PORTS"
-SER_GREP_PARAMETERS="$(echo "$SER_PARAMETERS" | sed 's/--/\\--/g')"
+SingleSMarker=".${SHORT_GAME_NAME}-server-single.log"
+if [ "$LOG_DIR" != "" ]; then
+    if [ ! -f "$LOG_DIR/$SingleSMarker" ] && [ "$SERVERCOUNT" -le "1" ]; then
+	echo "#" > "$LOG_DIR/$SingleSMarker"; sleep 1s
+    elif [ -f "$LOG_DIR/$SingleSMarker" ] && [ "$SERVERCOUNT" -gt "1" ]; then
+	sleep 1s; rm -f "$LOG_DIR/$SingleSMarker"
+    fi
+fi
+if [ "$SERVERTITLE" = "" ] && [ "$SERVERNAME" != "" ]; then SERVERTITLE="$SERVERNAME"; fi
 if [ "$SERVERCOUNT" -gt "0" ]; then
-    sleep "$(($SERVERCOUNT * 30))"s
+    echo "Info: Server '$SERVERTITLE' nr. $SERVERCOUNT ($2 ; $PORT)." >&2
+    sleep "$(($SERVERCOUNT * 3))"s
 fi
+SER_PARAMETERS="--headless-server-mode=vps,exit"
+#^ parameters without spaces and numbers inside
+SER_GREP_PARAMETERS="$(echo "${USED_PORTS}$SER_PARAMETERS" | sed 's/--/\\--/g')"
 
 if [ "$LOG_SERVER" != "" ]; then :
 elif [ "$LOG_DIR" != "" ]; then
     mkdir -p "$LOG_DIR"
-    if [ "$(echo "$LOG_DIR" | grep '/$')" ]; then LOG_SERVER="${LOG_DIR}${LOG_FILE}"
-	else LOG_SERVER="$LOG_DIR/$LOG_FILE"; fi
+    LOG_SERVER="$LOG_DIR/$LOG_FILE"
 else
     LOG_SERVER=/dev/null
 fi
@@ -122,9 +164,10 @@ AVG_LOAD="unknown"; SER_SITUATION="unknown"; CHECK_AVG_LOAD_M=0
 if [ -e "/proc/loadavg" ]; then CHECK_AVG_LOAD_M=1
     elif [  "$(which sysctl 2>/dev/null)" != "" ]; then CHECK_AVG_LOAD_M=2; fi
 while true; do
-    if [ -f "$LOG_SERVER" ]; then mv -f "$LOG_SERVER" "$LOG_SERVER.1"; fi
+    if [ "$LOG_SERVER" != "/dev/null" ] && [ -f "$LOG_SERVER" ] && [ "$(wc -c < "$LOG_SERVER")" -gt "250000" ]; then
+	mv -f "$LOG_SERVER" "$LOG_SERVER.1"; fi
     if [ -e "core" ]; then mv -f "core" "core.1"; fi
-    date > "$LOG_SERVER"
+    date >> "$LOG_SERVER"
     while true; do
 	if [ "$CHECK_AVG_LOAD_M" -eq "1" ]; then
 	    AVG_LOAD="$(awk '{print $2}' /proc/loadavg)"
@@ -139,25 +182,64 @@ while true; do
 		echo "WARNING: Detected high load on the server." >&2
 		OLD_SER_SITUATION_STATUS="yes"
 	    fi
-	    sleep 5m; sleep "$((RANDOM % 180))"s
+	    sleep 2.5m; sleep "$((RANDOM % 30))"s
 	else
-	    OLD_SER_SITUATION_STATUS=""
-	    if [ "$SERVERCOUNT" -ne "0" ] && [ "$SERVERCOUNT" -ne "1" ] && [ "$MASTER_SERVER" != "" ] && [ "$SERVER_GREP_IP" != "" ]; then
-		NUM_O_FREE_SER="$(curl -s -L "$CLEAR_M_SERVER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|.*$' \
-		    | grep '^\([^|]*|\)\{11\}'"$PORT_FD"'' | grep '^\([^|]*|\)\{13\}0|.*$' | wc -l)"
-	    else
-		NUM_O_FREE_SER=""
+	    OLD_SER_SITUATION_STATUS=""; NUM_O_FREE_SER=""
+	    if [ "$LOG_DIR" != "" ] && [ ! -f "$LOG_DIR/$SingleSMarker" ]; then
+		if [ "$MASTER_SERVER" != "" ] && [ "$SERVER_GREP_IP" != "" ]; then
+		    if [ "$WaitMarker" != "" ] && [ ! -f "$LOG_DIR/$WaitMarker" ]; then
+			echo "#" > "$LOG_DIR/$WaitMarker"; sleep 1s
+		    fi
+		    if [ -f "$LOG_DIR/$WaitMarker" ]; then
+			InWaitMarker="$(cat "$LOG_DIR/$WaitMarker" | tail -1 | grep '^[0-9]*$')"
+			if [ "$InWaitMarker" = "" ] || \
+			    [ "$(find "$LOG_DIR/" -maxdepth 1 -name "$WaitMarker" -mmin +30)" ]; then
+			    InWaitMarker=100; NUM_O_FREE_SER=103
+			fi
+			if [ "$SERVERCOUNT" -lt "$InWaitMarker" ]; then
+			    echo "$SERVERCOUNT" >> "$LOG_DIR/$WaitMarker"; InWaitMarker="$SERVERCOUNT"
+			fi
+		    fi
+		fi
+		if [ -f "$LOG_DIR/$WaitMarker" ] && [ "$NUM_O_FREE_SER" != "103" ] && \
+		    [ "$(($(date +%s)-$(date +%s -r "$LOG_DIR/$WaitMarker")))" -le "30" ]; then
+		    NUM_O_FREE_SER=102
+		elif [ "$MASTER_SERVER" != "" ] && [ "$SERVER_GREP_IP" != "" ]; then
+		    if [ "$SERVERCOUNT" -ne "$InWaitMarker" ]; then
+			NUM_O_FREE_SER=101
+		    elif [ "$OLD_InWaitMarker" = "" ] || [ "$InWaitMarker" -ne "$OLD_InWaitMarker" ]; then
+			NUM_O_FREE_SER=100; OLD_InWaitMarker="$InWaitMarker"
+		    fi
+		    if [ "$NUM_O_FREE_SER" = "" ]; then
+			FIND_ALL_SER="$(curl -s -L "$CLEAR_M_SERVER")"; M_SERVER_STATUS="$?"
+			FIND_OUR_SER="$(echo "$FIND_ALL_SER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|' \
+			    | grep '^\([^|]*|\)\{11\}'"$PORT_FD"'[0-9]\{'"$PORT_NLD"'\}|')"
+			NUM_O_O_SER="$(echo "$FIND_OUR_SER" | wc -l)"
+			if [ "$NUM_O_O_SER" != "" ] && [ "$NUM_O_O_SER" -lt "$NUM_OM_SERVERS" ]; then :
+			elif [ "$SERVERCOUNT" -le "$NUM_OS_SMOD" ]; then
+			    NUM_O_FREE_SER="$(echo "$FIND_OUR_SER" | grep '^\([^|]*|\)\{10\}0|' -c)"
+			else
+			    NUM_O_FREE_SER="$(echo "$FIND_OUR_SER" | grep '^\([^|]*|\)\{13\}0|' -c)"
+			fi
+		    fi
+		fi
 	    fi
 	    if [ "$NUM_O_FREE_SER" != "" ] && [ "$NUM_O_FREE_SER" -ge "$NUM_OA_SERVERS" ]; then
-		if [ "$OLD_NUM_OFS_STATUS" = "" ]; then
+		if [ "$OLD_NUM_OFS_STATUS" = "" ] && [ "$NUM_O_FREE_SER" -ne "100" ]; then
 		    echo "Notice: Waiting for situation when server may be really needed." >&2
 		    OLD_NUM_OFS_STATUS="yes"
 		fi
-		sleep 2m; sleep "$((RANDOM % 60))"s
 	    else
-		OLD_NUM_OFS_STATUS=""
-		break
+		if [ "$M_SERVER_STATUS" = "" ] || [ "$M_SERVER_STATUS" -eq "0" ] || [ "$SERVERCOUNT" -le "1" ]; then
+		    OLD_NUM_OFS_STATUS=""
+		    if [ -f "$LOG_DIR/$WaitMarker" ]; then echo "#" > "$LOG_DIR/$WaitMarker"; fi
+		    break
+		else
+		    echo "WARNING: Detected some problems with connection to master server." >&2
+		    M_SERVER_STATUS=""
+		fi
 	    fi
+	    sleep 32s
 	fi
     done
 
@@ -167,7 +249,7 @@ while true; do
 	    echo "... dev_version update:" >&2
 	    "$GAMEDIR/../${SHORT_GAME_NAME}-dev_version-update.sh" "$GAMEDIR"; sleep 1s
 	    echo "#" > "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log"; sleep 1s
-	    "$GAMEDIR/$SERVER_SCRIPT" $@ &
+	    "$GAMEDIR/$SERVER_SCRIPT" "$@" &
 	    break
 	else
 	    rm -f "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log"
@@ -178,16 +260,19 @@ while true; do
     if [ "$MASTER_SERVER" != "" ] && [ "$SERVER_GREP_IP" != "" ]; then
 	( check_nr=0; force_restart=0; loop_start="yes"; BeginTime="$(date +"%s")"; sleep 4m
 	while true; do
-	    SER_PID="$(ps -ef | grep "$SER_GREP_PARAMETERS" | awk '/\/'"$EXC_BINARY"' / {print $2}')"
+	    SER_PID="$(ps -ef | grep "[ \t/]$EXC_BINARY_FPID $SER_GREP_PARAMETERS" | grep -v 'grep' | awk '{print $2}')"
 	    if [ "$loop_start" = "yes" ]; then SER_PID_S="$SER_PID"; loop_start="no"; fi
 	    CheckTime="$(date +"%s")"; DiffTime="$(($CheckTime-$BeginTime))"
 	    if [ "$SER_PID" != "" ] && [ "$SER_PID" = "$SER_PID_S" ]; then
-		FIND_SER="$(curl -s -L "$CLEAR_M_SERVER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|.*$' \
-		    | grep '^\([^|]*|\)\{11\}'"$PORT"'|.*$')"
+		FIND_SER="$(curl -s -L "$CLEAR_M_SERVER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|' \
+		    | grep '^\([^|]*|\)\{11\}'"$PORT"'|')"
 		if [ "$FIND_SER" = "" ]; then
+		    check_nr="$(($check_nr + 1))"
 		    if [ "$OLD_FIND_SER_STATUS" = "" ]; then
 			echo "WARNING: The master server doesn't see this server." >&2
 			OLD_FIND_SER_STATUS="yes"
+		    elif [ "$check_nr" -eq "120" ]; then
+			echo "ERROR: The master server doesn't see this server for over 4 hours." >&2; force_restart=1
 		    fi
 		else
 		    OLD_FIND_SER_STATUS=""
@@ -196,9 +281,9 @@ while true; do
 			echo "ERROR: Server status cannot be determined." >&2
 		    fi
 		fi
-		if [ "$SER_STATUS" != "2" ] && [ "$DiffTime" -gt "43200" ]; then
-		    echo "Notice: The server is working continuously for over 12 hours." >&2; force_restart=1
-		elif [ "$SER_STATUS" = "2" ]; then
+		if [ "$SER_STATUS" != "2" ] && [ "$DiffTime" -gt "$MAX_IDLE_TIME" ]; then
+		    echo "Notice: The server is working continuously for over $IDLE_TIME_MOD hour(s)." >&2; force_restart=1
+		elif [ "$SER_STATUS" != "" ] && [ "$SER_STATUS" -eq "2" ]; then
 		    if [ "$OLD_PROG_STATUS" = "" ]; then
 			echo "Status: Game in progress..." >&2
 			OLD_PROG_STATUS="yes"; BeginTime2="$(date +"%s")"
@@ -209,7 +294,7 @@ while true; do
 		    else
 			sleep 8m
 		    fi
-		elif [ "$SER_STATUS" = "1" ]; then
+		elif [ "$SER_STATUS" != "" ] && [ "$SER_STATUS" -eq "1" ]; then
 		    if [ "$OLD_READY_STATUS" = "" ]; then
 			OLD_READY_STATUS="yes"; BeginTime3="$(date +"%s")"
 		    fi
@@ -220,18 +305,13 @@ while true; do
 		else
 		    OLD_READY_STATUS=""
 		fi
+		if [ "$SER_STATUS" != "" ] && [ "$SER_STATUS" -ne "2" ]; then OLD_PROG_STATUS=""; fi
 		if [ "$force_restart" -eq "1" ]; then
-		    FIND_SER=""; if [ "$check_nr" -lt "120" ]; then check_nr=120; fi
-		    if [ "$LOG_DIR" != "" ]; then echo "#" > "$LOG_DIR/${SHORT_GAME_NAME}-server-forced-restart.log"; sleep 2s; fi
-		fi
-		if [ "$FIND_SER" = "" ]; then
-		    check_nr="$(($check_nr + 1))"
-		    if [ "$check_nr" -lt "119" ]; then :
-		    elif [ "$check_nr" -eq "119" ] && [ "$force_restart" -ne "1" ]; then
-			echo "ERROR: The master server doesn't see this server for over 4 hours." >&2
-		    elif [ "$check_nr" -ge "123" ]; then kill -9 "$SER_PID"
-		    else kill "$SER_PID"; fi
-		else
+		    if [ "$check_nr" -lt "120" ]; then check_nr=120; fi
+		    if [ "$LOG_DIR" != "" ]; then echo "#" > "$LOG_DIR/$RestartMarker"; sleep 2s; fi
+		    if [ "$check_nr" -ge "123" ]; then kill -9 "$SER_PID"
+			else kill "$SER_PID"; fi
+		elif [ "$FIND_SER" != "" ]; then
 		    check_nr=0
 		fi
 		sleep 2m
@@ -241,9 +321,13 @@ while true; do
 	done
 	) &
     fi
-    "$SERVER_EXEC" $SER_PARAMETERS >> "$LOG_SERVER" 2>&1
+    if [ "$SERVERTITLE" != "" ]; then
+	"$SERVER_EXEC" ${USED_PORTS}"$SER_PARAMETERS" --server-title="Headless (${SERVERTITLE})" >> "$LOG_SERVER" 2>&1
+    else
+	"$SERVER_EXEC" ${USED_PORTS}"$SER_PARAMETERS" >> "$LOG_SERVER" 2>&1
+    fi
     if [ "$?" -ne "0" ]; then
-	if [ ! -f "$LOG_DIR/${SHORT_GAME_NAME}-server-forced-restart.log" ]; then
+	if [ ! -f "$LOG_DIR/$RestartMarker" ]; then
 	    echo 'ERROR: Server has quit unexpectedly.' >> "$LOG_SERVER"
 	    echo 'ERROR: Server has quit unexpectedly.' >&2
 	    if [ "$SERVERCOUNT" -eq "0" ]; then
@@ -251,15 +335,16 @@ while true; do
 		exit 1
 	    fi
 	    sleep 5s
-	    if [ "$SERVERCOUNT" -eq "1" ] && [ "$SERVER_GREP_IP" != "" ] && [ -e "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
+	    if [ "$SERVERCOUNT" -eq "1" ] && [ "$SERVER_GREP_IP" != "" ] && \
+		[ -e "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
 		echo "... attempt to perform mini update, which may solve tiny problems:" >&2
 		"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"; sleep 1s
 	    fi
 	else
 	    echo 'Notice: Server was restarted by script.' >> "$LOG_SERVER"
-	    rm -f "$LOG_DIR/${SHORT_GAME_NAME}-server-forced-restart.log"
+	    if [ "$LOG_DIR" != "" ]; then rm -f "$LOG_DIR/$RestartMarker"; fi
 	fi
-	sleep "$((RANDOM % 30))"s
+	sleep 2s
     else
 	echo 'Server has quit.' | tee -a "$LOG_SERVER"
     fi

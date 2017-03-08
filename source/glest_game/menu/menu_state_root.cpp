@@ -37,8 +37,22 @@ namespace Glest{ namespace Game{
 
 bool MenuStateRoot::gameUpdateChecked = false;
 
-MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "root"), updatesHttpServerThread(NULL)
+MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu) :
+	MenuState(program, mainMenu, "root"), 	updatesHttpServerThread(NULL),
+											buttonNewGame("MainMenu","buttonNewGame"),
+											buttonLoadGame("MainMenu","buttonLoadGame"),
+											buttonMods("MainMenu","buttonMods"),
+											buttonOptions("MainMenu","buttonOptions"),
+											buttonAbout("MainMenu","buttonAbout"),
+											buttonExit("MainMenu","buttonExit"),
+											labelVersion("MainMenu","labelVersion"),
+
+											mainMessageBox("MainMenu","mainMessageBox"),
+											errorMessageBox("MainMenu","errorMessageBox"),
+											ftpMessageBox("MainMenu","ftpMessageBox"),
+
+											popupMenu("MainMenu","popupMenu")
+
 {
 	containerName = "MainMenu";
 
@@ -51,7 +65,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	int buttonXPosition = (1000 - buttonWidth) / 2;
 
 
-	labelVersion.registerGraphicComponent(containerName,"labelVersion");
+	//labelVersion.registerGraphicComponent(containerName,"labelVersion");
 	if(EndsWith(glestVersionString, "-dev") == false){
 		labelVersion.init(525, yPos);
 		labelVersion.setText(glestVersionString);
@@ -63,22 +77,22 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	}
 
 	yPos-=55;
-	buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
+	//buttonNewGame.registerGraphicComponent(containerName,"buttonNewGame");
 	buttonNewGame.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
-    buttonLoadGame.registerGraphicComponent(containerName,"buttonLoadGame");
+    //buttonLoadGame.registerGraphicComponent(containerName,"buttonLoadGame");
     buttonLoadGame.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
-    buttonMods.registerGraphicComponent(containerName,"buttonMods");
+    //buttonMods.registerGraphicComponent(containerName,"buttonMods");
     buttonMods.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
-    buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
+    //buttonOptions.registerGraphicComponent(containerName,"buttonOptions");
     buttonOptions.init(buttonXPosition, yPos, buttonWidth);
     yPos-=40;
-    buttonAbout.registerGraphicComponent(containerName,"buttonAbout");
+    //buttonAbout.registerGraphicComponent(containerName,"buttonAbout");
     buttonAbout.init(buttonXPosition, yPos , buttonWidth);
     yPos-=40;
-    buttonExit.registerGraphicComponent(containerName,"buttonExit");
+    //buttonExit.registerGraphicComponent(containerName,"buttonExit");
     buttonExit.init(buttonXPosition, yPos, buttonWidth);
 
 	buttonNewGame.setText(lang.getString("NewGame"));
@@ -89,15 +103,15 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	buttonExit.setText(lang.getString("Exit"));
 	
 	//mesage box
-	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
+	//mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 	mainMessageBox.setEnabled(false);
 
-	errorMessageBox.registerGraphicComponent(containerName,"errorMessageBox");
+	//errorMessageBox.registerGraphicComponent(containerName,"errorMessageBox");
 	errorMessageBox.init(lang.getString("Ok"));
 	errorMessageBox.setEnabled(false);
 
-	ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
+	//ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
 	ftpMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 	ftpMessageBox.setEnabled(false);
 
@@ -106,6 +120,7 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	menuItems.push_back("1");
 	menuItems.push_back("2");
 	menuItems.push_back("3");
+	//popupMenu.registerGraphicComponentOnlyFontCallbacks(containerName, "popupMenu");
 	popupMenu.setW(100);
 	popupMenu.setH(100);
 	popupMenu.init("Test Menu",menuItems);

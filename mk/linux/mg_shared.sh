@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Functions shared by several scripts
 #
-
+# Copyright (c) 2013-2016 MegaGlest Team under GNU GPL v3.0+
 
 function detect_system {
 # Determine distro title, release, codename
@@ -18,48 +18,43 @@ function detect_system {
 #   codename: codename of the detected Linux distribution (string)
 #   architecture: detected machine architecture (string)
 
-	if [[ `which lsb_release` = '' ]]
-	then
+	if [ "$(which lsb_release)" = "" ]; then
 		lsb=0
-		if [ -e /etc/debian_version ]
-		then 
+		release='unknown release'
+		if [ -e "/etc/os-release" ]; then
+			distribution="$(cat "/etc/os-release" | grep '^ID=' | awk -F '=' '{print $2}' \
+			    | awk '{print toupper(substr($0,1,1))substr($0,2)}')"
+			codename="$(cat "/etc/os-release" | grep '^PRETTY_NAME=' | awk -F '"' '{print $2}')"
+			# example output ^ on debian testing: "Debian GNU/Linux stretch/sid"
+		elif [ -e /etc/debian_version ]; then
 			distribution='Debian'
-			release='unknown release version'
-			codename=`cat /etc/debian_version`
-		elif [ -e /etc/SuSE-release ]
-		then 
+			codename="$(cat /etc/debian_version)"
+		elif [ -e /etc/SuSE-release ]; then
 			distribution='SuSE'
-			release='unknown release version'
-			codename=`cat /etc/SuSE-release`
-		elif [ -e /etc/redhat-release ]
-		then
-			if [ -e /etc/fedora-release ]
-			then 
+			codename="$(cat /etc/SuSE-release)"
+		elif [ -e /etc/redhat-release ]; then
+			if [ -e /etc/fedora-release ]; then
 				distribution='Fedora'
-				release='unknown release version'
-				codename=`cat /etc/fedora-release`
-			else 
+				codename="$(cat /etc/fedora-release)"
+			else
 				distribution='Redhat'
-				release='unknown release version'
-				codename=`cat /etc/redhat-release`
+				codename="$(cat /etc/redhat-release)"
 			fi
-		elif [ -e /etc/fedora-release ]
-		then 
+		elif [ -e /etc/fedora-release ]; then
 			distribution='Fedora'
-			release='unknown release version'
-			codename=`cat /etc/fedora-release`
-		elif [ -e /etc/mandrake-release ]
-		then 
+			codename="$(cat /etc/fedora-release)"
+		elif [ -e /etc/mandrake-release ]; then
 			distribution='Mandrake'
-			release='unknown release version'
-			codename=`cat /etc/mandrake-release`
+			codename="$(cat /etc/mandrake-release)"
+		else
+			distribution='unknown distribution'
+			codename='unknown codename'
 		fi
 	else
 		lsb=1
-
-		distribution=`lsb_release -i | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
-		release=`lsb_release -r | awk -F':' '{ gsub(/^[  \t]*/,"",$2); print $2 }'`
-		codename=`lsb_release -c | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
+		distribution="$(lsb_release -i | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }')"
+		release="$(lsb_release -r | awk -F':' '{ gsub(/^[  \t]*/,"",$2); print $2 }')"
+		codename="$(lsb_release -c | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }')"
 
 		# Some distribution examples:
 		#
@@ -89,6 +84,5 @@ function detect_system {
 		#   Release:        12.04
                 #   Codename:       precise
 	fi
-	architecture=`uname -m`
-
+	architecture="$(uname -m)"
 }

@@ -5,9 +5,13 @@
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 LANG=C
 
+CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 # set this to non 0 to skip building the binary
 skipbinarybuild=0
-if [ "$1" = "-CI" ] || [ "$1" = "--installer" ]; then skipbinarybuild=1; fi
+if [ "$1" = "-CI" ] || ( [ "$1" = "--installer" ] && \
+    [ "$(find "$CURRENTDIR" -maxdepth 1 -name 'megaglest' -mmin -60)" ] ); then
+    skipbinarybuild=1
+fi
 
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
@@ -16,7 +20,6 @@ if [ "$1" = "-CI" ] || [ "$1" = "--installer" ] || [ "$(echo "$1" | grep '\--sho
     if [ "$2" != "" ]; then SOURCE_BRANCH="$2"; fi
 fi
 
-CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 cd "$CURRENTDIR"
 VERSION=`./mg-version.sh --version`
 kernel=`uname -s | tr '[A-Z]' '[a-z]'`
@@ -29,7 +32,7 @@ REPO_DATADIR="$REPODIR/data/glest_game"
 if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
     cd "$REPODIR"
     if [ "$SOURCE_BRANCH" = "" ]; then SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"; fi
-    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h --abbrev=7)]")"
 fi
 ARCHIVE_TYPE="tar.xz"
 SNAPSHOTNAME="mg-binary-$kernel-$architecture"
@@ -66,12 +69,12 @@ fi
 cd $PROJDIR
 mkdir -p "$RELEASEDIR/lib"
 
-[[ -d "lib" ]] && rm -rf "lib"
+if [ -d "lib" ]; then rm -rf "lib"; fi
 echo "building binary dependencies ..."
-./makedeps_folder.sh megaglest
-if [ $? -ne 0 ]; then
-  echo 'ERROR: "./makedeps_folder.sh megaglest" failed.' >&2; exit 2
-fi
+for mg_bin in megaglest megaglest_editor megaglest_g3dviewer; do
+    ./makedeps_folder.sh "$mg_bin"
+    if [ "$?" -ne "0" ]; then echo "ERROR: \"./makedeps_folder.sh $mg_bin\" failed." >&2; exit 2; fi
+done
 
 # copy binary info
 cd $PROJDIR
@@ -83,12 +86,12 @@ cd $REPO_DATADIR/others/icons
 cp *.bmp *.png *.xpm "$RELEASEDIR/"
 if [ "$1" != "--installer" ]; then cd $REPO_DATADIR/others/desktop; cp *.desktop "$RELEASEDIR/"; fi
 cd $PROJDIR
-cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest \
-	start_megaglest_mapeditor start_megaglest_g3dviewer \
-	start_megaglest_gameserver "$RELEASEDIR/"
+cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest_gameserver "$RELEASEDIR/"
 
 cd "$CURRENTDIR/tools-for-standalone-client"
+cp start_megaglest start_megaglest_mapeditor start_megaglest_g3dviewer "$RELEASEDIR/"
 if [ "$1" != "--installer" ]; then cp megaglest-configure-desktop.sh "$RELEASEDIR/"; fi
+
 if [ "$(echo "$VERSION" | grep -v '\-dev$')" != "" ]; then
     ./prepare-mini-update.sh --only_script; sleep 0.5s
     cp megaglest-mini-update.sh "$RELEASEDIR/"

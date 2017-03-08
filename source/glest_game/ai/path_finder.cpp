@@ -51,8 +51,9 @@ PathFinder::PathFinder() {
 }
 
 int PathFinder::getPathFindExtendRefreshNodeCount(FactionState &faction) {
-	int refreshNodeCount = faction.random.randRange(PathFinder::pathFindExtendRefreshNodeCountMin,PathFinder::pathFindExtendRefreshNodeCountMax);
-	return refreshNodeCount;
+	//int refreshNodeCount = faction.random.randRange(PathFinder::pathFindExtendRefreshNodeCountMin,PathFinder::pathFindExtendRefreshNodeCountMax);
+	//return refreshNodeCount;
+	return PathFinder::pathFindExtendRefreshNodeCountMin;
 }
 
 PathFinder::PathFinder(const Map *map) {
@@ -202,11 +203,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 			if(map->canMove(unit, unit->getPos(), pos)) {
 				if(frameIndex < 0) {
-					unit->setTargetPos(pos);
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"map->canMove to pos [%s] from [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
+						snprintf(szBuf,8096,"#1 map->canMove to pos [%s] from [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
+
+					unit->setTargetPos(pos,frameIndex < 0);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"#2 map->canMove to pos [%s] from [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 
@@ -222,7 +231,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			if(map->canMove(unit, unit->getPos(), pos)) {
 				if(frameIndex < 0) {
 					advPath->pop();
-					unit->setTargetPos(pos);
+					unit->setTargetPos(pos,frameIndex < 0);
 				}
 
 				return tsMoving;
@@ -321,10 +330,29 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					int factionIndex = unit->getFactionIndex();
 					FactionState &faction = factions.getFactionState(factionIndex);
 
-					int tryRadius = faction.random.randRange(0,1);
+					//if(Thread::isCurrentThreadMainThread() == false) {
+					//	throw megaglest_runtime_error("#2 Invalid access to FactionState random from outside main thread current id = " +
+					//			intToStr(Thread::getCurrentThreadId()) + " main = " + intToStr(Thread::getMainThreadId()));
+					//}
+
+					int tryRadius = faction.random.randRange(1,2);
+					//int tryRadius = faction.random.IRandomX(1,2);
+					//int tryRadius = 1;
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"In astar bailout() tryRadius %d",tryRadius);
+
+						if(frameIndex >= 0) {
+							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+						}
+						else {
+							unit->logSynchData(__FILE__,__LINE__,szBuf);
+						}
+					}
 
 					// Try to bail out up to PathFinder::pathFindBailoutRadius cells away
-					if(tryRadius > 0) {
+					if(tryRadius == 2) {
 						for(int bailoutX = -PathFinder::pathFindBailoutRadius; bailoutX <= PathFinder::pathFindBailoutRadius && ts == tsBlocked; ++bailoutX) {
 							for(int bailoutY = -PathFinder::pathFindBailoutRadius; bailoutY <= PathFinder::pathFindBailoutRadius && ts == tsBlocked; ++bailoutY) {
 								const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
@@ -413,7 +441,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 					if(map->canMove(unit, unit->getPos(), pos)) {
 						if(frameIndex < 0) {
-							unit->setTargetPos(pos);
+							unit->setTargetPos(pos,frameIndex < 0);
 						}
 					}
 					else {
@@ -438,7 +466,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					if(map->canMove(unit, unit->getPos(), pos)) {
 						if(frameIndex < 0) {
 							advPath->pop();
-							unit->setTargetPos(pos);
+							unit->setTargetPos(pos,frameIndex < 0);
 						}
 					}
 					else {
@@ -594,11 +622,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					}
 					unit->setUsePathfinderExtendedMaxNodes(false);
 
-//					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-//						char szBuf[8096]="";
-//						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
-//						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-//					}
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
 
 					return faction.precachedTravelState[unit->getId()];
 				}
@@ -638,7 +666,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	const Vec2i unitPos = unit->getPos();
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
-	float dist= unitPos.dist(finalPos);
+	float dist = unitPos.dist(finalPos);
 
 	faction.useMaxNodeCount = PathFinder::pathFindNodesMax;
 
@@ -808,9 +836,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(nodeLimitReached == true) {
 
 		if(faction.closedNodesList.empty() == false) {
-			float bestHeuristic = faction.closedNodesList.begin()->first;
+			float bestHeuristic = truncateDecimal<float>(faction.closedNodesList.begin()->first,6);
 			if(lastNode != NULL && bestHeuristic < lastNode->heuristic) {
-				lastNode= faction.closedNodesList.begin()->second[0];
+				lastNode= faction.closedNodesList.begin()->second.front();
 			}
 		}
 	}
@@ -889,7 +917,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			if(minorDebugPathfinder) printf("nodePos [%s]\n",nodePos.getString().c_str());
 
 			if(frameIndex >= 0) {
-
 				faction.precachedPath[unit->getId()].push_back(nodePos);
 			}
 			else {
@@ -903,19 +930,37 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
+				SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
 			char szBuf[8096]="";
 
 			string pathToTake = "";
-			for(int i = 0; i < path->getQueueCount(); ++i) {
-				Vec2i &pos = path->getQueue()[i];
-				if(pathToTake != "") {
-					pathToTake += ", ";
+			if(frameIndex < 0) {
+				vector<Vec2i> pathQueue = path->getQueue();
+				for(unsigned int index = 0; index < pathQueue.size(); ++index) {
+					Vec2i &pos = pathQueue[index];
+					if(pathToTake != "") {
+						pathToTake += ", ";
+					}
+					pathToTake += pos.getString();
 				}
-				pathToTake += pos.getString();
 			}
-			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			else {
+				for(unsigned int index = 0; index < faction.precachedPath[unit->getId()].size(); ++index) {
+					Vec2i &pos = faction.precachedPath[unit->getId()][index];
+					if(pathToTake != "") {
+						pathToTake += ", ";
+					}
+					pathToTake += pos.getString();
+				}
+			}
 			snprintf(szBuf,8096,"Path for unit to take = %s",pathToTake.c_str());
+			if(frameIndex < 0) {
+				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
+			else {
+				unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
@@ -976,24 +1021,23 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 void PathFinder::processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist) {
 
 	try {
-	Vec2i currPos= finalPos + Vec2i(i, j);
+		Vec2i currPos= finalPos + Vec2i(i, j);
 
-	if(map->isAproxFreeCells(currPos, size, field, teamIndex)) {
-		float dist= currPos.dist(finalPos);
+		if(map->isAproxFreeCells(currPos, size, field, teamIndex)) {
+			float dist = currPos.dist(finalPos);
 
-		//if nearer from finalPos
-		if(dist < nearestDist){
-			nearestPos= currPos;
-			nearestDist= dist;
-		}
-		//if the distance is the same compare distance to unit
-		else if(dist == nearestDist){
-			if(currPos.dist(unitPos) < nearestPos.dist(unitPos)) {
-				nearestPos= currPos;
+			//if nearer from finalPos
+			if(dist < nearestDist){
+				nearestPos  = currPos;
+				nearestDist = dist;
+			}
+			//if the distance is the same compare distance to unit
+			else if(dist == nearestDist){
+				if(currPos.dist(unitPos) < nearestPos.dist(unitPos)) {
+					nearestPos = currPos;
+				}
 			}
 		}
-	}
-
 	}
 	catch(const exception &ex) {
 
@@ -1034,7 +1078,7 @@ Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos)
 	Vec2i unitPos= unit->getPosNotThreadSafe();
 	nearestPos= unitPos;
 
-	float nearestDist= unitPos.dist(finalPos);
+	float nearestDist = unitPos.dist(finalPos);
 
 	for(int i= -maxFreeSearchRadius; i <= maxFreeSearchRadius; ++i) {
 		for(int j= -maxFreeSearchRadius; j <= maxFreeSearchRadius; ++j) {
