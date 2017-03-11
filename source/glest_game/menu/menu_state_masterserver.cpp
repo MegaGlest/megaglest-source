@@ -329,6 +329,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     	ircClient = ircThread;
     	ircClient->setUniqueID(mutexOwnerId);
     	ircClient->setPlayerName(netPlayerName);
+    	ircClient->setGlestVersionString(glestVersionString);
 		ircClient->start();
     }
     else {
