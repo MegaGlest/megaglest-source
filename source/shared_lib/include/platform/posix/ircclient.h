@@ -69,6 +69,7 @@ protected:
 	string nick;
 
 	string playerName;
+	string glestVersionString;
 
     bool hasJoinedChannel;
 
@@ -97,6 +98,7 @@ public:
     static void setGlobalCacheContainerName(const char *name) { globalCacheContainerName = name; }
 
     void setPlayerName(string value) { playerName = value; }
+    void setGlestVersionString(string value) { glestVersionString = value; }
     string getPlayerName() const { return playerName; }
 
     bool getWantToLeaveChannel() const { return wantToLeaveChannel; }
