@@ -37,6 +37,12 @@
   #define _strnicmp strncasecmp
 #endif
 
+#if wxCHECK_VERSION(2, 9, 1)
+	#define WX2CHR(x) (x.mb_str())
+#else
+	#define WX2CHR(x) (wxConvCurrent->cWX2MB(x))
+#endif
+
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
 using namespace Shared::Graphics;
@@ -2130,8 +2136,12 @@ bool App::OnInit() {
 	bool foundInvalidArgs = false;
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
 	for(int idx = 1; idx < argc; ++idx) {
+#if wxCHECK_VERSION(2, 9, 1)
+		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx].wc_str());
+#else
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx]);
-		if( hasCommandArgument(knownArgCount, (wxChar**)&GAME_ARGS[0], (const char *)tmp_buf, NULL, 0, true) == false &&
+#endif
+if( hasCommandArgument(knownArgCount, (wxChar**)&GAME_ARGS[0], (const char *)tmp_buf, NULL, 0, true) == false &&
 			argv[idx][0] == '-') {
 			foundInvalidArgs = true;
 
@@ -2141,7 +2151,7 @@ bool App::OnInit() {
 
     if(foundInvalidArgs == true ||
     	hasCommandArgument(argc, argv,(const char *)wxConvCurrent->cWX2MB(GAME_ARGS[GAME_ARG_HELP])) == true) {
-    	printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),foundInvalidArgs);
+		printParameterHelp(static_cast<const char*>(WX2CHR(argv[0])), foundInvalidArgs);
 		return false;
     }
 
@@ -2161,7 +2171,11 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
+#if wxCHECK_VERSION(2, 9, 1)
+		string options = argv[foundParamIndIndex].ToStdString();
+#else
         string options = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+#endif
         vector<string> paramPartTokens;
         Tokenize(options,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2207,7 +2221,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string customPath = static_cast<const char*>(WX2CHR(argv[foundParamIndIndex]));
         vector<string> paramPartTokens;
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2233,15 +2247,15 @@ bool App::OnInit() {
             	}
             }
             else {
-            	printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            	printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+				printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", static_cast<const char*>(WX2CHR(argv[foundParamIndIndex])), (paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+				printParameterHelp(WX2CHR(argv[0]),false);
             	return false;
             }
 
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", static_cast<const char*>(WX2CHR(argv[foundParamIndIndex])),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2257,7 +2271,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string customPath = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2270,8 +2284,8 @@ bool App::OnInit() {
 
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2287,7 +2301,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string customPath = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2299,8 +2313,8 @@ bool App::OnInit() {
 			#endif
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2315,7 +2329,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string customPath = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2327,8 +2341,8 @@ bool App::OnInit() {
 			#endif
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2343,7 +2357,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string customPath = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string customPath = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(customPath,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2355,8 +2369,8 @@ bool App::OnInit() {
 			#endif
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2371,7 +2385,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string value = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2379,8 +2393,8 @@ bool App::OnInit() {
         	printf("newAnimValue = %f\n",newAnimValue);
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2395,7 +2409,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string value = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2403,8 +2417,8 @@ bool App::OnInit() {
         	//printf("newParticleLoopValue = %d\n",newParticleLoopValue);
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2419,7 +2433,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string value = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2427,8 +2441,8 @@ bool App::OnInit() {
         	//printf("newAnimValue = %f\n",newAnimValue);
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2443,7 +2457,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string value = (const char*)WX2CHR(argv[foundParamIndIndex]);
         vector<string> paramPartTokens;
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2451,8 +2465,8 @@ bool App::OnInit() {
         	//printf("newAnimValue = %f\n",newAnimValue);
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", (const char*)WX2CHR(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2467,7 +2481,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string value = static_cast<const char*>(WX2CHR(argv[foundParamIndIndex]));
         vector<string> paramPartTokens;
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
@@ -2475,8 +2489,8 @@ bool App::OnInit() {
         	//printf("newAnimValue = %f\n",newAnimValue);
         }
         else {
-            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n", static_cast<const char*>(WX2CHR(argv[foundParamIndIndex])),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2490,15 +2504,15 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv,(const char*)param,&foundParamIndIndex);
         }
         //printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-        string value = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
+        string value = static_cast<const char*>(WX2CHR(argv[foundParamIndIndex]));
         vector<string> paramPartTokens;
         Tokenize(value,paramPartTokens,"=");
         if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
         	fileFormat = paramPartTokens[1];
         }
         else {
-            printf("\nInvalid value specified on commandline [%s] value [%s]\n\n",(const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]),(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-            printParameterHelp(wxConvCurrent->cWX2MB(argv[0]),false);
+            printf("\nInvalid value specified on commandline [%s] value [%s]\n\n", static_cast<const char*>(WX2CHR(argv[foundParamIndIndex])), (paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(WX2CHR(argv[0]),false);
             return false;
         }
     }
@@ -2512,7 +2526,7 @@ bool App::OnInit() {
 		auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
 		modelPath = utf8_encode(wstr.get());
 #else
-		modelPath = wxFNCONV(argv[1]);
+		modelPath = static_cast<const char*>(WX2CHR(argv[1]));
 #endif
 
 //#else
@@ -2542,7 +2556,7 @@ bool App::OnInit() {
 	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	appPath = utf8_encode(wstr.get());
 #else
-	string appPath(wxFNCONV(exe_path));
+	string appPath(static_cast<const char*>(WX2CHR(exe_path)));
 #endif
 
 //#else
