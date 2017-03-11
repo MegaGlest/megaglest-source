@@ -37,6 +37,8 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
+const char *RealNameString 	= "MegaGlest v3.13-dev user";
+
 const char *IRCThread::globalCacheContainerName = NULL;
 const int IRC_SERVER_PORT = 6667;
 //bool IRCThread::debugEnabled = true;
@@ -824,7 +826,7 @@ void IRCThread::execute() {
             if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d\n", __LINE__);
 
             safeMutex.Lock();
-            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), "megaglest")) {
+            if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), RealNameString)) {
             	safeMutex.ReleaseLock();
                 if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
                 return;
