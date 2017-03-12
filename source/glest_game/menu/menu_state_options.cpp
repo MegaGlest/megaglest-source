@@ -174,8 +174,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelPlayerNameLabel.setText(lang.getString("Playername"));
 
 		labelPlayerName.init(currentColumnStart,currentLine);
-		string steamPlayerName = safeCharPtrCopy(getenv("SteamAppUser"),100);
-		labelPlayerName.setText(config.getString("NetPlayerName",(steamPlayerName != "" ? steamPlayerName.c_str() : Socket::getHostName().c_str())));
+		labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 		labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
 		labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelPlayerName.setEditable(true);
