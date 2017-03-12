@@ -3295,6 +3295,22 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
     }
 }
 
+void setupSteamSettings(){
+	bool needToSaveConfig=false;
+	Config &config = Config::getInstance();
+	string steamPlayerName = safeCharPtrCopy(getenv("SteamAppUser"),100);
+	if( steamPlayerName=="") return;// not a steam launch
+	string currentPLayerName=config.getString("NetPlayerName","");
+	if( currentPLayerName=="newbie" || currentPLayerName=="" ){
+		config.setString("NetPlayerName",steamPlayerName);
+		needToSaveConfig=true;
+	}
+
+	if( needToSaveConfig == true ){
+		config.save();
+	}
+}
+
 void CheckForDuplicateData() {
     Config &config = Config::getInstance();
 
@@ -4185,9 +4201,6 @@ int glestMain(int argc, char** argv) {
 		return 2;
 	}
 
-
-
-
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	//isMasterServerModeEnabled = true;
     	//Window::setMasterserverMode(isMasterServerModeEnabled);
@@ -4526,6 +4539,8 @@ int glestMain(int argc, char** argv) {
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
 
+		setupSteamSettings();
+
 		if(config.getString("PlayerId","") == "") {
 			char  uuid_str[38];
 			get_uuid_string(uuid_str,sizeof(uuid_str));
@@ -4533,6 +4548,7 @@ int glestMain(int argc, char** argv) {
 			config.setString("PlayerId",uuid_str);
 			config.save();
 		}
+
 		//printf("Players UUID: [%s]\n",config.getString("PlayerId","").c_str());
 
 		if(config.getBool("DisableLuaSandbox","false") == true) {
