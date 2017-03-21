@@ -37,6 +37,7 @@ OPTION(BUILD_MEGAGLEST "Build MegaGlest" ON)
 OPTION(BUILD_MEGAGLEST_TESTS "Build MegaGlest Unit Tests" OFF)
 OPTION(WANT_SINGLE_INSTALL_DIRECTORY "Use single install directory for everything. It is useful for example for MacOS cpack bundles." OFF)
 OPTION(WANT_STATIC_LIBS "Builds as many static libs as possible." OFF)
+OPTION(WANT_STATIC_WX_LIBS "Builds with static wxWidgets libs if possible." OFF)
 OPTION(WANT_USE_VLC "Use libVLC to play videos." ON)
 OPTION(WANT_USE_OpenSSL "Use libOpenSSL during CURL linking." ON)
 OPTION(WANT_USE_FriBiDi "Enable libFriBIDi support." ON)
@@ -56,6 +57,7 @@ MARK_AS_ADVANCED(HELP2MAN XVFB_RUN)
 
 include(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/SpecialMacros.cmake)
 include(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/ReqVersAndStaticConf.cmake)
+MESSAGE(STATUS "=====================================================================")
 
 SET(PKG_NAME "megaglest")
 # read version
