@@ -9,38 +9,46 @@
 
 IF(WANT_STATIC_LIBS)
     IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST)
-	# shared lib
-	FOREACH(STATIC_LIB
-		OpenSSL
-		CURL
-		XercesC
-		LUA
-		JPEG
-		PNG
-		FontConfig
-		FTGL
-		GLEW
-		FriBiDi
-		Miniupnpc
-		Ircclient)
-	    LIST(APPEND LIST_OF_STATIC_LIBS_MG "${STATIC_LIB}")
-	ENDFOREACH()
+	    # shared lib
+	    FOREACH(STATIC_LIB
+		    OpenSSL
+		    CURL
+		    XercesC
+		    LUA
+		    JPEG
+		    PNG
+		    FontConfig
+		    FTGL
+		    GLEW
+		    FriBiDi
+		    Miniupnpc
+		    Ircclient)
+	        LIST(APPEND LIST_OF_STATIC_LIBS_MG "${STATIC_LIB}")
+	    ENDFOREACH()
+    ENDIF()
+    IF(WANT_STATIC_WX_LIBS AND (BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST))
+        MESSAGE(STATUS "==========> wxWidgets looking for STATIC libs.")
+	    # wxWidgets for tools
+	    FOREACH(STATIC_LIB
+		    wxWidgets)
+	        LIST(APPEND LIST_OF_STATIC_LIBS_MG "${STATIC_LIB}")
+	    ENDFOREACH()
     ENDIF()
     IF(BUILD_MEGAGLEST)
-	# only libs not used by shared lib
-	FOREACH(STATIC_LIB
-		OGG)
-	    LIST(APPEND LIST_OF_STATIC_LIBS_MG "${STATIC_LIB}")
-	ENDFOREACH()
+	    # only libs not used by shared lib
+	    FOREACH(STATIC_LIB
+		    OGG)
+	        LIST(APPEND LIST_OF_STATIC_LIBS_MG "${STATIC_LIB}")
+	    ENDFOREACH()
     ENDIF()
     FOREACH(STATIC_LIB ${LIST_OF_STATIC_LIBS_MG})
-	IF(DEFINED WANT_USE_${STATIC_LIB} AND NOT WANT_USE_${STATIC_LIB})
-	    IF(DEFINED STATIC_${STATIC_LIB})
-		UNSET(STATIC_${STATIC_LIB} CACHE)
+	    IF(DEFINED WANT_USE_${STATIC_LIB} AND NOT WANT_USE_${STATIC_LIB})
+	        IF(DEFINED STATIC_${STATIC_LIB})
+		        UNSET(STATIC_${STATIC_LIB} CACHE)
+	        ENDIF()
+	    ELSE()
+	        OPTION("STATIC_${STATIC_LIB}" "Set to ON to link your project with static library (instead of DLL)." ON)
 	    ENDIF()
-	ELSE()
-	    OPTION("STATIC_${STATIC_LIB}" "Set to ON to link your project with static library (instead of DLL)." ON)
-	ENDIF()
     ENDFOREACH()
 ENDIF()
 
@@ -75,6 +83,7 @@ ENDIF()
 
 IF(STATIC_wxWidgets)
     SET(wxWidgets_USE_STATIC ON)
+    MESSAGE(STATUS "==========> wxWidgets wanting STATIC libs.")
 ENDIF()
 
 SET(VLC_MIN_VERSION_MG "1.1.0")

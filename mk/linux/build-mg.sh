@@ -19,6 +19,7 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
+WANT_STATIC_WX_LIBS="-DWANT_STATIC_WX_LIBS=OFF"
 FORCE_EMBEDDED_LIBS=0
 GCC_FORCED_VERSION=0
 LUA_FORCED_VERSION=0
@@ -26,7 +27,7 @@ FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:defg:hl:mnwx" option; do
+while getopts "c:defg:hl:mnswx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -60,6 +61,7 @@ while getopts "c:defg:hl:mnwx" option; do
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
+                echo "       -s   : Force compilation of wxWidgets STATIC libs"                
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
@@ -77,6 +79,10 @@ while getopts "c:defg:hl:mnwx" option; do
         ;;
         n)
            MAKE_ONLY=1
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        s)
+           WANT_STATIC_WX_LIBS="-DWANT_STATIC_WX_LIBS=ON"
 #           echo "${option} value: ${OPTARG}"
         ;;
         w)
@@ -295,8 +301,8 @@ if [ "$COMPILATION_WITHOUT" != "0" ] && [ "$COMPILATION_WITHOUT" != "" ]; then
 fi
 
 if [ $MAKE_ONLY = 0 ]; then
-        echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=$BUILD_MEGAGLEST_TESTS -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
+        echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS} AND WANT_STATIC_LIBS = ${WANT_STATIC_LIBS} AND WANT_STATIC_WX_LIBS = ${WANT_STATIC_WX_LIBS}"
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS $WANT_STATIC_WX_LIBS -DBUILD_MEGAGLEST_TESTS=$BUILD_MEGAGLEST_TESTS -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
         if [ $? -ne 0 ]; then
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi

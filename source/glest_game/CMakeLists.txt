@@ -186,14 +186,15 @@ IF(BUILD_MEGAGLEST)
 		menu
 		network
 		sound
+        steamshim
 		type_instances
 		types
 		world)
 
 	SET(GLEST_LIB_INCLUDE_ROOT "../shared_lib/include/")
 	SET(GLEST_LIB_INCLUDE_DIRS
-                ${GLEST_LIB_INCLUDE_ROOT}compression
-	        ${GLEST_LIB_INCLUDE_ROOT}platform/common
+        ${GLEST_LIB_INCLUDE_ROOT}compression
+	    ${GLEST_LIB_INCLUDE_ROOT}platform/common
 		${GLEST_LIB_INCLUDE_ROOT}platform/posix
 		${GLEST_LIB_INCLUDE_ROOT}util
 		${GLEST_LIB_INCLUDE_ROOT}graphics
@@ -202,7 +203,7 @@ IF(BUILD_MEGAGLEST)
 		${GLEST_LIB_INCLUDE_ROOT}sound
 		${GLEST_LIB_INCLUDE_ROOT}sound/openal
 		${GLEST_LIB_INCLUDE_ROOT}xml
-                ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
+        ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
 		${GLEST_LIB_INCLUDE_ROOT}glew
 		${GLEST_LIB_INCLUDE_ROOT}lua
 		${GLEST_LIB_INCLUDE_ROOT}map)

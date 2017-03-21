@@ -26,7 +26,16 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
 	# Optimal order most likely is gl > core > base, in some cases it may do difference.
+    IF(STATIC_wxWidgets)
+        SET(wxWidgets_USE_STATIC ON)
+        MESSAGE(STATUS "==========> wxWidgets wanting STATIC libs.")
+    ENDIF()
 	FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS gl core base)
+    IF(wxWidgets_USE_STATIC)
+        MESSAGE(STATUS "==========> wxWidgets using STATIC libs: ${wxWidgets_LIBRARIES}")
+    ELSE()
+        MESSAGE(STATUS "==========> wxWidgets NOT using STATIC libs: ${wxWidgets_LIBRARIES}")
+    ENDIF()
 	IF(UNIX)
 		# wxWidgets include (this will do all the magic to configure everything)
 		INCLUDE( ${wxWidgets_USE_FILE} )
