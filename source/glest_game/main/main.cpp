@@ -4571,7 +4571,7 @@ int glestMain(int argc, char** argv) {
 		}
 
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_NEW_PROTOCOL]) == true) {
-			printf("*NOTE: enabling new newtork protocol.\n");
+			printf("*NOTE: enabling new network protocol.\n");
 			NetworkMessage::useOldProtocol = false;
 		}
 

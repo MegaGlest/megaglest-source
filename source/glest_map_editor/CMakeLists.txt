@@ -24,23 +24,27 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 
+	IF(STATIC_wxWidgets)
+		SET(wxWidgets_USE_STATIC ON)
+		# ^ This is not needed here (once, globally is enough) if every find run returns the same status.
+		# With wx this is not so 100% sure.
+	ENDIF()
 	# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
 	# Optimal order most likely is gl > core > base, in some cases it may do difference.
-    IF(STATIC_wxWidgets)
-        SET(wxWidgets_USE_STATIC ON)
-        MESSAGE(STATUS "==========> wxWidgets wanting STATIC libs.")
-    ENDIF()
 	FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS gl core base)
-    IF(wxWidgets_USE_STATIC)
-        MESSAGE(STATUS "==========> wxWidgets using STATIC libs: ${wxWidgets_LIBRARIES}")
-    ELSE()
-        MESSAGE(STATUS "==========> wxWidgets NOT using STATIC libs: ${wxWidgets_LIBRARIES}")
-    ENDIF()
 	IF(UNIX)
 		# wxWidgets include (this will do all the magic to configure everything)
 		INCLUDE( ${wxWidgets_USE_FILE} )
 
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
+
+		IF(STATIC_wxWidgets)
+			IF(wxWidgets_USE_STATIC)
+				MESSAGE(STATUS "==========> wxWidgets using STATIC libs:")
+			ELSE()
+				MESSAGE(STATUS "==========> wxWidgets STATIC libs NOT found:")
+			ENDIF()
+		ENDIF()
 		MESSAGE(STATUS " wxWidgets: ${wxWidgets_INCLUDE_DIRS} ;/;  ${wxWidgets_LIBRARIES}")
 	ENDIF()
 
@@ -205,13 +209,13 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		IF(EXISTS ${XVFB_EXEC})
 			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
-		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --no-discard-stderr --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
-		    	DEPENDS ${TARGET_NAME})
+			add_custom_target(${TARGET_NAME_MANPAGE} ALL
+				COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --no-discard-stderr --name="${MG_MANPAGE_DESCRIPTION}" --source="${TARGET_NAME}" --version-string="${TARGET_NAME}" --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
+			DEPENDS ${TARGET_NAME})
 		ELSE()
-		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${HELP2MAN} --no-discard-stderr --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
-		    	DEPENDS ${TARGET_NAME})
+			add_custom_target(${TARGET_NAME_MANPAGE} ALL
+				COMMAND ${HELP2MAN} --no-discard-stderr --name="${MG_MANPAGE_DESCRIPTION}" --source="${TARGET_NAME}" --version-string="${TARGET_NAME}" --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
+			DEPENDS ${TARGET_NAME})
 		ENDIF()
 	ENDIF()
 
@@ -234,6 +238,6 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	        # Installation of the program config and image files
 	        INSTALL(FILES 
                   "${PROJECT_SOURCE_DIR}/mk/shared/editor.ico"
-	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+	          DESTINATION ${MEGAGLEST_INI_INSTALL_PATH})
         ENDIF()
 ENDIF()

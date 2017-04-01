@@ -189,306 +189,280 @@ enum GAME_ARG_TYPE {
 };
 
 void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
-	//                           MAX WIDTH FOR MAN PAGE
-	//     "================================================================================"
+	//                                     MAX WIDTH FOR MAN PAGE
+	//         "================================================================================"
 	if(foundInvalidArgs == true) {
 			printf("\n");
 	}
-	printf("\n%s, usage\n\n",extractFileFromDirectoryPath(argv0).c_str());
-	printf("Commandline Parameter:\t\tDescription:");
-	printf("\n----------------------\t\t------------");
-	printf("\n%s\t\t\t\tdisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
+	printf("\n%s, usage",extractFileFromDirectoryPath(argv0).c_str());
+	printf("\n\nCommandline Parameter:  Description:");
+	printf("\n\n- - - - - - - - - - -   - - - - - - - - - - - - - - - - - - - - - - - -");
+	printf("\n\n%s  \t\tDisplays this help text.",GAME_ARGS[GAME_ARG_HELP]);
 
-	printf("\n%s\t\tAutomatically starts a game with the last game",GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME]);
-	printf("\n\t\t\t\tsettings you played.");
+	printf("\n\n%s  \tAutomatically starts a game with the last game",GAME_ARGS[GAME_ARG_AUTOSTART_LASTGAME]);
+	printf("\n\n                     \tsettings you played.");
 
-	printf("\n%s=x\t\tLoads the last saved game.",GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME]);
-	printf("\n                     \t\tWhere x is an optional name of the saved game file to load.");
-	printf("\n                     \t\tIf x is not specified we load the last game that was saved.");
+	printf("\n\n%s=x  \tLoads the last saved game.",GAME_ARGS[GAME_ARG_AUTOSTART_LAST_SAVED_GAME]);
+	printf("\n\n                     \tWhere x is an optional name of the saved game file to load.");
+	printf("\n\n                     \tIf x is not specified we load the last game that was saved.");
 
-	printf("\n%s=x,y,z\t\t\tRun in auto test mode.",GAME_ARGS[GAME_ARG_AUTO_TEST]);
-	printf("\n                     \t\tWhere x is an optional maximum # seconds to play.");
-	printf("\n                     \t\tIf x is not specified the default is 1200 seconds (20 minutes).");
-	printf("\n                     \t\tWhere y is an optional game settings file to play.");
-	printf("\n                     \t\tIf y is not specified (or is empty) then auto test cycles through playing scenarios.");
-	printf("\n                     \t\tWhere z is the word exit indicating the game should exit after the game is finished or the time runs out.");
-	printf("\n                     \t\tIf z is not specified (or is empty) then auto test continues to cycle.");
+	printf("\n\n%s=x,y,z  \tRun in auto test mode.",GAME_ARGS[GAME_ARG_AUTO_TEST]);
+	printf("\n\n                     \tWhere x is an optional maximum # seconds to play.");
+	printf("\n\n                     \tIf x is not specified the default is 1200 seconds (20 minutes).");
+	printf("\n\n                     \tWhere y is an optional game settings file to play.");
+	printf("\n\n                     \tIf y is not specified (or is empty) then auto test cycles");
+	printf("\n\n                     \tthrough playing scenarios.");
+	printf("\n\n                     \tWhere z is the word 'exit' indicating the game should exit");
+	printf("\n\n                     \tafter the game is finished or the time runs out. If z is");
+	printf("\n\n                     \tnot specified (or is empty) then auto test continues to cycle.");
 
-	printf("\n%s=x:y\t\t\tAuto connect to host server at IP or hostname x using port y",GAME_ARGS[GAME_ARG_CONNECT]);
-	printf("\n                     \t\tShortcut version of using %s and %s.",GAME_ARGS[GAME_ARG_CLIENT],GAME_ARGS[GAME_ARG_USE_PORTS]);
-	printf("\n                     \t\t*NOTE: to automatically connect to the first LAN");
-	printf("\n                     \t\t       host you may use: %s=auto-connect",GAME_ARGS[GAME_ARG_CONNECT]);
+	printf("\n\n%s=x:y  \t\tAuto connect to host server at IP or hostname x using",GAME_ARGS[GAME_ARG_CONNECT]);
+	printf("\n\n                     \t    port y. Shortcut version of using %s and %s.",GAME_ARGS[GAME_ARG_CLIENT],GAME_ARGS[GAME_ARG_USE_PORTS]);
+	printf("\n\n                     \t*NOTE: to automatically connect to the first LAN host you may");
+	printf("\n\n                     \t    use: %s=auto-connect",GAME_ARGS[GAME_ARG_CONNECT]);
 
-	printf("\n%s=x\t\t\tAuto connect to host server at IP or hostname x",GAME_ARGS[GAME_ARG_CLIENT]);
-	printf("\n                     \t\t*NOTE: to automatically connect to the first LAN");
-	printf("\n                     \t\t       host you may use: %s=auto-connect",GAME_ARGS[GAME_ARG_CLIENT]);
+	printf("\n\n%s=x  \tAuto connect to host server at IP or hostname x.",GAME_ARGS[GAME_ARG_CLIENT]);
+	printf("\n\n                     \t*NOTE: to automatically connect to the first LAN host you may");
+	printf("\n\n                     \t    use: %s=auto-connect",GAME_ARGS[GAME_ARG_CLIENT]);
 
-	printf("\n%s\t\t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);
+	printf("\n\n%s  \t\tAuto create a host server.",GAME_ARGS[GAME_ARG_SERVER]);
 
-	printf("\n%s=x,x\tRun as a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
-	printf("\n                     \t\tWhere x is an optional comma delimited command");
-	printf("\n                     \t\t        list of one or more of the following: ");
-	printf("\n                     \t\texit - which quits the application after a game");
-	printf("\n                     \t               has no more connected players.");
-	printf("\n                     \t\tvps  - which does NOT read commands from the");
-	printf("\n                     \t               local console (for some vps's).");
-	printf("\n                     \t\tlan  - which does not broadcast the hosting server");
-	printf("\n                     \t               to the masterserver (for local LAN games).");
+	printf("\n\n%s=x,x  ",GAME_ARGS[GAME_ARG_MASTERSERVER_MODE]);
+	printf("\n\n                     \tRun as a headless server.");
+	printf("\n\n                     \tWhere x is an optional comma delimited command list of one or");
+	printf("\n\n                     \t    more of the following: ");
+	printf("\n\n                     \t'exit' - which quits the application after a game has no more");
+	printf("\n\n                     \t    connected players.");
+	printf("\n\n                     \t'vps' - which does NOT read commands from the local console");
+	printf("\n\n                     \t    (for some vps's).");
+	printf("\n\n                     \t'lan' - which does not broadcast the hosting server to the");
+	printf("\n\n                     \t    masterserver (for local LAN games).");
 
-	printf("\n%s\tCheck the current status of a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
+	printf("\n\n%s  ",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
+	printf("\n\n                     \tCheck the current status of a headless server.");
 
-	printf("\n%s=x,y,z\t\tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
-	printf("\n\t\t\t\tx, externally on port y and game status on port z.");
-	printf("\n                     \t\tWhere x is the internal port # on the local");
-	printf("\n                     \t\t        machine to listen for connects");
-	printf("\n                     \t\t      y is the external port # on the");
-	printf("\n                     \t\t        router/proxy to forward connection");
-	printf("\n                     \t\t        from to the internal port #");
-	printf("\n                     \t\t      z is the game status port # on the");
-	printf("\n                     \t\t        local machine to listen for status requests");
-	printf("\n                     \t\t*NOTE: If enabled the FTP Server port #'s will");
-	printf("\n                     \t\t       be set to x+1 to x+9");
+	printf("\n\n%s=x,y,z  \tForce hosted games to listen internally on port",GAME_ARGS[GAME_ARG_USE_PORTS]);
+	printf("\n\n                     \t    x, externally on port y and for game status on port z.");
+	printf("\n\n                     \tWhere x is the internal port # on the local machine to");
+	printf("\n\n                     \t    listen for connects.");
+	printf("\n\n                     \tWhere y is the external port # on the router/proxy to");
+	printf("\n\n                     \t    forward connection from to the internal port #.");
+	printf("\n\n                     \tWhere z is the game status port # on the local machine");
+	printf("\n\n                     \t    to listen for status requests.");
+	printf("\n\n                     \t*NOTE: If enabled the FTP Server port #'s will be set");
+	printf("\n\n                     \t    to x+1 to x+9.");
 
-	printf("\n%s=x\t\tSet server title.",GAME_ARGS[GAME_ARG_SERVER_TITLE]);
+	printf("\n\n%s=x  \tSet server title.",GAME_ARGS[GAME_ARG_SERVER_TITLE]);
 
-	printf("\n%s=x\t\tAuto load a scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
-	printf("\n%s=x\t\t\tAuto load a mod by mod pathname.",GAME_ARGS[GAME_ARG_MOD]);
+	printf("\n\n%s=x  \tAuto load a scenario by scenario name.",GAME_ARGS[GAME_ARG_LOADSCENARIO]);
+	printf("\n\n%s=x  \t\tAuto load a mod by mod pathname.",GAME_ARGS[GAME_ARG_MOD]);
 
-	//     "================================================================================"
-	printf("\n%s=Map,Tileset\tAuto Preview a map by map name. (tileset is optional)",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
-	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
-	printf("\n%s\t\t\tdisplays your video driver's OpenGL info.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
-	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
-	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
-	printf("\n%s\t\t\tdisplays LUA debug information.",GAME_ARGS[GAME_ARG_LUA_DEBUG]);
-	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
-	printf("\n%s\t\t\tdisplays your XERCES version information.",GAME_ARGS[GAME_ARG_XERCES_INFO]);
+	//         "================================================================================"
+	printf("\n\n%s=Map,Tileset  ",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
+	printf("\n\n                     \tAuto Preview a map by map name. (tileset is optional)");
+	printf("\n\n%s  \t\tDisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
+	printf("\n\n%s  \t\tDisplays your video driver's OpenGL info.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
+	printf("\n\n%s  \t\tDisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
+	printf("\n\n%s  \t\tDisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
+	printf("\n\n%s  \t\tDisplays LUA debug information.",GAME_ARGS[GAME_ARG_LUA_DEBUG]);
+	printf("\n\n%s  \t\tDisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
+	printf("\n\n%s  \t\tDisplays your XERCES version information.",GAME_ARGS[GAME_ARG_XERCES_INFO]);
 
-	printf("\n%s=x=purgeunused=purgeduplicates=gitdelete=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-	printf("\n                     \t\tdisplay a report detailing any known problems");
-	printf("\n                     \t\trelated to your selected techtrees game data.");
-	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees");
-	printf("\n                     \t\t        to validate.");
-	printf("\n                     \t\tWhere purgeunused is an optional parameter");
-	printf("\n                     \t\t      telling the validation to delete");
-	printf("\n                     \t\t      extra files in the techtree that are");
-	printf("\n                     \t\t      not used.");
-	printf("\n                     \t\tWhere purgeduplicates is an optional parameter");
-	printf("\n                     \t\t      telling the validation to merge");
-	printf("\n                     \t\t      duplicate files in the techtree.");
-	printf("\n                     \t\tWhere gitdelete is an optional parameter");
-	printf("\n                     \t\t      telling the validation to call");
-	printf("\n                     \t\t      git rm on duplicate / unused");
-	printf("\n                     \t\t      files in the techtree.");
-	printf("\n                     \t\tWhere hideduplicates is an optional parameter");
-	printf("\n                     \t\t      telling the validation to NOT SHOW");
-	printf("\n                     \t\t      duplicate files in the techtree.");
-	printf("\n                     \t\t*NOTE: This only applies when files are");
-	printf("\n                     \t\t       purged due to the above flags being set.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=megapack,vbros_pack_5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-	printf("\n%s=x=purgeunused=purgeduplicates=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
-	printf("\n                     \t\tdisplay a report detailing any known problems");
-	printf("\n                     \t\trelated to your selected factions game data.");
-	printf("\n                     \t\tWhere x is a comma-delimited list of factions");
-	printf("\n                     \t\t        to validate.");
-	printf("\n                     \t\tWhere purgeunused is an optional parameter");
-	printf("\n                     \t\t      telling the validation to delete");
-	printf("\n                     \t\t      extra files in the faction that are");
-	printf("\n                     \t\t      not used.");
-	printf("\n                     \t\tWhere purgeduplicates is an optional parameter");
-	printf("\n                     \t\t      telling the validation to merge");
-	printf("\n                     \t\t      duplicate files in the faction.");
-	printf("\n                     \t\tWhere hideduplicates is an optional parameter");
-	printf("\n                     \t\t      telling the validation to NOT SHOW");
-	printf("\n                     \t\t      duplicate files in the techtree.");
-	printf("\n                     \t\t*NOTE: leaving the list empty is the same as");
-	printf("\n                     \t\trunning: %s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=tech,egypt",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n\n%s=x=purgeunused=purgeduplicates=gitdelete=hideduplicates  ",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n\n                     \tDisplay a report detailing any known problems related to");
+	printf("\n\n                     \t    your selected techtrees game data.");
+	printf("\n\n                     \tWhere x is a comma-delimited list of techtrees to validate.");
+	printf("\n\n                     \tWhere 'purgeunused' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to delete extra files in the techtree that");
+	printf("\n\n                     \t    are not used.");
+	printf("\n\n                     \tWhere 'purgeduplicates' is an optional parameter telling");
+	printf("\n\n                     \t    the validation to merge duplicate files in the techtree.");
+	printf("\n\n                     \tWhere 'gitdelete' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to call 'git rm' on duplicate / unused files");
+	printf("\n\n                     \t    in the techtree.");
+	printf("\n\n                     \tWhere 'hideduplicates' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to NOT SHOW duplicate files in the techtree.");
+	printf("\n\n                     \t*NOTE: This only applies when files are purged due to the");
+	printf("\n\n                     \t    above flags being set.");
+	printf("\n\n                     \texample:");
+	printf("\n\n                     \t%s %s=megapack,vbros_pack_5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 
-	printf("\n%s=x=purgeunused=gitdelete",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
-	printf("\n                     \t\tdisplay a report detailing any known problems");
-	printf("\n                     \t\trelated to your selected scenario game data.");
-	printf("\n                     \t\tWhere x is a single scenario to validate.");
-	printf("\n                     \t\tWhere purgeunused is an optional parameter");
-	printf("\n                     \t\t      telling the validation to delete extra");
-	printf("\n                     \t\t      files in the scenario that are not used.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=stranded",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+	printf("\n\n%s=x=purgeunused=purgeduplicates=hideduplicates  ",GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
+	printf("\n\n                     \tDisplay a report detailing any known problems related to");
+	printf("\n\n                     \t    your selected factions game data.");
+	printf("\n\n                     \tWhere x is a comma-delimited list of factions to validate.");
+	printf("\n\n                     \tWhere 'purgeunused' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to delete extra files in the faction that are");
+	printf("\n\n                     \t    not used.");
+	printf("\n\n                     \tWhere 'purgeduplicates' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to merge duplicate files in the faction.");
+	printf("\n\n                     \tWhere 'hideduplicates' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to NOT SHOW duplicate files in the techtree.");
+	printf("\n\n                     \t*NOTE: leaving the list empty is the same as running:");
+	printf("\n\n                     \t    %s",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n\n                     \texample: %s %s=tech,egypt",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 
-	printf("\n%s=x=purgeunused=gitdelete",GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
-	printf("\n                     \t\tdisplay a report detailing any known problems");
-	printf("\n                     \t\trelated to your selected tileset game data.");
-	printf("\n                     \t\tWhere x is a single tileset to validate.");
-	printf("\n                     \t\tWhere purgeunused is an optional parameter");
-	printf("\n                     \t\t      telling the validation to delete extra");
-	printf("\n                     \t\t      files in the tileset that are not used.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=desert2",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
+	printf("\n\n%s=x=purgeunused=gitdelete  ",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+	printf("\n\n                     \tDisplay a report detailing any known problems related to");
+	printf("\n\n                     \t    your selected scenario game data.");
+	printf("\n\n                     \tWhere x is a single scenario to validate.");
+	printf("\n\n                     \tWhere 'purgeunused' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to delete extra files in the scenario that");
+	printf("\n\n                     \t    are not used.");
+	printf("\n\n                     \texample: %s %s=stranded",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
 
-	printf("\n%s=x",GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]);
-	printf("\n                     \t\tProduces a default lng file for the specified techtree");
-	printf("\n                     \t\tto prepare for translation into other languages.");
-	printf("\n                     \t\tWhere x is a techtree name");
+	printf("\n\n%s=x=purgeunused=gitdelete  ",GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
+	printf("\n\n                     \tDisplay a report detailing any known problems related to");
+	printf("\n\n                     \t    your selected tileset game data.");
+	printf("\n\n                     \tWhere x is a single tileset to validate.");
+	printf("\n\n                     \tWhere 'purgeunused' is an optional parameter telling the");
+	printf("\n\n                     \t    validation to delete extra files in the tileset that");
+	printf("\n\n                     \t    are not used.");
+	printf("\n\n                     \texample: %s %s=desert2",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
 
-	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_MAPS]);
-	printf("\n                     \t\tdisplay a list of game content: maps");
-	printf("\n                     \t\twhere x is an optional name filter.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=island*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_MAPS]);
+	printf("\n\n%s=x  ",GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]);
+	printf("\n\n                     \tProduces a default lng file for the specified techtree to");
+	printf("\n\n                     \t    prepare for translation into other languages.");
+	printf("\n\n                     \tWhere x is a techtree name.");
 
-	printf("\n%s=showfactions",GAME_ARGS[GAME_ARG_LIST_TECHTRESS]);
-	printf("\n                     \t\tdisplay a list of game content: techtrees");
-	printf("\n                     \t\twhere showfactions is an optional parameter.");
-	printf("\n                     \t\tto display factions in each techtree.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=showfactions",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TECHTRESS]);
+	printf("\n\n%s=x  \t\tDisplay a list of game content: maps.",GAME_ARGS[GAME_ARG_LIST_MAPS]);
+	printf("\n\n                     \tWhere x is an optional name filter.");
+	printf("\n\n                     \texample: %s %s=island*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_MAPS]);
 
-	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_SCENARIOS]);
-	printf("\n                     \t\tdisplay a list of game content: scenarios");
-	printf("\n                     \t\twhere x is an optional name filter.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=beginner*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_SCENARIOS]);
+	printf("\n\n%s=showfactions  ",GAME_ARGS[GAME_ARG_LIST_TECHTRESS]);
+	printf("\n\n                     \tDisplay a list of game content: techtrees.");
+	printf("\n\n                     \tWhere 'showfactions' is an optional parameter to display");
+	printf("\n\n                     \t    factions in each techtree.");
+	printf("\n\n                     \texample: %s %s=showfactions",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TECHTRESS]);
 
-	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_TILESETS]);
-	printf("\n                     \t\tdisplay a list of game content: tilesets");
-	printf("\n                     \t\twhere x is an optional name filter.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=f*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TILESETS]);
+	printf("\n\n%s=x  \tDisplay a list of game content: scenarios.",GAME_ARGS[GAME_ARG_LIST_SCENARIOS]);
+	printf("\n\n                     \tWhere x is an optional name filter.");
+	printf("\n\n                     \texample: %s %s=beginner*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_SCENARIOS]);
 
-	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_TUTORIALS]);
-	printf("\n                     \t\tdisplay a list of game content: tutorials");
-	printf("\n                     \t\twhere x is an optional name filter.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TUTORIALS]);
+	printf("\n\n%s=x  \tDisplay a list of game content: tilesets.",GAME_ARGS[GAME_ARG_LIST_TILESETS]);
+	printf("\n\n                     \tWhere x is an optional name filter.");
+	printf("\n\n                     \texample: %s %s=f*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TILESETS]);
 
-	//     "================================================================================"
-	printf("\n%s=x\t\t\tSets the game data path to x",GAME_ARGS[GAME_ARG_DATA_PATH]);
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=/usr/local/game_data/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_DATA_PATH]);
-	printf("\n%s=x\t\t\tSets the game ini path to x",GAME_ARGS[GAME_ARG_INI_PATH]);
-	printf("\n                     \t\texample");
-	printf("\n                     %s %s=~/game_config/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_INI_PATH]);
-	printf("\n%s=x\t\t\tSets the game logs path to x",GAME_ARGS[GAME_ARG_LOG_PATH]);
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=~/game_logs/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LOG_PATH]);
-	printf("\n%s=x\t\t\tSets the game fonts path to x",GAME_ARGS[GAME_ARG_FONT_PATH]);
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=~/myfonts/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_PATH]);
+	printf("\n\n%s=x  \tDisplay a list of game content: tutorials.",GAME_ARGS[GAME_ARG_LIST_TUTORIALS]);
+	printf("\n\n                     \tWhere x is an optional name filter.");
+	printf("\n\n                     \texample: %s %s=*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LIST_TUTORIALS]);
 
-	printf("\n%s=x\t\tdisplay merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
-	printf("\n                     \t\tWhere x is an optional property name to");
-	printf("\n                     \t\t        filter (default shows all).");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=DebugMode",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
+	//         "================================================================================"
+	printf("\n\n%s=x  \t\tSets the game data path to x.",GAME_ARGS[GAME_ARG_DATA_PATH]);
+	printf("\n\n                     \texample:");
+	printf("\n\n                     \t%s %s=/usr/local/game_data/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_DATA_PATH]);
+	printf("\n\n%s=x  \t\tSets the game ini path to x.",GAME_ARGS[GAME_ARG_INI_PATH]);
+	printf("\n\n                     \texample: %s %s=~/game_config/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_INI_PATH]);
+	printf("\n\n%s=x  \t\tSets the game logs path to x.",GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n\n                     \texample: %s %s=~/game_logs/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n\n%s=x  \t\tSets the game fonts path to x.",GAME_ARGS[GAME_ARG_FONT_PATH]);
+	printf("\n\n                     \texample: %s %s=~/myfonts/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_PATH]);
 
-	printf("\n%s=x=textureformat=keepsmallest",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
-	printf("\n                     \t\tConvert a model file or folder to the current g3d");
-	printf("\n                     \t\tversion format.");
-	printf("\n                     \t\tWhere x is a filename or folder containing the g3d");
-	printf("\n                     \t\t        model(s).");
-	printf("\n                     \t\tWhere textureformat is an optional supported");
-	printf("\n                     \t\t      texture format to convert to (tga,bmp,jpg,png).");
-	printf("\n                     \t\tWhere keepsmallest is an optional flag indicating");
-	printf("\n                     \t\t      to keep original texture if its filesize is");
-	printf("\n                     \t\t      smaller than the converted format.");
-	printf("\n                     \t\texample:");
-	printf("\n  %s %s=techs/megapack/factions/tech/units/castle/models/castle.g3d=png=keepsmallest",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n\n%s=x  \tDisplay merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
+	printf("\n\n                     \tWhere x is an optional property name to filter (default");
+	printf("\n\n                     \t    shows all).");
+	printf("\n\n                     \texample:");
+	printf("\n\n                     \t%s %s=DebugMode",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 
-	printf("\n%s=x\t\tforce the language to be the language specified by x.",GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
-	printf("\n                     \t\tWhere x is a language filename or ISO639-1 code.");
-	printf("\n                     \t\texample: %s %s=english",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
-	printf("\n                     \t\texample: %s %s=en",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n\n%s=x=textureformat=keepsmallest  ",GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n\n                     \tConvert a model file or folder to the current g3d version");
+	printf("\n\n                     \t    format.");
+	printf("\n\n                     \tWhere x is a filename or folder containing the g3d model(s).");
+	printf("\n\n                     \tWhere 'textureformat' is an optional supported texture");
+	printf("\n\n                     \t    format to convert to (tga,bmp,jpg,png).");
+	printf("\n\n                     \tWhere 'keepsmallest' is an optional flag indicating to keep");
+	printf("\n\n                     \t    the original texture if its filesize is smaller than the");
+	printf("\n\n                     \t    converted format.");
+	printf("\n\n                     \texample:");
+	printf("\n\n                     \t%s %s=techs/megapack/factions/tech/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_CONVERT_MODELS]);
+	printf("\n\n                     \tunits/castle/models/castle.g3d=png=keepsmallest");
 
+	printf("\n\n%s=x  \tForce the language to be the language specified",GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n\n                     \t    by x. Where x is a language filename or ISO639-1 code.");
+	printf("\n\n                     \texample: %s %s=english",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
+	printf("\n\n                     \texample: %s %s=en",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_LANGUAGE]);
 
-	printf("\n%s=x\t\tshow the calculated CRC for the map named x.",GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
-	printf("\n                     \t\tWhere x is a map name.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=four_rivers",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
+	printf("\n\n%s=x  \tShow the calculated CRC for the map named x.",GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
+	printf("\n\n                     \tWhere x is a map name.");
+	printf("\n\n                     \texample: %s %s=four_rivers",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]);
 
-	printf("\n%s=x\t\tshow the calculated CRC for the tileset named x.",GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
-	printf("\n                     \t\tWhere x is a tileset name.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=forest",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
+	printf("\n\n%s=x  \tShow the calculated CRC for the tileset named x.",GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
+	printf("\n\n                     \tWhere x is a tileset name.");
+	printf("\n\n                     \texample: %s %s=forest",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]);
 
-	printf("\n%s=x\t\tshow the calculated CRC for the techtree named x.",GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
-	printf("\n                     \t\tWhere x is a techtree name.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=megapack",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
+	printf("\n\n%s=x  \tShow the calculated CRC for the techtree named x.",GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
+	printf("\n\n                     \tWhere x is a techtree name.");
+	printf("\n\n                     \texample: %s %s=megapack",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]);
 
-	printf("\n%s=x\t\tshow the calculated CRC for the scenario named x.",GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
-	printf("\n                     \t\tWhere x is a scenario name.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=storming",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
+	printf("\n\n%s=x  \tShow the calculated CRC for the scenario named x.",GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
+	printf("\n\n                     \tWhere x is a scenario name.");
+	printf("\n\n                     \texample: %s %s=storming",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]);
 
-	//     "================================================================================"
-	printf("\n%s=x=y",GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
-	printf("\n                     \t\tShow the calculated CRC for files in the path located");
-	printf("\n                     \t\tin x using file filter y.");
-	printf("\n                     \t\tWhere x is a path name.");
-	printf("\n                     \t\tand y is file(s) filter.");
-	printf("\n                     \t\texample:");
-	printf("\n                     %s %s=techs/=megapack.7z",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
+	//         "================================================================================"
+	printf("\n\n%s=x=y  \tShow the calculated CRC for files in the path",GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
+	printf("\n\n                     \t    located in x using file filter y.");
+	printf("\n\n                     \tWhere x is a path name and y is file(s) filter.");
+	printf("\n\n                     \texample: %s %s=techs/=megapack.7z",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]);
 
-	printf("\n%s\t\tdisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
+	printf("\n\n%s  \tDisables stack backtrace on errors.",GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]);
 
-	printf("\n%s\tdisables the sigsegv error handler.",GAME_ARGS[GAME_ARG_DISABLE_SIGSEGV_HANDLER]);
+	printf("\n\n%s  ",GAME_ARGS[GAME_ARG_DISABLE_SIGSEGV_HANDLER]);
+	printf("\n\n                     \tDisables the sigsegv error handler.");
 
+	printf("\n\n%s  \t\tDisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
+	printf("\n\n%s  ",GAME_ARGS[GAME_ARG_DISABLE_VERTEX_INTERPOLATION]);
+	printf("\n\n                     \tDisables interpolating animations to make them smoother.");
+	printf("\n\n%s  \tDisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
 
-	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
-	printf("\n%s\t\t\tdisables interpolating animations to make them smoother.",GAME_ARGS[GAME_ARG_DISABLE_VERTEX_INTERPOLATION]);
-	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
+	printf("\n\n%s  \tEnables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
 
-	printf("\n%s\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
+	//         "================================================================================"
+	printf("\n\n%s=x  \tOverride the video resolution.",GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
+	printf("\n\n                     \tWhere x is a string with the following format: 'width x height'.");
+	printf("\n\n                     \texample: %s %s=1024x768",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
 
-	//     "================================================================================"
-	printf("\n%s=x\t\t\toverride the video resolution.",GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
-	printf("\n                     \t\tWhere x is a string with the following format:");
-	printf("\n                     \t\twidthxheight");
-	printf("\n                     \t\texample: %s %s=1024x768",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_RESOLUTION]);
+	printf("\n\n%s=x  \t\tOverride the video colorbits.",GAME_ARGS[GAME_ARG_USE_COLORBITS]);
+	printf("\n\n                     \tWhere x is a valid colorbits value supported by your video");
+	printf("\n\n                     \t    driver.");
+	printf("\n\n                     \texample: %s %s=32",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_COLORBITS]);
 
-	printf("\n%s=x\t\t\toverride the video colorbits.",GAME_ARGS[GAME_ARG_USE_COLORBITS]);
-	printf("\n                     \t\tWhere x is a valid colorbits value supported by");
-	printf("\n                     \t\t        your video driver");
-	printf("\n                     \t\texample: %s %s=32",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_COLORBITS]);
+	printf("\n\n%s=x  \t\tOverride the video depthbits.",GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
+	printf("\n\n                     \tWhere x is a valid depthbits value supported by your video");
+	printf("\n\n                     \t    driver.");
+	printf("\n\n                     \texample: %s %s=24",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
 
-	printf("\n%s=x\t\t\toverride the video depthbits.",GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
-	printf("\n                     \t\tWhere x is a valid depthbits value supported by");
-	printf("\n                     \t\t        your video driver");
-	printf("\n                     \t\texample: %s %s=24",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_DEPTHBITS]);
+	printf("\n\n%s=x  \tOverride the video fullscreen mode.",GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
+	printf("\n\n                     \tWhere x either true or false.");
+	printf("\n\n                     \texample: %s %s=true",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
 
-	printf("\n%s=x\t\t\toverride the video fullscreen mode.",GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
-	printf("\n                     \t\tWhere x either true or false");
-	printf("\n                     \t\texample: %s %s=true",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FULLSCREEN]);
+	printf("\n\n%s=x  \t\tOverride the video gamma (contrast) value.",GAME_ARGS[GAME_ARG_SET_GAMMA]);
+	printf("\n\n                     \tWhere x is a floating point value.");
+	printf("\n\n                     \texample: %s %s=1.5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SET_GAMMA]);
 
-	printf("\n%s=x\t\t\toverride the video gamma (contrast) value.",GAME_ARGS[GAME_ARG_SET_GAMMA]);
-	printf("\n                     \t\tWhere x a floating point value");
-	printf("\n                     \t\texample: %s %s=1.5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_SET_GAMMA]);
+	printf("\n\n%s=x  \t\tOverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
+	printf("\n\n                     \tWhere x is the path and name of a font file supported by");
+	printf("\n\n                     \t    freetype2.");
+	printf("\n\n                     \texample:");
+	printf("\n\n                     \t%s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FONT]);
 
-	printf("\n%s=x\t\t\toverride the font to use.",GAME_ARGS[GAME_ARG_USE_FONT]);
-	printf("\n                     \t\tWhere x is the path and name of a font file supported");
-	printf("\n                     \t\t        by freetype2.");
-	printf("\n                     \t\texample:");
-	printf("\n  %s %s=$APPLICATIONDATAPATH/data/core/fonts/Vera.ttf",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_FONT]);
+	printf("\n\n%s=x  \tOverride the font base size.",GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
+	printf("\n\n                     \tWhere x is the numeric base font size to use.");
+	printf("\n\n                     \texample: %s %s=5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
 
-	printf("\n%s=x\t\toverride the font base size.",GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
-	printf("\n                     \t\tWhere x is the numeric base font size to use.");
-	printf("\n                     \t\texample: %s %s=5",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_BASESIZE]);
+	printf("\n\n%s  \tDisables video playback.",GAME_ARGS[GAME_ARG_DISABLE_VIDEOS]);
 
-	printf("\n%s\t\tdisables video playback.",GAME_ARGS[GAME_ARG_DISABLE_VIDEOS]);
+	printf("\n\n%s  ",GAME_ARGS[GAME_ARG_DISABLE_OPENGL_CAPS_CHECK]);
+	printf("\n\n                     \tDisables opengl capability checks (for corrupt or flaky video");
+	printf("\n\n                     \t    drivers).");
 
-	printf("\n%s\t\tdisables opengl capability checks (for corrupt or flaky video drivers).",GAME_ARGS[GAME_ARG_DISABLE_OPENGL_CAPS_CHECK]);
+	printf("\n\n%s=x=y  ",GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]);
+	printf("\n\n                     \tCompress selected game data into archives for network sharing.");
+	printf("\n\n                     \tWhere x is one of the following data items to compress:");
+	printf("\n\n                     \t    techtrees, tilesets or all.");
+	printf("\n\n                     \tWhere y = include_main to include main (non mod) data.");
+	printf("\n\n                     \texample: %s %s=all",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]);
 
-
-	printf("\n%s=x=y\t\t\tcompress selected game data into archives for network sharing.",GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]);
-	printf("\n                     \t\tWhere x is one of the following data items to compress.");
-	printf("\n                     \t\ttechtrees, tilesets or all.");
-	printf("\n                     \t\tWhere y = include_main to include main (non mod) data.");
-	printf("\n                     \t\texample: %s %s=all",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]);
-
-	printf("\n%s\t\t\tdisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
-
+	printf("\n\n%s  \t\tDisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 	printf("\n\n");
 }
 
@@ -624,15 +598,15 @@ int mainSetup(int argc, char **argv) {
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
-        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
-        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_XERCES_INFO]) 			== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 				== true ||
-        hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CURL_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_XERCES_INFO]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])    == true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 		== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== true ||
@@ -682,12 +656,12 @@ int mainSetup(int argc, char **argv) {
 	return 0;
 }
 
-#define MAIN_FUNCTION(X) int main(int argc, char **argv) {                                     \
-	int result = mainSetup(argc,argv);														   \
-	if(result == 0) {																		   \
-		result = X(argc, argv);                                                                \
-	}																						   \
-    return result;                                                                             \
+#define MAIN_FUNCTION(X) int main(int argc, char **argv) {	\
+	int result = mainSetup(argc,argv);			\
+	if(result == 0) {					\
+		result = X(argc, argv);				\
+	}							\
+    return result;						\
 }
 
 #endif

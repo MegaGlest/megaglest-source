@@ -19,7 +19,7 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
-WANT_STATIC_WX_LIBS="-DWANT_STATIC_WX_LIBS=OFF"
+WANT_STATIC_WX_LIBS=0
 FORCE_EMBEDDED_LIBS=0
 GCC_FORCED_VERSION=0
 LUA_FORCED_VERSION=0
@@ -82,7 +82,7 @@ while getopts "c:defg:hl:mnswx" option; do
 #           echo "${option} value: ${OPTARG}"
         ;;
         s)
-           WANT_STATIC_WX_LIBS="-DWANT_STATIC_WX_LIBS=ON"
+           WANT_STATIC_WX_LIBS=1
 #           echo "${option} value: ${OPTARG}"
         ;;
         w)
@@ -172,6 +172,11 @@ if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FontConfig=OFF"
 fi
 
+if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ] && \
+	[ "$WANT_STATIC_WX_LIBS" != "0" ] && [ "$WANT_STATIC_WX_LIBS" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_wxWidgets=ON"
+fi
+
 if [ "$distribution" != "Mageia" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_USE_OpenSSL=OFF"
 fi
@@ -189,8 +194,8 @@ case $distribution in
 				;;
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
-					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+					echo 'Turning ON dynamic OGG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
 				fi
 				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
 				# ^ may be removed ~ when default clang's version will be 3.9+
@@ -209,17 +214,24 @@ case $distribution in
 				;;
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
-					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+					echo 'Turning ON dynamic OGG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
 				fi
 				;;
 		esac
 		;;
 
-	LinuxMint)
+	LinuxMint|Linuxmint)
 		case $release in
+			2)
+				#LMDE
+				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				fi
+				;;
 			13|13.*|14|15|16|17|17.*) ;;
-			18|18.*|19|19.*)
+			18|18.*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 					echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
@@ -227,8 +239,8 @@ case $distribution in
 				;;
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-					echo 'Turning ON dynamic FTGL, LUA, PNG ... and forcing use the embedded IRCCLIENT'
-					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+					echo 'Turning ON dynamic OGG ... and forcing use the embedded IRCCLIENT'
+					EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
 				fi
 				;;
 		esac
@@ -301,8 +313,8 @@ if [ "$COMPILATION_WITHOUT" != "0" ] && [ "$COMPILATION_WITHOUT" != "" ]; then
 fi
 
 if [ $MAKE_ONLY = 0 ]; then
-        echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS} AND WANT_STATIC_LIBS = ${WANT_STATIC_LIBS} AND WANT_STATIC_WX_LIBS = ${WANT_STATIC_WX_LIBS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS $WANT_STATIC_WX_LIBS -DBUILD_MEGAGLEST_TESTS=$BUILD_MEGAGLEST_TESTS -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
+        echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS} AND WANT_STATIC_LIBS = ${WANT_STATIC_LIBS}"
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=$BUILD_MEGAGLEST_TESTS -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
         if [ $? -ne 0 ]; then
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
