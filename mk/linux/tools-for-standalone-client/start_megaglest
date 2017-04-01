@@ -177,7 +177,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     # If line is ended by /|L/ this mean 'L'ower priority about finding local library instead of existing
     # (if exist) embedded version, (rarely) useful in case if embedded library may eliminate ABI-API
     # conflixts, e.g. binary <> WxWidgets.
-    # ignored: linux-vdso.so*, linux-gate.so*, ld-linux-*.so*, libpthread.so*, libpulsecommon-*.so, libresolv.so*
+    # ignored: linux-vdso.so*, linux-gate.so*, ld-linux-*.so*, libpthread.so*, libpulsecommon-*.so
     libs_list="/libSDL2-2.0.so.0/libSDL2-2.[num].so/libSDL2-[0-9].[num].so/libSDL2-/|H/
     /libGLU.so.1/libGLU.so/|/
     /libGL.so.1/libGL.so/|/
@@ -232,6 +232,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     /libk5crypto.so.3/libk[0-9]crypto.so/libk[num]crypto/|/
     /libcom_err.so.2/libcom_err.so/libcom_err/|/
     /libkrb5support.so.0/libkrb[0-9]support.so/libkrb[num]support/|/
+    /libresolv.so.2/libresolv.so/|/
     /libsasl2.so.2/libsasl[0-9].so/libsasl/|/
     /libgssapi.so.3/libgssapi.so/|/
     /libexpat.so.1/libexpat.so/|/
@@ -332,7 +333,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	if [ "$1" = "create_new" ]; then
 	    echo "#" > "$lw_log"; echo "#" > "$li_log"
 	elif [ "$1" = "save_new" ] && [ "$OperatingMode" = "--game" ]; then
-	    echo "$LibsWarnings" > "$lw_log"; echo "$IgnoredLibs" > "$li_log"
+	    echo "$LibsWarnings" | sed 's/^[\t ]*||/ ||/g' > "$lw_log"; echo "$IgnoredLibs" > "$li_log"
 	elif [ "$1" = "read_old" ]; then
 	    LibsWarnings="$(cat "$pw_log")"; IgnoredLibs="$(cat "$pi_log")"
 	elif [ "$1" = "check_old" ]; then

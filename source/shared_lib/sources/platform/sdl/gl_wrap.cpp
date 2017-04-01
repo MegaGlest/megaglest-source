@@ -217,12 +217,12 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 #ifndef WIN32
 		string mg_icon_file = "";
-#if defined(CUSTOM_DATA_INSTALL_PATH_VALUE)
-		if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.png")) {
-			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.png";
+#if defined(CUSTOM_DATA_INSTALL_PATH)
+		if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.png")) {
+			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.png";
 		}
-		else if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.bmp")) {
-			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH_VALUE)) + "megaglest.bmp";
+		else if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.bmp")) {
+			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.bmp";
 		}
 
 #endif
