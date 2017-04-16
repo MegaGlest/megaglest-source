@@ -33,7 +33,8 @@ enum ResourceClass{
 	rcTech,
 	rcTileset,
 	rcStatic,
-	rcConsumable
+	rcConsumable,
+	rcProduced
 };
 
 // =====================================================
