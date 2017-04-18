@@ -76,7 +76,7 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 	shakeOffset= Vec2f(0.f);
 
 	//maxRenderDistance = Config::getInstance().getFloat("RenderDistanceMax","64");
-	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
+	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","35");
 	minHeight = Config::getInstance().getFloat("CameraMinDistance","7");
 	//maxCameraDist = maxHeight;
 	//minCameraDist = minHeight;
