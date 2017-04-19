@@ -82,7 +82,7 @@ private:
 	static int introTime;
 	static int appearTime;
 	static int showTime;
-	static int disapearTime;
+	static int disappearTime;
 
 private:
 	vector<IntroText *> texts;
