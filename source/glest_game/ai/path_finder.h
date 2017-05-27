@@ -194,6 +194,7 @@ public:
 	PathFinder & operator=(const PathFinder& obj) {
 		init();
 		throw megaglest_runtime_error("class PathFinder is NOT safe to assign!");
+		return *this;
 	}
 
 	void init(const Map *map);

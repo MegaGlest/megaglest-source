@@ -1745,8 +1745,10 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 	AiInterface *aiInterface= ai->getAiInterface();
 
 	if(aiInterface->isLogLevelEnabled(4) == true) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"== START: buildSpecific for resource type [%s] bt->getUnitType() [%s]",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"),(bt->getUnitType() != NULL ? bt->getUnitType()->getName(false).c_str() : "null"));
+		char szBuf[8096] = "";
+		snprintf(szBuf, 8096,
+		         "== START: buildSpecific for resource type [%s] bt->getUnitType() [%s]",
+		         (bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"),(bt->getUnitType() != NULL ? bt->getUnitType()->getName(false).c_str() : "null"));
 		aiInterface->printLog(4, szBuf);
 	}
 
@@ -1756,8 +1758,10 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 		//retry if not enough resources
 		if(aiInterface->checkCosts(bt->getUnitType(),NULL) == false) {
 			if(aiInterface->isLogLevelEnabled(4) == true) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"In buildSpecific for resource type [%s] checkcosts == false RETRYING",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
+				char szBuf[8096] = "";
+				snprintf(szBuf, 8096,
+				         "In buildSpecific for resource type [%s] checkcosts == false RETRYING",
+				         (bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
 				aiInterface->printLog(4, szBuf);
 			}
 
@@ -1861,7 +1865,10 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 
 					defBct = buildersDefaultCommandType[builderIndex][bestCommandTypeIndex];
 				}
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",__FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,
+					                         "In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",
+					                         __FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
 
 				aiInterface->giveCommand(builderIndex, defBct, pos, bt->getUnitType());
 			}
@@ -1873,8 +1880,9 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 	}
 	else {
 		if(aiInterface->isLogLevelEnabled(4) == true) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In buildSpecific for resource type [%s] reqsok == false",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
+			char szBuf[8096] = "";
+			snprintf(szBuf, 8096, "In buildSpecific for resource type [%s] reqsok == false",
+			         (bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
 			aiInterface->printLog(4, szBuf);
 		}
 
@@ -1882,7 +1890,9 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 }
 
 bool AiRuleBuild::isDefensive(const UnitType *building){
-	if(ai->outputAIBehaviourToConsole()) printf("BUILD isDefensive check for Unit Name[%s] result = %d\n",building->getName(false).c_str(),building->hasSkillClass(scAttack));
+	if(ai->outputAIBehaviourToConsole())
+		printf("BUILD isDefensive check for Unit Name[%s] result = %d\n",
+		       building->getName(false).c_str(),building->hasSkillClass(scAttack));
 
 	return building->hasSkillClass(scAttack);
 }
@@ -1890,12 +1900,16 @@ bool AiRuleBuild::isDefensive(const UnitType *building){
 bool AiRuleBuild::isResourceProducer(const UnitType *building){
 	for(int i= 0; i<building->getCostCount(); i++){
 		if(building->getCost(i)->getAmount()<0){
-			if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = true\n",building->getName(false).c_str());
+			if(ai->outputAIBehaviourToConsole())
+				printf("BUILD isResourceProducer check for Unit Name[%s] result = true\n",
+				       building->getName(false).c_str());
 
 			return true;
 		}
 	}
-	if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = false\n",building->getName(false).c_str());
+	if(ai->outputAIBehaviourToConsole())
+		printf("BUILD isResourceProducer check for Unit Name[%s] result = false\n",
+		       building->getName(false).c_str());
 
 	return false;
 }
@@ -1907,13 +1921,15 @@ bool AiRuleBuild::isWarriorProducer(const UnitType *building){
 			const UnitType *ut= static_cast<const ProduceCommandType*>(ct)->getProducedUnit();
 
 			if(ut->isOfClass(ucWarrior)){
-				if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = true\n",building->getName(false).c_str());
+				if(ai->outputAIBehaviourToConsole())
+					printf("BUILD isWarriorProducer check for Unit Name[%s] result = true\n",building->getName(false).c_str());
 
 				return true;
 			}
 		}
 	}
-	if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = false\n",building->getName(false).c_str());
+	if(ai->outputAIBehaviourToConsole())
+		printf("BUILD isWarriorProducer check for Unit Name[%s] result = false\n",building->getName(false).c_str());
 
 	return false;
 }
@@ -1931,18 +1947,18 @@ AiRuleUpgrade::AiRuleUpgrade(Ai *ai):
 bool AiRuleUpgrade::test(){
 	const Task *task= ai->getTask();
 
-	if(task==NULL || task->getClass()!=tcUpgrade){
+	if(task == NULL || task->getClass() != tcUpgrade){
 		return false;
 	}
 
-	upgradeTask= static_cast<const UpgradeTask*>(task);
+	upgradeTask = static_cast<const UpgradeTask*>(task);
 	return true;
 }
 
 void AiRuleUpgrade::execute(){
 
 	//upgrade any upgrade
-	if(upgradeTask->getUpgradeType()==NULL){
+	if(upgradeTask->getUpgradeType() == NULL){
 		upgradeGeneric(upgradeTask);
 	}
 	//upgrade specific upgrade
@@ -2038,19 +2054,22 @@ void AiRuleUpgrade::upgradeSpecific(const UpgradeTask *upgt){
 		for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 
 			//for each command
-			const UnitType *ut= aiInterface->getMyUnit(i)->getType();
+			const UnitType *ut = aiInterface->getMyUnit(i)->getType();
 			for(int j=0; j<ut->getCommandTypeCount(); ++j){
-				const CommandType *ct= ut->getCommandType(j);
+				const CommandType *ct = ut->getCommandType(j);
 
 				//if the command is upgrade
-				if(ct->getClass()==ccUpgrade){
+				if(ct->getClass() == ccUpgrade){
 					const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
 					const UpgradeType *producedUpgrade= uct->getProducedUpgrade();
 
 					//if upgrades match
 					if(producedUpgrade == upgt->getUpgradeType()){
 						if(aiInterface->reqsOk(uct)){
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+								SystemFlags::OutputDebug(SystemFlags::debugSystem,
+								                         "In [%s::%s Line: %d]\n",
+								                         __FILE__,__FUNCTION__,__LINE__);
 							aiInterface->giveCommand(i, uct);
 						}
 					}
@@ -2128,7 +2147,6 @@ void AiRuleExpand::execute(){
 AiRuleUnBlock::AiRuleUnBlock(Ai *ai):
 	AiRule(ai)
 {
-
 }
 
 bool AiRuleUnBlock::test() {
