@@ -1,6 +1,19 @@
+## Temp files
+*~
+*.bak
+*.backup
+\#*
+.\#*
+*\#
+*.swp
+*.swap
+*.sav
+*.save
+*.autosav
+*.autosave
+
 ## Linux
 .*
-*~
 # Gimp
 *.xcf
 # Vim
@@ -11,7 +24,7 @@ Session.vim
 # Meld
 *.orig
 
-## OSX
+## macOS
 Icon
 
 ## Windows
@@ -30,16 +43,30 @@ $RECYCLE.BIN/
 
 ## Packages
 # it's better to unpack these files and commit the raw source git has its own built in compression methods
-*.7z
+*.deb
+*.rpm
 *.dmg
+*.ipa
+*.msi
 *.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
 *.bz2
-*.tar.xz
+*.xz
+*.tar
+*.tar.*
+*.7z
+*.rar
+*.zip
+*.jar
+*.iso
+
+## Build
+build*/
+Build*/
+release*/
+Release*/
+dbg*/
+debug*/
+Debug*/
 
 ## Logs and databases
 *.log
