@@ -4,42 +4,60 @@
 # Gimp
 *.xcf
 # Vim
-*.un~
 Session.vim
 # KDevelop
 *.kdev4
 # Meld
 *.orig
+# Emacs
+\#*\#
+.\#
 
-## OSX
+## macOS
+*.DS_Store
 Icon
 
 ## Windows
 *.old
 # Windows image file caches
-Thumbs.db
-thumbs.db
-ehthumbs.db
+[tT]humbs.db
+ehthumbs*.db
 # Folder config file
 Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+# Dump file
+*.stackdump
 # Visual studio
 *.suo
 *.ncb
 
+## Temp files
+*.tmp
+*.swp
+*.bak
+*.backup
+*.save
+*.autosav
+*.autosave
+
 ## Packages
 # it's better to unpack these files and commit the raw source git has its own built in compression methods
 *.7z
+*.deb
+*.rpm
 *.dmg
 *.gz
+*.tgz
 *.iso
 *.jar
 *.rar
 *.tar
 *.zip
 *.bz2
+*.tbz2
 *.tar.xz
+*.txz
 
 ## Logs and databases
 *.log
@@ -52,12 +70,24 @@ $RECYCLE.BIN/
 !.gitattributes
 !.gitmodules
 
-!.travis-before_install.sh
-
 ## Repo
+!/.travis.yml
+!/.travis-before_install.sh
+!/.editorconfig
 *.blend
 *.blend1
+/[bB]uild*/
+/[rR]elease*/
+/[dD]ebug*/
+/dbg*/
 
 # breakpad symlink / directory
 /google-breakpad
 /google-breakpad/
+
+# Windows_build
+*.dll
+*.exe
+*.msi
+*.pdb
+#
