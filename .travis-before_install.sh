@@ -47,7 +47,6 @@ if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
 	fi
     fi
 fi
-set -e
 
 if [ "$VersionAvByDefault" = "" ]; then
     # UPDATE REPOS
@@ -55,6 +54,7 @@ if [ "$VersionAvByDefault" = "" ]; then
     #sudo apt-get upgrade -qq # UPGRADE SYSTEM TO LATEST PATCH LEVEL
     sudo apt-get install -y -qq
 fi
+set -e
 
 if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
     if [ "$Compiler_name" = "gcc" ]; then
