@@ -398,16 +398,18 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
                 unsigned int low = 0;
                 irc_get_version(&high,&low);
                 if( (high == 1 && low >= 6) || (high > 1)) {
+                  throw 1;
+                }
+                else {
                   return 0;
                 }
-                throw 1;
                 }"
-                HAS_LIBIRCCLIENT_1_6)
+                LIBIRCCLIENT_VERSION_PRE_1_6)
+                # ^ This test doesn't work, some general problem with irc_get_version
 
-                IF(HAS_LIBIRCCLIENT_1_6)
-                        message(STATUS "Found HAS_LIBIRCCLIENT_1_6: ${HAS_LIBIRCCLIENT_1_6}")
-                ELSE()
-                        ADD_DEFINITIONS(-DLIBIRCCLIENT_PRE1_6)
+                IF(LIBIRCCLIENT_VERSION_PRE_1_6)
+			message(STATUS "Found LIBIRCCLIENT_VERSION_PRE_1_6: ${LIBIRCCLIENT_VERSION_PRE_1_6}")
+			ADD_DEFINITIONS(-DLIBIRCCLIENT_PRE1_6)
                 ENDIF()
         else()
                 message(STATUS "****WARNING DISABLING libircclient!!")

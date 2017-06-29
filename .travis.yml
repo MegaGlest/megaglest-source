@@ -13,6 +13,7 @@ matrix:
     - os: linux
       compiler: gcc
       env: Tr_Compiler_Version="default"
+      dist: trusty
     - os: linux
       compiler: clang
       env: Tr_Compiler_Version="3.9"
