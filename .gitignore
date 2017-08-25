@@ -11,7 +11,6 @@ Session.vim
 *.orig
 # Emacs
 \#*\#
-.\#
 
 ## macOS
 *.DS_Store

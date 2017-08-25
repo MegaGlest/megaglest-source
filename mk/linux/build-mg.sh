@@ -164,7 +164,6 @@ echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
 
 if [ "$release" = "rolling" ] && [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-	echo 'Turning ON dynamic LIBS ...'
 	WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 fi
 
@@ -258,11 +257,14 @@ case $distribution in
 
 	Arch)
 		if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
-			echo 'Turning ON dynamic LIBS ...'
 			WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 		fi
 		;;
 esac
+
+if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
+	echo 'Turning ON dynamic LIBS ...'
+fi
 
 # If, in the configuration section on top of this script, the user has
 # indicated they want to use clang in favor of the default of GCC, use clang.
