@@ -742,7 +742,7 @@ string MenuStateCustomGame::createGameName(string controllingPlayer){
 		if (controllingPlayer != "") {
 			return controllingPlayer + " controls";
 		} else {
-			return "Headless (" + defaultPlayerName + ")";
+			return "[H] " + defaultPlayerName;
 		}
 	} else {
 		string defaultPlayerNameEnd = defaultPlayerName.substr(defaultPlayerName.size()-1, 1);
