@@ -51,6 +51,7 @@ SHORT_GAME_NAME="megaglest"
 PORTSTART=62001
 NUM_OM_SERVERS=2
 NUM_OA_SERVERS=1
+SERVER_HARDW_MAX_LOAD_PERC="100"
 # Log file location (beware, this can grow large)
 # LOG_SERVER=/dev/null
 
@@ -69,9 +70,11 @@ if [ "$(which lscpu 2>/dev/null)" != "" ]; then NUMCORES="$(lscpu -p | grep -cv 
 if [ "$NUMCORES" = "" ]; then NUMCORES=1; fi
 echo "Notice: Detected processor with $NUMCORES cores." >&2
 case $NUMCORES in
-    1) MAX_LOAD_MULT="0.65";; 2) MAX_LOAD_MULT="0.80";; 3) MAX_LOAD_MULT="0.90";; *) MAX_LOAD_MULT="0.95";;
+    1) MAX_LOAD_MULT="0.65";; 2) MAX_LOAD_MULT="0.75";; 3) MAX_LOAD_MULT="0.82";;
+    4) MAX_LOAD_MULT="0.88";; 5) MAX_LOAD_MULT="0.92";; *) MAX_LOAD_MULT="0.95";;
 esac
-MAX_LOAD="$(echo "$NUMCORES $MAX_LOAD_MULT" | awk '{print $1*$2}')"
+if [ "$SERVER_HARDW_MAX_LOAD_PERC" -gt "100" ]; then SERVER_HARDW_MAX_LOAD_PERC=100; fi
+MAX_LOAD="$(echo "$NUMCORES $MAX_LOAD_MULT $SERVER_HARDW_MAX_LOAD_PERC" | awk '{print $1*$2*($3/100)}')"
 
 if [ "$1" != "" ] && [ "$(echo "$1" | grep '^[0-9]\+$')" != "" ]; then SERVERCOUNT="$1"
     else SERVERCOUNT=0; fi
@@ -145,7 +148,7 @@ fi
 if [ "$SERVERTITLE" = "" ] && [ "$SERVERNAME" != "" ]; then SERVERTITLE="$SERVERNAME"; fi
 if [ "$SERVERCOUNT" -gt "0" ]; then
     echo "Info: Server '$SERVERTITLE' nr. $SERVERCOUNT ($2 ; $PORT)." >&2
-    sleep "$(($SERVERCOUNT * 3))"s
+    sleep "$(($SERVERCOUNT * 5))"s
 fi
 SER_PARAMETERS="--headless-server-mode=vps,exit"
 #^ parameters without spaces and numbers inside
@@ -215,6 +218,7 @@ while true; do
 			FIND_OUR_SER="$(echo "$FIND_ALL_SER" | grep '^\([^|]*|\)\{4\}'"$SERVER_GREP_IP"'|' \
 			    | grep '^\([^|]*|\)\{11\}'"$PORT_FD"'[0-9]\{'"$PORT_NLD"'\}|')"
 			NUM_O_O_SER="$(echo "$FIND_OUR_SER" | wc -l)"
+			if [ "$NUM_O_O_SER" -eq "0" ]; then M_SERVER_STATUS=111; fi
 			if [ "$NUM_O_O_SER" != "" ] && [ "$NUM_O_O_SER" -lt "$NUM_OM_SERVERS" ]; then :
 			elif [ "$SERVERCOUNT" -le "$NUM_OS_SMOD" ]; then
 			    NUM_O_FREE_SER="$(echo "$FIND_OUR_SER" | grep '^\([^|]*|\)\{10\}0|' -c)"
@@ -249,8 +253,8 @@ while true; do
 	    echo "... dev_version update:" >&2
 	    "$GAMEDIR/../${SHORT_GAME_NAME}-dev_version-update.sh" "$GAMEDIR"; sleep 1s
 	    echo "#" > "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log"; sleep 1s
-	    "$GAMEDIR/$SERVER_SCRIPT" "$@" &
-	    break
+	    #"$GAMEDIR/$SERVER_SCRIPT" "$@" &
+	    #break
 	else
 	    rm -f "$GAMEDIR/${SHORT_GAME_NAME}-dev_version-update-done.log"
 	fi
@@ -335,10 +339,11 @@ while true; do
 		exit 1
 	    fi
 	    sleep 5s
-	    if [ "$SERVERCOUNT" -eq "1" ] && [ "$SERVER_GREP_IP" != "" ] && \
-		[ -e "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ]; then
+	    if [ "$SERVERCOUNT" -eq "1" ] && [ -e "$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh" ] && \
+		[ "$SERVER_GREP_IP" != "" ] && [ "$MINI_UPDATE_USED" = "" ]; then
 		echo "... attempt to perform mini update, which may solve tiny problems:" >&2
 		"$GAMEDIR/${SHORT_GAME_NAME}-mini-update.sh"; sleep 1s
+		MINI_UPDATE_USED="yes"
 	    fi
 	else
 	    echo 'Notice: Server was restarted by script.' >> "$LOG_SERVER"

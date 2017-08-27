@@ -28,7 +28,8 @@ if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
     set -x
     if [ "$VersionAvByDefault" = "" ]; then
 	if [ "$distribution" = "Ubuntu" ]; then
-	    if [ "$Compiler_name" = "gcc" ] || ( [ "$Compiler_name" = "clang" ] && [ "$codename" = "precise" ] ); then
+	    #if [ "$Compiler_name" = "gcc" ] || ( [ "$Compiler_name" = "clang" ] && [ "$codename" = "precise" ] ); then
+	    if [ "$Compiler_name" = "gcc" ] || [ "$Compiler_name" = "clang" ]; then
 		# https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
 		sudo add-apt-repository --yes "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu ${codename} main"
 		#sudo add-apt-repository --yes "deb-src http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu ${codename} main"

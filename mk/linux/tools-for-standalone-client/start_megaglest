@@ -1,7 +1,7 @@
 #!/bin/sh
 # 2011 Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # 2014 Rewritten by filux <heross(@@)o2.pl>
-# Copyright (c) 2011-2016 under GNU GPL v3.0+
+# Copyright (c) 2011-2017 under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 # If you want to have core files generated (for debugging purposes):
 # ulimit -c unlimited
@@ -22,7 +22,9 @@ SHORT_GAME_NAME="megaglest"
 LONG_GAME_NAME="MegaGlest"
 # -------
 LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""; FirstLnError=""
-LibDir_wP="$GAMEDIR/$LIBDIR"; if [ ! -d "$LibDir_wP" ]; then mkdir "$LibDir_wP"; fi
+LibDir_wP="$GAMEDIR/$LIBDIR"; LIBDIR_B=".${LIBDIR}_bak"; LibDirB_wP="$GAMEDIR/$LIBDIR_B"
+if [ ! -d "$LibDir_wP" ]; then mkdir "$LibDir_wP"; fi
+if [ ! -d "$LibDirB_wP" ]; then mkdir "$LibDirB_wP"; fi
 if [ "$1" = "--tool-editor" ] || [ "$1" = "--tool-g3dviewer" ] || [ "$1" = "--tool-buginfo" ];
 then OperatingMode="$1"; else OperatingMode="--game"; fi
 BeginTime="$(date +"%s")"
@@ -116,7 +118,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 		    fi
 		fi
 	    else
-		if [ -e "$SO_LINKED_LIB" ]; then rm -f "$SO_LINKED_LIB"; fi
+		if [ -e "$SO_LINKED_LIB" ]; then mv -f "$SO_LINKED_LIB" "$LibDirB_wP"; fi
 		if [ "$(echo "$c_required_libs" | grep "${SO_LIB_PATTERN}[ \t]*=>[ \t]*not found")" != "" ] && [ "$EmbLibExist" = "no" ]; then
 		    #rare exception
 		    LibsWarnings="$LibsWarnings
@@ -309,14 +311,14 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     IfRealLibExist() {
 	RealEmbLib="$LibDir_wP/$1"
 	if [ ! -L "$RealEmbLib" ] && [ -e "$RealEmbLib" ]; then
-	    if [ "$2" = "remove" ]; then rm -f "$RealEmbLib"; else return 0; fi
+	    if [ "$2" = "remove" ]; then mv -f "$RealEmbLib" "$LibDirB_wP"; else return 0; fi
 	else return 1; fi
     }
     # exceptions, keep them in sync with listed libraries on 'libs_list'
     if [ "$(echo "$OS_INFO" | grep 'Debian\|Ubuntu\|LinuxMint')" = "" ]; then IfRealLibExist "libSDL2-2.0.so.0" "remove"; fi
     if [ "$OperatingMode" = "--game" ]; then
 	if [ "$(IfRealLibExist "libvlc.so.5"; echo "$?")" -ne "0" ] && [ "$(IfRealLibExist "libvlccore.so.7"; echo "$?")" -ne "0" ] && \
-	    [ -d "$LibDir_wP/vlc" ]; then rm -rf "$LibDir_wP/vlc"; fi
+	    [ -d "$LibDir_wP/vlc" ]; then mv -f "$LibDir_wP/vlc" "$LibDirB_wP"; fi
     else
 	if [ "$(IfRealLibExist "libwx_gtk2u_core-3.0.so.0"; echo "$?")" -ne "0" ] || \
 	    [ "$(IfRealLibExist "libwx_baseu-3.0.so.0"; echo "$?")" -ne "0" ] || \
@@ -329,6 +331,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 
     lw_log="$LibDir_wP/.last_w_check.log"; li_log="$LibDir_wP/.last_i_check.log"
     pw_log="$LibDir_wP/.previous_w_check.log"; pi_log="$LibDir_wP/.previous_i_check.log"
+    pw_err="$LibDir_wP/.previous_err_d_check.log"
     LibsWarningsLogs() {
 	if [ "$1" = "create_new" ]; then
 	    echo "#" > "$lw_log"; echo "#" > "$li_log"
@@ -349,6 +352,8 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
 	fi
     }
     checkLibsStatus2() {
+	if [ -f "$pw_err" ] && [ -d "$LibDirB_wP" ]; then rm -f "$pw_err"
+	    mv -f "$LibDirB_wP"/* "$LibDir_wP"; sleep 1s; fi
 	checkLibsStatus "$libs_list"; LibsWarningsLogs "save_new"; sleep 1s; LibsWarningsLogs "rotate"
     }
     if [ "$OperatingMode" = "--game" ] && [ "$(LibsWarningsLogs "check_current"; echo "$?")" -eq "0" ]; then
@@ -387,7 +392,7 @@ if [ "$ExitStatus" -ne "0" ] || [ "$OperatingMode" = "--tool-editor" ] || [ "$Op
 	if [ "$OperatingMode" = "--game" ]; then ShowLibsTime=35; else ShowLibsTime=45; fi
 	if [ "$DiffTime" -le "$ShowLibsTime" ] && [ -e "$GAMEDIR/$BinaryToCheck" ] && [ -x "$GAMEDIR/$BinaryToCheck" ]; then
 	    if [ "$OperatingMode" = "--game" ] || [ "$OperatingMode" = "--tool-buginfo" ]; then
-		LibsWarnings="
+		echo "#" > "$pw_err"; LibsWarnings="
 		|| $LONG_GAME_NAME requires some libraries to be present on this operating system.
 		|| Missing libraries (if any) will be listed next, along with full names
 		|| and default versions. Use the package manager provided by your Linux

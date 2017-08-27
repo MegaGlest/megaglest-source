@@ -74,6 +74,9 @@ Setup.Package
 		if MojoSetup.platform.exists(MojoSetup.destination .. '/lib/') then
 			os.execute('rm -rf ' .. MojoSetup.destination .. '/lib/')
 		end
+		if MojoSetup.platform.exists(MojoSetup.destination .. '/.lib_bak/') then
+			os.execute('rm -rf ' .. MojoSetup.destination .. '/.lib_bak/')
+		end
 		if MojoSetup.platform.exists(MojoSetup.destination) then
 			os.execute('rm -rf ' .. MojoSetup.destination)
 		end
