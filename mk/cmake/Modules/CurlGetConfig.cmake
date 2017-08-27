@@ -5,16 +5,23 @@
 #
 
 IF(CURL_FOUND)
-    #IF(UNIX AND NOT APPLE)
     IF(UNIX)
-	FIND_PROGRAM(CMAKE_CURL_CONFIG curl-config
-		    PATHS
-		    ~/Library/Frameworks
-		    /Library/Frameworks
-		    /sw # Fink
-		    /opt/local # DarwinPorts
-		    /opt/csw # Blastwave
-		    /opt)
+	IF(UNIX AND APPLE AND NOT CMAKE_CURL_CONFIG)
+	    FIND_PROGRAM(CMAKE_CURL_CONFIG curl-config
+			PATHS /opt/local
+			PATH_SUFFIXES bin NO_DEFAULT_PATH)
+	ENDIF()
+	IF(NOT CMAKE_CURL_CONFIG)
+	    FIND_PROGRAM(CMAKE_CURL_CONFIG curl-config
+			PATHS
+			~/Library/Frameworks
+			/Library/Frameworks
+			/sw # Fink
+			/opt/local # DarwinPorts
+			/opt/csw # Blastwave
+			/opt
+			PATH_SUFFIXES bin)
+	ENDIF()
 	MARK_AS_ADVANCED(CMAKE_CURL_CONFIG)
 
 	IF(CMAKE_CURL_CONFIG)
@@ -24,14 +31,12 @@ IF(CURL_FOUND)
 				OUTPUT_VARIABLE CURL_STATIC_LIBS
 				RESULT_VARIABLE RET
 				OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-		MESSAGE(STATUS "CURL RET = ${RET} libs: [${CURL_STATIC_LIBS}]")
 	    ELSE()
 		SET(RET 1)
 	    ENDIF()
 
 	    IF(RET EQUAL 0 AND CURL_STATIC_LIBS)
-		MESSAGE(STATUS "#2 CURL RET = ${RET}, using CURL static libs")
+		MESSAGE(STATUS "curl-config: ${CMAKE_CURL_CONFIG}, #1 , using CURL static libs: [${CURL_STATIC_LIBS}]")
 		SET(CURL_LIBRARIES "-Bstatic ${CURL_STATIC_LIBS}")
 	    ELSE()
 		execute_process(COMMAND ${CMAKE_CURL_CONFIG} --libs
@@ -40,10 +45,10 @@ IF(CURL_FOUND)
 				OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 		IF(RET2 EQUAL 0 AND CURL_DYNAMIC_LIBS)
-		    MESSAGE(STATUS "#2 CURL RET = ${RET2}, using CURL dynamic libs: ${CURL_DYNAMIC_LIBS}")
+		    MESSAGE(STATUS "curl-config: ${CMAKE_CURL_CONFIG}, #2 RET = ${RET}, using CURL dynamic libs: ${CURL_DYNAMIC_LIBS}")
 		    SET(CURL_LIBRARIES "${CURL_DYNAMIC_LIBS}")
 		ELSE()
-		    MESSAGE(STATUS "#3 CURL RET = ${RET2}, using CURL libs found by cmake: ${CURL_LIBRARIES}")
+		    MESSAGE(STATUS "curl-config: ${CMAKE_CURL_CONFIG}, #3 RET = ${RET}/${RET2}, using CURL libs found by cmake: ${CURL_LIBRARIES}")
 		ENDIF()
 	    ENDIF()
 	ENDIF()
