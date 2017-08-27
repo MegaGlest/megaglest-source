@@ -7,7 +7,7 @@ matrix:
   include:
     - os: linux
       compiler: gcc
-      env: Tr_Compiler_Version="6"
+      env: Tr_Compiler_Version="7"
       # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
       dist: trusty # broken compiler on 12.04
     - os: linux
@@ -16,7 +16,7 @@ matrix:
       dist: trusty
     - os: linux
       compiler: clang
-      env: Tr_Compiler_Version="3.9"
+      env: Tr_Compiler_Version="5.0"
       # http://apt.llvm.org/, compiler not newer than available on debian testing
       # https://packages.debian.org/search?suite=testing&keywords=clang-
       dist: trusty
