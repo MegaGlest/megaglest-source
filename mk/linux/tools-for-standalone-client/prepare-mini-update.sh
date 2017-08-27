@@ -1,6 +1,6 @@
 #!/bin/sh
 # 2015 Written by filux <heross(@@)o2.pl>
-# Copyright (c) 2015 under GNU GPL v3.0+
+# Copyright (c) 2015-2017 under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 LANG=C
 
@@ -13,7 +13,7 @@ mkdir -p lib-x86; mkdir -p lib-x86_64
 if [ "$?" -eq "0" ]; then
     echo '#!/bin/sh
 # 2015 Written by filux <heross(@@)o2.pl>
-# Copyright (c) 2015 under GNU GPL v3.0+
+# Copyright (c) 2015-2017 under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 LANG=C
 
@@ -36,6 +36,7 @@ if [ ! -e "$MU_PACKAGE_NAME" ]; then
 	echo "Extracting $MU_PACKAGE_NAME ..."; sleep 2s
 	tar xzf "$MU_PACKAGE_NAME" -C "./"; sleep 1s
     fi
+    if [ ! -e "$MU_PACKAGE_NAME" ]; then echo "The $MU_PACKAGE_NAME was not found ..."; fi
     if [ -e "megaglest-mini_update/megaglest-mini-update.sh" ]; then
 	cp -f --no-dereference --preserve=all "megaglest-mini_update/megaglest-mini-update.sh" ./; sleep 0.5s
 	./megaglest-mini-update.sh; sleep 0.5s
@@ -46,7 +47,8 @@ else
     if [ -d "megaglest-mini_update" ]; then
 	if [ -d "megaglest-mini_update/$LibDir" ]; then
 	    mv "megaglest-mini_update/$LibDir" "megaglest-mini_update/lib"; sleep 0.25s
-	    rm -rf "lib" "lib-x86_64" "lib-x86" "megaglest-mini_update/lib-x86_64" "megaglest-mini_update/lib-x86"; sleep 0.25s
+	    rm -rf "lib" ".lib_bak" "lib-x86_64" "lib-x86" "megaglest-mini_update/lib-x86_64" "megaglest-mini_update/lib-x86"
+	    sleep 0.25s
 	fi
 	mv -f "megaglest-mini_update/"* "./"; sleep 0.5s; rm -rf "megaglest-mini_update"
 	echo "Mini update finished."
