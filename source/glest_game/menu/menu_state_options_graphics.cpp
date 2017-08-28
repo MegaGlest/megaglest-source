@@ -598,6 +598,16 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 					selectedMode = &(*it);
 				}
 			}
+			if(selectedMode == NULL) { // if we cannot find the selectedResolution we try it with current one
+				for(vector<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it) {
+					if((*it).getString() == currentResolution) {
+						//config.setInt("ScreenWidth",(*it).width);
+						//config.setInt("ScreenHeight",(*it).height);
+						//config.setInt("ColorBits",(*it).depth);
+						selectedMode = &(*it);
+					}
+				}
+			}
 			if(selectedMode == NULL) {
 				throw megaglest_runtime_error("selectedMode == NULL");
 			}
