@@ -31,7 +31,9 @@
   #include <windows.h>
   #include <winsock2.h>
   #include <winsock.h>
+  #include <ws2tcpip.h>
   #include <iphlpapi.h>
+
   #include <strstream>
   #include <strsafe.h>
 
@@ -813,7 +815,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	char buff[100];
     DWORD bufflen=100;
 
-	ifaddrinfo_ipv4_t addr_t;
+	//ifaddrinfo_ipv4_t addr_t;
 	while (pCurrAddresses) {
 		if (pCurrAddresses->OperStatus != IfOperStatusUp) {
 			pCurrAddresses = pCurrAddresses->Next;
@@ -826,18 +828,21 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			if (addr->sa_family == AF_INET && pCurrAddresses->IfType != MIB_IF_TYPE_LOOPBACK) {
 				sockaddr_in  *sa_in = (sockaddr_in *)addr;
 				char* strIP = ::inet_ntoa((sa_in->sin_addr));
-				addr_t.ifa_name = strIP;
-				addr_t.ifa_ip = sa_in->sin_addr.S_un.S_addr;
-				socket_inet_ntop(sa_in->sin_family, &(sa_in->sin_addr), addr_t.ip, sizeof(addr_t.ip));
+				//addr_t.ifa_name = strIP;
+				//addr_t.ifa_ip = sa_in->sin_addr.S_un.S_addr;
+				//socket_inet_ntop(sa_in->sin_family, &(sa_in->sin_addr), addr_t.ip, sizeof(addr_t.ip));
 				//if (pCurrAddresses->IfType == IF_TYPE_IEEE80211) {
 				//	_addrs.insert(_addrs.begin(), addr_t);
 				//}
 				//else {
 				//	_addrs.push_back(addr_t);
 				//}
-				sockaddr_in *sa_in = (sockaddr_in *)pUnicast->Address.lpSockaddr;
-				char *ip_address = inet_ntop(AF_INET,&(sa_in->sin_addr),buff,bufflen);
-				//printf("\tIPV4:%s\n",ip_address);
+				//sockaddr_in *sa_in = (sockaddr_in *)pUnicast->Address.lpSockaddr;
+				//char *ip_address = inet_ntop(AF_INET,&(sa_in->sin_addr),buff,bufflen);
+				
+				char *ip_address = strIP;
+				//printf("\tIPV4:%s\n", ip_address);
+				if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] ip_address [%s]\n", __FILE__, __FUNCTION__, __LINE__, ip_address);
 				if( strlen(ip_address) > 0 &&
 					strncmp(ip_address,"127.",4) != 0  &&
 					strncmp(ip_address,"0.",2) != 0) {
