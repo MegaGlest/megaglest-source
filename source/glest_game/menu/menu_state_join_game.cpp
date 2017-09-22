@@ -285,7 +285,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	//serverList.push_back("test2");
 	//
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] serverList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)serverList.size());
 
 	autoConnectToServer = false;
 	buttonAutoFindServers.setEnabled(true);
@@ -308,9 +308,14 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 
 			bestIPMatch = serverList[idx];
 
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str());
+			if(localIPList.empty() == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestIPMatch = [%s] localIPList[0] = [%s]\n",__FILE__,__FUNCTION__,__LINE__,bestIPMatch.c_str(),localIPList[0].c_str());
-
 			if(strncmp(localIPList[0].c_str(),serverList[idx].c_str(),4) == 0) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 		}
