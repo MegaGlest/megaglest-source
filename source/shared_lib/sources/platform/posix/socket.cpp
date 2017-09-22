@@ -713,7 +713,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			sa = (struct sockaddr_in *) ifa->ifa_addr;
 			addr = inet_ntoa(sa->sin_addr);
 			//printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Interface: %s\tAddress: %s\n",__FILE__,__FUNCTION__,__LINE__,addr);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Interface: [%s] address: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ifa->ifa_name,addr);
  		    if(strlen(addr) > 0 &&
 			  strncmp(addr,"127.",4) != 0 &&
 			  strncmp(addr,"0.",2) != 0) {
