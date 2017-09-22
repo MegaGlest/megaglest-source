@@ -2951,17 +2951,25 @@ void BroadCastSocketThread::execute() {
 
     // Subnet, IP Address
     std::vector<std::string> ipSubnetMaskList;
-	for(unsigned int idx = 0; idx < (unsigned int)ipList.size() && idx < (unsigned int)MAX_NIC_COUNT; idx++) {
-		string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
-		printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
+    if(ipList.empty() == false) {
+		for(unsigned int idx = 0; idx < (unsigned int)ipList.size() && idx < (unsigned int)MAX_NIC_COUNT; idx++) {
+			string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
+			printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
 
-		//strcpy(subnetmask[idx], broadCastAddress.c_str());
-		if(broadCastAddress != "" && std::find(ipSubnetMaskList.begin(),ipSubnetMaskList.end(),broadCastAddress) == ipSubnetMaskList.end()) {
-			//printf("Adding index [%d] address to list ...\n",idx);
+			//strcpy(subnetmask[idx], broadCastAddress.c_str());
+			if(broadCastAddress != "" && std::find(ipSubnetMaskList.begin(),ipSubnetMaskList.end(),broadCastAddress) == ipSubnetMaskList.end()) {
+				//printf("Adding index [%d] address to list ...\n",idx);
 
-			ipSubnetMaskList.push_back(broadCastAddress);
+				ipSubnetMaskList.push_back(broadCastAddress);
+			}
 		}
-	}
+    }
+    else {
+    	printf("NO Addresses found for broadCastAddress using INADDR_ANY\n");
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"NO Addresses found for broadCastAddress using INADDR_ANY\n");
+    	ipSubnetMaskList.push_back(INADDR_ANY);
+    }
 
 	port = htons( Socket::getBroadCastPort() );
 
