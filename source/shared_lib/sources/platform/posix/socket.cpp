@@ -2951,10 +2951,11 @@ void BroadCastSocketThread::execute() {
 
     // Subnet, IP Address
     std::vector<std::string> ipSubnetMaskList;
+    //ipList.clear();
     if(ipList.empty() == false) {
 		for(unsigned int idx = 0; idx < (unsigned int)ipList.size() && idx < (unsigned int)MAX_NIC_COUNT; idx++) {
 			string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
-			printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
+			//printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
 
 			//strcpy(subnetmask[idx], broadCastAddress.c_str());
@@ -2966,7 +2967,7 @@ void BroadCastSocketThread::execute() {
 		}
     }
     else {
-    	printf("NO Addresses found for broadCastAddress using INADDR_ANY\n");
+    	//printf("NO Addresses found for broadCastAddress using INADDR_ANY\n");
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"NO Addresses found for broadCastAddress using INADDR_ANY\n");
     	//ipSubnetMaskList.push_back(INADDR_ANY);
     	ipSubnetMaskList.push_back("*");
@@ -2980,9 +2981,12 @@ void BroadCastSocketThread::execute() {
 		memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
 		bcLocal[idx].sin_family			= AF_INET;
 		if(ipSubnetMaskList[idx] == "*") {
+			//printf("UDP Socket broadcast using INADDR_ANY\n");
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UDP Socket broadcast using INADDR_ANY\n");
 			bcLocal[idx].sin_addr.s_addr	= INADDR_ANY;
 		}
 		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UDP Socket broadcast using IP [%s]\n",ipSubnetMaskList[idx].c_str());
 			bcLocal[idx].sin_addr.s_addr	= inet_addr(ipSubnetMaskList[idx].c_str()); //htonl( INADDR_BROADCAST );
 		}
 		bcLocal[idx].sin_port			= port;  // We are letting the OS fill in the port number for the local machine.
