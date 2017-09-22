@@ -24,14 +24,13 @@
 1. System requirements
 
 Hardware requirements:
-* >= 6th generation x86 CPU with 2.0 GHz or better
-  (modern CPU series with at least two cores of at least 1.5 Ghz recommended)
-* 1.5 GB RAM
-  (2.0 GB RAM recommended)
-* Graphics chip supporting OpenGL 1.3 with GL_ARB_env_crossbar and shader
-  extensions (=OpenGL 1.4 or glUseProgramObjectARB etc.) or higher
-  (dedicated video card with hardware 3D acceleration recommended)
-* 256 MB video memory (either dedicated or shared)
+* >= (2011) Intel Sandy Bridge x86 CPU with 1.6 GHz or higher frequency
+  (modern multi-core CPU series, at least 2.0 GHz recommended)
+* 2.0 GB RAM
+  (4.0 GB RAM recommended)
+* Graphics chip supporting OpenGL 2.1 or higher
+  (dedicated/discrete video card with hardware 3D acceleration recommended)
+* 512 MB video memory
 * Audio chip supporting OpenAL
 
 Software requirements:
@@ -44,32 +43,32 @@ Software requirements:
 
 The MegaGlest Team currently provides builds and installers for Linux and
 Windows. The Linux version is available in 32 and 64 bit variants which have
-been reported to run on Ubuntu 8.04 to 13.10, various versions of Debian,
-OpenSuSE 11.1 to 13.1, and many other distributions. The Windows version runs
-on 32 and 64 bit variants of Windows and has been reported to run on Windows
-versions up to and including Windows 8.1.
+been reported to run on any supported Ubuntu LTS releases, various versions of
+Debian, OpenSuSE 11.1 to 13.1, and many other distributions. The Windows
+version runs on 32 and 64 bit variants and has been reported to run on Windows
+versions up to and including Windows 10.
 
-There are also packages available for several Linux and BSD distributions and 
-OS X, maintained by these distributions or the wider MegaGlest community. 
-Please see the MegaGlest website, forums and wiki, as well as the package 
+There are also packages available for several Linux and BSD distributions and
+OS X, maintained by these distributions or the wider MegaGlest community.
+Please see the MegaGlest website, forums and wiki, as well as the package
 directories these distributions provide for details.
 
 Graphics hardware and drivers:
-Current dedicated Nvidia and ATI hardware with up to date vendor-supplied 
+Current dedicated Nvidia and AMD hardware with up to date vendor-supplied
 proprietary drivers installed usually provide the best experience. However, it
 is not unheard of that they may be difficult to get working on Linux and other
-open platforms (due to insufficient support by hardware vendors). If you 
+open platforms (due to insufficient support by hardware vendors). If you
 experience such issues, open source 3D drivers are now becoming usable for both
 many current and legacy GPUs, and may help with the proprietary drivers'
 shortcomings.
 
 Next to standard dedicated gaming video cards, MegaGlest also runs fine on most
-integrated Intel GMA, Nvidia and AMD/ATI APUs, but you will feel an urge to 
-reduce visual effects. See http://faq.megaglest.org for more hints.
+integrated Intel, Nvidia and AMD APUs, but you will feel an urge to reduce
+visual effects. See http://faq.megaglest.org for potential optimizations.
 
 To run MegaGlest in headless mode, neither video nor audio hardware and driver
 support are neccessary. For a good user experience, please ensure your system
-meets the other minimum hardware requirements, as listed above.
+meets all other minimum hardware requirements, as listed above.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,19 +97,18 @@ Windows:
 All you should need to do on Windows is to double-click the downloaded file.
 You may get to see a warning saying that this file you downloaded from the
 Internet may be unsafe. However, if you downloaded this file from a trusted
-source, i.e. megaglest.org (which currently forwards to GitHub, which then 
-forwards to Amazon AWS S3), it should be safe to proceed. However, we can not 
-make any guarantees. You are encouraged to scan the downloaded installer for 
+source, i.e. megaglest.org (which currently forwards to GitHub, which then
+forwards to Amazon AWS S3), it should be safe to proceed. However, we can not
+make any guarantees. You are encouraged to scan the downloaded installer for
 viruses.
 
 Other platforms:
 Please refer to the packagers' installation guides.
 
-
 All platforms:
-We have lately started to cryptographically sign (OpenPGP) releases and also
-provide checksums, so please use these to iverify the authenticity of the files
-you have downloaded.
+We may cryptographically sign (OpenPGP) releases and provide checksums, so
+please use these to verify the integrity and authenticity of the files you
+have downloaded.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,7 +123,7 @@ DO NOT directly edit glest.ini and glestkeys.ini but rather edit glestuser.ini
 and glestuserkeys.ini overwriting global defaults.
 
 On Linux, these files are located in ~/.megaglest/ (note the leading dot, this
-is a hidden directory). 
+is a hidden directory).
 
 On Windows, these files are stored at %AppData%\megaglest. '%AppData%' is an
 environment variable which points to a different location depending on your
@@ -251,7 +249,7 @@ megaglest --headless-server-mode     => start a headless server, the first
 megaglest --connect IPADDR[:PORT]    => start game connecting to the server
                                         at the given IPv4 address
 
-For a complete list, run: 
+For a complete list, run:
 megaglest --help
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -283,6 +281,6 @@ their own by reading up on available documentation before getting in touch.
   http://forum.megaglest.org
 
 - Contact us on IRC:
-  Network: irc.freenode.net
+  Network: chat.freenode.net
   Channel: #megaglest
   Or use the webchat at http://chat.megaglest.org/
