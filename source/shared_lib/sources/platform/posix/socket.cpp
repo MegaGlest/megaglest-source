@@ -2953,10 +2953,12 @@ void BroadCastSocketThread::execute() {
     std::vector<std::string> ipSubnetMaskList;
 	for(unsigned int idx = 0; idx < (unsigned int)ipList.size() && idx < (unsigned int)MAX_NIC_COUNT; idx++) {
 		string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
-		//printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
+		printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
 
 		//strcpy(subnetmask[idx], broadCastAddress.c_str());
 		if(broadCastAddress != "" && std::find(ipSubnetMaskList.begin(),ipSubnetMaskList.end(),broadCastAddress) == ipSubnetMaskList.end()) {
+			//printf("Adding index [%d] address to list ...\n",idx);
+
 			ipSubnetMaskList.push_back(broadCastAddress);
 		}
 	}
@@ -2980,11 +2982,13 @@ void BroadCastSocketThread::execute() {
 
 		if( bcfd[idx] <= 0  ) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", ipSubnetMaskList[idx].c_str(), Socket::getLastSocketErrorFormattedText().c_str());
+			//printf("Unable to allocate broadcast socket [%s]: %s\n", ipSubnetMaskList[idx].c_str(), Socket::getLastSocketErrorFormattedText().c_str());
 			//exit(-1);
 		}
 		// Mark the socket for broadcast.
 		else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", ipSubnetMaskList[idx].c_str(), Socket::getLastSocketErrorFormattedText().c_str());
+			//printf("Could not set socket to broadcast [%s]: %s\n", ipSubnetMaskList[idx].c_str(), Socket::getLastSocketErrorFormattedText().c_str());
 			//exit(-1);
 		}
 		//}
@@ -3013,6 +3017,7 @@ void BroadCastSocketThread::execute() {
 //#endif
 						string buffCopy = buff;
 						snprintf(buff,1024,"%s:%s:%d",buffCopy.c_str(),ipList[idx1].c_str(),this->boundPort);
+						//printf("About to broadcast index [%d] host info [%s]\n", idx1,buff);
 					}
 
 					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
@@ -3024,6 +3029,7 @@ void BroadCastSocketThread::execute() {
 							//if( sendto( bcfd, buff, sizeof(buff) + 1, 0 , (struct sockaddr *)&bcaddr, sizeof(struct sockaddr_in) ) != sizeof(buff) + 1 )
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Server is sending broadcast data [%s]\n",buff);
+							//printf("Broadcasting index host info [%s]\n", buff);
 
 							ssize_t send_res = sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) );
 							if( send_res != buffMaxSize ) {
