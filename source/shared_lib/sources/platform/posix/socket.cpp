@@ -2968,7 +2968,8 @@ void BroadCastSocketThread::execute() {
     else {
     	printf("NO Addresses found for broadCastAddress using INADDR_ANY\n");
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"NO Addresses found for broadCastAddress using INADDR_ANY\n");
-    	ipSubnetMaskList.push_back(INADDR_ANY);
+    	//ipSubnetMaskList.push_back(INADDR_ANY);
+    	ipSubnetMaskList.push_back("*");
     }
 
 	port = htons( Socket::getBroadCastPort() );
@@ -2978,7 +2979,12 @@ void BroadCastSocketThread::execute() {
 		// Create the broadcast socket
 		memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
 		bcLocal[idx].sin_family			= AF_INET;
-		bcLocal[idx].sin_addr.s_addr	= inet_addr(ipSubnetMaskList[idx].c_str()); //htonl( INADDR_BROADCAST );
+		if(ipSubnetMaskList[idx] == "*") {
+			bcLocal[idx].sin_addr.s_addr	= INADDR_ANY;
+		}
+		else {
+			bcLocal[idx].sin_addr.s_addr	= inet_addr(ipSubnetMaskList[idx].c_str()); //htonl( INADDR_BROADCAST );
+		}
 		bcLocal[idx].sin_port			= port;  // We are letting the OS fill in the port number for the local machine.
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
