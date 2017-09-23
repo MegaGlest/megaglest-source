@@ -213,6 +213,7 @@ public:
 
 protected:
 	static void throwException(string str);
+	static void getLocalIPAddressListForPlatform(std::vector<std::string> &ipList);
 };
 
 class SafeSocketBlockToggleWrapper {
