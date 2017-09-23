@@ -675,7 +675,6 @@ uint32 Socket::getConnectedIPAddress(string IP) {
 
 std::vector<std::string> Socket::getLocalIPAddressList() {
 	std::vector<std::string> ipList;
-
 	/* get my host name */
 	char myhostname[101]="";
 	gethostname(myhostname,100);
@@ -684,8 +683,6 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	if(myhostent) {
 		// get all host IP addresses (Except for loopback)
 		char myhostaddr[101] = "";
-		//int ipIdx = 0;
-		//while (myhostent->h_addr_list[ipIdx] != 0) {
 		for(int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
 			Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
 
@@ -697,25 +694,26 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			  strncmp(myhostaddr,"0.",2) != 0) {
 			   ipList.push_back(myhostaddr);
 		   }
-		   //ipIdx++;
 		}
 	}
 
+	Socket::getLocalIPAddressListForPlatform(ipList);
+	return ipList;
+}
+
 #ifndef WIN32
-
+void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) {
 	// Now check all linux network devices
-
-	struct ifaddrs *ifap, *ifa;
-	struct sockaddr_in *sa;
-	char *addr;
-
-	getifaddrs (&ifap);
-	for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
-		if (ifa->ifa_addr->sa_family==AF_INET) {
-			sa = (struct sockaddr_in *) ifa->ifa_addr;
-			addr = inet_ntoa(sa->sin_addr);
+	struct ifaddrs *ifap = NULL;
+	getifaddrs(&ifap);
+	for(struct ifaddrs *ifa = ifap; ifa; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr->sa_family == AF_INET) {
+			struct sockaddr_in *sa = (struct sockaddr_in *) ifa->ifa_addr;
+			char *addr = inet_ntoa(sa->sin_addr);
 			//printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Interface: [%s] address: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ifa->ifa_name,addr);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) {
+				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Interface: [%s] address: [%s]\n",__FILE__,__FUNCTION__,__LINE__,ifa->ifa_name,addr);
+			}
  		    if(strlen(addr) > 0 &&
 			  strncmp(addr,"127.",4) != 0 &&
 			  strncmp(addr,"0.",2) != 0) {
@@ -727,7 +725,6 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	}
 	freeifaddrs(ifap);
 
-	//std::vector<string> intfTypes;
 	if(Socket::intfTypes.empty()) {
 		Socket::intfTypes.push_back("lo");
 		Socket::intfTypes.push_back("eth");
@@ -752,14 +749,11 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		string intfName = Socket::intfTypes[intfIdx];
 		for(int idx = 0; idx < 10; ++idx) {
 			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);
-			//PLATFORM_SOCKET fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
 			/* I want to get an IPv4 IP address */
 			struct ifreq ifr;
 			struct ifreq ifrA;
 			ifr.ifr_addr.sa_family = AF_INET;
 			ifrA.ifr_addr.sa_family = AF_INET;
-
 			/* I want IP address attached to "eth0" */
 			char szBuf[100]="";
 			snprintf(szBuf,100,"%s%d",intfName.c_str(),idx);
@@ -767,7 +761,6 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			//printf("In [%s::%s Line: %d] Trying NIC named [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 			int maxIfNameLength = std::min((int)strlen(szBuf),IFNAMSIZ-1);
-
 			strncpy(ifr.ifr_name, szBuf, maxIfNameLength);
 			ifr.ifr_name[maxIfNameLength] = '\0';
 			strncpy(ifrA.ifr_name, szBuf, maxIfNameLength);
@@ -775,16 +768,15 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 
 			int result_ifaddrr = ioctl(fd, SIOCGIFADDR, &ifr);
 			ioctl(fd, SIOCGIFFLAGS, &ifrA);
-			if(fd >= 0) close(fd);
-
+			if(fd >= 0) {
+				close(fd);
+			}
 			if(result_ifaddrr >= 0) {
 				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
 				if(pSockAddr != NULL) {
-
 					char myhostaddr[101] = "";
 					Ip::Inet_NtoA(SockAddrToUint32(&pSockAddr->sin_addr), myhostaddr);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
-
 					// Now only include interfaces that are both UP and running
 					if( (ifrA.ifr_flags & IFF_UP) 		== IFF_UP &&
 						(ifrA.ifr_flags & IFF_RUNNING) 	== IFF_RUNNING) {
@@ -800,54 +792,41 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 			}
 		}
 	}
+}
+#endif
 
-#else
+#ifdef WIN32
+void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) {
 	ULONG outBufLen = 0;
 	GetAdaptersAddresses(AF_INET, 0, NULL, NULL, &outBufLen);
-
 	PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
 	GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen);
-
 	PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
 	PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
 	LPSOCKADDR addr = NULL;
 	pCurrAddresses = pAddresses;
 	char buff[100];
     DWORD bufflen=100;
-
-	//ifaddrinfo_ipv4_t addr_t;
 	while (pCurrAddresses) {
 		if (pCurrAddresses->OperStatus != IfOperStatusUp) {
 			pCurrAddresses = pCurrAddresses->Next;
 			continue;
 		}
 		pUnicast = pCurrAddresses->FirstUnicastAddress;
-
 		while (pUnicast) {
 			addr = pUnicast->Address.lpSockaddr;
 			if (addr->sa_family == AF_INET && pCurrAddresses->IfType != MIB_IF_TYPE_LOOPBACK) {
-				sockaddr_in  *sa_in = (sockaddr_in *)addr;
-				char* strIP = ::inet_ntoa((sa_in->sin_addr));
-				//addr_t.ifa_name = strIP;
-				//addr_t.ifa_ip = sa_in->sin_addr.S_un.S_addr;
-				//socket_inet_ntop(sa_in->sin_family, &(sa_in->sin_addr), addr_t.ip, sizeof(addr_t.ip));
-				//if (pCurrAddresses->IfType == IF_TYPE_IEEE80211) {
-				//	_addrs.insert(_addrs.begin(), addr_t);
-				//}
-				//else {
-				//	_addrs.push_back(addr_t);
-				//}
-				//sockaddr_in *sa_in = (sockaddr_in *)pUnicast->Address.lpSockaddr;
-				//char *ip_address = inet_ntop(AF_INET,&(sa_in->sin_addr),buff,bufflen);
-				
-				char *ip_address = strIP;
-				//printf("\tIPV4:%s\n", ip_address);
-				if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] ip_address [%s]\n", __FILE__, __FUNCTION__, __LINE__, ip_address);
-				if( strlen(ip_address) > 0 &&
-					strncmp(ip_address,"127.",4) != 0  &&
-					strncmp(ip_address,"0.",2) != 0) {
-					if(std::find(ipList.begin(),ipList.end(),ip_address) == ipList.end()) {
-						ipList.push_back(ip_address);
+				sockaddr_in *sa_in = (sockaddr_in *)addr;
+				char *strIP = ::inet_ntoa((sa_in->sin_addr));
+				//printf("\tIPV4:%s\n", strIP);
+				if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) {
+					SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] strIP [%s]\n", __FILE__, __FUNCTION__, __LINE__, strIP);
+				}
+				if( strlen(strIP) > 0 &&
+					strncmp(strIP,"127.",4) != 0  &&
+					strncmp(strIP,"0.",2) != 0) {
+					if(std::find(ipList.begin(),ipList.end(),strIP) == ipList.end()) {
+						ipList.push_back(strIP);
 					}
 				}
 			}
@@ -856,12 +835,9 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 		pCurrAddresses = pCurrAddresses->Next;
 	}
 	free(pAddresses);
-	//return !_addrs.empty();
-
+}
 #endif
 
-	return ipList;
-}
 
 bool Socket::isSocketValid() const {
 	return Socket::isSocketValid(&sock);

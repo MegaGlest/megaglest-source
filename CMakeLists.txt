@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8.2 )
 PROJECT( MegaGlest )
 
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -341,6 +340,12 @@ IF(NOT WANT_DEPRECATION_WARNINGS)
 ENDIF()
 MARK_AS_ADVANCED(WANT_DEPRECATION_WARNINGS)
 
+#ADD_DEFINITIONS("-DMG_CMAKE_INSTALL_PREFIX='\\\"${CMAKE_INSTALL_PREFIX}\\\"'")
+IF(NOT MG_CMAKE_INSTALL_PREFIX)
+	SET(MG_CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+ENDIF()
+MESSAGE(STATUS "**NOTE: MG_CMAKE_INSTALL_PREFIX is [${MG_CMAKE_INSTALL_PREFIX}]")
+
 SET(SDL_WINDOWS_DIR_DINC "SDL-2.0.x")
 SET(SDL_VERSION_NAME "SDL2")
 SET(SDL_VERSION_SNAME "sdl")
@@ -398,12 +403,12 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 	#endif()
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tools/glexemel )
 
-        ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
+    ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
 
 # Check if data exist
 IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/CMakeLists.txt")
-        MESSAGE(STATUS "**Found game data.")
+    MESSAGE(STATUS "**Found game data.")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
 ENDIF()
 
@@ -411,7 +416,7 @@ ENDIF()
 #MESSAGE(STATUS ">>>> NOTICE Compiler definitions used: ${DirDefs}")
 #MESSAGE(STATUS "END of compile defs...")
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
+    MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 
 IF(NOT DEFINED CPACK_GENERATOR)

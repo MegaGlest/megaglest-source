@@ -185,7 +185,13 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
   	}
 #endif
 
-    // Look in standard linux shared paths for ini files
+#if defined(MG_CMAKE_INSTALL_PREFIX)
+  	if(foundPath == false) {
+  		foundPath = tryCustomPath(cfgType, fileName, formatPath(TOSTRING(MG_CMAKE_INSTALL_PREFIX)));
+  	}
+#endif
+
+// Look in standard linux shared paths for ini files
 #if defined(__linux__)
     if(foundPath == false) {
     	foundPath = tryCustomPath(cfgType, fileName, "/usr/share/megaglest/");
