@@ -8041,14 +8041,13 @@ void Renderer::checkGlCaps() {
  		throw megaglest_runtime_error(message.c_str(),true);
 	}
 
-	//opengl 1.3
-	//if(!isGlVersionSupported(1, 3, 0)) {
-	if(glewIsSupported("GL_VERSION_1_3") == false) {
+	//opengl 2.1
+	if(glewIsSupported("GL_VERSION_2_1") == false) {
 		string message;
 
 		message += "Your system supports OpenGL version [";
  		message += getGlVersion() + string("]\n");
- 		message += "MegaGlest needs at least version 1.3 to work\n";
+ 		message += "MegaGlest needs at least version 2.1 to work\n";
  		message += "You may solve this problem by installing your latest video card drivers";
 
  		throw megaglest_runtime_error(message.c_str(),true);
