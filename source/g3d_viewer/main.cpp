@@ -1133,7 +1133,8 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 
 		//delete model;
 		//model = NULL;
-		if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
+		if(model != NULL && renderer != NULL)
+			renderer->endModel(rsGlobal, model);
 		model = NULL;
 
 		loadUnit("","");
@@ -1299,9 +1300,8 @@ void MainWindow::loadModel(string path) {
 
             if(timer) timer->Stop();
             //delete model;
-    		if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
-    		model = NULL;
-            model = renderer? renderer->newModel(rsGlobal, modelPath): NULL;
+            if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
+            model = renderer ? renderer->newModel(rsGlobal, modelPath) : NULL;
 
             statusbarText = getModelInfo();
             string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
@@ -1320,7 +1320,10 @@ void MainWindow::loadModel(string path) {
 void MainWindow::loadParticle(string path) {
 	if(timer) timer->Stop();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED)
+		printf("In [%s::%s Line: %d] about to load [%s]\n",
+		       extractFileFromDirectoryPath(__FILE__).c_str(),
+		       __FUNCTION__,__LINE__,path.c_str());
 	if(path != "" && fileExists(path) == true) {
 		renderer->end();
 		unitParticleSystems.clear();
@@ -1336,7 +1339,10 @@ void MainWindow::loadParticle(string path) {
 			this->particlePathList.push_back(path);
 		}
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] added file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED)
+			printf("In [%s::%s Line: %d] added file [%s]\n",
+			       extractFileFromDirectoryPath(__FILE__).c_str(),
+			       __FUNCTION__,__LINE__,path.c_str());
 	}
 
 	try {
@@ -1356,7 +1362,10 @@ void MainWindow::loadParticle(string path) {
 
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] looking for unit XML [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitXML.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED)
+				printf("In [%s::%s Line: %d] looking for unit XML [%s]\n",
+				       extractFileFromDirectoryPath(__FILE__).c_str(),
+				       __FUNCTION__,__LINE__,unitXML.c_str());
 
 			//int size   = -1;
 			//int height = -1;
@@ -1426,7 +1435,7 @@ void MainWindow::loadParticle(string path) {
 	if(timer) timer->Start(100);
 }
 
-void MainWindow::loadProjectileParticle(string path) {
+void MainWindow::loadProjectileParticle(const string path) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleProjectilePathList.size() = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleProjectilePathList.size());
 
 	if(timer) timer->Stop();
@@ -1544,7 +1553,7 @@ void MainWindow::loadProjectileParticle(string path) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] after load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 }
 
-void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSplash::load  (and own list...)
+void MainWindow::loadSplashParticle(const string path) {  // uses ParticleSystemTypeSplash::load  (and own list...)
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleSplashPathList.size() = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
 
 	if(timer) timer->Stop();
@@ -1891,12 +1900,7 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 		// std::cout << "e.ControlDown() = " << e.ControlDown() << " e.GetKeyCode() = " << e.GetKeyCode() << " isCtrl = " << (e.GetKeyCode() == WXK_CONTROL) << std::endl;
 
 		// Note: This ctrl-key handling is buggy since it never resets when ctrl is released later, so I reset it at end of loadcommands for now.
-		if(e.ControlDown() == true || e.GetKeyCode() == WXK_CONTROL) {
-			isControlKeyPressed = true;
-		}
-		else {
-			isControlKeyPressed = false;
-		}
+		isControlKeyPressed = e.ControlDown() == true || e.GetKeyCode() == WXK_CONTROL;
 
 		// std::cout << "isControlKeyPressed = " << isControlKeyPressed << std::endl;
 
@@ -2133,10 +2137,10 @@ bool App::OnInit() {
 	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
 #endif
 
-	string modelPath="";
-	string particlePath="";
-	string projectileParticlePath="";
-	string splashParticlePath="";
+	string modelPath = "";
+	string particlePath = "";
+	string projectileParticlePath = "";
+	string splashParticlePath = "";
 
 
 	bool foundInvalidArgs = false;
@@ -2151,7 +2155,7 @@ if( hasCommandArgument(knownArgCount, (wxChar**)&GAME_ARGS[0], (const char *)tmp
 			argv[idx][0] == '-') {
 			foundInvalidArgs = true;
 
-			printf("\nInvalid argument: %s",(const char*)tmp_buf);
+			printf("\nInvalid argument: %s", (const char*)tmp_buf);
 		}
 	}
 

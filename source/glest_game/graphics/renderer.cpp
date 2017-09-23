@@ -3864,7 +3864,7 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 }
 
 void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
-	const int headerHeight=25;
+	const int headerHeight = 25;
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -3936,7 +3936,7 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 
 		//buttons
-		for(int i=0; i<messageBox->getButtonCount();i++){
+		for(int i=0; i<messageBox->getButtonCount(); ++i){
 
 			if((renderText3DEnabled == false && messageBox->getButton(i)->getFont() == NULL) ||
 			   (renderText3DEnabled == true && messageBox->getButton(i)->getFont3D() == NULL)) {
