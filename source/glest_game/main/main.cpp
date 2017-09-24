@@ -6069,7 +6069,7 @@ __try {
     	SDL_Quit();
     }
 
-    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
+    if(isSteamMode == true) {
     	STEAMSHIM_deinit();
     }
 
