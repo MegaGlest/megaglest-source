@@ -36,6 +36,7 @@ private:
 	GraphicButton buttonAbout;
 	GraphicButton buttonExit;
 	GraphicLabel labelVersion;
+	GraphicLabel labelGreeting;
 
 	GraphicMessageBox mainMessageBox;
 	GraphicMessageBox errorMessageBox;

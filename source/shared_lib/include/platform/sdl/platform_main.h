@@ -98,6 +98,7 @@ const char  *GAME_ARGS[] = {
 	"--enable-new-protocol",
 
 	"--create-data-archives",
+	"--steam",
 
 	"--verbose"
 
@@ -182,6 +183,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_ENABLE_NEW_PROTOCOL,
 
 	GAME_ARG_CREATE_DATA_ARCHIVES,
+	GAME_ARG_STEAM,
 
 	GAME_ARG_VERBOSE_MODE,
 
@@ -461,6 +463,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n\n                     \t    techtrees, tilesets or all.");
 	printf("\n\n                     \tWhere y = include_main to include main (non mod) data.");
 	printf("\n\n                     \texample: %s %s=all",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]);
+
+	printf("\n\n%s=x=y  ",GAME_ARGS[GAME_ARG_STEAM]);
+	printf("\n\n                     \tRun with Steam Client Integration.");
 
 	printf("\n\n%s  \t\tDisplays verbose information in the console.",GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
 	printf("\n\n");
