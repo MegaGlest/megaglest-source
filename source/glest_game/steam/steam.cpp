@@ -1,7 +1,7 @@
 #include "steam.h"
 
 #include <map>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "steamshim_child.h"
 
 /* Achievements */
