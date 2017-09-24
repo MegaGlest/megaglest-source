@@ -6021,6 +6021,7 @@ void EnableCrashingOnCrashes() {
 
 int glestMainSEHWrapper(int argc, char** argv) {
 
+	bool isSteamMode = hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]);
 #ifdef WIN32_STACK_TRACE
 	//printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
@@ -6044,9 +6045,9 @@ __try {
 
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
 
-	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
+	if(isSteamMode == true) {
 		if (!STEAMSHIM_init()) {
-			printf("Child init failed, terminating.\n");
+			printf("Steam API init failed, terminating.\n");
 			return 42;
 		}
 	}
