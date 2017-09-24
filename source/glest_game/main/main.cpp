@@ -25,6 +25,9 @@
 #include <string>
 #include <cstdlib>
 
+
+#include "steamshim_child.h"
+#include "steam.h"
 #include "game.h"
 #include "main_menu.h"
 #include "program.h"
@@ -141,6 +144,34 @@ class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface
 		lang.getDiscoveredLanguageList(true);
 	}
 };
+
+/*
+static void printEvent(const STEAMSHIM_Event *e)
+{
+    if (!e) return;
+
+    printf("CHILD EVENT: ");
+    switch (e->type)
+    {
+        #define PRINTGOTEVENT(x) case SHIMEVENT_##x: printf("%s(", #x); break
+        PRINTGOTEVENT(BYE);
+        PRINTGOTEVENT(STATSRECEIVED);
+        PRINTGOTEVENT(STATSSTORED);
+        PRINTGOTEVENT(SETACHIEVEMENT);
+        PRINTGOTEVENT(GETACHIEVEMENT);
+        PRINTGOTEVENT(RESETSTATS);
+        PRINTGOTEVENT(SETSTATI);
+        PRINTGOTEVENT(GETSTATI);
+        PRINTGOTEVENT(SETSTATF);
+        PRINTGOTEVENT(GETSTATF);
+        #undef PRINTGOTEVENT
+        default: printf("UNKNOWN("); break;
+    }
+
+    printf("%sokay, ival=%d, fval=%f, time=%llu, name='%s').\n",
+            e->okay ? "" : "!", e->ivalue, e->fvalue, e->epochsecs, e->name);
+}
+*/
 
 // =====================================================
 // 	class ExceptionHandler
@@ -3295,19 +3326,27 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
     }
 }
 
-void setupSteamSettings(){
+void setupSteamSettings(bool steamEnabled) {
 	bool needToSaveConfig=false;
 	Config &config = Config::getInstance();
-	string steamPlayerName = safeCharPtrCopy(getenv("SteamAppUser"),100);
-	if( steamPlayerName=="") return;// not a steam launch
-	string currentPLayerName=config.getString("NetPlayerName","");
-	if( currentPLayerName=="newbie" || currentPLayerName=="" ){
-		config.setString("NetPlayerName",steamPlayerName);
-		needToSaveConfig=true;
-	}
+	config.setBool("SteamEnabled",steamEnabled,true);
+	if(steamEnabled) {
+		printf("*NOTE: Steam Integration Enabled.\n");
+		//string steamPlayerName = safeCharPtrCopy(getenv("SteamAppUser"),100);
+		//if( steamPlayerName=="") return;// not a steam launch
+		Steam steam;
+		string steamPlayerName = steam.userName();
+		string steamLang = steam.lang();
+		printf("Steam Integration Enabled!\nSteam User Name is [%s] Language is [%s]\n", steamPlayerName.c_str(), steamLang.c_str());
 
-	if( needToSaveConfig == true ){
-		config.save();
+		string currentPLayerName = config.getString("NetPlayerName","");
+		if( currentPLayerName == "newbie" || currentPLayerName == "" ) {
+			config.setString("NetPlayerName",steamPlayerName);
+			needToSaveConfig=true;
+		}
+		if( needToSaveConfig == true ) {
+			config.save();
+		}
 	}
 }
 
@@ -4201,6 +4240,18 @@ int glestMain(int argc, char** argv) {
 		return 2;
 	}
 
+//	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
+//		STEAMSHIM_requestStats();
+//		while (STEAMSHIM_alive()) {
+//			const STEAMSHIM_Event *e = STEAMSHIM_pump();
+//			printEvent(e);
+//			if (e && e->type == SHIMEVENT_STATSRECEIVED) {
+//				break;
+//			}
+//			usleep(100 * 1000);
+//		} // while
+//	}
+
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	//isMasterServerModeEnabled = true;
     	//Window::setMasterserverMode(isMasterServerModeEnabled);
@@ -4539,7 +4590,7 @@ int glestMain(int argc, char** argv) {
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
 
-		setupSteamSettings();
+		setupSteamSettings(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]));
 
 		if(config.getString("PlayerId","") == "") {
 			char  uuid_str[38];
@@ -4985,6 +5036,12 @@ int glestMain(int argc, char** argv) {
     	}
     	else {
 
+    		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
+				Steam steam;
+				string steamUser = steam.userName();
+				string steamLang = steam.lang();
+				printf("Steam Integration Enabled!\nSteam User Name is [%s] Language is [%s]\n", steamUser.c_str(), steamLang.c_str());
+    		}
 #ifdef _WIN32
 			int localeBufferSize = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME, NULL, 0);
 			wchar_t *sysLocale = new wchar_t[localeBufferSize];
@@ -5986,6 +6043,14 @@ __try {
 	int result = 0;
 
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
+
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
+		if (!STEAMSHIM_init()) {
+			printf("Child init failed, terminating.\n");
+			return 42;
+		}
+	}
+
 	result = glestMain(argc, argv);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -6003,10 +6068,17 @@ __try {
     	SDL_Quit();
     }
 
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
+    	STEAMSHIM_deinit();
+    }
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return result;
 #ifdef WIN32_STACK_TRACE
-} __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) { return 0; }
+}
+__except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) {
+	return 0;
+}
 #endif
 
 }

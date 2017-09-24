@@ -186,6 +186,7 @@ IF(BUILD_MEGAGLEST)
 		menu
 		network
 		sound
+        steam
         steamshim
 		type_instances
 		types
