@@ -5,9 +5,9 @@
 #include "steamshim_child.h"
 
 /* Achievements */
-static const char *const achievementNames[] = {
+//static const char *const achievementNames[] = {
 //    "X",
-};
+//};
 //#define NUM_ACHIEVEMENTS (sizeof(achievementNames) / sizeof(achievementNames[0]))
 
 /* Language map */
