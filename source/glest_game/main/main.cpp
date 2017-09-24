@@ -6020,8 +6020,7 @@ void EnableCrashingOnCrashes() {
 #endif
 
 int glestMainSEHWrapper(int argc, char** argv) {
-
-	bool isSteamMode = hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]);
+	int result = 0;
 #ifdef WIN32_STACK_TRACE
 	//printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
@@ -6041,17 +6040,8 @@ __try {
 #endif
 
 	initSpecialStrings();
-	int result = 0;
-
+	
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
-
-	if(isSteamMode == true) {
-		if (!STEAMSHIM_init()) {
-			printf("Steam API init failed, terminating.\n");
-			return 42;
-		}
-	}
-
 	result = glestMain(argc, argv);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -6069,12 +6059,8 @@ __try {
     	SDL_Quit();
     }
 
-    if(isSteamMode == true) {
-    	STEAMSHIM_deinit();
-    }
-
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	return result;
+	
 #ifdef WIN32_STACK_TRACE
 }
 __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) {
@@ -6082,6 +6068,7 @@ __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEAR
 }
 #endif
 
+return result;
 }
 
 int glestMainWrapper(int argc, char** argv) {
@@ -6142,7 +6129,21 @@ int glestMainWrapper(int argc, char** argv) {
 	SocketManager winSockManager;
 #endif
 
+	
+	bool isSteamMode = hasCommandArgument(argc, argv, GAME_ARGS[GAME_ARG_STEAM]);
+	if (isSteamMode == true) {
+		if (!STEAMSHIM_init()) {
+			printf("Steam API init failed, terminating.\n");
+			return 42;
+		}
+	}
+
 	int result = glestMainSEHWrapper(argc, argv);
+
+	if (isSteamMode == true) {
+		STEAMSHIM_deinit();
+	}
+
 	return result;
 }
 
