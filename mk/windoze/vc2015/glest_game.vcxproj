@@ -584,7 +584,7 @@
     <ClCompile Include="..\..\..\source\glest_game\sound\sound_container.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\sound\sound_renderer.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\steam\steam.cpp" />
-    <ClCompile Include="..\..\..\source\glest_game\steamshim\steamshim_child.cpp" />
+    <ClCompile Include="..\..\..\source\glest_game\steamshim\steamshim_child.c" />
     <ClCompile Include="..\..\..\source\glest_game\types\projectile_type.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\types\tileset_model_type.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\type_instances\command.cpp" />
