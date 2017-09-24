@@ -1,5 +1,5 @@
 #ifndef GAME_LAUNCH_NAME
-#define GAME_LAUNCH_NAME "megaglest_shim"
+#define GAME_LAUNCH_NAME "megaglest"
 #endif
 
 #ifdef _WIN32
