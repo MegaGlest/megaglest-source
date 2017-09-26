@@ -7,7 +7,7 @@ $(error STEAMWORKS is not set)
 endif
 
 CXX				?= clang++
-WINDRES			?= windres
+# WINDRES			?= windres
 HOST			?= linux64
 FLAGS			:= -I$(STEAMWORKS)/public -DGAME_LAUNCH_NAME=\"$(GAME_LAUNCH_NAME)\" -Wall
 
@@ -30,20 +30,22 @@ else ifeq ($(HOST),w32)
 endif
 
 SRC			:= steamshim_parent.cpp
-RES			:= resources.rc
-RESOBJ		:= resources.o
+# RES			:= resources.rc
+# RESOBJ		:= resources.o
 
 ifeq ($(HOST),w32)
-$(TARGET).exe: $(SRC) $(RESOBJ)
+# $(TARGET).exe: $(SRC) $(RESOBJ)
+$(TARGET).exe: $(SRC)
 	$(CXX) $^ -o $@ $(FLAGS)
-$(RESOBJ): $(RES)
-	$(WINDRES) $< $@
+# $(RESOBJ): $(RES)
+#	$(WINDRES) $< $@
 else
 $(TARGET): $(SRC)
 	$(CXX) $^ -o $@ $(FLAGS)
 endif
 
 clean:
-	rm -f $(TARGET) $(TARGET).exe $(RESOBJ)
+#	rm -f $(TARGET) $(TARGET).exe $(RESOBJ)
+	rm -f $(TARGET) $(TARGET).exe
 
 .PHONY: clean
