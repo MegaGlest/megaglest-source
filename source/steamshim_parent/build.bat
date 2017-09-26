@@ -3,7 +3,6 @@
 rem change to the directory of this batch file
 rem SET VCVARS_PLATFORM=x86_amd64
 SET VCVARS_PLATFORM=
-
 SET MSBUILD_CONFIG=Release
 
 ECHO --------------------------------
@@ -53,8 +52,8 @@ ECHO --------------------------------
 Echo Building MegaGlest using Visual Studio 2015...
 
 set CL=/MP
-del steamshim_parent.obj
-del megaglest_shim.exe
+IF EXIST "steamshim_parent.obj" del steamshim_parent.obj
+IF EXIST "megaglest_shim.exe" del megaglest_shim.exe
 
 rem set VisualStudioVersion=11.0
 set msBuildMaxCPU=
@@ -68,7 +67,7 @@ ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
 SET MSBUILD_PATH_MG_x64="%ProgramFiles(x86)%\MSBuild\Microsoft.Cpp\v4.0\V140\\"
 
 echo Doing a FULL REBUILD...
-nmake /f Makefile.win STEAMWORKS=c:\Code\steamworks_sdk\sdk
+nmake /f Makefile.win STEAMWORKS=..\..\..\steamworks_sdk\sdk
 
 ECHO ... End.
 rem pause execution so we can see the output before the batch file exits

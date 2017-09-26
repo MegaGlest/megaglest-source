@@ -1,13 +1,12 @@
 TARGET				= megaglest_shim
-GAME_LAUNCH_NAME	= megaglest.exe
+GAME_LAUNCH_NAME	= megaglest
 
 !ifndef STEAMWORKS
-# STEAMWORKS			= /home/softcoder/Code/steamworks_sdk/sdk
+# STEAMWORKS			= ..\..\..\steamworks_sdk\sdk
 !error STEAMWORKS is not set
 !endif
 
 # CXX = cl.exe /O2 /DNDEBUG
-# WINDRES = windres
 LNK     = link.exe
 FLAGS = /I $(STEAMWORKS)\public -DGAME_LAUNCH_NAME=\"$(GAME_LAUNCH_NAME)\"
 # LIB_PATH = "/LIBPATH:$(STEAMWORKS)\redistributable_bin" /VERBOSE:LIB
@@ -16,11 +15,7 @@ LIBS = steam_api.lib gdi32.lib user32.lib
 
 !if "$(DEBUG)" == "1"
 FLAGS = $(FLAGS) -DSTEAMSHIM_DEBUG
-!else
-FLAGS = $(FLAGS) -mwindows
 !endif
-
-SRC	= steamshim_parent.cpp
 
 .PHONY : clean all
 all : app
@@ -32,5 +27,5 @@ steamshim_parent.obj: steamshim_parent.cpp
 	$(CXX) /MT $(CXXFLAGS) $(FLAGS) /c steamshim_parent.cpp /Fosteamshim_parent.obj
 	
 clean:
-	@-erase $(TARGET).obj
+	@-erase steamshim_parent.obj
 	@-erase $(TARGET).exe
