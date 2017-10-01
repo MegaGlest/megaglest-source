@@ -640,7 +640,7 @@ string lastDir(const string &s) {
 		string retry = s.substr(0, pos);
 		return lastDir(retry);
 	}
-	string result = s.substr(pos+1, s.length());
+	string result = (s.empty() == false ? s.substr(pos+1, s.length()) : "");
 	replaceAll(result,"/","");
 	replaceAll(result,"\\","");
 
@@ -715,16 +715,18 @@ string replaceBy(const string &s, char c1, char c2){
 
 vector<string> split(string s,string d) {
     vector<string> results;
-    size_t lastOffset = 0;
 
-    while(true)
-    {
-        size_t offset = s.find_first_of(d, lastOffset);
-        results.push_back(s.substr(lastOffset, offset - lastOffset));
-        if (offset == string::npos)
-            break;
-        else
-            lastOffset = offset + d.size(); //skip the delimiter
+    if(s.empty() == false) {
+		size_t lastOffset = 0;
+
+		while(true) {
+			size_t offset = s.find_first_of(d, lastOffset);
+			results.push_back(s.substr(lastOffset, offset - lastOffset));
+			if (offset == string::npos)
+				break;
+			else
+				lastOffset = offset + d.size(); //skip the delimiter
+		}
     }
     return results;
 }
@@ -822,7 +824,11 @@ int compareMajorMinorVersion(string versionA,string versionB) {
 }
 
 int getMajor(string version) {
-	vector<string> parts = split(version.substr(1),".");
+	vector<string> parts;
+
+	if(version.empty() == false) {
+		parts = split(version.substr(1),".");
+	}
 
 	if(parts.size() > 1 && parts[0] != "" && IsNumeric(parts[0].c_str(),false)) {
 		return strToInt(parts[0]);
@@ -833,7 +839,11 @@ int getMajor(string version) {
 }
 
 int getMinor(string version) {
-	vector<string> parts = split(version.substr(1),".");
+	vector<string> parts;
+
+	if(version.empty() == false) {
+		parts = split(version.substr(1),".");
+	}
 	if(parts.size() > 1 && parts[1] != "") {
 		string resultStr="";
 		for (int i = 0; i < (int)parts[1].length(); ++i) {

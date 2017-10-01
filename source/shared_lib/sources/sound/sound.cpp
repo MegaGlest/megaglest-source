@@ -78,7 +78,7 @@ void StaticSound::load(const string &path) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
-	string ext= path.substr(path.find_last_of('.')+1);
+	string ext = (path.empty() == false ? path.substr(path.find_last_of('.')+1) : "");
 	soundFileLoader= SoundFileLoaderFactory::getInstance()->newInstance(ext);
 
 	if(soundFileLoader == NULL) {
@@ -116,7 +116,7 @@ void StrSound::open(const string &path) {
 		return;
 	}
 
-	string ext= path.substr(path.find_last_of('.')+1);
+	string ext = (path.empty() == false ? path.substr(path.find_last_of('.')+1) : "");
 
 	soundFileLoader= SoundFileLoaderFactory::getInstance()->newInstance(ext);
 	soundFileLoader->open(path, &info);

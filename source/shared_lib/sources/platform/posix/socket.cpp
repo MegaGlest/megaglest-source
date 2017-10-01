@@ -301,15 +301,17 @@ Ip::Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned c
 }
 
 
-Ip::Ip(const string& ipString){
+Ip::Ip(const string &ipString) {
 	size_t offset= 0;
 	int byteIndex= 0;
 
-	for(byteIndex= 0; byteIndex<4; ++byteIndex){
-		size_t dotPos= ipString.find_first_of('.', offset);
+	if(ipString.empty() == false) {
+		for(byteIndex= 0; byteIndex<4; ++byteIndex){
+			size_t dotPos= ipString.find_first_of('.', offset);
 
-		bytes[byteIndex]= atoi(ipString.substr(offset, dotPos-offset).c_str());
-		offset= dotPos+1;
+			bytes[byteIndex]= atoi(ipString.substr(offset, dotPos-offset).c_str());
+			offset= dotPos+1;
+		}
 	}
 }
 
