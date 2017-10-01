@@ -815,15 +815,15 @@ Pixmap1D::~Pixmap1D(){
 }
 
 void Pixmap1D::load(const string &path) {
-	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension=="bmp") {
+	string extension = (path.empty() == false ? path.substr(path.find_last_of('.')+1) : "");
+	if(toLower(extension) == "bmp") {
 		loadBmp(path);
 	}
-	else if(extension=="tga") {
+	else if(toLower(extension) == "tga") {
 		loadTga(path);
 	}
 	else {
-		throw megaglest_runtime_error("Unknown pixmap extension: " + extension);
+		throw megaglest_runtime_error("Unknown pixmap extension [" + extension + "] file [" + path + "]");
 	}
 	this->path = path;
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1017,7 +1017,7 @@ void Pixmap2D::load(const string &path) {
 }
 
 void Pixmap2D::save(const string &path) {
-	string extension= path.substr(path.find_last_of('.')+1);
+	string extension = (path.empty() == false ? path.substr(path.find_last_of('.')+1) : "");
 	if(toLower(extension) == "bmp") {
 		saveBmp(path);
 	}
@@ -1031,7 +1031,7 @@ void Pixmap2D::save(const string &path) {
 		savePng(path);
 	}
 	else {
-		throw megaglest_runtime_error("Unknown pixmap extension: " + extension);
+		throw megaglest_runtime_error("Unknown pixmap extension [" + extension + "] file [" + path + "]");
 	}
 }
 
@@ -1500,18 +1500,18 @@ Pixmap3D::~Pixmap3D() {
 
 void Pixmap3D::loadSlice(const string &path, int slice) {
 	this->slice = slice;
-	string extension= path.substr(path.find_last_of('.') + 1);
-	if(extension == "png") {
+	string extension = (path.empty() == false ? path.substr(path.find_last_of('.') + 1) : "");
+	if(toLower(extension) == "png") {
 		loadSlicePng(path, slice);
 	}
-	else if(extension == "bmp") {
+	else if(toLower(extension) == "bmp") {
 		loadSliceBmp(path, slice);
 	}
-	else if(extension == "tga") {
+	else if(toLower(extension) == "tga") {
 		loadSliceTga(path, slice);
 	}
 	else {
-		throw megaglest_runtime_error("Unknown pixmap extension: "+extension);
+		throw megaglest_runtime_error("Unknown pixmap extension [" + extension + "] file [" + path + "]");
 	}
 	this->path = path;
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);

@@ -1167,23 +1167,24 @@ void Model::load(const string &path, bool deletePixMapAfterLoad,
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
-	string extension= path.substr(path.find_last_of('.') + 1);
-	if(extension=="g3d" || extension=="G3D") {
+	size_t pos = path.find_last_of('.');
+	string extension = toLower(path.empty() == false ? path.substr(pos + 1) : "");
+	if(extension == "g3d") {
 		loadG3d(path,deletePixMapAfterLoad,loadedFileList, this->sourceLoader);
 	}
 	else {
-		throw megaglest_runtime_error("Unknown model format: " + extension);
+		throw megaglest_runtime_error("#1 Unknown model format [" + extension + "] file [" + path + "]");
 	}
 }
 
 void Model::save(const string &path, string convertTextureToFormat,
 		bool keepsmallest) {
-	string extension= path.substr(path.find_last_of('.')+1);
-	if(extension=="g3d" ||extension=="G3D") {
+	string extension = (path.empty() == false ? path.substr(path.find_last_of('.')+1) : "");
+	if(toLower(extension) == "g3d") {
 		saveG3d(path,convertTextureToFormat,keepsmallest);
 	}
 	else {
-		throw megaglest_runtime_error("Unknown model format: " + extension);
+		throw megaglest_runtime_error("#2 Unknown model format [" + extension + "] file [" + path + "]");
 	}
 }
 
