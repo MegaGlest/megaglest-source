@@ -269,7 +269,7 @@ IF(BUILD_MEGAGLEST)
 		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
 	ENDIF()
 
-        MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
+    MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
@@ -296,6 +296,7 @@ IF(BUILD_MEGAGLEST)
 	IF(WIN32)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
+
 	IF(NOT WIN32)
 		IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
@@ -304,15 +305,14 @@ IF(BUILD_MEGAGLEST)
 	ENDIF()
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
-        SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
-        IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
-                SET(HELP2MAN_OUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/")
-        ENDIF()
+    SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
+    IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
+        SET(HELP2MAN_OUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/")
+    ENDIF()
 
 	IF(EXISTS ${HELP2MAN})
 		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
-
-                SET(MG_MANPAGE_DESCRIPTION "3D multi-player real time strategy game")
+        SET(MG_MANPAGE_DESCRIPTION "3D multi-player real time strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
 			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
@@ -327,23 +327,23 @@ IF(BUILD_MEGAGLEST)
 		ENDIF()
 	ENDIF()
 
-        # Requires an install prefix for the items below to work
-        IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-	        MESSAGE(STATUS "**Source package INSTALL TRIGGERED [${PROJECT_SOURCE_DIR}]")	
+    # Requires an install prefix for the items below to work
+    IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
+        MESSAGE(STATUS "**Source package INSTALL TRIGGERED [${PROJECT_SOURCE_DIR}]")	
 
-	        # Installation of the program
-	        INSTALL(TARGETS 
-		        ${TARGET_NAME} 
-		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
+        # Installation of the program
+        INSTALL(TARGETS 
+	        ${TARGET_NAME} 
+	        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN} AND NOT "${MEGAGLEST_MANPAGE_INSTALL_PATH}" STREQUAL "")
-         		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
+        IF(EXISTS ${HELP2MAN} AND NOT "${MEGAGLEST_MANPAGE_INSTALL_PATH}" STREQUAL "")
+     		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
 
-		        # Installation of the program manpage file
-		        INSTALL(FILES 
-		          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
-		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
-	        ENDIF()
+	        # Installation of the program manpage file
+	        INSTALL(FILES 
+	          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
+	          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+        ENDIF()
 
 		IF(UNIX)
 			INSTALL(PROGRAMS

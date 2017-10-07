@@ -25,9 +25,9 @@ IF(CMAKE_BUILD_TYPE)
 	MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 ENDIF()
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        SET(CMAKE_COMPILER_IS_GNUCXX "YES")
+    SET(CMAKE_COMPILER_IS_GNUCXX "YES")
 #        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
-        ADD_DEFINITIONS("-Wno-switch")
+    ADD_DEFINITIONS("-Wno-switch")
 ENDIF()
 
 OPTION(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS "Build model import/export tools" ON)
@@ -102,16 +102,16 @@ IF(APPLE)
 ENDIF(APPLE)
 
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
-        IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-                MESSAGE(STATUS "Detected CLANG Compiler...")
+    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        MESSAGE(STATUS "Detected CLANG Compiler...")
 	ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		MESSAGE(STATUS "Detected GNUC Compiler...")
 	ELSEIF(MINGW)
 		MESSAGE(STATUS "Detected MINGW Compiler...")
 	ENDIF()
 
-        # Common generic GNU type compiler options that work with all generic GCC compatible compilers
-        ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+    # Common generic GNU type compiler options that work with all generic GCC compatible compilers
+    ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
 
 	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 	IF(NOT MINGW)
@@ -121,56 +121,54 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	ELSE()
 #		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DUNICODE")
 #		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -DUNICODE")
-                ADD_DEFINITIONS("-DUNICODE")
-
+        ADD_DEFINITIONS("-DUNICODE")
 	ENDIF()
 
-        # CLang specific Compiler Options
-        IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # CLang specific Compiler Options
+    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-        # GCC specific Compiler Options
-        ELSE()
-                ADD_DEFINITIONS("-frounding-math -fsignaling-nans")
+    # GCC specific Compiler Options
+    ELSE()
+        ADD_DEFINITIONS("-frounding-math -fsignaling-nans")
 
 #                IF(NOT MINGW)
 #                        set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -rdynamic")
 #                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic")
 #                ENDIF()
-        ENDIF()
+    ENDIF()
 
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
-        
-        #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
+    #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
 
 	OPTION(FORCE_STREFLOP_SOFTWRAPPER "Set the streflop library to be forced to use the software emulator" OFF)
-        IF(NOT FORCE_MAX_SSE_LEVEL AND NOT FORCE_STREFLOP_SOFTWRAPPER)
-                SET(FORCE_MAX_SSE_LEVEL "1" CACHE STRING "Set the max SSE level to use if supported (0-3)")
-        ENDIF()
+    IF(NOT FORCE_MAX_SSE_LEVEL AND NOT FORCE_STREFLOP_SOFTWRAPPER)
+        SET(FORCE_MAX_SSE_LEVEL "1" CACHE STRING "Set the max SSE level to use if supported (0-3)")
+    ENDIF()
 
-        IF(NOT FORCE_STREFLOP_SOFTWRAPPER)
-                MESSAGE(STATUS "*NOTE: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
-                special_check_for_sse( ${FORCE_MAX_SSE_LEVEL} )
-        ENDIF()
+    IF(NOT FORCE_STREFLOP_SOFTWRAPPER)
+        MESSAGE(STATUS "*NOTE: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
+        special_check_for_sse( ${FORCE_MAX_SSE_LEVEL} )
+    ENDIF()
 
 	IF(WANT_USE_STREFLOP)
 		ADD_DEFINITIONS("-DUSE_STREFLOP -DSTREFLOP_RANDOM_GEN_SIZE=32 -DLIBM_COMPILING_FLT32 -DN_SPECIALIZED=32")
 
-                IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0" AND NOT FORCE_STREFLOP_SOFTWRAPPER)
-                        ADD_DEFINITIONS("-DSTREFLOP_SSE")
-                        MESSAGE(STATUS "*NOTE: using SSE for STREFLOP.")
-                ELSE()
-                        IF(NOT FORCE_STREFLOP_SOFTWRAPPER)
-                                special_check_for_x87()
-                        ENDIF()
+        IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0" AND NOT FORCE_STREFLOP_SOFTWRAPPER)
+            ADD_DEFINITIONS("-DSTREFLOP_SSE")
+            MESSAGE(STATUS "*NOTE: using SSE for STREFLOP.")
+        ELSE()
+            IF(NOT FORCE_STREFLOP_SOFTWRAPPER)
+                special_check_for_x87()
+            ENDIF()
 
-                        IF(HAS_X87_SUPPORT AND NOT FORCE_STREFLOP_SOFTWRAPPER)
-                                ADD_DEFINITIONS("-DSTREFLOP_X87")
-                                MESSAGE(STATUS "*NOTE: using X87 for STREFLOP.")
-                        ELSE()
-                                ADD_DEFINITIONS("-DSTREFLOP_SOFT")
-                                MESSAGE(STATUS "*NOTE: using SOFT emulation for STREFLOP.")
-                        ENDIF()
-                ENDIF()
+            IF(HAS_X87_SUPPORT AND NOT FORCE_STREFLOP_SOFTWRAPPER)
+                ADD_DEFINITIONS("-DSTREFLOP_X87")
+                MESSAGE(STATUS "*NOTE: using X87 for STREFLOP.")
+            ELSE()
+                ADD_DEFINITIONS("-DSTREFLOP_SOFT")
+                MESSAGE(STATUS "*NOTE: using SOFT emulation for STREFLOP.")
+            ENDIF()
+        ENDIF()
 	ELSE()
 		MESSAGE(STATUS "*WARNING: Disabled use of STREFLOP! Out of synchs may occur")
 	ENDIF()
@@ -189,10 +187,10 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
         HAS_GCC_BACKTRACE)
 
         IF(HAS_GCC_BACKTRACE)
-                message(STATUS "Found GCC backtrace lib, will support backtraces")
-                ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
+            message(STATUS "Found GCC backtrace lib, will support backtraces")
+            ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
         ELSE()
-                message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
+            message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
         ENDIF()
 
 	# Debug compiler flags
@@ -212,6 +210,15 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary
 	ENDIF()
 
+    # see if this fixes compile issue for tomreyn: libpthread.so.0: error adding symbols: DSO missing from command line
+    IF(UNIX)
+        MESSAGE(STATUS "*NOTE: Apply fix for: libpthread.so.0: error adding symbols: DSO missing from command line")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+        set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -pthread")
+        SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -pthread")
+        SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -pthread")
+    ENDIF()
+
 	# Get the git revision info for the binary
 	SET(HAS_GIT "FALSE")
 	SET(GIT_LIVE_REV_CMD "")
@@ -223,28 +230,28 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		include(FindGit)
 
 		IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-                        SET(HAS_GIT "TRUE") 
-                        MESSAGE(STATUS "Found GIT and using GIT version stamping...")
+            SET(HAS_GIT "TRUE") 
+            MESSAGE(STATUS "Found GIT and using GIT version stamping...")
 
-                        # Get the current commit SHA1
-                        execute_process(
-                          COMMAND git log -1 --format=%h --abbrev=7
-                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                          OUTPUT_VARIABLE GIT_SHA1
-                          OUTPUT_STRIP_TRAILING_WHITESPACE
-                        )
+            # Get the current commit SHA1
+            execute_process(
+              COMMAND git log -1 --format=%h --abbrev=7
+              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+              OUTPUT_VARIABLE GIT_SHA1
+              OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
 
-                        # Get the current version counter
-                        execute_process(
-                          COMMAND git rev-list HEAD --count
-                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                          OUTPUT_VARIABLE GIT_COMMIT_COUNT
-                          OUTPUT_STRIP_TRAILING_WHITESPACE
-                        )
+            # Get the current version counter
+            execute_process(
+              COMMAND git rev-list HEAD --count
+              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+              OUTPUT_VARIABLE GIT_COMMIT_COUNT
+              OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
 
-                        SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h --abbrev=7`")
+            SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h --abbrev=7`")
 
-                        MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
+            MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
 
 			IF(CMAKE_GENERATOR STREQUAL Xcode)
 				SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\\''")
