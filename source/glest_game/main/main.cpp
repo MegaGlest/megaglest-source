@@ -138,8 +138,6 @@ static string runtimeErrorMsg 					= "";
 auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
 #endif
 
-//auto_ptr<Steam> steamInstance;
-
 class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
 	virtual void simpleTask(BaseThread *callingThread,void *userdata) {
 		Lang &lang = Lang::getInstance();
@@ -3303,14 +3301,8 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
 Steam & initSteamInstance() {
 	Steam *&steamInstance = CacheManager::getCachedItem< Steam *>(GameConstants::steamCacheInstanceKey);
 	if(steamInstance == NULL) {
-//		Steam &cacheInstance = CacheManager::getCachedItem< Steam * >(GameConstants::steamCacheInstanceKey);
-//		steamInstance.reset(&cacheInstance);
-//		//CacheManager::setCachedItem< Steam * >(GameConstants::steamCacheInstanceKey, steamInstance.get());
-//
-//		cacheInstance = steamInstance.get();
 		steamInstance = new Steam();
 	}
-//	return *steamInstance.get();
 	return *steamInstance;
 }
 
@@ -5013,13 +5005,6 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
     	else {
-
-    		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
-    			Steam &steam = initSteamInstance();
-				string steamUser = steam.userName();
-				string steamLang = steam.lang();
-				printf("Steam Integration Enabled!\nSteam User Name is [%s] Language is [%s]\n", steamUser.c_str(), steamLang.c_str());
-    		}
 #ifdef _WIN32
 			int localeBufferSize = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME, NULL, 0);
 			wchar_t *sysLocale = new wchar_t[localeBufferSize];
@@ -6111,7 +6096,7 @@ int glestMainWrapper(int argc, char** argv) {
 	bool isSteamMode = hasCommandArgument(argc, argv, GAME_ARGS[GAME_ARG_STEAM]);
 	if (isSteamMode == true) {
 		if (!STEAMSHIM_init()) {
-			printf("Steam API init failed, terminating.\n");
+			printf("\nSteam API init failed, terminating.\n");
 			return 42;
 		}
 	}
@@ -6119,7 +6104,7 @@ int glestMainWrapper(int argc, char** argv) {
 	int result = glestMainSEHWrapper(argc, argv);
 
 	if (isSteamMode == true) {
-		//steamInstance.reset(NULL);
+		printf("\nSteam API deinit.\n");
 		STEAMSHIM_deinit();
 	}
 
