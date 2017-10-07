@@ -29,7 +29,7 @@ else ifeq ($(HOST),w32)
 	FLAGS		+= -mwindows
 endif
 
-SRC			:= steamshim_parent.cpp
+SRC			:= $(wildcard *.cpp)
 # RES			:= resources.rc
 # RESOBJ		:= resources.o
 
