@@ -5,7 +5,7 @@
 # Copyright (c) 2011-2013 Mark Vejvoda under GNU GPL v3.0+
 
 # ----------------------------------------------------------------------------
-rm megaglest_shim
-rm megaglest
+rm -f megaglest_shim
+rm -f megaglest
 #make STEAMWORKS?=/home/softcoder/Code/steamworks_sdk/sdk
 make $@
