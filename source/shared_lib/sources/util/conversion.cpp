@@ -215,6 +215,21 @@ string formatNumber(uint64 f) {
 	return out.str();
 }
 
+double getTimeDuationMinutes(int frames, int updateFps) {
+	int framesleft = frames;
+	double hours = (int)((int) frames / (float)updateFps / 3600.0f);
+	framesleft = framesleft - hours * 3600 * updateFps;
+	double minutes = (int)((int) framesleft / (float)updateFps / 60.0f);
+	framesleft = framesleft - minutes * 60 * updateFps;
+	double seconds = (int)((int) framesleft / (float)updateFps);
+
+	double result = (hours * 60.0) + minutes;
+	if(seconds > 0) {
+		result += seconds / 60.0;
+	}
+	return result;
+}
+
 string getTimeDuationString(int frames, int updateFps) {
 	int framesleft = frames;
 	int hours = (int)((int) frames / (float)updateFps / 3600.0f);

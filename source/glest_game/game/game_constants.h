@@ -47,13 +47,17 @@ public:
     }
     static string getString(const T &value) {
     	static EnumParser<T> parser;
-    	for(enumMapTypeIter iValue = parser.enumMap.first();
+    	for(enumMapTypeIter iValue = parser.enumMap.begin();
     			iValue != parser.enumMap.end(); ++iValue) {
     		if(iValue->second  == value) {
     			return iValue->first;
     		}
     	}
        	throw std::runtime_error("unknown enum lookup [" + intToStr(value) + "]");
+    }
+    static int getCount() {
+    	static EnumParser<T> parser;
+    	return parser.enumMap.size();
     }
 };
 
@@ -151,6 +155,7 @@ public:
 	static const char *OBSERVER_SLOTNAME;
 	static const char *RANDOMFACTION_SLOTNAME;
 
+	static const char *steamCacheInstanceKey;
 	static const char *preCacheThreadCacheLookupKey;
 	static const char *playerTextureCacheLookupKey;
 	static const char *ircClientCacheLookupKey;
