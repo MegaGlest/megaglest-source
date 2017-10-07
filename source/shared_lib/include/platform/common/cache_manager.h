@@ -51,7 +51,9 @@ protected:
 		static Mutex mutexMap(CODE_AT_LINE);
 		if(itemCacheMutexList.find(cacheKey) == itemCacheMutexList.end()) {
 			MutexSafeWrapper safeMutex(&mutexMap);
-			itemCacheMutexList[cacheKey] = new Mutex(CODE_AT_LINE);
+			if(itemCacheMutexList.find(cacheKey) == itemCacheMutexList.end()) {
+				itemCacheMutexList[cacheKey] = new Mutex(CODE_AT_LINE);
+			}
 			safeMutex.ReleaseLock();
 		}
 		Mutex *mutex = itemCacheMutexList[cacheKey];
