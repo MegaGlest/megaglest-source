@@ -209,8 +209,8 @@ void BaseThread::setQuitStatus(bool value) {
 
 bool BaseThread::getQuitStatus() {
 	//bool retval = false;
-	static string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(mutexQuit,mutexOwnerId);
+	//static string mutexOwnerId = CODE_AT_LINE;
+	MutexSafeWrapper safeMutex(mutexQuit,CODE_AT_LINE);
 	//mutexQuit.setOwnerId(mutexOwnerId);
 	bool retval = quit;
 	safeMutex.ReleaseLock();
