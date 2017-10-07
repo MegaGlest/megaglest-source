@@ -5173,64 +5173,77 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 }
 
 void saveStatsToSteam(Game* game, Stats& endStats) {
-	if (NetworkManager::getInstance().isNetworkGame()) {
-		Steam* steamInstance = CacheManager::getCachedItem<Steam*>(GameConstants::steamCacheInstanceKey);
-		if (steamInstance != NULL) {
-			printf("\nSTEAM detected, writing out end game stats for player!\n");
+	Steam* steamInstance = CacheManager::getCachedItem<Steam*>(GameConstants::steamCacheInstanceKey);
+	if (steamInstance != NULL) {
+		printf("\nSTEAM detected, writing out end game stats for player!\n");
+
+		if (NetworkManager::getInstance().isNetworkGame()) {
 			//printf("\nSTEAM Refresh Stats!\n");
 			steamInstance->requestRefreshStats();
 			for (int factionIndex = 0;
-					factionIndex < game->getWorld()->getFactionCount();
-					++factionIndex) {
+					factionIndex < game->getWorld()->getFactionCount(); ++factionIndex) {
 				if (factionIndex == game->getWorld()->getThisFactionIndex()) {
 					//printf("\nWriting out game stats for Faction Index: %d!\n",factionIndex);
 					if (endStats.getVictory(factionIndex)) {
-						steamInstance->setStatAsInt("stat_online_wins",
-								steamInstance->getStatAsInt("stat_online_wins")
+						steamInstance->setStatAsInt(EnumParser<SteamStatName>::getString(stat_online_wins).c_str(),
+								steamInstance->getStatAsInt(EnumParser<SteamStatName>::getString(stat_online_wins).c_str())
 										+ 1);
 					} else {
-						steamInstance->setStatAsInt("stat_online_loses",
-								steamInstance->getStatAsInt("stat_online_loses")
+						steamInstance->setStatAsInt(EnumParser<SteamStatName>::getString(stat_online_loses).c_str(),
+								steamInstance->getStatAsInt(EnumParser<SteamStatName>::getString(stat_online_loses).c_str())
 										+ 1);
 					}
-					steamInstance->setStatAsInt("stat_online_kills",
-							steamInstance->getStatAsInt("stat_online_kills")
+					steamInstance->setStatAsInt(EnumParser<SteamStatName>::getString(stat_online_kills).c_str(),
+							steamInstance->getStatAsInt(EnumParser<SteamStatName>::getString(stat_online_kills).c_str())
 									+ endStats.getKills(factionIndex));
-					steamInstance->setStatAsInt("stat_online_kills_enemy",
+					steamInstance->setStatAsInt(EnumParser<SteamStatName>::getString(stat_online_kills_enemy).c_str(),
 							steamInstance->getStatAsInt(
-									"stat_online_kills_enemy")
+									EnumParser<SteamStatName>::getString(stat_online_kills_enemy).c_str())
 									+ endStats.getEnemyKills(factionIndex));
-					steamInstance->setStatAsInt("stat_online_deaths",
-							steamInstance->getStatAsInt("stat_online_deaths")
+					steamInstance->setStatAsInt(EnumParser<SteamStatName>::getString(stat_online_deaths).c_str(),
+							steamInstance->getStatAsInt(EnumParser<SteamStatName>::getString(stat_online_deaths).c_str())
 									+ endStats.getDeaths(factionIndex));
-					steamInstance->setStatAsInt("stat_online_units",
-							steamInstance->getStatAsInt("stat_online_units")
+					steamInstance->setStatAsInt(EnumParser<SteamStatName>::getString(stat_online_units).c_str(),
+							steamInstance->getStatAsInt(EnumParser<SteamStatName>::getString(stat_online_units).c_str())
 									+ endStats.getUnitsProduced(factionIndex));
 					steamInstance->setStatAsInt(
-							"stat_online_resources_harvested",
+							EnumParser<SteamStatName>::getString(stat_online_resources_harvested).c_str(),
 							steamInstance->getStatAsInt(
-									"stat_online_resources_harvested")
+									EnumParser<SteamStatName>::getString(stat_online_resources_harvested).c_str())
 									+ endStats.getResourcesHarvested(
 											factionIndex));
 					if (endStats.getPlayerLeftBeforeEnd(factionIndex)) {
 						steamInstance->setStatAsInt(
-								"stat_online_quit_before_end",
+								EnumParser<SteamStatName>::getString(stat_online_quit_before_end).c_str(),
 								steamInstance->getStatAsInt(
-										"stat_online_quit_before_end") + 1);
+										EnumParser<SteamStatName>::getString(stat_online_quit_before_end).c_str()) + 1);
 					}
-					steamInstance->setStatAsDouble("stat_online_minutes_played",
+					steamInstance->setStatAsDouble(EnumParser<SteamStatName>::getString(stat_online_minutes_played).c_str(),
 							steamInstance->getStatAsDouble(
-									"stat_online_minutes_played")
+									EnumParser<SteamStatName>::getString(stat_online_minutes_played).c_str())
 									+ getTimeDuationMinutes(
 											endStats.getFramesToCalculatePlaytime(),
 											GameConstants::updateFps));
 				}
 			}
-			//printf("\nSTEAM Store Stats!\n");
-			steamInstance->storeStats();
-			//printf("\nSTEAM Refresh Stats!\n");
-			steamInstance->requestRefreshStats();
 		}
+
+		for (int factionIndex = 0;
+				factionIndex < game->getWorld()->getFactionCount(); ++factionIndex) {
+			if (factionIndex == game->getWorld()->getThisFactionIndex()) {
+				printf("\nWriting out game stats for Faction Index: %d won status: %d\n",factionIndex,endStats.getVictory(factionIndex));
+				if (endStats.getVictory(factionIndex)) {
+					if(steamInstance->isUnlocked("ACH_WIN_ONE_GAME") == false) {
+						steamInstance->unlock("ACH_WIN_ONE_GAME");
+					}
+				}
+			}
+		}
+
+		//printf("\nSTEAM Store Stats!\n");
+		steamInstance->storeStats();
+		//printf("\nSTEAM Refresh Stats!\n");
+		steamInstance->requestRefreshStats();
 	}
 }
 

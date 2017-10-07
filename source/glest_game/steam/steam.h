@@ -7,7 +7,6 @@
 
 namespace Glest{ namespace Game{
 
-
 struct SteamPrivate;
 
 enum SteamStatName {
@@ -45,9 +44,9 @@ inline EnumParser<SteamStatName>::EnumParser() {
 class Steam
 {
 public:
-//	void unlock(const char *name);
-//	void lock(const char *name);
-//	bool isUnlocked(const char *name);
+	void unlock(const char *name);
+	void lock(const char *name);
+	bool isUnlocked(const char *name);
 
 	static SteamStatType getSteamStatNameType(string value);
 
