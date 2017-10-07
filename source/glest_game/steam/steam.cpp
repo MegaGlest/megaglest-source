@@ -9,12 +9,6 @@ namespace Glest{ namespace Game{
 
 std::map<std::string,SteamStatType> Steam::SteamStatNameTypes = Steam::create_map();
 
-// Achievements
-static const char *const achievementNames[] = {
-    "ACH_WIN_ONE_GAME",
-};
-#define NUM_ACHIEVEMENTS (sizeof(achievementNames) / sizeof(achievementNames[0]))
-
 // Language map
 static inline std::map<std::string, std::string> gen_langToCode()
 {
@@ -103,8 +97,10 @@ struct SteamPrivate {
 					break;
 			}
 		}
-		for (size_t index = 0; index < NUM_ACHIEVEMENTS; ++index) {
-			STEAMSHIM_getAchievement(achievementNames[index]);
+		for(int index = 0; index < EnumParser<SteamAchievementName>::getCount(); ++index) {
+			SteamAchievementName achName = static_cast<SteamAchievementName>(index);
+			string achNameStr = EnumParser<SteamAchievementName>::getString(achName);
+			STEAMSHIM_getAchievement(achNameStr.c_str());
 		}
 
 		Shared::PlatformCommon::Chrono timer;
@@ -118,7 +114,6 @@ struct SteamPrivate {
 	void setAchievement(const char *name, bool set)	{
 		achievements[name] = set;
 		STEAMSHIM_setAchievement(name, set);
-		//STEAMSHIM_storeStats();
 	}
 
 	void updateAchievement(const char *name, bool isSet) {
@@ -226,7 +221,7 @@ struct SteamPrivate {
 		return !userName.empty()
 		        && !lang.empty()
 				&& (int)stats.size() >= EnumParser<SteamStatName>::getCount()
-		        && achievements.size() == NUM_ACHIEVEMENTS;
+		        && (int)achievements.size() >= EnumParser<SteamAchievementName>::getCount();
 	}
 };
 

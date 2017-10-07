@@ -40,6 +40,14 @@ inline EnumParser<SteamStatName>::EnumParser() {
 	enumMap["stat_online_minutes_played"]		= stat_online_minutes_played;
 }
 
+enum SteamAchievementName {
+	ACH_WIN_ONE_GAME
+};
+
+template <>
+inline EnumParser<SteamAchievementName>::EnumParser() {
+	enumMap["ACH_WIN_ONE_GAME"]	= ACH_WIN_ONE_GAME;
+}
 
 class Steam
 {

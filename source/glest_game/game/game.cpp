@@ -5231,10 +5231,10 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 		for (int factionIndex = 0;
 				factionIndex < game->getWorld()->getFactionCount(); ++factionIndex) {
 			if (factionIndex == game->getWorld()->getThisFactionIndex()) {
-				printf("\nWriting out game stats for Faction Index: %d won status: %d\n",factionIndex,endStats.getVictory(factionIndex));
+				//printf("\nWriting out game stats for Faction Index: %d won status: %d\n",factionIndex,endStats.getVictory(factionIndex));
 				if (endStats.getVictory(factionIndex)) {
-					if(steamInstance->isUnlocked("ACH_WIN_ONE_GAME") == false) {
-						steamInstance->unlock("ACH_WIN_ONE_GAME");
+					if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str()) == false) {
+						steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str());
 					}
 				}
 			}
