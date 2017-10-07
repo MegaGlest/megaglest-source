@@ -10,10 +10,10 @@ namespace Glest{ namespace Game{
 std::map<std::string,SteamStatType> Steam::SteamStatNameTypes = Steam::create_map();
 
 // Achievements
-//static const char *const achievementNames[] = {
-//    "X",
-//};
-//#define NUM_ACHIEVEMENTS (sizeof(achievementNames) / sizeof(achievementNames[0]))
+static const char *const achievementNames[] = {
+    "ACH_WIN_ONE_GAME",
+};
+#define NUM_ACHIEVEMENTS (sizeof(achievementNames) / sizeof(achievementNames[0]))
 
 // Language map
 static inline std::map<std::string, std::string> gen_langToCode()
@@ -61,7 +61,7 @@ static std::string steamToIsoLang(const char *steamLang) {
 
 // SteamPrivate
 struct SteamPrivate {
-	//std::map<std::string, bool> achievements;
+	std::map<std::string, bool> achievements;
 	std::map<std::string, double> stats;
 
 	std::string userName;
@@ -73,8 +73,20 @@ struct SteamPrivate {
 		STEAMSHIM_getPersonaName();
 		STEAMSHIM_getCurrentGameLanguage();
 		STEAMSHIM_requestStats();
-//		for (size_t i = 0; i < NUM_ACHIEVEMENTS; ++i)
-//			STEAMSHIM_getAchievement(achievementNames[i]);
+		STEAMSHIM_EventType statsReceived = SHIMEVENT_STATSRECEIVED;
+
+		Shared::PlatformCommon::Chrono timerStats;
+		timerStats.start();
+		while(update(&statsReceived) == NULL && timerStats.getMillis() < 2500) {
+			SDL_Delay(100);
+		}
+
+		refreshAllStats();
+	}
+
+	void refreshAllStats() {
+		achievements.clear();
+		stats.clear();
 
 		for(int index = 0; index < EnumParser<SteamStatName>::getCount(); ++index) {
 			SteamStatName statName = static_cast<SteamStatName>(index);
@@ -91,6 +103,9 @@ struct SteamPrivate {
 					break;
 			}
 		}
+		for (size_t index = 0; index < NUM_ACHIEVEMENTS; ++index) {
+			STEAMSHIM_getAchievement(achievementNames[index]);
+		}
 
 		Shared::PlatformCommon::Chrono timer;
 		timer.start();
@@ -100,22 +115,19 @@ struct SteamPrivate {
 		}
 	}
 
-//	void setAchievement(const char *name, bool set)
-//	{
-//		achievements[name] = set;
-//		STEAMSHIM_setAchievement(name, set);
-//		STEAMSHIM_storeStats();
-//	}
-//
-//	void updateAchievement(const char *name, bool isSet)
-//	{
-//		achievements[name] = isSet;
-//	}
-//
-//	bool isAchievementSet(const char *name)
-//	{
-//		return achievements[name];
-//	}
+	void setAchievement(const char *name, bool set)	{
+		achievements[name] = set;
+		STEAMSHIM_setAchievement(name, set);
+		//STEAMSHIM_storeStats();
+	}
+
+	void updateAchievement(const char *name, bool isSet) {
+		achievements[name] = isSet;
+	}
+
+	bool isAchievementSet(const char *name) {
+		return achievements[name];
+	}
 
 	void updateStat(const char *name, double value) {
 		stats[name] = value;
@@ -151,12 +163,19 @@ struct SteamPrivate {
 	const STEAMSHIM_Event * update(STEAMSHIM_EventType *waitForEvent=NULL) {
 		const STEAMSHIM_Event *e;
 		while ((e = STEAMSHIM_pump()) != 0) {
-			/* Handle events */
+			// Handle events
             switch (e->type)
 			{
-//			case SHIMEVENT_GETACHIEVEMENT:
-//				updateAchievement(e->name, e->ivalue);
-//				break;
+			case SHIMEVENT_GETACHIEVEMENT:
+				//printf("\nGot Shim event SHIMEVENT_GETACHIEVEMENT name [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
+				if(e->okay) {
+					updateAchievement(e->name, e->ivalue);
+				}
+				break;
+			case SHIMEVENT_SETACHIEVEMENT:
+				//printf("\nGot Shim event SHIMEVENT_SETACHIEVEMENT for name [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
+				break;
+
 			case SHIMEVENT_GETPERSONANAME:
 				//printf("\nGot Shim event SHIMEVENT_GETPERSONANAME isOk = %d\n",e->okay);
 				userName = e->name;
@@ -172,7 +191,6 @@ struct SteamPrivate {
 				//printf("\nGot Shim event SHIMEVENT_STATSSTORED isOk = %d\n",e->okay);
 				break;
 
-			//case SHIMEVENT_SETSTATI:
 			case SHIMEVENT_GETSTATI:
 				//printf("\nGot Shim event SHIMEVENT_GETSTATI for stat [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
 				if(e->okay) {
@@ -207,8 +225,8 @@ struct SteamPrivate {
 	bool initialized() {
 		return !userName.empty()
 		        && !lang.empty()
-				&& (int)stats.size() >= EnumParser<SteamStatName>::getCount();
-		        //&& achievements.size() == NUM_ACHIEVEMENTS;
+				&& (int)stats.size() >= EnumParser<SteamStatName>::getCount()
+		        && achievements.size() == NUM_ACHIEVEMENTS;
 	}
 };
 
@@ -264,54 +282,31 @@ void Steam::setStatAsDouble(const char *name, double value) {
 }
 
 void Steam::requestRefreshStats() {
-	p->clearLocalStats();
 	STEAMSHIM_requestStats();
 	STEAMSHIM_EventType statsReceived = SHIMEVENT_STATSRECEIVED;
-	p->update(&statsReceived);
-
-	for(int index = 0; index < EnumParser<SteamStatName>::getCount(); ++index) {
-		SteamStatName statName = static_cast<SteamStatName>(index);
-		string statNameStr = EnumParser<SteamStatName>::getString(statName);
-		SteamStatType statType = Steam::getSteamStatNameType(statNameStr);
-		switch(statType) {
-			case stat_int:
-				STEAMSHIM_getStatI(statNameStr.c_str());
-				break;
-			case stat_float:
-				STEAMSHIM_getStatF(statNameStr.c_str());
-				break;
-			default:
-				break;
-		}
-	}
-
-	Shared::PlatformCommon::Chrono timer;
-	timer.start();
-	while(!p->initialized() && timer.getMillis() < 2500) {
+	Shared::PlatformCommon::Chrono timerStats;
+	timerStats.start();
+	while(p->update(&statsReceived) == NULL && timerStats.getMillis() < 2500) {
 		SDL_Delay(100);
-		p->update();
 	}
-
+	p->refreshAllStats();
 }
 
 SteamStatType Steam::getSteamStatNameType(string value) {
 	return SteamStatNameTypes[value];
 }
 
-//void Steam::unlock(const char *name)
-//{
-//	p->setAchievement(name, true);
-//}
-//
-//void Steam::lock(const char *name)
-//{
-//	p->setAchievement(name, false);
-//}
-//
-//bool Steam::isUnlocked(const char *name)
-//{
-//	return p->isAchievementSet(name);
-//}
+void Steam::unlock(const char *name) {
+	p->setAchievement(name, true);
+}
+
+void Steam::lock(const char *name) {
+	p->setAchievement(name, false);
+}
+
+bool Steam::isUnlocked(const char *name) {
+	return p->isAchievementSet(name);
+}
 
 
 }}//end namespace
