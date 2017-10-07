@@ -25,6 +25,7 @@
 #include "network_message.h"
 #include "socket.h"
 #include "auto_test.h"
+#include "cache_manager.h"
 #include "steam.h"
 #include <stdio.h>
 
@@ -80,10 +81,10 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu) :
 
 	labelGreeting.init(labelVersion.getX(), labelVersion.getY()-16);
 	labelGreeting.setText("");
-	Config &config = Config::getInstance();
-	if(config.getBool("SteamEnabled")) {
-		Steam steam;
-		string steamPlayerName = steam.userName();
+
+	Steam *steamInstance = CacheManager::getCachedItem< Steam *>(GameConstants::steamCacheInstanceKey);
+	if(steamInstance != NULL) {
+		string steamPlayerName = steamInstance->userName();
 		labelGreeting.setText("Welcome Steam Player: " + steamPlayerName);
 	}
 

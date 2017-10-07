@@ -27,6 +27,8 @@
 #include "video_player.h"
 #include "compression_utils.h"
 #include "cache_manager.h"
+#include "conversion.h"
+#include "steam.h"
 
 #include "leak_dumper.h"
 
@@ -5170,6 +5172,68 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 	}
 }
 
+void saveStatsToSteam(Game* game, Stats& endStats) {
+	if (NetworkManager::getInstance().isNetworkGame()) {
+		Steam* steamInstance = CacheManager::getCachedItem<Steam*>(GameConstants::steamCacheInstanceKey);
+		if (steamInstance != NULL) {
+			printf("\nSTEAM detected, writing out end game stats for player!\n");
+			//printf("\nSTEAM Refresh Stats!\n");
+			steamInstance->requestRefreshStats();
+			for (int factionIndex = 0;
+					factionIndex < game->getWorld()->getFactionCount();
+					++factionIndex) {
+				if (factionIndex == game->getWorld()->getThisFactionIndex()) {
+					//printf("\nWriting out game stats for Faction Index: %d!\n",factionIndex);
+					if (endStats.getVictory(factionIndex)) {
+						steamInstance->setStatAsInt("stat_online_wins",
+								steamInstance->getStatAsInt("stat_online_wins")
+										+ 1);
+					} else {
+						steamInstance->setStatAsInt("stat_online_loses",
+								steamInstance->getStatAsInt("stat_online_loses")
+										+ 1);
+					}
+					steamInstance->setStatAsInt("stat_online_kills",
+							steamInstance->getStatAsInt("stat_online_kills")
+									+ endStats.getKills(factionIndex));
+					steamInstance->setStatAsInt("stat_online_kills_enemy",
+							steamInstance->getStatAsInt(
+									"stat_online_kills_enemy")
+									+ endStats.getEnemyKills(factionIndex));
+					steamInstance->setStatAsInt("stat_online_deaths",
+							steamInstance->getStatAsInt("stat_online_deaths")
+									+ endStats.getDeaths(factionIndex));
+					steamInstance->setStatAsInt("stat_online_units",
+							steamInstance->getStatAsInt("stat_online_units")
+									+ endStats.getUnitsProduced(factionIndex));
+					steamInstance->setStatAsInt(
+							"stat_online_resources_harvested",
+							steamInstance->getStatAsInt(
+									"stat_online_resources_harvested")
+									+ endStats.getResourcesHarvested(
+											factionIndex));
+					if (endStats.getPlayerLeftBeforeEnd(factionIndex)) {
+						steamInstance->setStatAsInt(
+								"stat_online_quit_before_end",
+								steamInstance->getStatAsInt(
+										"stat_online_quit_before_end") + 1);
+					}
+					steamInstance->setStatAsDouble("stat_online_minutes_played",
+							steamInstance->getStatAsDouble(
+									"stat_online_minutes_played")
+									+ getTimeDuationMinutes(
+											endStats.getFramesToCalculatePlaytime(),
+											GameConstants::updateFps));
+				}
+			}
+			//printf("\nSTEAM Store Stats!\n");
+			steamInstance->storeStats();
+			//printf("\nSTEAM Refresh Stats!\n");
+			steamInstance->requestRefreshStats();
+		}
+	}
+}
+
 void Game::exitGameState(Program *program, Stats &endStats) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -5192,6 +5256,8 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 
 		printf("-----------------------\n");
 	}
+
+	saveStatsToSteam(game, endStats);
 
 	ProgramState *newState = new BattleEnd(program, &endStats, game);
 

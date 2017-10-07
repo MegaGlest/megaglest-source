@@ -138,40 +138,14 @@ static string runtimeErrorMsg 					= "";
 auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
 #endif
 
+//auto_ptr<Steam> steamInstance;
+
 class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
 	virtual void simpleTask(BaseThread *callingThread,void *userdata) {
 		Lang &lang = Lang::getInstance();
 		lang.getDiscoveredLanguageList(true);
 	}
 };
-
-/*
-static void printEvent(const STEAMSHIM_Event *e)
-{
-    if (!e) return;
-
-    printf("CHILD EVENT: ");
-    switch (e->type)
-    {
-        #define PRINTGOTEVENT(x) case SHIMEVENT_##x: printf("%s(", #x); break
-        PRINTGOTEVENT(BYE);
-        PRINTGOTEVENT(STATSRECEIVED);
-        PRINTGOTEVENT(STATSSTORED);
-        PRINTGOTEVENT(SETACHIEVEMENT);
-        PRINTGOTEVENT(GETACHIEVEMENT);
-        PRINTGOTEVENT(RESETSTATS);
-        PRINTGOTEVENT(SETSTATI);
-        PRINTGOTEVENT(GETSTATI);
-        PRINTGOTEVENT(SETSTATF);
-        PRINTGOTEVENT(GETSTATF);
-        #undef PRINTGOTEVENT
-        default: printf("UNKNOWN("); break;
-    }
-
-    printf("%sokay, ival=%d, fval=%f, time=%llu, name='%s').\n",
-            e->okay ? "" : "!", e->ivalue, e->fvalue, e->epochsecs, e->name);
-}
-*/
 
 // =====================================================
 // 	class ExceptionHandler
@@ -3326,15 +3300,31 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
     }
 }
 
+Steam & initSteamInstance() {
+	Steam *&steamInstance = CacheManager::getCachedItem< Steam *>(GameConstants::steamCacheInstanceKey);
+	if(steamInstance == NULL) {
+//		Steam &cacheInstance = CacheManager::getCachedItem< Steam * >(GameConstants::steamCacheInstanceKey);
+//		steamInstance.reset(&cacheInstance);
+//		//CacheManager::setCachedItem< Steam * >(GameConstants::steamCacheInstanceKey, steamInstance.get());
+//
+//		cacheInstance = steamInstance.get();
+		steamInstance = new Steam();
+	}
+//	return *steamInstance.get();
+	return *steamInstance;
+}
+
 void setupSteamSettings(bool steamEnabled) {
 	bool needToSaveConfig=false;
 	Config &config = Config::getInstance();
 	config.setBool("SteamEnabled",steamEnabled,true);
 	if(steamEnabled) {
 		printf("*NOTE: Steam Integration Enabled.\n");
-		//string steamPlayerName = safeCharPtrCopy(getenv("SteamAppUser"),100);
-		//if( steamPlayerName=="") return;// not a steam launch
-		Steam steam;
+		Steam &steam = initSteamInstance();
+
+		// For Debugging purposes:
+		//steam.resetStats(false);
+
 		string steamPlayerName = steam.userName();
 		string steamLang = steam.lang();
 		printf("Steam Integration Enabled!\nSteam User Name is [%s] Language is [%s]\n", steamPlayerName.c_str(), steamLang.c_str());
@@ -4240,18 +4230,6 @@ int glestMain(int argc, char** argv) {
 		return 2;
 	}
 
-//	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
-//		STEAMSHIM_requestStats();
-//		while (STEAMSHIM_alive()) {
-//			const STEAMSHIM_Event *e = STEAMSHIM_pump();
-//			printEvent(e);
-//			if (e && e->type == SHIMEVENT_STATSRECEIVED) {
-//				break;
-//			}
-//			usleep(100 * 1000);
-//		} // while
-//	}
-
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	//isMasterServerModeEnabled = true;
     	//Window::setMasterserverMode(isMasterServerModeEnabled);
@@ -5037,7 +5015,7 @@ int glestMain(int argc, char** argv) {
     	else {
 
     		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]) == true) {
-				Steam steam;
+    			Steam &steam = initSteamInstance();
 				string steamUser = steam.userName();
 				string steamLang = steam.lang();
 				printf("Steam Integration Enabled!\nSteam User Name is [%s] Language is [%s]\n", steamUser.c_str(), steamLang.c_str());
@@ -6141,6 +6119,7 @@ int glestMainWrapper(int argc, char** argv) {
 	int result = glestMainSEHWrapper(argc, argv);
 
 	if (isSteamMode == true) {
+		//steamInstance.reset(NULL);
 		STEAMSHIM_deinit();
 	}
 

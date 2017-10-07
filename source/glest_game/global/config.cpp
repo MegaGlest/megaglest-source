@@ -51,6 +51,7 @@ const char *GameConstants::folder_path_screenshots	= "screens/";
 const char *GameConstants::OBSERVER_SLOTNAME		= "*Observer*";
 const char *GameConstants::RANDOMFACTION_SLOTNAME	= "*Random*";
 
+const char *GameConstants::steamCacheInstanceKey  			= "steamInstanceCache";
 const char *GameConstants::preCacheThreadCacheLookupKey  		= "preCacheThreadCache";
 const char *GameConstants::ircClientCacheLookupKey  			= "ircClientCache";
 const char *GameConstants::playerTextureCacheLookupKey  		= "playerTextureCache";

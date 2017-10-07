@@ -43,6 +43,7 @@ bool IsNumeric(const char *p, bool  allowNegative=true);
 
 string formatNumber(uint64 f);
 
+double getTimeDuationMinutes(int frames, int updateFps);
 string getTimeDuationString(int frames, int updateFps);
 
 }}//end namespace
