@@ -14,6 +14,7 @@
 namespace Shared { namespace PlatformCommon {
 
 //Mutex CacheManager::mutexCache;
+Mutex CacheManager::mutexMap(CODE_AT_LINE);
 std::map<string, Mutex *> CacheManager::itemCacheMutexList;
 const char *CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1       = "CRC_Cache_FileTree1";
 const char *CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey2       = "CRC_Cache_FileTree2";
