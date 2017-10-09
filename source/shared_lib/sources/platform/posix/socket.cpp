@@ -2188,12 +2188,15 @@ void BroadCastClientSocketThread::execute() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			try	{
-				char buff[10024]="";  // Buffers the data to be broadcasted.
+				char buff[10025]="";  // Buffers the data to be broadcasted.
 				// Keep getting packets forever.
 				for( time_t elapsed = time(NULL); difftime((long int)time(NULL),elapsed) <= 5; ) {
 					alen = sizeof(struct sockaddr);
 					int nb=0;// The number of bytes read.
 					bool gotData = (nb = recvfrom(bcfd, buff, 10024, 0, (struct sockaddr *) &bcSender, &alen)) > 0;
+					if(nb >= 0) {
+						buff[nb]=0;
+					}
 
 					//printf("Broadcasting client nb = %d buff [%s] gotData = %d\n",nb,buff,gotData);
 

@@ -2349,6 +2349,7 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeHeader() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType=0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormatHeader(),
 				packedData.messageType,
