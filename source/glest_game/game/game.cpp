@@ -5177,6 +5177,7 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 	if (steamInstance != NULL) {
 		printf("\nSTEAM detected, writing out end game stats for player!\n");
 
+		// Write out stats here
 		if (NetworkManager::getInstance().isNetworkGame()) {
 			//printf("\nSTEAM Refresh Stats!\n");
 			steamInstance->requestRefreshStats();
@@ -5228,6 +5229,7 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 			}
 		}
 
+		// Write out achievements here
 		for (int factionIndex = 0;
 				factionIndex < game->getWorld()->getFactionCount(); ++factionIndex) {
 			if (factionIndex == game->getWorld()->getThisFactionIndex()) {
@@ -5235,6 +5237,11 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 				if (endStats.getVictory(factionIndex)) {
 					if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str()) == false) {
 						steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str());
+					}
+					if (NetworkManager::getInstance().isNetworkGame()) {
+						if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str()) == false) {
+							steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str());
+						}
 					}
 				}
 			}
