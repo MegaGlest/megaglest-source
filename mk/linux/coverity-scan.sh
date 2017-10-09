@@ -65,16 +65,21 @@ FILENAME=$(echo "${PROJECT}" | tr '/' '_')_${DESCRIPTION}
 
 export PATH="${PATH}:${COVERITY_ANALYSIS_ROOT}/bin"
 
+sudo /sbin/sysctl vsyscall=emulate
+
 # cleanup old build files
 cd $CURRENTDIR
 rm -rf build
 ./build-mg.sh -m 1
 
 # Build using Coverity Scan build tool
+echo "About to use cov-build to analyse code..."
 cd build/
+# cov-build --dir ${BUILDTOOL} make -j ${NUMCORES}
 cov-build --dir ${BUILDTOOL} make -j ${NUMCORES}
 
 # Create archive to upload to coverity
+echo "About to send analyzed code to coverity website..."
 tar czf ${FILENAME}.tar.gz ${BUILDTOOL}/
 ls -la ${FILENAME}.tar.gz
 # exit 1

@@ -103,7 +103,7 @@ public:
 			BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
 			if(base_thread != NULL &&
 					(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
-				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+				if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,base_thread->getUniqueID().c_str());
 
 				base_thread->signalQuit();
 				sleep(10);
