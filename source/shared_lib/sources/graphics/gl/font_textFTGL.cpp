@@ -306,7 +306,7 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 
 	//static float result = -1000;
 	float result = -1000;
-	if(result == -1000) {
+	//if(result == -1000) {
 		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
 
 		GLenum error = glGetError();
@@ -326,7 +326,7 @@ float TextFTGL::LineHeight(const char* str, const int len) {
 			}
 		}
 		//printf("ftFont->BBox(''yW'')%f\n",result);
-	}
+	//}
 //	else {
 //		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
 //

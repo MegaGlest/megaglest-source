@@ -1114,7 +1114,7 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 			}
 		}
 
-		if(f) fclose(f);
+		fclose(f);
 	}
 	catch(exception &e) {
 		if(f) fclose(f);

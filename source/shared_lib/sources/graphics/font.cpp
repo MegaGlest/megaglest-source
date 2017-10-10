@@ -314,8 +314,8 @@ bool is_non_ASCII(const int &c) {
 void Font::bidi_cvt(string &str_) {
 
 #ifdef	HAVE_FRIBIDI
-	const bool debugFribidi = false;
-	if(debugFribidi == true) printf("BEFORE:   [%s]\n",str_.c_str());
+	//const bool debugFribidi = false;
+	//if(debugFribidi == true) printf("BEFORE:   [%s]\n",str_.c_str());
 
 	string new_value = "";
 	bool hasSoftNewLines = false;
@@ -334,7 +334,7 @@ void Font::bidi_cvt(string &str_) {
 		lines.push_back(str_);
 	}
 
-	if(debugFribidi == true) printf("Lines: %d\n",(int)lines.size());
+	//if(debugFribidi == true) printf("Lines: %d\n",(int)lines.size());
 
 	for(int lineIndex = 0; lineIndex < (int)lines.size(); ++lineIndex) {
 		if(lineIndex > 0) {
@@ -346,7 +346,7 @@ void Font::bidi_cvt(string &str_) {
 			}
 		}
 		str_ = lines[lineIndex];
-		if(debugFribidi == true) printf("Line: %d [%s] Font::fontSupportMixedRightToLeft = %d\n",lineIndex,str_.c_str(),Font::fontSupportMixedRightToLeft);
+		//if(debugFribidi == true) printf("Line: %d [%s] Font::fontSupportMixedRightToLeft = %d\n",lineIndex,str_.c_str(),Font::fontSupportMixedRightToLeft);
 
 		vector<string> words;
 		if(Font::fontSupportMixedRightToLeft == true) {
@@ -370,33 +370,33 @@ void Font::bidi_cvt(string &str_) {
 		for(int wordIndex = 0; wordIndex < (int)words.size(); ++wordIndex) {
 			str_ = words[wordIndex];
 
-			if(debugFribidi == true) printf("Word: %d [%s]\n",wordIndex,str_.c_str());
+			//if(debugFribidi == true) printf("Word: %d [%s]\n",wordIndex,str_.c_str());
 
 			//FriBidi C string holding the original text (that is probably with logical hebrew)
-			FriBidiChar *logical = NULL;
+			//FriBidiChar *logical = NULL;
 			//FriBidi C string for the output text (that should be visual hebrew)
-			FriBidiChar *visual = NULL;
+			//FriBidiChar *visual = NULL;
 
-			FriBidiStrIndex *ltov = NULL;
-			FriBidiStrIndex *vtol = NULL;
+			//FriBidiStrIndex *ltov = NULL;
+			//FriBidiStrIndex *vtol = NULL;
 
 			//C string holding the originall text (not nnecessarily as unicode)
-			char *ip = NULL;
+			//char *ip = NULL;
 			//C string for the output text (not necessarily as unicode)
-			char *op = NULL;
+			//char *op = NULL;
 
 			//Size to allocate for the char arrays
 			int size = (int)str_.size() + 2;
 
 			//Allocate memory:
 			//It's probably way too much, but at least it's not too little
-			logical = new FriBidiChar[size * 3];
-			visual = new FriBidiChar[size * 3];
-			ip = new char[size * 3];
-			op = new char[size * 3];
+			FriBidiChar *logical = new FriBidiChar[size * 3];
+			FriBidiChar *visual = new FriBidiChar[size * 3];
+			char *ip = new char[size * 3];
+			char *op = new char[size * 3];
 
-			ltov = new FriBidiStrIndex[size * 3];
-			vtol = new FriBidiStrIndex[size * 3];
+			FriBidiStrIndex *ltov = new FriBidiStrIndex[size * 3];
+			FriBidiStrIndex *vtol = new FriBidiStrIndex[size * 3];
 
 			FriBidiCharType base;
 			size_t len;
@@ -440,7 +440,7 @@ void Font::bidi_cvt(string &str_) {
 				//Insert the output string into the result
 				str_ = op;
 
-				if(debugFribidi == true) printf("LOG2VIS:  [%s]\n",str_.c_str());
+				//if(debugFribidi == true) printf("LOG2VIS:  [%s]\n",str_.c_str());
 			}
 			//printf("AFTER:    [%s]\n",str_.c_str());
 
@@ -486,18 +486,18 @@ void Font::bidi_cvt(string &str_) {
 			}
 		}
 
-		if(debugFribidi == true) printf("Building New Line: %d [%s]\n",lineIndex,new_value.c_str());
+		//if(debugFribidi == true) printf("Building New Line: %d [%s]\n",lineIndex,new_value.c_str());
 		for(int wordIndex = 0; wordIndex < (int)wordList.size(); ++wordIndex) {
-			if(debugFribidi == true) printf("wordIndex: %d [%s]\n",wordIndex,wordList[wordIndex].c_str());
+			//if(debugFribidi == true) printf("wordIndex: %d [%s]\n",wordIndex,wordList[wordIndex].c_str());
 			if(wordIndex > 0) {
 				new_value += " ";
 			}
 			new_value += wordList[wordIndex];
 		}
-		if(debugFribidi == true) printf("New Line: %d [%s]\n",lineIndex,new_value.c_str());
+		//if(debugFribidi == true) printf("New Line: %d [%s]\n",lineIndex,new_value.c_str());
 	}
 	str_ = new_value;
-	if(debugFribidi == true) printf("NEW:      [%s]\n",str_.c_str());
+	//if(debugFribidi == true) printf("NEW:      [%s]\n",str_.c_str());
 
 #endif
 
