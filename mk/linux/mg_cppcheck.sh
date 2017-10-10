@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
 if ! cppcheck_loc="$(type -p "cppcheck")" || [ -z "$cppcheck_loc" ]; then
-    # install foobar here
+    # install cppcheck
     echo "CPPCHECK is not installed, installing now..."
     sudo apt install cppcheck
 fi
