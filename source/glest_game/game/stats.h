@@ -142,12 +142,12 @@ public:
 	void die(int diedFactionIndex, bool isDeathCounted);
 	void produce(int producerFactionIndex, bool isProductionCounted);
 	void harvest(int harvesterFactionIndex, int amount);
-	void setPlayerName(int playerIndex, string value) 	{playerStats[playerIndex].playerName = value; }
+	void setPlayerName(int playerIndex, const string &value) 	{playerStats[playerIndex].playerName = value; }
 	void setPlayerColor(int playerIndex, Vec3f value)	{playerStats[playerIndex].playerColor = value; }
 
 	void addFramesToCalculatePlaytime()  		{this->framesToCalculatePlaytime++; }
 
-	void setTechName(string name) { techName = name; }
+	void setTechName(const string &name) { techName = name; }
 	string getTechName() const { return techName; }
 
 	string getStats() const;

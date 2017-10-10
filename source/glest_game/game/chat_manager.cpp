@@ -260,8 +260,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 					int newMatchedIndex = -1;
 					for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 						int possibleMatchIndex = matchedIndexes[index];
-						if(replaceCurrentAutoCompleteName < 0 ||
-							(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex > replaceCurrentAutoCompleteName)) {
+						if(replaceCurrentAutoCompleteName < 0 || possibleMatchIndex>replaceCurrentAutoCompleteName) {
 							newMatchedIndex = possibleMatchIndex;
 							break;
 						}
@@ -269,8 +268,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 					if(newMatchedIndex < 0) {
 						for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 							int possibleMatchIndex = matchedIndexes[index];
-							if(replaceCurrentAutoCompleteName < 0 ||
-								(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex < replaceCurrentAutoCompleteName)) {
+							if(replaceCurrentAutoCompleteName < 0 || possibleMatchIndex>replaceCurrentAutoCompleteName) {
 								newMatchedIndex = possibleMatchIndex;
 								break;
 							}
@@ -308,8 +306,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 						int newMatchedIndex = -1;
 						for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 							int possibleMatchIndex = matchedIndexes[index];
-							if(replaceCurrentAutoCompleteName < 0 ||
-								(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex > replaceCurrentAutoCompleteName)) {
+							if(replaceCurrentAutoCompleteName < 0 || possibleMatchIndex>replaceCurrentAutoCompleteName) {
 								newMatchedIndex = possibleMatchIndex;
 								break;
 							}
@@ -317,8 +314,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 						if(newMatchedIndex < 0) {
 							for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 								int possibleMatchIndex = matchedIndexes[index];
-								if(replaceCurrentAutoCompleteName < 0 ||
-									(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex < replaceCurrentAutoCompleteName)) {
+								if(replaceCurrentAutoCompleteName < 0 || possibleMatchIndex>replaceCurrentAutoCompleteName) {
 									newMatchedIndex = possibleMatchIndex;
 									break;
 								}

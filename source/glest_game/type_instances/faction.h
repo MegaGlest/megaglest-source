@@ -101,7 +101,7 @@ protected:
 	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 
 public:
-	FactionThread(Faction *faction);
+	explicit FactionThread(Faction *faction);
 	virtual ~FactionThread();
     virtual void execute();
 

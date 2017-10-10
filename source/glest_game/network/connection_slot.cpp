@@ -1393,7 +1393,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								double maxClientLagTimeAllowed 		= 8;
 
 								// New lag check
-								if((maxFrameCountLagAllowed > 0 && clientLagCount > maxFrameCountLagAllowed) ||
+								if((clientLagCount > maxFrameCountLagAllowed) ||
 									(maxClientLagTimeAllowed > 0 && clientLagTime > maxClientLagTimeAllowed)) {
 
 									waitForLaggingClient = true;

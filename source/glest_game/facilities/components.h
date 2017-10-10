@@ -75,7 +75,7 @@ protected:
 	virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
 
 public:
-	GraphicComponent(std::string containerName="", std::string objName="", bool registerControl=true);
+	GraphicComponent(const std::string &containerName="", const std::string &objName="", bool registerControl=true);
 	virtual ~GraphicComponent();
 
 	static void setCustomTextColor(Vec3f value) { customTextColor = value; }
@@ -164,7 +164,7 @@ private:
 	Texture2D *texture;
 
 public:
-	GraphicLabel(std::string containerName="", std::string objName="", bool registerControl=true);
+	GraphicLabel(const std::string &containerName="", const std::string &objName="", bool registerControl=true);
 	void init(int x, int y, int w=defW, int h=defH, bool centered= false, Vec3f textColor=GraphicComponent::customTextColor, bool wordWrap=false);
 
 	virtual bool mouseMove(int x, int y);
@@ -228,7 +228,7 @@ private:
 	Texture *customTexture;
 		
 public:
-	GraphicButton(std::string containerName="", std::string objName="", bool registerControl=true);
+	GraphicButton(const std::string &containerName="", const std::string &objName="", bool registerControl=true);
 	void init(int x, int y, int w=defW, int h=defH);
 
 	bool getUseCustomTexture() const { return useCustomTexture; }
@@ -263,7 +263,7 @@ private:
 	bool leftControlled;
 	
 public:
-	GraphicListBox(std::string containerName="", std::string objName="");
+	GraphicListBox(const std::string &containerName="", const std::string &objName="");
     void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=GraphicComponent::customTextColor);
     
 	int getItemCount() const				{return (int)items.size();}
@@ -313,7 +313,7 @@ private:
 private:
 	void alignButtons();
 public:
-	GraphicMessageBox(std::string containerName="", std::string objName="");
+	GraphicMessageBox(const std::string &containerName="", const std::string &objName="");
     virtual ~GraphicMessageBox();
 	void init(const string &button1Str, const string &button2Str, int newWidth=-1,int newHeight=-1);
 	void init(const string &button1Str, int newWidth=-1,int newHeight=-1);
@@ -351,7 +351,7 @@ private:
 	bool horizontal;	
 	
 public:
-	GraphicLine(std::string containerName="", std::string objName="");
+	GraphicLine(const std::string &containerName="", const std::string &objName="");
 	void init(int x, int y, int w=defW, int h=defH);
 	bool getHorizontal() const		{return horizontal;}
 	void setHorizontal(bool horizontal) 		{this->horizontal= horizontal;}
@@ -371,7 +371,7 @@ private:
 	bool lighted;
 
 public:
-	GraphicCheckBox(std::string containerName="", std::string objName="");
+	GraphicCheckBox(const std::string &containerName="", const std::string &objName="");
 	void init(int x, int y, int w=defW, int h=defH);
 	bool getValue() const		{return value;}
 	void setValue(bool value) 		{this->value= value;}
@@ -403,7 +403,7 @@ private:
 	int visibleCompPosEnd;
 
 public:
-	GraphicScrollBar(std::string containerName="", std::string objName="");
+	GraphicScrollBar(const std::string &containerName="", const std::string &objName="");
 	void init(int x, int y, bool horizontal,int length=defLength, int thickness=defThickness);
 	virtual bool mouseDown(int x, int y);
 	virtual bool mouseMove(int x, int y);
@@ -447,7 +447,7 @@ private:
 	string header;
 
 public:
-	PopupMenu(std::string containerName="", std::string objName="");
+	PopupMenu(const std::string &containerName="", const std::string &objName="");
 	virtual ~PopupMenu();
 	void init(string menuHeader, std::vector<string> menuItems);
 

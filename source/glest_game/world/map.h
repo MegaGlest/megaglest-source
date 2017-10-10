@@ -201,7 +201,7 @@ public:
 
 class FastAINodeCache {
 public:
-	FastAINodeCache(Unit *unit) {
+	explicit FastAINodeCache(Unit *unit) {
 		this->unit = unit;
 	}
 	Unit *unit;

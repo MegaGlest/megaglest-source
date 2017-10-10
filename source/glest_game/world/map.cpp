@@ -57,7 +57,7 @@ Cell::Cell() {
 
 void Cell::saveGame(XmlNode *rootNode, int index) const {
 	bool saveCell = false;
-	if(saveCell == false) {
+	//if(saveCell == false) {
 		for(unsigned int i = 0; i < fieldCount; ++i) {
 			if(units[i] != NULL) {
 				saveCell = true;
@@ -68,7 +68,7 @@ void Cell::saveGame(XmlNode *rootNode, int index) const {
 				break;
 			}
 		}
-	}
+	//}
 
 	if(saveCell == true) {
 		std::map<string,string> mapTagReplacements;
@@ -723,9 +723,9 @@ bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt
 
 								//printf("!!!! unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
 								if(distanceFromClick < 0 || resourceClickPos->dist(resPos) <= distanceFromClick) {
-									if(resourceClickPos != NULL) {
-										distanceFromClick = resourceClickPos->dist(resPos);
-									}
+									//if(resourceClickPos != NULL) {
+									distanceFromClick = resourceClickPos->dist(resPos);
+									//}
 									if(unit != NULL) {
 										distanceFromUnit = unit->getCenteredPos().dist(resPos);
 									}

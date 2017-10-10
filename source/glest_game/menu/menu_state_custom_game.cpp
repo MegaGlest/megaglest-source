@@ -1698,7 +1698,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 	//printf("Line: %d multiplier index: %d index: %d\n",__LINE__,listBoxRMultiplier[index].getSelectedItemIndex(),index);
 }
 
-void MenuStateCustomGame::loadGameSettings(std::string fileName) {
+void MenuStateCustomGame::loadGameSettings(const std::string &fileName) {
 	// Ensure we have set the gamesettings at least once
 	GameSettings gameSettings = loadGameSettingsFromFile(fileName);
 	if(gameSettings.getMap() == "") {

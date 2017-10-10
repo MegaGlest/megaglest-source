@@ -359,7 +359,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, CommandC
 	std::pair<CommandResult,string> result(crFailUndefined,"");
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		result = commander->tryGiveCommand(unit, unit->getType()->getFirstCtOfClass(commandClass), pos, unit->getType(),CardinalDir::NORTH);
+		result = commander->tryGiveCommand(unit, unit->getType()->getFirstCtOfClass(commandClass), pos, unit->getType(),CardinalDir(CardinalDir::NORTH));
 		return result;
 	}
 	else {
@@ -410,7 +410,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(const Unit *unit, const
 
 	if(executeCommandOverNetwork() == true) {
 		result = commander->tryGiveCommand(unit, commandType, pos,
-				unit->getType(),CardinalDir::NORTH, false, NULL,unitGroupCommandId);
+				unit->getType(),CardinalDir(CardinalDir::NORTH), false, NULL,unitGroupCommandId);
 		return result;
 	}
 	else {
@@ -460,7 +460,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const Co
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
+		result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir(CardinalDir::NORTH));
 		return result;
 	}
 	else {
@@ -508,13 +508,13 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const Co
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		result = commander->tryGiveCommand(unit, commandType, pos, ut,CardinalDir::NORTH);
+		result = commander->tryGiveCommand(unit, commandType, pos, ut,CardinalDir(CardinalDir::NORTH));
 		return result;
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut, CardinalDir::NORTH));
+		result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut, CardinalDir(CardinalDir::NORTH)));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -558,7 +558,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const Co
 		Unit *targetUnit = u;
 		const Unit *unit = getMyUnit(unitIndex);
 
-		result = commander->tryGiveCommand(unit, commandType, Vec2i(0), unit->getType(),CardinalDir::NORTH,false,targetUnit);
+		result = commander->tryGiveCommand(unit, commandType, Vec2i(0), unit->getType(),CardinalDir(CardinalDir::NORTH),false,targetUnit);
 
 		return result;
 	}

@@ -88,7 +88,7 @@ long double unpack754(unsigned long long int i, unsigned bits, unsigned expbits)
 	while(shift < 0) { result /= 2.0; shift++; }
 
 	// sign it
-	result *= (i>>(bits-1))&1? -1.0: 1.0;
+	result *= ((i>>(bits-1))&1) ? -1.0: 1.0;
 
 	return result;
 }

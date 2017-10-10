@@ -102,7 +102,7 @@ Gui::Gui(){
     activeCommandType= NULL;
     activeCommandClass= ccStop;
 	selectingBuilding= false;
-	selectedBuildingFacing = CardinalDir::NORTH;
+	selectedBuildingFacing = CardinalDir(CardinalDir::NORTH);
 	selectingPos= false;
 	selectingMeetingPoint= false;
 	activePos= invalidPos;
@@ -203,7 +203,7 @@ void Gui::invalidatePosObjWorld(){
 
 void Gui::resetState(){
     selectingBuilding= false;
-	selectedBuildingFacing = CardinalDir::NORTH;
+	selectedBuildingFacing = CardinalDir(CardinalDir::NORTH);
 	selectingPos= false;
 	selectingMeetingPoint= false;
     activePos= invalidPos;
@@ -736,7 +736,7 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay) {
 
 						choosenBuildingType		= ut;
 						selectingPos			= true;
-						selectedBuildingFacing 	= CardinalDir::NORTH;
+						selectedBuildingFacing 	= CardinalDir(CardinalDir::NORTH);
 						activePos				= posDisplay;
 					}
 				}

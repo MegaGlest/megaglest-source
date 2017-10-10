@@ -285,7 +285,7 @@ protected:
 
 public:
 	NetworkMessageReady();
-	NetworkMessageReady(uint32 checksum);
+	explicit NetworkMessageReady(uint32 checksum);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 
@@ -464,7 +464,7 @@ protected:
 	unsigned char * packMessageDetail(uint16 totalCommand);
 
 public:
-	NetworkMessageCommandList(int32 frameCount= -1);
+	explicit NetworkMessageCommandList(int32 frameCount= -1);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 	virtual unsigned char * getData();
@@ -652,7 +652,7 @@ protected:
 
 public:
     NetworkMessageSynchNetworkGameData() {};
-	NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings);
+    explicit NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 
@@ -847,7 +847,7 @@ protected:
 
 public:
     NetworkMessageSynchNetworkGameDataFileGet();
-	NetworkMessageSynchNetworkGameDataFileGet(const string fileName);
+    explicit NetworkMessageSynchNetworkGameDataFileGet(const string fileName);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 
@@ -972,7 +972,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-	PlayerIndexMessage( int16 playerIndex);
+	explicit PlayerIndexMessage( int16 playerIndex);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 
@@ -1038,7 +1038,7 @@ protected:
 
 public:
 	NetworkMessageLoadingStatus();
-	NetworkMessageLoadingStatus(uint32 status);
+	explicit NetworkMessageLoadingStatus(uint32 status);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 

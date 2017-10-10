@@ -40,6 +40,8 @@ namespace Glest{ namespace Game{
 // 	class UnitUpdater
 // =====================================================
 
+time_t UnitRangeCellsLookupItem::lastDebug = 0;
+
 // ===================== PUBLIC ========================
 
 UnitUpdater::UnitUpdater() : mutexAttackWarnings(new Mutex(CODE_AT_LINE)),
@@ -418,7 +420,7 @@ Unit* UnitUpdater::spawnUnit(Unit *unit,string spawnUnit,Vec2i spawnPos) {
 
 	Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
 							Vec2i(0), spawnUnitType, unit->getFaction(),
-							world->getMap(), CardinalDir::NORTH);
+							world->getMap(), CardinalDir(CardinalDir::NORTH));
 
 	bool placedSpawnUnit=world->placeUnit(_spawnPos, 10, spawned);
 
@@ -2095,7 +2097,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
 						const CommandType *ctbuild = unit->getType()->getFirstCtOfClass(ccBuild);
 						NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), ctbuild->getId(), command->getPos(),
-														command->getUnitType()->getId(), -1, CardinalDir::NORTH, true, command->getStateType(),
+														command->getUnitType()->getId(), -1, CardinalDir(CardinalDir::NORTH), true, command->getStateType(),
 														command->getStateValue());
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2369,7 +2371,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 					throw megaglest_runtime_error("detected unsupported pathfinder type!");
 		    }
 
-			produced= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir::NORTH);
+			produced= new Unit(world->getNextUnitId(unit->getFaction()), newpath, Vec2i(0), pct->getProducedUnit(), unit->getFaction(), world->getMap(), CardinalDir(CardinalDir::NORTH));
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,produced->toString(false).c_str());
 

@@ -371,11 +371,15 @@ private:
 
 		const Map* map;
 		struct Layer {
-			inline Layer(int th):
+			inline explicit Layer(int th):
 				vbo_vertices(0), vbo_normals(0), 
 				vbo_fowTexCoords(0), vbo_surfTexCoords(0),
 				vbo_indices(0), indexCount(0),
 				textureHandle(th),textureCRC(0) {}
+
+			inline explicit Layer(Layer &obj) {
+				*this = obj;
+			}
 
 			inline Layer & operator=(Layer &obj) {
 				this->vertices = obj.vertices;

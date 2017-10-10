@@ -31,7 +31,7 @@ ScriptManagerMessage::ScriptManagerMessage() : text(""), header("") {
 	this->messageNotTranslated 	= true;
 }
 
-ScriptManagerMessage::ScriptManagerMessage(string textIn, string headerIn,
+ScriptManagerMessage::ScriptManagerMessage(const string &textIn, const string &headerIn,
 		int factionIndex,int teamIndex, bool messageNotTranslated) :
 				text(textIn), header(headerIn) {
 	this->factionIndex 			= factionIndex;
@@ -1357,9 +1357,7 @@ void ScriptManager::unregisterCellTriggerEvent(int eventId) {
 		if(unRegisterCellTriggerEventList.empty() == false) {
 			for(int i = 0; i < (int)unRegisterCellTriggerEventList.size(); ++i) {
 				int delayedEventId = unRegisterCellTriggerEventList[i];
-				if(CellTriggerEventList.find(delayedEventId) != CellTriggerEventList.end()) {
-					CellTriggerEventList.erase(delayedEventId);
-				}
+				CellTriggerEventList.erase(delayedEventId);
 			}
 			unRegisterCellTriggerEventList.clear();
 		}

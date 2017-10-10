@@ -535,7 +535,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	changedActiveCommandFrame = 0;
 
 	lastSynchDataString="";
-	modelFacing = CardinalDir::NORTH;
+	modelFacing = CardinalDir(CardinalDir::NORTH);
 	lastStuckFrame = 0;
 	lastStuckPos = Vec2i(0,0);
 	lastPathfindFailedFrame = 0;

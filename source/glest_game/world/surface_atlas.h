@@ -47,7 +47,7 @@ private:
 	const Texture2D *texture;
 
 public:
-	SurfaceInfo(const Pixmap2D *center);
+	explicit SurfaceInfo(const Pixmap2D *center);
 	SurfaceInfo(const Pixmap2D *lu, const Pixmap2D *ru, const Pixmap2D *ld, const Pixmap2D *rd);
 	bool operator==(const SurfaceInfo &si) const;
 

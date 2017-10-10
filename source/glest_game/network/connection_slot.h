@@ -96,7 +96,7 @@ protected:
 	void slotUpdateTask(ConnectionSlotEvent *event);
 
 public:
-	ConnectionSlotThread(int slotIndex);
+	explicit ConnectionSlotThread(int slotIndex);
 	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
 	virtual ~ConnectionSlotThread();
 

@@ -38,7 +38,7 @@ protected:
 	virtual void setQuitStatus(bool value);
 
 public:
-	ClientInterfaceThread(ClientInterface *client);
+	explicit ClientInterfaceThread(ClientInterface *client);
 	virtual ~ClientInterfaceThread();
     virtual void execute();
 
