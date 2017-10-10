@@ -4,6 +4,7 @@ rem change to the directory of this batch file
 rem SET VCVARS_PLATFORM=x86_amd64
 SET VCVARS_PLATFORM=
 SET MSBUILD_CONFIG=Release
+SET STEAMWORKS=..\..\..\..\steamworks_sdk\sdk\
 
 ECHO --------------------------------
 ECHO Changing to build folder [%~dp0] p1 ["%1"] p2 ["%2"]
@@ -67,8 +68,35 @@ ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
 SET MSBUILD_PATH_MG_x64="%ProgramFiles(x86)%\MSBuild\Microsoft.Cpp\v4.0\V140\\"
 
 echo Doing a FULL REBUILD...
-nmake /f Makefile.win STEAMWORKS=..\..\..\steamworks_sdk\sdk
+nmake /f Makefile.win STEAMWORKS=%STEAMWORKS%
+
+SET STEAM_MG_PATH=C:\Program Files (x86)\Steam\steamapps\common\MegaGlest\
+if EXIST "%STEAM_MG_PATH%" goto COPY_TO_STEAM
+goto end_script
+
+:COPY_TO_STEAM
+if NOT EXIST "%STEAM_MG_PATH%\steam_appid.txt" goto COPY_TO_STEAM_APPID
+goto COPY_TO_STEAM_DLL
+
+:COPY_TO_STEAM_APPID
+echo "Installing steam appid file to Megaglest Steam folder [%STEAM_MG_PATH%] ..."
+copy steam_appid.txt "%STEAM_MG_PATH%"
+
+:COPY_TO_STEAM_DLL
+rem echo "%STEAMWORKS%"
+if NOT EXIST "%STEAM_MG_PATH%\steam_api.dll" goto COPY_TO_STEAM_DLL_START
+goto COPY_TO_STEAM_SHIM
+
+:COPY_TO_STEAM_DLL_START
+echo "Installing steam sdk api to Megaglest Steam folder [%STEAM_MG_PATH%] ..."
+copy "%STEAMWORKS%\redistributable_bin\steam_api.dll" "%STEAM_MG_PATH%"
+
+:COPY_TO_STEAM_SHIM
+echo "Installing steam shim to Megaglest Steam folder [%STEAM_MG_PATH%] ..."
+copy megaglest_shim.exe "%STEAM_MG_PATH%"
 
 ECHO ... End.
+
+:end_script
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
