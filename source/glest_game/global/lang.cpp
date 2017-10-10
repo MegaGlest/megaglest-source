@@ -210,9 +210,9 @@ void Lang::loadGameStringProperties(string uselanguage, Properties &properties, 
 	properties.load(languageFile);
 }
 
-bool Lang::isUTF8Language() const {
-	return is_utf8_language;
-}
+//bool Lang::isUTF8Language() const {
+//	return is_utf8_language;
+//}
 
 void Lang::loadScenarioStrings(string scenarioDir, string scenarioName, bool isTutorial) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());

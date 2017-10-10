@@ -227,7 +227,7 @@ public:
     bool hasIntroVideoFilenameFallback() const;
 
     string getBattleEndVideoFilename(bool won) const 			{ return won == true ? battleEndWinVideoFilename : battleEndLoseVideoFilename; }
-    bool hasBattleEndVideoFilename(bool won) const;
+    //bool hasBattleEndVideoFilename(bool won) const;
     string getBattleEndVideoFilenameFallback(bool won) const 	{ return won == true ? battleEndWinVideoFilenameFallback : battleEndLoseVideoFilenameFallback; }
     bool hasBattleEndVideoFilenameFallback(bool won) const;
 

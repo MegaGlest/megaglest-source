@@ -307,9 +307,9 @@ void Font::setSize(int size)	{
 bool is_non_ASCII(const int &c) {
 	return (c < 0) || (c >= 128);
 }
-bool is_ASCII(const int &c) {
-	return !is_non_ASCII(c);
-}
+//bool is_ASCII(const int &c) {
+//	return !is_non_ASCII(c);
+//}
 
 void Font::bidi_cvt(string &str_) {
 

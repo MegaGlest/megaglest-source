@@ -154,7 +154,7 @@ void FileCRCPreCacheThread::execute() {
 								string techName = techPaths[idx];
 								workerTechList.push_back(techName);
 
-								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread for Tech [%s] [%d of %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
+								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread for Tech [%s] [%u of %lu]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,techName.c_str(),idx+1,techPaths.size());
 							}
 
 							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %u, currentWorkerMax = %u, endConsumerIndex = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);

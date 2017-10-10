@@ -223,7 +223,7 @@ public:
 	bool isInSpecialKeyCaptureEvent() { return programState->isInSpecialKeyCaptureEvent(); }
 
 	//void reInitGl();
-	void resetSoundSystem();
+	//void resetSoundSystem();
 	void stopSoundSystem();
 	void startSoundSystem();
 

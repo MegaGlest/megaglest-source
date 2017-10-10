@@ -330,7 +330,7 @@ string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath)
     return result;
 }
 
-string getGameReadWritePath(string lookupKey) {
+string getGameReadWritePath(const string &lookupKey) {
 	string path = "";
 
 	if(lookupKey != "") {

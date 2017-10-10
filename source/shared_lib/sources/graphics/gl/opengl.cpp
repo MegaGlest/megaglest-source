@@ -44,10 +44,10 @@ void setVBOSupported(bool value) {
 	vboEnabled = (value == true ? 1 : -1);
 };
 
-void overrideGlExtensionSupport(const char *extensionName,bool value) {
-	cacheExtensionCheckList[extensionName]=value;
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("OpenGL Extension [%s] supported status FORCED TO = %d\n",extensionName,cacheExtensionCheckList[extensionName]);
-}
+//void overrideGlExtensionSupport(const char *extensionName,bool value) {
+//	cacheExtensionCheckList[extensionName]=value;
+//	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("OpenGL Extension [%s] supported status FORCED TO = %d\n",extensionName,cacheExtensionCheckList[extensionName]);
+//}
 
 bool isGlExtensionSupported(const char *extensionName) {
 	if(cacheExtensionCheckList.find(extensionName) != cacheExtensionCheckList.end()) {

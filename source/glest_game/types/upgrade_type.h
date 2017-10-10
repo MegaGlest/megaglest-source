@@ -225,9 +225,9 @@ public:
 	// TODO: It's not clear if these save game methods are being used, currently. I think
 	// attack boosts might use the few lines that aren't commented out.
 	virtual void saveGame(XmlNode *rootNode) const;
-	virtual void saveGameBoost(XmlNode *rootNode) const;
+	//virtual void saveGameBoost(XmlNode *rootNode) const;
 	static const UpgradeType * loadGame(const XmlNode *rootNode, Faction *faction);
-	void loadGameBoost(const XmlNode *rootNode);
+	//void loadGameBoost(const XmlNode *rootNode);
 
 	/**
 	 * Generates a checksum value for the upgrade.

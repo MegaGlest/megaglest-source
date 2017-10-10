@@ -167,7 +167,7 @@ int zipfile_tool(int argc, const char *argv[]) {
         if (fread(s_inbuf, 1, n, pInfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
 
-        	if(pInfile) fclose(pInfile);
+        	fclose(pInfile);
       	    if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
@@ -188,7 +188,7 @@ int zipfile_tool(int argc, const char *argv[]) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
 
         	if(pInfile) fclose(pInfile);
-      	    if(pOutfile) fclose(pOutfile);
+      	    fclose(pOutfile);
         	return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;
@@ -236,7 +236,7 @@ int zipfile_tool(int argc, const char *argv[]) {
         if (fread(s_inbuf, 1, n, pInfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
 
-        	if(pInfile) fclose(pInfile);
+        	fclose(pInfile);
         	if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
@@ -256,7 +256,7 @@ int zipfile_tool(int argc, const char *argv[]) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
 
       	    if(pInfile) fclose(pInfile);
-      	    if(pOutfile) fclose(pOutfile);
+      	    fclose(pOutfile);
         	return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;

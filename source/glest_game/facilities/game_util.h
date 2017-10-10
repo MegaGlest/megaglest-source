@@ -51,7 +51,7 @@ string getCompileDateTime();
 
 string formatString(string str);
 
-string getGameReadWritePath(string lookupKey="");
+string getGameReadWritePath(const string &lookupKey="");
 string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);
 
 bool upgradeFilesInTemp();

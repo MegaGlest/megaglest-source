@@ -55,6 +55,7 @@ static std::string steamToIsoLang(const char *steamLang) {
 
 // SteamPrivate
 struct SteamPrivate {
+	static bool debugEnabled;
 	std::map<std::string, bool> achievements;
 	std::map<std::string, double> stats;
 
@@ -62,8 +63,7 @@ struct SteamPrivate {
 	std::string lang;
 
 	SteamPrivate() {
-		//printf("\ncreating private steam state container\n");
-
+		if(debugEnabled) printf("\nCreating private steam state container\n");
 		STEAMSHIM_getPersonaName();
 		STEAMSHIM_getCurrentGameLanguage();
 		STEAMSHIM_requestStats();
@@ -76,6 +76,10 @@ struct SteamPrivate {
 		}
 
 		refreshAllStats();
+	}
+
+	static void setDebugEnabled(bool value) {
+		debugEnabled = value;
 	}
 
 	void refreshAllStats() {
@@ -162,52 +166,48 @@ struct SteamPrivate {
             switch (e->type)
 			{
 			case SHIMEVENT_GETACHIEVEMENT:
-				//printf("\nGot Shim event SHIMEVENT_GETACHIEVEMENT name [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_GETACHIEVEMENT name [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
 				if(e->okay) {
 					updateAchievement(e->name, e->ivalue);
 				}
 				break;
 			case SHIMEVENT_SETACHIEVEMENT:
-				//printf("\nGot Shim event SHIMEVENT_SETACHIEVEMENT for name [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_SETACHIEVEMENT for name [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
 				break;
-
 			case SHIMEVENT_GETPERSONANAME:
-				//printf("\nGot Shim event SHIMEVENT_GETPERSONANAME isOk = %d\n",e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_GETPERSONANAME isOk = %d value [%s]\n",e->okay,e->name);
 				userName = e->name;
 				break;
 			case SHIMEVENT_GETCURRENTGAMELANGUAGE:
-				//printf("\nGot Shim event SHIMEVENT_GETCURRENTGAMELANGUAGE isOk = %d\n",e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_GETCURRENTGAMELANGUAGE isOk = %d value [%s]\n",e->okay,e->name);
 				lang = steamToIsoLang(e->name);
 				break;
 			case SHIMEVENT_STATSRECEIVED:
-				//printf("\nGot Shim event SHIMEVENT_STATSRECEIVED isOk = %d\n",e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_STATSRECEIVED isOk = %d\n",e->okay);
 				break;
 			case SHIMEVENT_STATSSTORED:
-				//printf("\nGot Shim event SHIMEVENT_STATSSTORED isOk = %d\n",e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_STATSSTORED isOk = %d\n",e->okay);
 				break;
-
 			case SHIMEVENT_GETSTATI:
-				//printf("\nGot Shim event SHIMEVENT_GETSTATI for stat [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_GETSTATI for stat [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
 				if(e->okay) {
 					updateStat(e->name, e->ivalue);
 				}
 				break;
 			case SHIMEVENT_GETSTATF:
-				//printf("\nGot Shim event SHIMEVENT_GETSTATF for stat [%s] value [%f] isOk = %d\n",e->name,e->fvalue,e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_GETSTATF for stat [%s] value [%f] isOk = %d\n",e->name,e->fvalue,e->okay);
 				if(e->okay) {
 					updateStat(e->name, e->fvalue);
 				}
 				break;
-
 			case SHIMEVENT_SETSTATI:
-				//printf("\nGot Shim event SHIMEVENT_SETSTATI for stat [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_SETSTATI for stat [%s] value [%d] isOk = %d\n",e->name,e->ivalue,e->okay);
 				break;
 			case SHIMEVENT_SETSTATF:
-				//printf("\nGot Shim event SHIMEVENT_SETSTATF for stat [%s] value [%f] isOk = %d\n",e->name,e->fvalue,e->okay);
+				if(debugEnabled) printf("\nGot Shim event SHIMEVENT_SETSTATF for stat [%s] value [%f] isOk = %d\n",e->name,e->fvalue,e->okay);
 				break;
-
 			default:
-				//printf("\nGot Shim event [%d] isOk = %d\n",e->type,e->okay);
+				if(debugEnabled) printf("\nGot Shim event [%d] isOk = %d\n",e->type,e->okay);
 				break;
 			}
             if(waitForEvent != NULL && *waitForEvent == e->type) {
@@ -224,6 +224,8 @@ struct SteamPrivate {
 		        && (int)achievements.size() >= EnumParser<SteamAchievementName>::getCount();
 	}
 };
+
+bool SteamPrivate::debugEnabled = false;
 
 /* Steam */
 Steam::Steam() : p(new SteamPrivate()) {
@@ -303,5 +305,8 @@ bool Steam::isUnlocked(const char *name) {
 	return p->isAchievementSet(name);
 }
 
+void Steam::setDebugEnabled(bool value) {
+	SteamPrivate::setDebugEnabled(value);
+}
 
 }}//end namespace

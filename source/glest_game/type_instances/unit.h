@@ -636,7 +636,7 @@ public:
 	inline bool getVisible() const { return visible; }
 
 	//render related
-    const Model *getCurrentModel();
+    //const Model *getCurrentModel();
     Model *getCurrentModelPtr();
 	Vec3f getCurrMidHeightVector() const;
 	Vec3f getCurrVectorForParticlesystems() const;

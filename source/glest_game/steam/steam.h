@@ -71,6 +71,7 @@ public:
 	void setStatAsDouble(const char *name, double value);
 
 	void requestRefreshStats();
+	static void setDebugEnabled(bool value);
 
 	Steam();
 	~Steam();

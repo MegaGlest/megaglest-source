@@ -240,17 +240,17 @@ bool Console::isEmpty() {
 	return lines.empty();
 }
 
-string Console::getLine(int i) const {
-	if(i < 0 || i >= (int)lines.size())
-		throw megaglest_runtime_error("i >= Lines.size()");
-	return lines[i].text;
-}
+//string Console::getLine(int i) const {
+//	if(i < 0 || i >= (int)lines.size())
+//		throw megaglest_runtime_error("i >= Lines.size()");
+//	return lines[i].text;
+//}
 
-string Console::getStoredLine(int i) const {
-	if(i < 0 || i >= (int)storedLines.size())
-		throw megaglest_runtime_error("i >= storedLines.size()");
-	return storedLines[i].text;
-}
+//string Console::getStoredLine(int i) const {
+//	if(i < 0 || i >= (int)storedLines.size())
+//		throw megaglest_runtime_error("i >= storedLines.size()");
+//	return storedLines[i].text;
+//}
 
 ConsoleLineInfo Console::getLineItem(int i) const {
 	if(i < 0 || i >= (int)lines.size())

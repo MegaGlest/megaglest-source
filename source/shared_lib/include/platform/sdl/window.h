@@ -238,9 +238,9 @@ bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input, vector<int> m
 bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input, bool modifiersAllowed=true);
 
 SDL_Keycode extractKeyPressed(SDL_KeyboardEvent input);
-bool isAllowedInputTextKey(SDL_Keycode key);
+//bool isAllowedInputTextKey(SDL_Keycode key);
 
-wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input);
+//wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input);
 vector<int> extractKeyPressedUnicodeLength(string text);
 bool isAllowedInputTextKey(wchar_t &key);
 

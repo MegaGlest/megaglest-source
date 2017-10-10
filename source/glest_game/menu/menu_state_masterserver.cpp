@@ -614,7 +614,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     else {
     	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     	bool clicked=false;
-    	if(!clicked && serverScrollBar.getElementCount()!=0){
+    	if(serverScrollBar.getElementCount() != 0) {
     		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
 				if(serverLines[i]->buttonMouseClick(x, y)) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

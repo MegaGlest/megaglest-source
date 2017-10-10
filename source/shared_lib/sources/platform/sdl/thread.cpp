@@ -936,7 +936,7 @@ bool MasterSlaveThreadController::waitTillSlavesTrigger(int waitMilliseconds) {
 
 			result = false;
 		}
-		else if(slaveResult == 0) {
+		else {
 			if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d] slaveTriggerCounter = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slaveTriggerCounter);
 
 			result = true;

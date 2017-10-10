@@ -754,7 +754,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
 
         remoteFTPServerIp = ftpFindExternalFTPServerIp(ftpGetSession(sessionId)->remoteIp);
 
-        snprintf(str, 50,"%s (%d,%d,%d,%d,%d,%d)",
+        snprintf(str, 50,"%s (%d,%d,%d,%u,%d,%d)",
                 ftpMsg029,
                 (remoteFTPServerIp >> 24) & 0xFF,
                 (remoteFTPServerIp >> 16) & 0xFF,
@@ -768,7 +768,7 @@ LOCAL int ftpCmdPasv(int sessionId, const char* args, int len)
     }
     else
     {
-        snprintf(str, 50,"%s (%d,%d,%d,%d,%d,%d)",
+        snprintf(str, 50,"%s (%d,%d,%d,%u,%d,%d)",
                 ftpMsg029,
                 (ip >> 24) & 0xFF,
                 (ip >> 16) & 0xFF,

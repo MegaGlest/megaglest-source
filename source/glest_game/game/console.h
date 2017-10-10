@@ -117,8 +117,8 @@ public:
     void resetFonts();
 
 	
-	string getLine(int i) const;
-	string getStoredLine(int i) const;
+	//string getLine(int i) const;
+	//string getStoredLine(int i) const;
 	ConsoleLineInfo getLineItem(int i) const;
 	ConsoleLineInfo getStoredLineItem(int i) const;
 

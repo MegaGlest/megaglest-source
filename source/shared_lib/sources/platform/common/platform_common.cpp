@@ -691,12 +691,12 @@ void setCRCCacheFilePath(const string &path) {
 	crcCachePath = path;
 }
 
-string getGameVersion() {
-	return gameVersion;
-}
-string getGameGITVersion() {
-	return gameGITVersion;
-}
+//string getGameVersion() {
+//	return gameVersion;
+//}
+//string getGameGITVersion() {
+//	return gameGITVersion;
+//}
 void setGameVersion(const string &version) {
 	gameVersion = version;
 }
@@ -1879,8 +1879,8 @@ string replaceAllBetweenTokens(string& context, const string &startToken,
     return context;
 }
 
-string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
-		string fileArchiveExtractCommandParameters, string outputpath, string archivename) {
+string getFullFileArchiveExtractCommand(const string &fileArchiveExtractCommand,
+		string fileArchiveExtractCommandParameters, const string &outputpath, const string &archivename) {
 	string parsedOutputpath = outputpath;
 	string parsedArchivename = archivename;
 
@@ -1901,9 +1901,9 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 	return result;
 }
 
-string getFullFileArchiveCompressCommand(string fileArchiveCompressCommand,
+string getFullFileArchiveCompressCommand(const string &fileArchiveCompressCommand,
 		string fileArchiveCompressCommandParameters,
-		string archivename, string archivefiles) {
+		const string &archivename, const string &archivefiles) {
 	string parsedArchivename = archivename;
 	string parsedArchivefiles = archivefiles;
 
@@ -2144,7 +2144,7 @@ bool searchAndReplaceTextInFile(string fileName, string findText, string replace
 	return replacedText;
 }
 
-void saveDataToFile(string filename, string data) {
+void saveDataToFile(string filename, const string &data) {
 	//Open an input and output stream in binary mode
 #if defined(WIN32) && !defined(__MINGW32__)
 	FILE *fp2 = _wfopen(utf8_decode(filename).c_str(), L"wb");
@@ -2235,32 +2235,32 @@ bool valid_utf8_file(const char* file_name) {
 	return result;
 }
 
-string getFileTextContents(string path) {
-#if defined(WIN32) && !defined(__MINGW32__)
-	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
-	ifstream xmlFile(fp);
-#else
-	ifstream xmlFile(path.c_str(),ios::binary);
-#endif
-	if(xmlFile.is_open() == false) {
-		throw megaglest_runtime_error("Can not open file: [" + path + "]");
-	}
-
-	xmlFile.unsetf(ios::skipws);
-
-	// Determine stream size
-	xmlFile.seekg(0, ios::end);
-	streampos size = xmlFile.tellg();
-	xmlFile.seekg(0);
-
-	// Load data and add terminating 0
-	vector<char> buffer;
-	buffer.resize((unsigned int)size + 1);
-	xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
-	buffer[(unsigned int)size] = 0;
-
-	return &buffer.front();
-}
+//string getFileTextContents(string path) {
+//#if defined(WIN32) && !defined(__MINGW32__)
+//	FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
+//	ifstream xmlFile(fp);
+//#else
+//	ifstream xmlFile(path.c_str(),ios::binary);
+//#endif
+//	if(xmlFile.is_open() == false) {
+//		throw megaglest_runtime_error("Can not open file: [" + path + "]");
+//	}
+//
+//	xmlFile.unsetf(ios::skipws);
+//
+//	// Determine stream size
+//	xmlFile.seekg(0, ios::end);
+//	streampos size = xmlFile.tellg();
+//	xmlFile.seekg(0);
+//
+//	// Load data and add terminating 0
+//	vector<char> buffer;
+//	buffer.resize((unsigned int)size + 1);
+//	xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
+//	buffer[(unsigned int)size] = 0;
+//
+//	return &buffer.front();
+//}
 
 // =====================================
 //         ModeInfo

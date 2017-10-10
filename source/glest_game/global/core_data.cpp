@@ -1143,16 +1143,16 @@ bool CoreData::hasMainMenuVideoFilename() const {
 	return result;
 }
 
-bool CoreData::hasBattleEndVideoFilename(bool won) const {
-	bool result = false;
-	if(won == true) {
-		result =(battleEndWinVideoFilename != "");
-	}
-	else {
-		result =(battleEndLoseVideoFilename != "");
-	}
-	return result;
-}
+//bool CoreData::hasBattleEndVideoFilename(bool won) const {
+//	bool result = false;
+//	if(won == true) {
+//		result =(battleEndWinVideoFilename != "");
+//	}
+//	else {
+//		result =(battleEndLoseVideoFilename != "");
+//	}
+//	return result;
+//}
 
 void CoreData::registerFontChangedCallback(std::string entityName, FontChangedCallbackInterface *cb) {
 	if(entityName == "") {

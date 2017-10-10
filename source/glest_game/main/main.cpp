@@ -3306,15 +3306,24 @@ Steam & initSteamInstance() {
 	return *steamInstance;
 }
 
-void setupSteamSettings(bool steamEnabled) {
+void setupSteamSettings(bool steamEnabled, bool steamResetStats, bool debugEnabled) {
 	Config &config = Config::getInstance();
 	config.setBool("SteamEnabled",steamEnabled,true);
 	if(steamEnabled) {
 		printf("*NOTE: Steam Integration Enabled.\n");
+
+		if(debugEnabled) {
+			printf("*NOTE: Steam Debugging Enabled.\n");
+		}
+		Steam::setDebugEnabled(debugEnabled);
+
 		Steam &steam = initSteamInstance();
 
 		// For Debugging purposes:
-		//steam.resetStats(false);
+		if(steamResetStats) {
+			printf("*WARNING: Steam Stats / Achievements are being RESET by request!\n");
+			steam.resetStats(true);
+		}
 
 		string steamPlayerName = steam.userName();
 		string steamLang = steam.lang();
@@ -4560,7 +4569,9 @@ int glestMain(int argc, char** argv) {
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
 
-		setupSteamSettings(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]));
+		setupSteamSettings(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM]),
+				hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM_RESET_STATS]),
+				hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_STEAM_DEBUG]));
 
 		if(config.getString("PlayerId","") == "") {
 			char  uuid_str[38];

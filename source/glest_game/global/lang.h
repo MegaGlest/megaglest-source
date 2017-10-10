@@ -77,7 +77,7 @@ public:
 
 	string getLanguage() const { return language; }
 	bool isLanguageLocal(string compareLanguage) const;
-	bool isUTF8Language() const;
+	//bool isUTF8Language() const;
 	string getDefaultLanguage() const;
 
 	map<string,string> getDiscoveredLanguageList(bool searchKeyIsLangName=false);

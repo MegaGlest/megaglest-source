@@ -215,7 +215,7 @@ private:
 	string appPath;
 
 public:
-	MainWindow(string appPath);
+	explicit MainWindow(string appPath);
 	~MainWindow();
 
 	void refreshMapRender();

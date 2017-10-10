@@ -30,7 +30,7 @@ using namespace Glest::Game;
 using namespace std;
 
 namespace Glest { namespace Game {
-string getGameReadWritePath(string lookupKey) {
+string getGameReadWritePath(const string &lookupKey) {
 	string path = "";
     if(path == "" && getenv("GLESTHOME") != NULL) {
         path = getenv("GLESTHOME");
