@@ -15,11 +15,15 @@ BugReportBoth="https://forum.megaglest.org/index.php?board=23.0"
 # useful for mods
 BugReportBoth2="$BugReportBoth"
 BugReportData="https://github.com/MegaGlest/megaglest-data/issues"
+
 EXC_BINARY="megaglest"
+if [ -f "${GAMEDIR}/megaglest_shim" ]; then EXC_BINARY="megaglest_shim"
+
 SHORT_GAME_NAME="megaglest"
 # if long game name contain spaces then write it inside quotes
 # e.g. "\"long name with spaces\""
 LONG_GAME_NAME="MegaGlest"
+
 # -------
 LIBDIR="lib"; ExitStatus=0; LibsWarnings=""; IgnoredLibs=""; FirstLnError=""
 LibDir_wP="$GAMEDIR/$LIBDIR"; LIBDIR_B=".${LIBDIR}_bak"; LibDirB_wP="$GAMEDIR/$LIBDIR_B"
