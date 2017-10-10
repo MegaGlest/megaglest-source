@@ -620,20 +620,20 @@ vector<int> Ai::findUnitsHarvestingResourceType(const ResourceType *rt) {
 	return units;
 }
 
-vector<int> Ai::findUnitsDoingCommand(CommandClass currentCommand) {
-	vector<int> units;
-
-	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
-		const Unit *unit= aiInterface->getMyUnit(i);
-		if(unit->getType()->isCommandable() && unit->getType()->hasCommandClass(currentCommand)) {
-			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == currentCommand) {
-				units.push_back(i);
-			}
-		}
-	}
-
-	return units;
-}
+//vector<int> Ai::findUnitsDoingCommand(CommandClass currentCommand) {
+//	vector<int> units;
+//
+//	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
+//		const Unit *unit= aiInterface->getMyUnit(i);
+//		if(unit->getType()->isCommandable() && unit->getType()->hasCommandClass(currentCommand)) {
+//			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == currentCommand) {
+//				units.push_back(i);
+//			}
+//		}
+//	}
+//
+//	return units;
+//}
 
 bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass currentCommand){
 	vector<int> units;

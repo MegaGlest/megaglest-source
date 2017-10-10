@@ -222,7 +222,7 @@ public:
 	void renderProgramMsgBox();
 	bool isInSpecialKeyCaptureEvent() { return programState->isInSpecialKeyCaptureEvent(); }
 
-	void reInitGl();
+	//void reInitGl();
 	void resetSoundSystem();
 	void stopSoundSystem();
 	void startSoundSystem();

@@ -1132,47 +1132,47 @@ int PathFinder::findNodeIndex(Node *node, std::vector<Node> &nodeList) {
 	return index;
 }
 
-bool PathFinder::unitCannotMove(Unit *unit) {
-	bool unitImmediatelyBlocked = false;
-
-	try {
-	// First check if unit currently blocked all around them, if so don't try to pathfind
-	const Vec2i unitPos = unit->getPos();
-	int failureCount = 0;
-	int cellCount = 0;
-
-	for(int i = -1; i <= 1; ++i) {
-		for(int j = -1; j <= 1; ++j) {
-			Vec2i pos = unitPos + Vec2i(i, j);
-			if(pos != unitPos) {
-				bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
-				if(canUnitMoveToCell == false) {
-					failureCount++;
-				}
-				cellCount++;
-			}
-		}
-	}
-	unitImmediatelyBlocked = (failureCount == cellCount);
-
-	}
-	catch(const exception &ex) {
-		//setRunningStatus(false);
-
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		throw megaglest_runtime_error(ex.what());
-	}
-	catch(...) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error\n",__FILE__,__FUNCTION__,__LINE__);
-		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		throw megaglest_runtime_error(szBuf);
-	}
-
-	return unitImmediatelyBlocked;
-}
+//bool PathFinder::unitCannotMove(Unit *unit) {
+//	bool unitImmediatelyBlocked = false;
+//
+//	try {
+//	// First check if unit currently blocked all around them, if so don't try to pathfind
+//	const Vec2i unitPos = unit->getPos();
+//	int failureCount = 0;
+//	int cellCount = 0;
+//
+//	for(int i = -1; i <= 1; ++i) {
+//		for(int j = -1; j <= 1; ++j) {
+//			Vec2i pos = unitPos + Vec2i(i, j);
+//			if(pos != unitPos) {
+//				bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
+//				if(canUnitMoveToCell == false) {
+//					failureCount++;
+//				}
+//				cellCount++;
+//			}
+//		}
+//	}
+//	unitImmediatelyBlocked = (failureCount == cellCount);
+//
+//	}
+//	catch(const exception &ex) {
+//		//setRunningStatus(false);
+//
+//		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//		throw megaglest_runtime_error(ex.what());
+//	}
+//	catch(...) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error\n",__FILE__,__FUNCTION__,__LINE__);
+//		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+//		throw megaglest_runtime_error(szBuf);
+//	}
+//
+//	return unitImmediatelyBlocked;
+//}
 
 void PathFinder::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;

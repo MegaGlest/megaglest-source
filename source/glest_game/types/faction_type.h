@@ -142,7 +142,7 @@ public:
 
 
 	const UnitType *getUnitType(const string &name) const;
-	const UnitType *getUnitTypeById(int id) const;
+	//const UnitType *getUnitTypeById(int id) const;
 	const UpgradeType *getUpgradeType(const string &name) const;
 	int getStartingResourceAmount(const ResourceType *resourceType) const;
 

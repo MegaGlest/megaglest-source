@@ -332,7 +332,7 @@ public:
 	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const;
 	bool isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const;
 	bool canMorph(const Vec2i &pos,const Unit *currentUnit,const UnitType *targetUnitType ) const;
-	bool canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing);
+	//bool canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing);
 
 	//unit placement
 	bool aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::map<Vec2i, std::map<Vec2i, std::map<int, std::map<int, std::map<Field,bool> > > > > *lookupCache=NULL) const;
@@ -348,7 +348,7 @@ public:
 	bool isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) const;
 	bool isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) const;
 	Vec2i findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const UnitType *ut) const;
-	std::pair<float,Vec2i> getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut);
+	//std::pair<float,Vec2i> getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut);
 
 	//misc
 	bool isNextTo(const Vec2i &pos, const Unit *unit) const;
@@ -660,7 +660,7 @@ private:
 public:
 	PosQuadIterator(const Map *map,const Quad2i &quad, int step=1);
 	bool next();
-	void skipX();
+	//void skipX();
 	const Vec2i &getPos();
 };
 

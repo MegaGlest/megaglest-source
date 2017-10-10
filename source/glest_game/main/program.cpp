@@ -967,19 +967,19 @@ void Program::resetSoundSystem() {
 	startSoundSystem();
 }
 
-void Program::reInitGl() {
-	if(window != NULL) {
-		Config &config= Config::getInstance();
-		window->initGl(config.getInt("ColorBits"),
-				       config.getInt("DepthBits"),
-				       config.getInt("StencilBits"),
-				       config.getBool("HardwareAcceleration","false"),
-				       config.getBool("FullScreenAntiAliasing","false"),
-				       config.getFloat("GammaValue","0.0"));
-		window->setText(config.getString("WindowTitle","MegaGlest"));
-		initResolution();
-	}
-}
+//void Program::reInitGl() {
+//	if(window != NULL) {
+//		Config &config= Config::getInstance();
+//		window->initGl(config.getInt("ColorBits"),
+//				       config.getInt("DepthBits"),
+//				       config.getInt("StencilBits"),
+//				       config.getBool("HardwareAcceleration","false"),
+//				       config.getBool("FullScreenAntiAliasing","false"),
+//				       config.getFloat("GammaValue","0.0"));
+//		window->setText(config.getString("WindowTitle","MegaGlest"));
+//		initResolution();
+//	}
+//}
 
 void Program::consoleAddLine(string line) {
 	if(programState != NULL) {

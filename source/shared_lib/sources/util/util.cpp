@@ -745,10 +745,10 @@ bool compareNonCaseSensitive(const string a, const string b) {
 	return (toLower(a) < toLower(b));
 }
 
-void copyStringToBuffer(char *buffer, int bufferSize, const string& s){
-	strncpy(buffer, s.c_str(), bufferSize-1);
-	buffer[bufferSize-1]= '\0';
-}
+//void copyStringToBuffer(char *buffer, int bufferSize, const string& s){
+//	strncpy(buffer, s.c_str(), bufferSize-1);
+//	buffer[bufferSize-1]= '\0';
+//}
 
 // ==================== numeric fcs ====================
 

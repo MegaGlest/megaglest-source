@@ -98,10 +98,10 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	}
 }
 
-void ConnectionSlotThread::purgeAllEvents() {
-    MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-    eventList.clear();
-}
+//void ConnectionSlotThread::purgeAllEvents() {
+//    MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
+//    eventList.clear();
+//}
 
 void ConnectionSlotThread::setAllEventsCompleted() {
     MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
@@ -1574,12 +1574,12 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
     return ret;
 }
 
-void ConnectionSlot::clearPendingNetworkCommandList() {
-	MutexSafeWrapper safeMutexSlot(mutexPendingNetworkCommandList,CODE_AT_LINE);
-	if(vctPendingNetworkCommandList.empty() == false) {
-		vctPendingNetworkCommandList.clear();
-	}
-}
+//void ConnectionSlot::clearPendingNetworkCommandList() {
+//	MutexSafeWrapper safeMutexSlot(mutexPendingNetworkCommandList,CODE_AT_LINE);
+//	if(vctPendingNetworkCommandList.empty() == false) {
+//		vctPendingNetworkCommandList.clear();
+//	}
+//}
 
 bool ConnectionSlot::hasValidSocketId() {
     bool result = false;

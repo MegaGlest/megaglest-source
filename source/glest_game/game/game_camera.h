@@ -149,7 +149,7 @@ public:
 
 
 	void centerXZ(float x, float z);
-	void transitionXYZ(float x, float y, float z);
+	//void transitionXYZ(float x, float y, float z);
 	void transitionVH(float v, float h);
 	void rotateToVH(float v, float h);
 

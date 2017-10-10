@@ -352,12 +352,12 @@ void GameCamera::centerXZ(float x, float z){
 	destPos.z = pos.z= z+centerOffsetZ;
 }
 
-void GameCamera::transitionXYZ(float x, float y, float z) {
-	destPos.x += x;
-	destPos.y += y;
-	destPos.z += z;
-	clampPosXYZ(0.0f, (float)limitX, minHeight, maxHeight, 0.0f, (float)limitY);
-}
+//void GameCamera::transitionXYZ(float x, float y, float z) {
+//	destPos.x += x;
+//	destPos.y += y;
+//	destPos.z += z;
+//	clampPosXYZ(0.0f, (float)limitX, minHeight, maxHeight, 0.0f, (float)limitY);
+//}
 
 void GameCamera::transitionVH(float v, float h) {
 	destAng.x -= v;

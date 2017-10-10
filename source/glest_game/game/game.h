@@ -312,7 +312,7 @@ public:
 	void endPerformanceTimer();
 	Vec2i getPerformanceTimerResults();
 
-	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger=NULL,string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER, bool useTechDefaultIfFilterNotFound=true);
+	//static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger=NULL,string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER, bool useTechDefaultIfFilterNotFound=true);
 	static string findFactionLogoFile(const GameSettings *settings, Logger *logger=NULL, const string &factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
 	static string extractScenarioLogoFile(const GameSettings *settings, string &result, bool &loadingImageUsed, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
 	static string extractFactionLogoFile(bool &loadingImageUsed, const string &factionName, string scenarioDir, const string &techName, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
@@ -368,7 +368,7 @@ private:
 	void checkWinnerScripted();
 	void setEndGameTeamWinnersAndLosers();
 
-	bool hasBuilding(const Faction *faction);
+	//bool hasBuilding(const Faction *faction);
 	bool factionLostGame(const Faction *faction);
 	void incSpeed();
 	void decSpeed();

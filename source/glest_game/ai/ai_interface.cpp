@@ -599,23 +599,23 @@ int AiInterface::getMyUpgradeCount() const{
 	return world->getFaction(factionIndex)->getUpgradeManager()->getUpgradeCount();
 }
 
-int AiInterface::onSightUnitCount() {
-    int count=0;
-	Map *map= world->getMap();
-	for(int i=0; i<world->getFactionCount(); ++i) {
-		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j) {
-			Unit *unit = world->getFaction(i)->getUnit(j);
-			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
-			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
-								  unit->getType()->getAllowEmptyCellMap() == true &&
-								  unit->getType()->hasEmptyCellMap() == true);
-			if(sc->isVisible(teamIndex) && cannotSeeUnit == false) {
-				count++;
-			}
-		}
-	}
-    return count;
-}
+//int AiInterface::onSightUnitCount() {
+//    int count=0;
+//	Map *map= world->getMap();
+//	for(int i=0; i<world->getFactionCount(); ++i) {
+//		for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j) {
+//			Unit *unit = world->getFaction(i)->getUnit(j);
+//			SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
+//			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
+//								  unit->getType()->getAllowEmptyCellMap() == true &&
+//								  unit->getType()->hasEmptyCellMap() == true);
+//			if(sc->isVisible(teamIndex) && cannotSeeUnit == false) {
+//				count++;
+//			}
+//		}
+//	}
+//    return count;
+//}
 
 const Resource *AiInterface::getResource(const ResourceType *rt){
 	return world->getFaction(factionIndex)->getResource(rt);
@@ -635,31 +635,31 @@ const Unit *AiInterface::getMyUnit(int unitIndex) {
 	return getMyUnitPtr(unitIndex);
 }
 
-const Unit *AiInterface::getOnSightUnit(int unitIndex) {
-
-    int count=0;
-	Map *map= world->getMap();
-
-	for(int i=0; i<world->getFactionCount(); ++i) {
-        for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j) {
-            Unit * unit= world->getFaction(i)->getUnit(j);
-            SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
-			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
-								  unit->getType()->getAllowEmptyCellMap() == true &&
-								  unit->getType()->hasEmptyCellMap() == true);
-
-            if(sc->isVisible(teamIndex)  && cannotSeeUnit == false) {
-				if(count==unitIndex) {
-					return unit;
-				}
-				else {
-					count ++;
-				}
-            }
-        }
-	}
-    return NULL;
-}
+//const Unit *AiInterface::getOnSightUnit(int unitIndex) {
+//
+//    int count=0;
+//	Map *map= world->getMap();
+//
+//	for(int i=0; i<world->getFactionCount(); ++i) {
+//        for(int j=0; j<world->getFaction(i)->getUnitCount(); ++j) {
+//            Unit * unit= world->getFaction(i)->getUnit(j);
+//            SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
+//			bool cannotSeeUnit = (unit->getType()->hasCellMap() == true &&
+//								  unit->getType()->getAllowEmptyCellMap() == true &&
+//								  unit->getType()->hasEmptyCellMap() == true);
+//
+//            if(sc->isVisible(teamIndex)  && cannotSeeUnit == false) {
+//				if(count==unitIndex) {
+//					return unit;
+//				}
+//				else {
+//					count ++;
+//				}
+//            }
+//        }
+//	}
+//    return NULL;
+//}
 
 const FactionType * AiInterface::getMyFactionType(){
 	return world->getFaction(factionIndex)->getType();

@@ -195,20 +195,20 @@ Checksum UnitPathBasic::getCRC() {
 // 	class UnitPath
 // =====================================================
 
-void WaypointPath::condense() {
-	if (size() < 2) {
-		return;
-	}
-	iterator prev, curr;
-	prev = curr = begin();
-	while (++curr != end()) {
-		if (prev->dist(*curr) < 3.f) {
-			prev = erase(prev);
-		} else {
-			++prev;
-		}
-	}
-}
+//void WaypointPath::condense() {
+//	if (size() < 2) {
+//		return;
+//	}
+//	iterator prev, curr;
+//	prev = curr = begin();
+//	while (++curr != end()) {
+//		if (prev->dist(*curr) < 3.f) {
+//			prev = erase(prev);
+//		} else {
+//			++prev;
+//		}
+//	}
+//}
 
 std::string UnitPath::toString() const {
 	std::string result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(size());
@@ -866,17 +866,17 @@ void Unit::setModelFacing(CardinalDir value) {
 	lastRotation = targetRotation = rotation = value * 90.f;
 }
 
-void Unit::setCurrField(Field currField) {
-	Field original_field = this->currField;
-
-	this->currField = currField;
-
-	if(original_field != this->currField) {
-		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-		game->getScriptManager()->onUnitTriggerEvent(this,utet_FieldChanged);
-		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-	}
-}
+//void Unit::setCurrField(Field currField) {
+//	Field original_field = this->currField;
+//
+//	this->currField = currField;
+//
+//	if(original_field != this->currField) {
+//		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+//		game->getScriptManager()->onUnitTriggerEvent(this,utet_FieldChanged);
+//		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+//	}
+//}
 // ====================================== get ======================================
 
 Vec2i Unit::getCenteredPos() const {
@@ -2163,9 +2163,9 @@ void Unit::addObserver(UnitObserver *unitObserver){
 	observers.push_back(unitObserver);
 }
 
-void Unit::removeObserver(UnitObserver *unitObserver){
-	observers.remove(unitObserver);
-}
+//void Unit::removeObserver(UnitObserver *unitObserver){
+//	observers.remove(unitObserver);
+//}
 
 void Unit::notifyObservers(UnitObserver::Event event){
 	for(Observers::iterator it= observers.begin(); it!=observers.end(); ++it){
@@ -4568,13 +4568,13 @@ void Unit::addBadHarvestPos(const Vec2i &value) {
 	cleanupOldBadHarvestPos();
 }
 
-void Unit::removeBadHarvestPos(const Vec2i &value) {
-	std::map<Vec2i,int>::iterator iter = badHarvestPosList.find(value);
-	if(iter != badHarvestPosList.end()) {
-		badHarvestPosList.erase(value);
-	}
-	cleanupOldBadHarvestPos();
-}
+//void Unit::removeBadHarvestPos(const Vec2i &value) {
+//	std::map<Vec2i,int>::iterator iter = badHarvestPosList.find(value);
+//	if(iter != badHarvestPosList.end()) {
+//		badHarvestPosList.erase(value);
+//	}
+//	cleanupOldBadHarvestPos();
+//}
 
 void Unit::cleanupOldBadHarvestPos() {
 	const unsigned int cleanupInterval = (GameConstants::updateFps * 5);

@@ -151,9 +151,9 @@ struct SteamPrivate {
 		STEAMSHIM_setStatF(name, value);
 		update();
 	}
-	void clearLocalStats() {
-		stats.clear();
-	}
+//	void clearLocalStats() {
+//		stats.clear();
+//	}
 
 	const STEAMSHIM_Event * update(STEAMSHIM_EventType *waitForEvent=NULL) {
 		const STEAMSHIM_Event *e;

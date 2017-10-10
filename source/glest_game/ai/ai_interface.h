@@ -134,11 +134,11 @@ public:
     int getFactionCount();
     int getMyUnitCount() const;
 	int getMyUpgradeCount() const;
-    int onSightUnitCount();
+    //int onSightUnitCount();
     const Resource *getResource(const ResourceType *rt);
     const Unit *getMyUnit(int unitIndex);
     Unit *getMyUnitPtr(int unitIndex);
-    const Unit *getOnSightUnit(int unitIndex);
+    //const Unit *getOnSightUnit(int unitIndex);
     const FactionType *getMyFactionType();
     Faction *getMyFaction();
     const TechTree *getTechTree();
