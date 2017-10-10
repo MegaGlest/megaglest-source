@@ -346,7 +346,7 @@ megaglest_runtime_error::megaglest_runtime_error(const string& __arg,bool noStac
 //	assert(dispChangeErr==DISP_CHANGE_SUCCESSFUL);
 //}
 
-void message(string message, bool isNonGraphicalModeEnabled,string writepath) {
+void message(string message, bool isNonGraphicalModeEnabled,const string &writepath) {
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";
 	std::cerr << "******************************************************\n";
