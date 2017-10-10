@@ -963,9 +963,9 @@ void Program::startSoundSystem() {
 	}
 }
 
-void Program::resetSoundSystem() {
-	startSoundSystem();
-}
+//void Program::resetSoundSystem() {
+//	startSoundSystem();
+//}
 
 //void Program::reInitGl() {
 //	if(window != NULL) {

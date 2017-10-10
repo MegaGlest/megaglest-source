@@ -297,7 +297,7 @@ static SteamBridge *GSteamBridge = NULL;
 class SteamBridge
 {
 public:
-    SteamBridge(PipeType _fd);
+    explicit SteamBridge(PipeType _fd);
 	STEAM_CALLBACK(SteamBridge, OnUserStatsReceived, UserStatsReceived_t, m_CallbackUserStatsReceived);
 	STEAM_CALLBACK(SteamBridge, OnUserStatsStored, UserStatsStored_t, m_CallbackUserStatsStored);
 

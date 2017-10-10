@@ -59,7 +59,7 @@ public:
 // =====================================================
 //	Misc
 // =====================================================
-void message(string message,bool isNonGraphicalModeEnabled, string writepath);
+void message(const string &message,bool isNonGraphicalModeEnabled, const string &writepath);
 void exceptionMessage(const exception &excp);
 
 string getCommandLine();

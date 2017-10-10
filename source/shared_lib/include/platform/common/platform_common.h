@@ -193,8 +193,8 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
 vector<string> getFolderTreeContentsListRecursively(const string &path, const string &filterFileExt, bool includeFolders=false, vector<string> *recursiveMap=NULL);
 
-string getGameVersion();
-string getGameGITVersion();
+//string getGameVersion();
+//string getGameGITVersion();
 void setGameVersion(const string &version);
 void setGameGITVersion(const string &git);
 
@@ -297,19 +297,19 @@ inline string trim (const string & s, const string & t = SPACES) {
   return trim_left (trim_right (d, t), t) ;
 }  // end of trim
 
-string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
-		string fileArchiveExtractCommandParameters, string outputpath, string archivename);
-string getFullFileArchiveCompressCommand(string fileArchiveCompressCommand,
-		string fileArchiveCompressCommandParameters, string archivename, string archivefiles);
+string getFullFileArchiveExtractCommand(const string &fileArchiveExtractCommand,
+		string fileArchiveExtractCommandParameters, const string &outputpath, const string &archivename);
+string getFullFileArchiveCompressCommand(const string &fileArchiveCompressCommand,
+		string fileArchiveCompressCommandParameters, const string &archivename, const string &archivefiles);
 
 bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE,ShellCommandOutputCallbackInterface *cb=NULL);
 string executable_path(const string &exeName,bool includeExeNameInPath=false);
 
-void saveDataToFile(string filename, string data);
+void saveDataToFile(string filename, const string &data);
 
 bool valid_utf8_file(const char* file_name);
 
-string getFileTextContents(string path);
+//string getFileTextContents(string path);
 
 string safeCharPtrCopy(const char *ptr, int maxLength=-1);
 

@@ -261,7 +261,7 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode) {};
 
-	void resetJoinGameInProgressFlags();
+	//void resetJoinGameInProgressFlags();
 	void setJoinGameInProgressFlags();
 
 protected:

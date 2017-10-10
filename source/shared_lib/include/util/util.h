@@ -230,18 +230,18 @@ string ext(const string &s);
 string replaceBy(const string &s, char c1, char c2);
 vector<string> split(string s,string d);
 string toLower(const string &s);
-bool compareNonCaseSensitive(const string a, const string b);
+bool compareNonCaseSensitive(const string &a, const string &b);
 //void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
 
 //numeric fcs
 int clamp(int value, int min, int max);
 float clamp(float value, float min, float max);
 int64 clamp(int64 value, int64 min, int64 max);
-float saturate(float value);
-int round(float f);
+//float saturate(float value);
+//int round(float f);
 
 //misc
-int compareMajorMinorVersion(string versionA,string versionB);
+int compareMajorMinorVersion(const string &versionA, const string &versionB);
 int getMajor(string version);
 int getMinor(string version);
 bool checkVersionComptability(string clientVersionString, string serverVersionString);

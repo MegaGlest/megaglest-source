@@ -69,7 +69,7 @@ string fileFormat = "png";
 
 namespace Glest { namespace Game {
 
-string getGameReadWritePath(string lookupKey) {
+string getGameReadWritePath(const string &lookupKey) {
 	string path = "";
     if(path == "" && getenv("GLESTHOME") != NULL) {
         path = safeCharPtrCopy(getenv("GLESTHOME"),8096);

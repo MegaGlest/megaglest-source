@@ -1595,23 +1595,23 @@ Model *Unit::getCurrentModelPtr() {
 	return result;
 }
 
-const Model *Unit::getCurrentModel() {
-	if(currSkill == NULL) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
-		throw megaglest_runtime_error(szBuf);
-	}
-
-	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
-	const Model *result = currSkill->getAnimation(getAnimProgressAsFloat(),this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
-	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
-		animationRandomCycleCount++;
-		if(currSkill != NULL && animationRandomCycleCount >= currSkill->getAnimationCount()) {
-			animationRandomCycleCount = 0;
-		}
-	}
-	return result;
-}
+//const Model *Unit::getCurrentModel() {
+//	if(currSkill == NULL) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+//		throw megaglest_runtime_error(szBuf);
+//	}
+//
+//	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
+//	const Model *result = currSkill->getAnimation(getAnimProgressAsFloat(),this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
+//	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
+//		animationRandomCycleCount++;
+//		if(currSkill != NULL && animationRandomCycleCount >= currSkill->getAnimationCount()) {
+//			animationRandomCycleCount = 0;
+//		}
+//	}
+//	return result;
+//}
 
 bool Unit::checkModelStateInfoForNewHpValue() {
 	bool result = false;

@@ -1460,12 +1460,12 @@ void ConnectionSlot::validateConnection() {
 	}
 }
 
-void ConnectionSlot::resetJoinGameInProgressFlags() {
-	this->gotIntro 				= false;
-	this->skipLagCheck 			= false;
-	this->joinGameInProgress 	= false;
-	this->ready					= false;
-}
+//void ConnectionSlot::resetJoinGameInProgressFlags() {
+//	this->gotIntro 				= false;
+//	this->skipLagCheck 			= false;
+//	this->joinGameInProgress 	= false;
+//	this->ready					= false;
+//}
 
 void ConnectionSlot::setJoinGameInProgressFlags() {
 	this->gotIntro 				= true;

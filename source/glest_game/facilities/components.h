@@ -414,7 +414,7 @@ public:
 	bool getHorizontal() const		{return horizontal;}
 	int getLength() const;
 	void setLength(int length)	{horizontal?setW(length):setH(length);}
-	int getThickness() const;
+	//int getThickness() const;
 
 
 	bool getLighted() const			{return lighted;}

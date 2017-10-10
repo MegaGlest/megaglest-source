@@ -97,7 +97,7 @@ const char * getDialogCommand() {
 	return NULL;
 }
 
-bool showMessage(std::string warning,string writepath) {
+bool showMessage(std::string warning,const string &writepath) {
 	bool guiMessage = false;
 	const char * dialogCommand = getDialogCommand();
 	if (dialogCommand) {
@@ -137,7 +137,7 @@ bool showMessage(std::string warning,string writepath) {
 	return guiMessage;
 }
 
-void message(string message, bool isNonGraphicalModeEnabled,string writepath) {
+void message(const string &message, bool isNonGraphicalModeEnabled,const string &writepath) {
 	std::cerr << "\n\n\n";
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";

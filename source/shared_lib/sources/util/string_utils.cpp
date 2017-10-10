@@ -105,7 +105,7 @@ namespace Shared { namespace Util {
 		int outc;
 		int inpos = 0;
 		int outpos = 0;
-		while (inpos < len || len == -1) {
+		while (inpos < len) {
 			  if (in[inpos]<0x80) {
 			   out[outpos++] = in[inpos];
 			   if (in[inpos] == 0 && len == -1)

@@ -99,6 +99,8 @@ const char  *GAME_ARGS[] = {
 
 	"--create-data-archives",
 	"--steam",
+	"--steam-debug",
+	"--steam-reset-stats",
 
 	"--verbose"
 
@@ -184,6 +186,8 @@ enum GAME_ARG_TYPE {
 
 	GAME_ARG_CREATE_DATA_ARCHIVES,
 	GAME_ARG_STEAM,
+	GAME_ARG_STEAM_DEBUG,
+	GAME_ARG_STEAM_RESET_STATS,
 
 	GAME_ARG_VERBOSE_MODE,
 

@@ -741,7 +741,7 @@ string toLower(const string &s){
 	return rs;
 }
 
-bool compareNonCaseSensitive(const string a, const string b) {
+bool compareNonCaseSensitive(const string &a, const string &b) {
 	return (toLower(a) < toLower(b));
 }
 
@@ -752,15 +752,15 @@ bool compareNonCaseSensitive(const string a, const string b) {
 
 // ==================== numeric fcs ====================
 
-float saturate(float value) {
-	if (value < 0.f){
-        return 0.f;
-	}
-	if (value > 1.f){
-        return 1.f;
-	}
-    return value;
-}
+//float saturate(float value) {
+//	if (value < 0.f){
+//        return 0.f;
+//	}
+//	if (value > 1.f){
+//        return 1.f;
+//	}
+//    return value;
+//}
 
 int clamp(int value, int min, int max){
 	if (value<min){
@@ -792,12 +792,12 @@ float clamp(float value, float min, float max) {
     return value;
 }
 
-int round(float f){
-     return (int) f;
-}
+//int round(float f){
+//     return (int) f;
+//}
 
 // ==================== misc ====================
-int compareMajorMinorVersion(string versionA,string versionB) {
+int compareMajorMinorVersion(const string &versionA, const string &versionB) {
 	int majorA = getMajor(versionA);
 	int minorA = getMinor(versionA);
 	int majorB = getMajor(versionB);

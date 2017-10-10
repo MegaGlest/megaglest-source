@@ -1018,9 +1018,9 @@ int GraphicScrollBar::getLength() const {
 	return horizontal?getW():getH();
 }
 
-int GraphicScrollBar::getThickness() const {
-	return horizontal?getH():getW();
-}
+//int GraphicScrollBar::getThickness() const {
+//	return horizontal?getH():getW();
+//}
 
 void GraphicScrollBar::arrangeComponents(vector<GraphicComponent *> &gcs) {
 	if(getElementCount()!=0 ) {
