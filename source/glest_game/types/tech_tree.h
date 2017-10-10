@@ -72,7 +72,7 @@ public:
     static string findPath(const string &techName, const vector<string> &pathTechList);
     static bool exists(const string &techName, const vector<string> &pathTechList);
 
-    TechTree(const vector<string> pathList);
+    explicit TechTree(const vector<string> pathList);
     ~TechTree();
     Checksum * getChecksumValue() { return &checksumValue; }
 

@@ -41,7 +41,7 @@ Vec3f GraphicComponent::customTextColor = Vec3f(1.0,1.0,1.0);
 
 std::map<std::string, std::map<std::string, GraphicComponent *> > GraphicComponent::registeredGraphicComponentList;
 
-GraphicComponent::GraphicComponent(std::string containerName, std::string objName, bool registerControl) {
+GraphicComponent::GraphicComponent(const std::string &containerName, const std::string &objName, bool registerControl) {
 	this->containerName = containerName;
 	this->instanceName = "";
 	if(containerName == "" || objName == "") {
@@ -370,7 +370,7 @@ void GraphicComponent::resetFade(){
 const int GraphicLabel::defH= 20;
 const int GraphicLabel::defW= 70;
 
-GraphicLabel::GraphicLabel(std::string containerName, std::string objName, bool registerControl) :
+GraphicLabel::GraphicLabel(const std::string &containerName, const std::string &objName, bool registerControl) :
 		GraphicComponent(containerName, objName, registerControl) {
 	centered = false;
 	wordWrap = false;
@@ -438,7 +438,7 @@ void GraphicLabel::setCenteredH(bool centered) {
 const int GraphicButton::defH= 22;
 const int GraphicButton::defW= 90;
 
-GraphicButton::GraphicButton(std::string containerName, std::string objName, bool registerControl) :
+GraphicButton::GraphicButton(const std::string &containerName, const std::string &objName, bool registerControl) :
 	GraphicComponent(containerName,objName,registerControl) {
 
 	lighted = false;
@@ -469,7 +469,7 @@ bool GraphicButton::mouseMove(int x, int y){
 const int GraphicListBox::defH= 22;
 const int GraphicListBox::defW= 140;
 
-GraphicListBox::GraphicListBox(std::string containerName, std::string objName)
+GraphicListBox::GraphicListBox(const std::string &containerName, const std::string &objName)
 : GraphicComponent(containerName, objName), graphButton1(containerName, objName + "_button1"),
 											graphButton2(containerName, objName + "_button2") {
     selectedItemIndex = 0;
@@ -707,7 +707,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 const int GraphicMessageBox::defH= 280;
 const int GraphicMessageBox::defW= 350;
 
-GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName) :
+GraphicMessageBox::GraphicMessageBox(const std::string &containerName, const std::string &objName) :
 	GraphicComponent(containerName, objName) {
 	header= "";
 	autoWordWrap=true;
@@ -836,7 +836,7 @@ bool GraphicMessageBox::mouseClick(int x, int y, int &clickedButton){
 const int GraphicLine::defH= 5;
 const int GraphicLine::defW= 1000;
 
-GraphicLine::GraphicLine(std::string containerName, std::string objName)
+GraphicLine::GraphicLine(const std::string &containerName, const std::string &objName)
 : GraphicComponent(containerName, objName) {
 	horizontal = false;
 }
@@ -853,7 +853,7 @@ void GraphicLine::init(int x, int y, int w, int h){
 const int GraphicCheckBox::defH= 22;
 const int GraphicCheckBox::defW= 22;
 
-GraphicCheckBox::GraphicCheckBox(std::string containerName, std::string objName)
+GraphicCheckBox::GraphicCheckBox(const std::string &containerName, const std::string &objName)
 : GraphicComponent(containerName, objName) {
 	value = false;
 	lighted = false;
@@ -895,7 +895,7 @@ bool GraphicCheckBox::mouseClick(int x, int y){
 const int GraphicScrollBar::defThickness=20;
 const int GraphicScrollBar::defLength= 200;
 
-GraphicScrollBar::GraphicScrollBar(std::string containerName, std::string objName)
+GraphicScrollBar::GraphicScrollBar(const std::string &containerName, const std::string &objName)
 : GraphicComponent(containerName, objName) {
 	lighted = false;
 	activated = false;
@@ -1041,7 +1041,8 @@ void GraphicScrollBar::arrangeComponents(vector<GraphicComponent *> &gcs) {
 const int PopupMenu::defH= 240;
 const int PopupMenu::defW= 350;
 
-PopupMenu::PopupMenu(std::string containerName, std::string objName) : GraphicComponent(containerName, objName, false) {
+PopupMenu::PopupMenu(const std::string &containerName, const std::string &objName) :
+		GraphicComponent(containerName, objName, false) {
 	registerGraphicComponentOnlyFontCallbacks(containerName,objName);
 
 	h= defH;

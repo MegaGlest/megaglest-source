@@ -79,7 +79,7 @@ void Console::setFont3D(Font3D *font) {
 	}
 }
 
-void Console::registerGraphicComponent(std::string containerName, std::string objName) {
+void Console::registerGraphicComponent(const std::string &containerName, const std::string &objName) {
 	this->instanceName = objName;
 }
 
@@ -118,7 +118,7 @@ void Console::addStdMessage(const string &s,bool clearOtherLines) {
 	}
 }
 
-void Console::addStdMessage(const string &s,string failText, bool clearOtherLines) {
+void Console::addStdMessage(const string &s,const string &failText, bool clearOtherLines) {
 	if(clearOtherLines == true) {
 		addLineOnly(Lang::getInstance().getString(s) + failText);
 	}
@@ -136,11 +136,11 @@ void Console::addStdScenarioMessage(const string &s,bool clearOtherLines) {
 	}
 }
 
-void Console::addLineOnly(string line) {
+void Console::addLineOnly(const string &line) {
 	addLine(line,false,-1,Vec3f(1.f, 1.f, 1.f),false,true);
 }
 
-void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textColor, bool teamMode,bool clearOtherLines) {
+void Console::addLine(const string &line, bool playSound, int playerIndex, Vec3f textColor, bool teamMode,bool clearOtherLines) {
 	try {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());
@@ -186,7 +186,7 @@ void Console::addLine(string line, bool playSound, int playerIndex, Vec3f textCo
 	}
 }
 
-void Console::addLine(string line, bool playSound, string playerName, Vec3f textColor, bool teamMode) {
+void Console::addLine(const string &line, bool playSound, const string &playerName, Vec3f textColor, bool teamMode) {
 	try {
 		if(playSound == true) {
 			SoundRenderer::getInstance().playFx(CoreData::getInstance().getClickSoundA());

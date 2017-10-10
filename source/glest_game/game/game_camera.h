@@ -176,7 +176,7 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 private:
-	void setClampBounds(bool value) { clampBounds = value; }
+	//void setClampBounds(bool value) { clampBounds = value; }
 	void resetPosition();
 	void setClampDisabled(bool value) { clampDisable = value; };
 	void clampPosXYZ(float x1, float x2, float y1, float y2, float z1, float z2);

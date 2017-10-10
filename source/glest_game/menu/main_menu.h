@@ -62,8 +62,8 @@ private:
     void initBackgroundVideo();
 
 public:
-	MainMenu(Program *program);
-    ~MainMenu();
+    explicit MainMenu(Program *program);
+    virtual ~MainMenu();
 
 	MenuBackground *getMenuBackground()	{return &menuBackground;}
 	const MenuBackground *getConstMenuBackground() const	{return &menuBackground;}

@@ -807,7 +807,7 @@ void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) 
 	PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
 	LPSOCKADDR addr = NULL;
 	pCurrAddresses = pAddresses;
-	char buff[100];
+	//char buff[100];
     DWORD bufflen=100;
 	while (pCurrAddresses) {
 		if (pCurrAddresses->OperStatus != IfOperStatusUp) {

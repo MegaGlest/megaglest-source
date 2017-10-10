@@ -59,7 +59,7 @@ public:
 	static void setMaxGameTime(time_t value) { gameTime = value; }
 	static void setWantExitGameWhenDone(bool value) { wantExitGame = value; }
 	static string getLoadGameSettingsFile() { return loadGameSettingsFile; }
-	static void setLoadGameSettingsFile(string filename) { loadGameSettingsFile = filename; }
+	static void setLoadGameSettingsFile(const string &filename) { loadGameSettingsFile = filename; }
 
 	bool mustExitGame() const { return exitGame; }
 

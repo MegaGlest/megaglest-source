@@ -49,7 +49,7 @@ protected:
 	Ai *ai;
 
 public:
-	AiRule(Ai *ai);
+	explicit AiRule(Ai *ai);
 	virtual ~AiRule() {}
 
 	virtual int getTestInterval() const= 0;	//in milliseconds
@@ -68,7 +68,7 @@ private:
 	int stoppedWorkerIndex;
 
 public:
-	AiRuleWorkerHarvest(Ai *ai);
+	explicit AiRuleWorkerHarvest(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 2000;}
 	virtual string getName() const		{return "Worker stopped => Order worker to harvest";}
@@ -86,7 +86,7 @@ private:
 	int workerIndex;
 
 public:
-	AiRuleRefreshHarvester(Ai *ai);
+	explicit AiRuleRefreshHarvester(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 20000;}
 	virtual string getName() const		{return "Worker reassigned to needed resource";}
@@ -101,7 +101,7 @@ public:
 
 class AiRuleScoutPatrol: public AiRule{
 public:
-	AiRuleScoutPatrol(Ai *ai);
+	explicit AiRuleScoutPatrol(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 10000;}
 	virtual string getName() const		{return "Base is stable => Send scout patrol";}
@@ -123,7 +123,7 @@ private:
 	double getMinCastleHpRatio() const;
 
 public:
-	AiRuleRepair(Ai *ai);
+	explicit AiRuleRepair(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 10000;}
 	virtual string getName() const		{return "Building Damaged => Repair";}
@@ -140,7 +140,7 @@ class AiRuleReturnBase: public AiRule{
 private:
 	int stoppedUnitIndex;
 public:
-	AiRuleReturnBase(Ai *ai);
+	explicit AiRuleReturnBase(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 5000;}
 	virtual string getName() const		{return "Stopped unit => Order return base";}
@@ -163,7 +163,7 @@ private:
 	bool ultraAttack;
 
 public:
-	AiRuleMassiveAttack(Ai *ai);
+	explicit AiRuleMassiveAttack(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 1000;}
 	virtual string getName() const		{return "Unit under attack => Order massive attack";}
@@ -178,7 +178,7 @@ public:
 
 class AiRuleAddTasks: public AiRule{
 public:
-	AiRuleAddTasks(Ai *ai);
+	explicit AiRuleAddTasks(Ai *ai);
 	
 	virtual int getTestInterval() const	{return 5000;}
 	virtual string getName() const		{return "Tasks empty => Add tasks";}
@@ -196,7 +196,7 @@ private:
 	const UnitType *farm;
 
 public:
-	AiRuleBuildOneFarm(Ai *ai);
+	explicit AiRuleBuildOneFarm(Ai *ai);
 
 	virtual int getTestInterval() const	{return 10000;}
 	virtual string getName() const		{return "No farms => Build one";}
@@ -219,7 +219,7 @@ private:
 	bool newResourceBehaviour;
 
 public:
-	AiRuleProduceResourceProducer(Ai *ai);
+	explicit AiRuleProduceResourceProducer(Ai *ai);
 	
 	virtual int getTestInterval() const	{return interval;}
 	virtual string getName() const		{return "No resources => Build Resource Producer";}
@@ -241,7 +241,7 @@ private:
 	bool newResourceBehaviour;
 
 public:
-	AiRuleProduce(Ai *ai);
+	explicit AiRuleProduce(Ai *ai);
 
 	virtual int getTestInterval() const	{return 2000;}
 	virtual string getName() const		{return "Performing produce task";}
@@ -269,7 +269,7 @@ private:
 	const BuildTask *buildTask;
 
 public:
-	AiRuleBuild(Ai *ai);
+	explicit AiRuleBuild(Ai *ai);
 
 	virtual int getTestInterval() const	{return 2000;}
 	virtual string getName() const		{return "Performing build task";}
@@ -296,7 +296,7 @@ private:
 	const UpgradeTask *upgradeTask;
 
 public:
-	AiRuleUpgrade(Ai *ai);
+	explicit AiRuleUpgrade(Ai *ai);
 
 	virtual int getTestInterval() const	{return 2000;}
 	virtual string getName() const		{return "Performing upgrade task";}
@@ -322,7 +322,7 @@ private:
 	const UnitType *storeType;
 
 public:
-	AiRuleExpand(Ai *ai);
+	explicit AiRuleExpand(Ai *ai);
 
 	virtual int getTestInterval() const	{return 30000;}
 	virtual string getName() const		{return "Expanding";}
@@ -337,7 +337,7 @@ public:
 
 class AiRuleUnBlock: public AiRule{
 public:
-	AiRuleUnBlock(Ai *ai);
+	explicit AiRuleUnBlock(Ai *ai);
 
 	virtual int getTestInterval() const	{return 3000;}
 	virtual string getName() const		{return "Blocked Units => Move surrounding units";}

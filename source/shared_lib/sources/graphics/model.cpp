@@ -2090,14 +2090,9 @@ void BaseColorPickEntity::recycleUniqueColor() {
 
 	if(usedColorIDList.empty() == false) {
 		string color_key = getColorDescription();
-		if(usedColorIDList.find(color_key) != usedColorIDList.end()) {
-			usedColorIDList.erase(color_key);
-
-			//printf("REMOVING used Color [%s] usedColorIDList = %d nextColorIDReuseList = %d!\n",color_key.c_str(),(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
-		}
-		else {
-			printf("Line ref: %d *WARNING* color [%s] used count: %d NOT FOUND in history list!\n",__LINE__,color_key.c_str(),(int)usedColorIDList.size());
-		}
+		usedColorIDList.erase(color_key);
+		//printf("REMOVING used Color [%s] usedColorIDList = %d nextColorIDReuseList = %d!\n",color_key.c_str(),(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
+		//printf("Line ref: %d *WARNING* color [%s] used count: %d NOT FOUND in history list!\n",__LINE__,color_key.c_str(),(int)usedColorIDList.size());
 	}
 }
 

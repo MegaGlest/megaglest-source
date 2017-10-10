@@ -286,7 +286,7 @@ void Tokenize(const string& str,vector<string>& tokens,const string& delimiters)
 
 }
 
-void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates) {
+void findDirs(const string &path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates) {
     results.clear();
 	string currentPath = path;
 	endPathWithSlash(currentPath);
@@ -687,7 +687,7 @@ string getCRCCacheFilePath() {
 	return crcCachePath;
 }
 
-void setCRCCacheFilePath(string path) {
+void setCRCCacheFilePath(const string &path) {
 	crcCachePath = path;
 }
 
@@ -697,10 +697,10 @@ string getGameVersion() {
 string getGameGITVersion() {
 	return gameGITVersion;
 }
-void setGameVersion(string version) {
+void setGameVersion(const string &version) {
 	gameVersion = version;
 }
-void setGameGITVersion(string git) {
+void setGameGITVersion(const string &git) {
 	gameGITVersion = git;
 }
 
@@ -718,7 +718,7 @@ string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
 	string result = getCRCCacheFilePath() + "CRC_CACHE_" + uIntToStr(checksum.getSum());
 	return result;
 }
-std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt) {
+std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, const string &pathSearchString, const string &filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumRecursivelyCacheLookupKey1;
 
 	string cacheKey = "";
@@ -886,15 +886,14 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
 	}
 }
 
-void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string &filterFileExt) {
+void clearFolderTreeContentsCheckSum(vector<string> paths, const string &pathSearchString, const string &filterFileExt) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
-	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		crcTreeCache.erase(cacheKey);
-	}
+	crcTreeCache.erase(cacheKey);
+
 	for(unsigned int idx = 0; idx < paths.size(); ++idx) {
 		string path = paths[idx];
 		clearFolderTreeContentsCheckSum(path, filterFileExt);
@@ -908,7 +907,7 @@ void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchStri
 	}
 }
 
-time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> paths, string pathSearchString, const string &filterFileExt) {
+time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(const vector<string> &paths, string pathSearchString, const string &filterFileExt) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
@@ -1013,9 +1012,8 @@ void clearFolderTreeContentsCheckSum(const string &path, const string &filterFil
 	std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
-	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		crcTreeCache.erase(cacheKey);
-	}
+	crcTreeCache.erase(cacheKey);
+
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
 		bool result = removeFile(crcCacheFile);
@@ -1166,7 +1164,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 }
 
 
-std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt) {
+std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, const string &pathSearchString, const string &filterFileExt) {
 	string cacheLookupId =  CacheManager::getFolderTreeContentsCheckSumListRecursivelyCacheLookupKey1;
 
 	string cacheKey = "";
@@ -1177,15 +1175,14 @@ std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string
 	return make_pair(cacheLookupId,cacheKey);
 }
 
-void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string &filterFileExt) {
+void clearFolderTreeContentsCheckSumList(vector<string> paths, const string &pathSearchString, const string &filterFileExt) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,uint32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,uint32> > > >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
-	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		crcTreeCache.erase(cacheKey);
-	}
+	crcTreeCache.erase(cacheKey);
+
 	for(unsigned int idx = 0; idx < paths.size(); ++idx) {
 		string path = paths[idx];
 		clearFolderTreeContentsCheckSumList(path, filterFileExt);
@@ -1197,7 +1194,7 @@ void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearch
 	}
 }
 
-vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string &filterFileExt, vector<std::pair<string,uint32> > *recursiveMap) {
+vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, const string &pathSearchString, const string &filterFileExt, vector<std::pair<string,uint32> > *recursiveMap) {
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumListCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
 	std::map<string,vector<std::pair<string,uint32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,uint32> > > >(cacheLookupId);
@@ -1360,9 +1357,8 @@ void clearFolderTreeContentsCheckSumList(const string &path, const string &filte
 	std::map<string,vector<std::pair<string,uint32> > > &crcTreeCache = CacheManager::getCachedItem< std::map<string,vector<std::pair<string,uint32> > > >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
-	if(crcTreeCache.find(cacheKey) != crcTreeCache.end()) {
-		crcTreeCache.erase(cacheKey);
-	}
+	crcTreeCache.erase(cacheKey);
+
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);
 	if(fileExists(crcCacheFile) == true) {
 		bool result = removeFile(crcCacheFile);
@@ -2001,7 +1997,7 @@ off_t getFileSize(string filename) {
   return 0;
 }
 
-string executable_path(string exeName, bool includeExeNameInPath) {
+string executable_path(const string &exeName, bool includeExeNameInPath) {
 	string value = "";
 #ifdef _WIN32
 	char path[MAX_PATH]="";

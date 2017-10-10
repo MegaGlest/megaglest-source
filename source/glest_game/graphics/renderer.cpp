@@ -2547,9 +2547,9 @@ void Renderer::renderResourceStatus() {
 						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
 			}
 		}
-		if(resourceCountRendered > 0) {
-			rowsRendered++;
-		}
+		//if(resourceCountRendered > 0) {
+		//	rowsRendered++;
+		//}
 	}
 
 	glPopAttrib();
@@ -4305,9 +4305,9 @@ void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {
 		return;
 	}
 
-	const bool renderOnlyVisibleQuad = true;
-
-	if(renderOnlyVisibleQuad == true) {
+//	const bool renderOnlyVisibleQuad = true;
+//
+//	if(renderOnlyVisibleQuad == true) {
 		vector<pair<int,int> > rowsToRender;
 
 		if(rowsToRenderCache.find(qCache.lastVisibleQuad) != rowsToRenderCache.end()) {
@@ -4363,20 +4363,20 @@ void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {
 				glDrawRangeElements(GL_TRIANGLES,rowsToRender[i].first,rowsToRender[i].second,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
 			}
 		}
-	}
-	else {
-		glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
-		glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
-
-		glClientActiveTexture(Renderer::fowTexUnit);
-		glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
-
-		glClientActiveTexture(Renderer::baseTexUnit);
-		glBindTexture(GL_TEXTURE_2D,textureHandle);
-		glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
-
-		glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
-	}
+//	}
+//	else {
+//		glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
+//		glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
+//
+//		glClientActiveTexture(Renderer::fowTexUnit);
+//		glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
+//
+//		glClientActiveTexture(Renderer::baseTexUnit);
+//		glBindTexture(GL_TEXTURE_2D,textureHandle);
+//		glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
+//
+//		glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
+//	}
 }
 
 void Renderer::MapRenderer::renderVisibleLayers(const Map* map,float coordStep,VisibleQuadContainerCache &qCache) {
@@ -7133,9 +7133,9 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 							object->getPos().x, object->getPos().y, object->getPos().z, 1);
 					if(insideQuad == true) {
 						obj = object;
-						if(withObjectSelection == true) {
-							break;
-						}
+						//if(withObjectSelection == true) {
+						break;
+						//}
 					}
 				}
 			}
@@ -9327,12 +9327,12 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 							}
 						}
 						else {
-							bool insideQuad = false;
+							//bool insideQuad = false;
 
-							if( !insideQuad) {
+							//if( !insideQuad) {
 								SurfaceCell *sc = map->getSurfaceCell(pos.x, pos.y);
-								insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);
-							}
+								bool insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);
+							//}
 							if( !insideQuad) {
 								SurfaceCell *sc = map->getSurfaceCell(pos.x+1, pos.y);
 								insideQuad = CubeInFrustum(quadCache.frustumData, sc->getVertex().x, sc->getVertex().y, sc->getVertex().z, 0);

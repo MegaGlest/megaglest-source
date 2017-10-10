@@ -113,7 +113,7 @@ private:
 	void renderModelBackground();
 
 public:
-	Intro(Program *program);
+	explicit Intro(Program *program);
 	virtual ~Intro();
 
 	virtual void update();

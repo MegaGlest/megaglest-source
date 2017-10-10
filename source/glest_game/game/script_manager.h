@@ -57,7 +57,7 @@ private:
 
 public:
 	ScriptManagerMessage();
-	ScriptManagerMessage(string text, string header, int factionIndex=-1,int teamIndex=-1,bool messageNotTranslated=false);
+	ScriptManagerMessage(const string &text, const string &header, int factionIndex=-1,int teamIndex=-1,bool messageNotTranslated=false);
 	const string &getText() const	{return text;}
 	const string &getHeader() const	{return header;}
 	int getFactionIndex() const	{return factionIndex;}

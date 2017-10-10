@@ -90,7 +90,7 @@ public:
 	protected:
 		Mutex *factionMutexPrecache;
 	public:
-		FactionState(int factionIndex) :
+		explicit FactionState(int factionIndex) :
 			//factionMutexPrecache(new Mutex) {
 			factionMutexPrecache(NULL) { //, random(factionIndex) {
 
@@ -184,7 +184,7 @@ private:
 
 public:
 	PathFinder();
-	PathFinder(const Map *map);
+	explicit PathFinder(const Map *map);
 	~PathFinder();
 
 	PathFinder(const PathFinder& obj) {
@@ -265,7 +265,7 @@ private:
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
 				SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In processNode() nodeLimitReached %d unitFactionIndex %d foundOpenPosForPos %d allowUnitMoveSoon %d maxNodeCount %d node->pos = %s finalPos = %s sucPos = %s faction.openPosList.size() %ld closedNodesList.size() %ld",
+			snprintf(szBuf,8096,"In processNode() nodeLimitReached %d unitFactionIndex %d foundOpenPosForPos %d allowUnitMoveSoon %d maxNodeCount %d node->pos = %s finalPos = %s sucPos = %s faction.openPosList.size() %lu closedNodesList.size() %lu",
 					nodeLimitReached,unitFactionIndex,foundOpenPosForPos, allowUnitMoveSoon, maxNodeCount,node->pos.getString().c_str(),finalPos.getString().c_str(),sucPos.getString().c_str(),faction.openPosList.size(),faction.closedNodesList.size());
 
 			if(Thread::isCurrentThreadMainThread() == false) {
@@ -327,9 +327,9 @@ private:
 
 	inline void doAStarPathSearch(bool & nodeLimitReached, int & whileLoopCount,
 			int & unitFactionIndex, bool & pathFound, Node *& node, const Vec2i & finalPos,
-			std::map<Vec2i,bool> closedNodes,
-			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
-			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
+			const std::map<Vec2i,bool> &closedNodes,
+			const std::map<Vec2i,Vec2i> &cameFrom, const std::map<std::pair<Vec2i,Vec2i> ,bool> &canAddNode,
+			Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true &&
 				SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {

@@ -68,7 +68,7 @@ public:
 
     static const char *MAIN_PROGRAM_RENDER_KEY;
 
-	ProgramState(Program *program);
+	explicit ProgramState(Program *program);
 	virtual ~ProgramState(){};
 
     int getFps() const { return fps; }

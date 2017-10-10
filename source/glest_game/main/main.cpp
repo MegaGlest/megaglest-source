@@ -458,7 +458,7 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 }
 
 struct UntypedException {
-  UntypedException(const EXCEPTION_RECORD & er)
+	explicit UntypedException(const EXCEPTION_RECORD & er)
     : exception_object(reinterpret_cast<void *>(er.ExceptionInformation[1])),
       type_array(reinterpret_cast<_ThrowInfo *>(er.ExceptionInformation[2])->pCatchableTypeArray)
   {}
@@ -639,7 +639,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 			printf("\n** Already in error handler aborting, msg [%s]\n",msg);
 			fflush(stdout);
 			abort();
-			return;
+			//return;
 		}
 		inErrorNow = true;
 
@@ -1787,7 +1787,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		bool showDuplicateFiles, bool gitPurgeFiles,double &purgedMegaBytes) {
 	Checksum checksum;
 
-	bool techtree_errors = false;
+	//bool techtree_errors = false;
 
 	std::map<string,vector<pair<string, string> >  > loadedFileList;
 	vector<string> pathList;
@@ -2113,9 +2113,9 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		}
 	}
 
-	if(techtree_errors == false) {
-		printf("\nValidation found NO ERRORS for tilesetPath [%s] tilesetName [%s]:\n",tilesetPath.c_str(), tilesetName.c_str());
-	}
+	//if(techtree_errors == false) {
+	printf("\nValidation found NO ERRORS for tilesetPath [%s] tilesetName [%s]:\n",tilesetPath.c_str(), tilesetName.c_str());
+	//}
 
 	printf("----------------------------------------------------------------");
 }
@@ -3307,7 +3307,6 @@ Steam & initSteamInstance() {
 }
 
 void setupSteamSettings(bool steamEnabled) {
-	bool needToSaveConfig=false;
 	Config &config = Config::getInstance();
 	config.setBool("SteamEnabled",steamEnabled,true);
 	if(steamEnabled) {
@@ -3321,6 +3320,7 @@ void setupSteamSettings(bool steamEnabled) {
 		string steamLang = steam.lang();
 		printf("Steam Integration Enabled!\nSteam User Name is [%s] Language is [%s]\n", steamPlayerName.c_str(), steamLang.c_str());
 
+		bool needToSaveConfig=false;
 		string currentPLayerName = config.getString("NetPlayerName","");
 		if( currentPLayerName == "newbie" || currentPLayerName == "" ) {
 			config.setString("NetPlayerName",steamPlayerName);

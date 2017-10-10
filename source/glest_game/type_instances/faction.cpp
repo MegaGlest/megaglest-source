@@ -345,10 +345,10 @@ void FactionThread::execute() {
 				codeLocation = "7";
 				//Config &config= Config::getInstance();
 				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
-				bool sortedUnitsAllowed = false;
-				if(sortedUnitsAllowed == true) {
-					this->faction->sortUnitsByCommandGroups();
-				}
+				//bool sortedUnitsAllowed = false;
+				//if(sortedUnitsAllowed == true) {
+				this->faction->sortUnitsByCommandGroups();
+				//}
 
 				codeLocation = "8";
 				static string mutexOwnerId2 = string(__FILE__) + string("_") + intToStr(__LINE__);
@@ -1976,7 +1976,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 	}
 */
 
-	if(result == NULL) {
+	//if(result == NULL) {
 		for(int i = 0; i < getUnitCount(); ++i) {
 			Unit *curUnit = getUnit(i);
 
@@ -2014,7 +2014,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 				}
 			}
 		}
-	}
+	//}
 	return result;
 }
 

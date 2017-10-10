@@ -44,7 +44,7 @@ protected:
 	virtual void setTaskCompleted(int frameIndex);
 
 public:
-	AiInterfaceThread(AiInterface *aiIntf);
+	explicit AiInterfaceThread(AiInterface *aiIntf);
 	virtual ~AiInterfaceThread();
     virtual void execute();
     void signal(int frameIndex);

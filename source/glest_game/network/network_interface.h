@@ -412,7 +412,7 @@ private:
     FileTransferInfo info;
 
 public:
-    FileTransferSocketThread(FileTransferInfo fileInfo);
+    explicit FileTransferSocketThread(FileTransferInfo fileInfo);
     virtual void execute();
 };
 

@@ -279,7 +279,7 @@ private:
 	void loadFactionTexture(string filepath);
 
 	GameSettings loadGameSettingsFromFile(std::string fileName);
-	void loadGameSettings(std::string fileName);
+	void loadGameSettings(const std::string &fileName);
 	void RestoreLastGameSettings();
 	void PlayNow(bool saveGame);
 

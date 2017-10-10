@@ -205,7 +205,7 @@ public:
 	enum Enum { NORTH, EAST, SOUTH, WEST, COUNT };
 
 	CardinalDir() : value(NORTH) {}
-	CardinalDir(Enum v) : value(v) {}
+	explicit CardinalDir(Enum v) : value(v) {}
 	explicit CardinalDir(int v) {
 		assertDirValid(v);
 		value = static_cast<Enum>(v);

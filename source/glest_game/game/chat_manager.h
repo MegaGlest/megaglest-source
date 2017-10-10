@@ -104,7 +104,7 @@ public:
 	bool getDisableTeamMode() const { return disableTeamMode; }
 	void setDisableTeamMode(bool value);
 
-	void setAutoCompleteTextList(vector<string> list) { autoCompleteTextList = list; }
+	void setAutoCompleteTextList(const vector<string> &list) { autoCompleteTextList = list; }
 
 	bool isInCustomInputMode() const { return customCB != NULL; };
 };

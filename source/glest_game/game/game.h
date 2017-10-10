@@ -313,10 +313,10 @@ public:
 	Vec2i getPerformanceTimerResults();
 
 	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger=NULL,string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER, bool useTechDefaultIfFilterNotFound=true);
-	static string findFactionLogoFile(const GameSettings *settings, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
+	static string findFactionLogoFile(const GameSettings *settings, Logger *logger=NULL, const string &factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
 	static string extractScenarioLogoFile(const GameSettings *settings, string &result, bool &loadingImageUsed, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
-	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, string scenarioDir, string techName, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
-	static string extractTechLogoFile(string scenarioDir, string techName, bool &loadingImageUsed, Logger *logger=NULL,string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
+	static string extractFactionLogoFile(bool &loadingImageUsed, const string &factionName, string scenarioDir, const string &techName, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
+	static string extractTechLogoFile(string scenarioDir, const string &techName, bool &loadingImageUsed, Logger *logger=NULL,const string &factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
 
 	void loadHudTexture(const GameSettings *settings);
 
@@ -332,7 +332,7 @@ public:
 	void stopStreamingVideo(const string &playVideo);
 	void stopAllVideo();
 
-	string saveGame(string name, string path="saved/");
+	string saveGame(string name, const string &path="saved/");
 	static void loadGame(string name,Program *programPtr,bool isMasterserverMode, const GameSettings *joinGameSettings=NULL);
 
 	void addNetworkCommandToReplayList(NetworkCommand* networkCommand,int worldFrameCount);

@@ -92,9 +92,9 @@ public:
 	Console();
 	virtual ~Console();
 
-	void registerGraphicComponent(std::string containerName, std::string objName);
+	void registerGraphicComponent(const std::string &containerName, const std::string &objName);
 	string getInstanceName() const { return instanceName; }
-	void setInstanceName(string value) { instanceName = value; }
+	void setInstanceName(const string &value) { instanceName = value; }
 	string getFontCallbackName() const { return fontCallbackName; }
 
 	int getStoredLineCount() const		{return (int)storedLines.size();}
@@ -113,7 +113,7 @@ public:
 	void setFont(Font2D *font);
 	void setFont3D(Font3D *font);
     string getStringToHighlight() const { return stringToHighlight;}
-    void setStringToHighlight(string stringToHighlight) { this->stringToHighlight = stringToHighlight;}
+    void setStringToHighlight(const string &stringToHighlight) { this->stringToHighlight = stringToHighlight;}
     void resetFonts();
 
 	
@@ -124,13 +124,13 @@ public:
 
 	void clearStoredLines();
 	void addStdMessage(const string &s, bool clearOtherLines=false);
-	void addStdMessage(const string &s, string failText, bool clearOtherLines=false);
+	void addStdMessage(const string &s, const string &failText, bool clearOtherLines=false);
 
 	void addStdScenarioMessage(const string &s,bool clearOtherLines=false);
-	void addLineOnly(string line);
-	void addLine(string line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false,bool clearOtherLines=false);
-	void addLine(string line, bool playSound,string playerName, Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false);
-	void addLine(string line, bool playSound, Vec3f textColor) { addLine(line,playSound,"",textColor,false); }
+	void addLineOnly(const string &line);
+	void addLine(const string &line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false,bool clearOtherLines=false);
+	void addLine(const string &line, bool playSound, const string &playerName, Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false);
+	void addLine(const string &line, bool playSound, Vec3f textColor) { addLine(line,playSound,"",textColor,false); }
 	void update();
 	bool isEmpty();
 

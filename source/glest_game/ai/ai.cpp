@@ -761,7 +761,7 @@ void Ai::sendScoutPatrol(){
 	bool megaResourceAttack=(aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
 			&& random.randRange(0, 1) == 1;
 
-	if(possibleTargetFound == false && (megaResourceAttack || ultraResourceAttack)) {
+	if(megaResourceAttack || ultraResourceAttack) {
 		Map *map= aiInterface->getMap();
 
 		const TechTree *tt= aiInterface->getTechTree();
@@ -1131,8 +1131,8 @@ void Ai::unblockUnits() {
 
 			//printf("#2 AI found blocked unit [%d - %s]\n",u->getId(),u->getFullName().c_str());
 
-			int failureCount = 0;
-			int cellCount = 0;
+			//int failureCount = 0;
+			//int cellCount = 0;
 
 			for(int i = -1; i <= 1; ++i) {
 				for(int j = -1; j <= 1; ++j) {
@@ -1141,10 +1141,10 @@ void Ai::unblockUnits() {
 						if(pos != unitPos) {
 							bool canUnitMoveToCell = map->aproxCanMove(u, unitPos, pos);
 							if(canUnitMoveToCell == false) {
-								failureCount++;
+								//failureCount++;
 								getAdjacentUnits(signalAdjacentUnits, u);
 							}
-							cellCount++;
+							//cellCount++;
 						}
 					}
 				}

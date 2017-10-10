@@ -187,7 +187,7 @@ bool isdir(const char *path);
 bool fileExists(const string &path);
 inline bool folderExists(const string &path) { return isdir(path.c_str()); }
 
-void findDirs(string path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates);
+void findDirs(const string &path, vector<string> &results, bool errorOnNotFound,bool keepDuplicates);
 void findDirs(const vector<string> &paths, vector<string> &results, bool errorOnNotFound=false,bool keepDuplicates=false);
 void findAll(const vector<string> &paths, const string &fileFilter, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true,bool keepDuplicates=false);
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
@@ -195,24 +195,24 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 
 string getGameVersion();
 string getGameGITVersion();
-void setGameVersion(string version);
-void setGameGITVersion(string git);
+void setGameVersion(const string &version);
+void setGameGITVersion(const string &git);
 
 string getCRCCacheFilePath();
-void setCRCCacheFilePath(string path);
+void setCRCCacheFilePath(const string &path);
 
-std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt);
-void clearFolderTreeContentsCheckSum(vector<string> paths, string pathSearchString, const string &filterFileExt);
+std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, const string &pathSearchString, const string &filterFileExt);
+void clearFolderTreeContentsCheckSum(vector<string> paths, const string &pathSearchString, const string &filterFileExt);
 uint32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pathSearchString, const string &filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
-time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> paths, string pathSearchString, const string &filterFileExt);
+time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(const vector<string> &paths, string pathSearchString, const string &filterFileExt);
 
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(const string &path, const string &filterFileExt);
 void clearFolderTreeContentsCheckSum(const string &path, const string &filterFileExt);
 uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string &filterFileExt, Checksum *recursiveChecksum,bool forceNoCache=false);
 
-std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt);
-void clearFolderTreeContentsCheckSumList(vector<string> paths, string pathSearchString, const string &filterFileExt);
-vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, string pathSearchString, const string &filterFileExt, vector<std::pair<string,uint32> > *recursiveMap);
+std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(vector<string> paths, const string &pathSearchString, const string &filterFileExt);
+void clearFolderTreeContentsCheckSumList(vector<string> paths, const string &pathSearchString, const string &filterFileExt);
+vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(vector<string> paths, const string &pathSearchString, const string &filterFileExt, vector<std::pair<string,uint32> > *recursiveMap);
 
 std::pair<string,string> getFolderTreeContentsCheckSumListCacheKey(const string &path, const string &filterFileExt);
 void clearFolderTreeContentsCheckSumList(const string &path, const string &filterFileExt);
@@ -303,7 +303,7 @@ string getFullFileArchiveCompressCommand(string fileArchiveCompressCommand,
 		string fileArchiveCompressCommandParameters, string archivename, string archivefiles);
 
 bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE,ShellCommandOutputCallbackInterface *cb=NULL);
-string executable_path(string exeName,bool includeExeNameInPath=false);
+string executable_path(const string &exeName,bool includeExeNameInPath=false);
 
 void saveDataToFile(string filename, string data);
 

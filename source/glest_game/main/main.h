@@ -39,7 +39,7 @@ private:
     void showLanguages();
 
 public:
-	MainWindow(Program *program);
+	explicit MainWindow(Program *program);
 	~MainWindow();
 
 	void setProgram(Program *program);
