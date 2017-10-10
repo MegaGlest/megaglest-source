@@ -1,5 +1,5 @@
 TARGET				= megaglest_shim
-GAME_LAUNCH_NAME	= megaglestx64
+GAME_LAUNCH_NAME	= megaglest
 
 !ifndef STEAMWORKS
 # STEAMWORKS			= ..\..\..\steamworks_sdk\sdk
