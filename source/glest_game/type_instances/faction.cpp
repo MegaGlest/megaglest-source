@@ -633,18 +633,18 @@ void Faction::removeUnitFromMovingList(int unitId) {
 	unitsMovingList.erase(unitId);
 }
 
-int Faction::getUnitMovingListCount() {
-	return (int)unitsMovingList.size();
-}
+//int Faction::getUnitMovingListCount() {
+//	return (int)unitsMovingList.size();
+//}
 
 void Faction::addUnitToPathfindingList(int unitId) {
 	//printf("ADD (1) Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
 	unitsPathfindingList[unitId] = getWorld()->getFrameCount();
 	//printf("ADD (2) Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
 }
-void Faction::removeUnitFromPathfindingList(int unitId) {
-	unitsPathfindingList.erase(unitId);
-}
+//void Faction::removeUnitFromPathfindingList(int unitId) {
+//	unitsPathfindingList.erase(unitId);
+//}
 
 int Faction::getUnitPathfindingListCount() {
 	//printf("GET Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
@@ -1939,84 +1939,84 @@ void Faction::deletePixels() {
 	}
 }
 
-Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandClass &cmdClass,
-												const std::vector<SkillClass> &skillClassList,
-												const UnitType *unitType) {
-	Unit *result = NULL;
-
-/*
-	std::map<CommandClass,std::map<int,int> >::iterator iterFind = cacheUnitCommandClassList.find(cmdClass);
-	if(iterFind != cacheUnitCommandClassList.end()) {
-		for(std::map<int,int>::iterator iter = iterFind->second.begin();
-				iter != iterFind->second.end(); ++iter) {
-			Unit *curUnit = findUnit(iter->second);
-			if(curUnit != NULL) {
-
-				const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
-				bool isUnitPossibleCandidate = (cmdType != NULL);
-				if(skillClassList.empty() == false) {
-					isUnitPossibleCandidate = false;
-
-					for(int j = 0; j < skillClassList.size(); ++j) {
-						SkillClass skValue = skillClassList[j];
-						if(curUnit->getCurrSkill()->getClass() == skValue) {
-							isUnitPossibleCandidate = true;
-							break;
-						}
-					}
-				}
-
-				if(isUnitPossibleCandidate == true) {
-					if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
-						result = curUnit;
-					}
-				}
-			}
-		}
-	}
-*/
-
-	//if(result == NULL) {
-		for(int i = 0; i < getUnitCount(); ++i) {
-			Unit *curUnit = getUnit(i);
-
-			bool isUnitPossibleCandidate = false;
-
-			const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
-			if(cmdType != NULL) {
-				const RepairCommandType *rct = dynamic_cast<const RepairCommandType *>(cmdType);
-				if(rct != NULL && rct->isRepairableUnitType(unitType)) {
-					isUnitPossibleCandidate = true;
-				}
-			}
-			else {
-				isUnitPossibleCandidate = false;
-			}
-
-			if(isUnitPossibleCandidate == true && skillClassList.empty() == false) {
-				isUnitPossibleCandidate = false;
-
-				for(int j = 0; j < (int)skillClassList.size(); ++j) {
-					SkillClass skValue = skillClassList[j];
-					if(curUnit->getCurrSkill()->getClass() == skValue) {
-						isUnitPossibleCandidate = true;
-						break;
-					}
-				}
-			}
-
-
-			if(isUnitPossibleCandidate == true) {
-				//cacheUnitCommandClassList[cmdClass][curUnit->getId()] = curUnit->getId();
-
-				if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
-					result = curUnit;
-				}
-			}
-		}
-	//}
-	return result;
-}
+//Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandClass &cmdClass,
+//												const std::vector<SkillClass> &skillClassList,
+//												const UnitType *unitType) {
+//	Unit *result = NULL;
+//
+///*
+//	std::map<CommandClass,std::map<int,int> >::iterator iterFind = cacheUnitCommandClassList.find(cmdClass);
+//	if(iterFind != cacheUnitCommandClassList.end()) {
+//		for(std::map<int,int>::iterator iter = iterFind->second.begin();
+//				iter != iterFind->second.end(); ++iter) {
+//			Unit *curUnit = findUnit(iter->second);
+//			if(curUnit != NULL) {
+//
+//				const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
+//				bool isUnitPossibleCandidate = (cmdType != NULL);
+//				if(skillClassList.empty() == false) {
+//					isUnitPossibleCandidate = false;
+//
+//					for(int j = 0; j < skillClassList.size(); ++j) {
+//						SkillClass skValue = skillClassList[j];
+//						if(curUnit->getCurrSkill()->getClass() == skValue) {
+//							isUnitPossibleCandidate = true;
+//							break;
+//						}
+//					}
+//				}
+//
+//				if(isUnitPossibleCandidate == true) {
+//					if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
+//						result = curUnit;
+//					}
+//				}
+//			}
+//		}
+//	}
+//*/
+//
+//	//if(result == NULL) {
+//		for(int i = 0; i < getUnitCount(); ++i) {
+//			Unit *curUnit = getUnit(i);
+//
+//			bool isUnitPossibleCandidate = false;
+//
+//			const CommandType *cmdType = curUnit->getType()->getFirstCtOfClass(cmdClass);
+//			if(cmdType != NULL) {
+//				const RepairCommandType *rct = dynamic_cast<const RepairCommandType *>(cmdType);
+//				if(rct != NULL && rct->isRepairableUnitType(unitType)) {
+//					isUnitPossibleCandidate = true;
+//				}
+//			}
+//			else {
+//				isUnitPossibleCandidate = false;
+//			}
+//
+//			if(isUnitPossibleCandidate == true && skillClassList.empty() == false) {
+//				isUnitPossibleCandidate = false;
+//
+//				for(int j = 0; j < (int)skillClassList.size(); ++j) {
+//					SkillClass skValue = skillClassList[j];
+//					if(curUnit->getCurrSkill()->getClass() == skValue) {
+//						isUnitPossibleCandidate = true;
+//						break;
+//					}
+//				}
+//			}
+//
+//
+//			if(isUnitPossibleCandidate == true) {
+//				//cacheUnitCommandClassList[cmdClass][curUnit->getId()] = curUnit->getId();
+//
+//				if(result == NULL || curUnit->getPos().dist(pos) < result->getPos().dist(pos)) {
+//					result = curUnit;
+//				}
+//			}
+//		}
+//	//}
+//	return result;
+//}
 
 int Faction::getFrameCount() {
 	int frameCount = 0;

@@ -114,7 +114,7 @@ public:
     void setSlotIndex(int index) { this->slotIndex = index; }
 
     void purgeCompletedEvents();
-    void purgeAllEvents();
+    //void purgeAllEvents();
     void setAllEventsCompleted();
 
     virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
@@ -222,7 +222,7 @@ public:
 	void clearThreadErrorList() { threadErrorList.clear(); }
 
 	vector<NetworkCommand> getPendingNetworkCommandList(bool clearList=false);
-	void clearPendingNetworkCommandList();
+	//void clearPendingNetworkCommandList();
 
 	void signalUpdate(ConnectionSlotEvent *event);
 	bool updateCompleted(ConnectionSlotEvent *event);

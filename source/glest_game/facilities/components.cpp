@@ -419,17 +419,17 @@ bool GraphicLabel::getCenteredW() const {
 	bool result = (centered || centeredW == 1);
 	return result;
 }
-void GraphicLabel::setCenteredW(bool centered) {
-	centeredW = (centered ? 1 : 0);
-}
+//void GraphicLabel::setCenteredW(bool centered) {
+//	centeredW = (centered ? 1 : 0);
+//}
 
 bool GraphicLabel::getCenteredH() const {
 	bool result = (centered || centeredH == 1);
 	return result;
 }
-void GraphicLabel::setCenteredH(bool centered) {
-	centeredH = (centered ? 1 : 0);
-}
+//void GraphicLabel::setCenteredH(bool centered) {
+//	centeredH = (centered ? 1 : 0);
+//}
 
 // =====================================================
 //	class GraphicButton

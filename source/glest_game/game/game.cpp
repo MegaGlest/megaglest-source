@@ -513,17 +513,17 @@ int Game::ErrorDisplayMessage(const char *msg, bool exitApp) {
     return 0;
 }
 
-Texture2D * Game::findFactionLogoTexture(const GameSettings *settings, Logger *logger,string factionLogoFilter, bool useTechDefaultIfFilterNotFound) {
-	Texture2D *result = NULL;
-	string logoFilename = Game::findFactionLogoFile(settings, logger,factionLogoFilter);
-	if(logoFilename == "" && factionLogoFilter != "" && useTechDefaultIfFilterNotFound == true) {
-		logoFilename = Game::findFactionLogoFile(settings, logger);
-	}
-
-	result = Renderer::findTexture(logoFilename);
-
-	return result;
-}
+//Texture2D * Game::findFactionLogoTexture(const GameSettings *settings, Logger *logger,string factionLogoFilter, bool useTechDefaultIfFilterNotFound) {
+//	Texture2D *result = NULL;
+//	string logoFilename = Game::findFactionLogoFile(settings, logger,factionLogoFilter);
+//	if(logoFilename == "" && factionLogoFilter != "" && useTechDefaultIfFilterNotFound == true) {
+//		logoFilename = Game::findFactionLogoFile(settings, logger);
+//	}
+//
+//	result = Renderer::findTexture(logoFilename);
+//
+//	return result;
+//}
 
 string Game::extractScenarioLogoFile(const GameSettings *settings, string &result,
 		bool &loadingImageUsed, Logger *logger, string factionLogoFilter) {
@@ -6132,16 +6132,16 @@ bool Game::factionLostGame(const Faction *faction) {
 	return true;
 }
 
-bool Game::hasBuilding(const Faction *faction) {
-	if(faction != NULL) {
-		for(int i=0; i<faction->getUnitCount(); ++i) {
-			if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
+//bool Game::hasBuilding(const Faction *faction) {
+//	if(faction != NULL) {
+//		for(int i=0; i<faction->getUnitCount(); ++i) {
+//			if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
+//				return true;
+//			}
+//		}
+//	}
+//	return false;
+//}
 
 void Game::incSpeed() {
 	if(disableSpeedChange == true) {

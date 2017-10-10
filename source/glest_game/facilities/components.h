@@ -182,10 +182,10 @@ public:
 	void setCentered(bool centered)	{this->centered= centered;}
 
 	bool getCenteredW() const;
-	void setCenteredW(bool centered);
+	//void setCenteredW(bool centered);
 
 	bool getCenteredH() const;
-	void setCenteredH(bool centered);
+	//void setCenteredH(bool centered);
 
 	Vec3f getTextColor() const	{return textColor;}
 	void setTextColor(Vec3f color)	{this->textColor= color;}

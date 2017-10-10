@@ -231,7 +231,7 @@ string replaceBy(const string &s, char c1, char c2);
 vector<string> split(string s,string d);
 string toLower(const string &s);
 bool compareNonCaseSensitive(const string a, const string b);
-void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
+//void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
 
 //numeric fcs
 int clamp(int value, int min, int max);

@@ -842,23 +842,23 @@ void Renderer::endMenu() {
 	//}
 }
 
-void Renderer::reloadResources() {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	for(int i=0; i<rsCount; ++i) {
-		modelManager[i]->end();
-		textureManager[i]->end();
-		fontManager[i]->end();
-	}
-
-	for(int i=0; i<rsCount; ++i) {
-		modelManager[i]->init();
-		textureManager[i]->init();
-		fontManager[i]->init();
-	}
-}
+//void Renderer::reloadResources() {
+//	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+//		return;
+//	}
+//
+//	for(int i=0; i<rsCount; ++i) {
+//		modelManager[i]->end();
+//		textureManager[i]->end();
+//		fontManager[i]->end();
+//	}
+//
+//	for(int i=0; i<rsCount; ++i) {
+//		modelManager[i]->init();
+//		textureManager[i]->init();
+//		fontManager[i]->init();
+//	}
+//}
 
 // ==================== engine interface ====================
 
@@ -962,13 +962,13 @@ void Renderer::endFont(::Shared::Graphics::Font *font, ResourceScope rs, bool mu
 	fontManager[rs]->endFont(font,mustExistInList);
 }
 
-void Renderer::resetFontManager(ResourceScope rs) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-	fontManager[rs]->end();
-	fontManager[rsGlobal]->init();
-}
+//void Renderer::resetFontManager(ResourceScope rs) {
+//	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+//		return;
+//	}
+//	fontManager[rs]->end();
+//	fontManager[rsGlobal]->init();
+//}
 
 void Renderer::addToDeferredParticleSystemList(std::pair<ParticleSystem *, ResourceScope> deferredParticleSystem) {
 	deferredParticleSystems.push_back(deferredParticleSystem);
@@ -1098,33 +1098,33 @@ void Renderer::setupLighting() {
 	assertGl();
 }
 
-void Renderer::setupLightingForRotatedModel() {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	const World *world= game->getWorld();
-	//const GameCamera *gameCamera= game->getGameCamera();
-	const TimeFlow *timeFlow= world->getTimeFlow();
-	float time= timeFlow->getTime();
-
-	assertGl();
-
-    //sun/moon light
-	Vec3f lightColor= timeFlow->computeLightColor();
-	Vec3f fogColor= world->getTileset()->getFogColor();
-	Vec4f lightPos= timeFlow->isDay()? computeSunPos(time): computeMoonPos(time);
-	//nearestLightPos= lightPos;
-
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos.ptr());
-	glLightfv(GL_LIGHT0, GL_AMBIENT, Vec4f(lightColor*lightAmbFactor, 1.f).ptr());
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, Vec4f(lightColor, 1.f).ptr());
-	glLightfv(GL_LIGHT0, GL_SPECULAR, Vec4f(0.0f, 0.0f, 0.f, 1.f).ptr());
-
-	glFogfv(GL_FOG_COLOR, Vec4f(fogColor*lightColor, 1.f).ptr());
-
-	assertGl();
-}
+//void Renderer::setupLightingForRotatedModel() {
+//	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+//		return;
+//	}
+//
+//	const World *world= game->getWorld();
+//	//const GameCamera *gameCamera= game->getGameCamera();
+//	const TimeFlow *timeFlow= world->getTimeFlow();
+//	float time= timeFlow->getTime();
+//
+//	assertGl();
+//
+//    //sun/moon light
+//	Vec3f lightColor= timeFlow->computeLightColor();
+//	Vec3f fogColor= world->getTileset()->getFogColor();
+//	Vec4f lightPos= timeFlow->isDay()? computeSunPos(time): computeMoonPos(time);
+//	//nearestLightPos= lightPos;
+//
+//	glLightfv(GL_LIGHT0, GL_POSITION, lightPos.ptr());
+//	glLightfv(GL_LIGHT0, GL_AMBIENT, Vec4f(lightColor*lightAmbFactor, 1.f).ptr());
+//	glLightfv(GL_LIGHT0, GL_DIFFUSE, Vec4f(lightColor, 1.f).ptr());
+//	glLightfv(GL_LIGHT0, GL_SPECULAR, Vec4f(0.0f, 0.0f, 0.f, 1.f).ptr());
+//
+//	glFogfv(GL_FOG_COLOR, Vec4f(fogColor*lightColor, 1.f).ptr());
+//
+//	assertGl();
+//}
 
 void Renderer::loadGameCameraMatrix() {
 	const GameCamera *gameCamera= game->getGameCamera();
@@ -1407,30 +1407,30 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    return frustumChanged;
 }
 
-bool Renderer::PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z ) {
-   unsigned int p=0;
-
-   for( p = 0; p < frustum.size(); p++ ) {
-      if( frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= 0 ) {
-         return false;
-      }
-   }
-   return true;
-}
-
-bool Renderer::SphereInFrustum(vector<vector<float> > &frustum,  float x, float y, float z, float radius) {
-	// Go through all the sides of the frustum
-	for(int i = 0; i < (int)frustum.size(); i++ ) {
-		// If the center of the sphere is farther away from the plane than the radius
-		if(frustum[i][0] * x + frustum[i][1] * y + frustum[i][2] * z + frustum[i][3] <= -radius ) {
-			// The distance was greater than the radius so the sphere is outside of the frustum
-			return false;
-		}
-	}
-
-	// The sphere was inside of the frustum!
-	return true;
-}
+//bool Renderer::PointInFrustum(vector<vector<float> > &frustum, float x, float y, float z ) {
+//   unsigned int p=0;
+//
+//   for( p = 0; p < frustum.size(); p++ ) {
+//      if( frustum[p][0] * x + frustum[p][1] * y + frustum[p][2] * z + frustum[p][3] <= 0 ) {
+//         return false;
+//      }
+//   }
+//   return true;
+//}
+//
+//bool Renderer::SphereInFrustum(vector<vector<float> > &frustum,  float x, float y, float z, float radius) {
+//	// Go through all the sides of the frustum
+//	for(int i = 0; i < (int)frustum.size(); i++ ) {
+//		// If the center of the sphere is farther away from the plane than the radius
+//		if(frustum[i][0] * x + frustum[i][1] * y + frustum[i][2] * z + frustum[i][3] <= -radius ) {
+//			// The distance was greater than the radius so the sphere is outside of the frustum
+//			return false;
+//		}
+//	}
+//
+//	// The sphere was inside of the frustum!
+//	return true;
+//}
 
 bool Renderer::CubeInFrustum(vector<vector<float> > &frustum, float x, float y, float z, float size ) {
    unsigned int p=0;
@@ -3994,60 +3994,60 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 // ==================== complex rendering ====================
 
-VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
-	std::map<uint32,VisibleQuadContainerVBOCache >::iterator iterFind = mapSurfaceVBOCache.find(cellData->uniqueId);
-	if(iterFind == mapSurfaceVBOCache.end()) {
-		Vec2f *texCoords		= &cellData->texCoords[0];
-		Vec2f *texCoordsSurface	= &cellData->texCoordsSurface[0];
-		Vec3f *vertices			= &cellData->vertices[0];
-		Vec3f *normals			= &cellData->normals[0];
-
-		VisibleQuadContainerVBOCache vboCache;
-
-		// Generate And Bind The Vertex Buffer
-		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOVertices );					// Get A Valid Name
-		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOVertices );			// Bind The Buffer
-		// Load The Data
-		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, vertices, GL_STATIC_DRAW_ARB );
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-		assertGl();
-		// Generate And Bind The Texture Coordinate Buffer
-		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOFowTexCoords );					// Get A Valid Name
-		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOFowTexCoords );		// Bind The Buffer
-		// Load The Data
-		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoords, GL_STATIC_DRAW_ARB );
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-		assertGl();
-		// Generate And Bind The Texture Coordinate Buffer
-		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOSurfaceTexCoords );					// Get A Valid Name
-		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOSurfaceTexCoords );		// Bind The Buffer
-		// Load The Data
-		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoordsSurface, GL_STATIC_DRAW_ARB );
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-		assertGl();
-		// Generate And Bind The Normal Buffer
-		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBONormals );					// Get A Valid Name
-		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBONormals );			// Bind The Buffer
-		// Load The Data
-		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, normals, GL_STATIC_DRAW_ARB );
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-		vboCache.hasBuiltVBOs = true;
-
-		mapSurfaceVBOCache[cellData->uniqueId] = vboCache;
-
-		// don't need the data in computer RAM anymore its in the GPU now
-		cellData->texCoords.clear();
-		cellData->texCoordsSurface.clear();
-		cellData->vertices.clear();
-		cellData->normals.clear();
-	}
-
-	return &mapSurfaceVBOCache[cellData->uniqueId];
-}
+//VisibleQuadContainerVBOCache * Renderer::GetSurfaceVBOs(SurfaceData *cellData) {
+//	std::map<uint32,VisibleQuadContainerVBOCache >::iterator iterFind = mapSurfaceVBOCache.find(cellData->uniqueId);
+//	if(iterFind == mapSurfaceVBOCache.end()) {
+//		Vec2f *texCoords		= &cellData->texCoords[0];
+//		Vec2f *texCoordsSurface	= &cellData->texCoordsSurface[0];
+//		Vec3f *vertices			= &cellData->vertices[0];
+//		Vec3f *normals			= &cellData->normals[0];
+//
+//		VisibleQuadContainerVBOCache vboCache;
+//
+//		// Generate And Bind The Vertex Buffer
+//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOVertices );					// Get A Valid Name
+//		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOVertices );			// Bind The Buffer
+//		// Load The Data
+//		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, vertices, GL_STATIC_DRAW_ARB );
+//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//
+//		assertGl();
+//		// Generate And Bind The Texture Coordinate Buffer
+//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOFowTexCoords );					// Get A Valid Name
+//		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOFowTexCoords );		// Bind The Buffer
+//		// Load The Data
+//		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoords, GL_STATIC_DRAW_ARB );
+//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//
+//		assertGl();
+//		// Generate And Bind The Texture Coordinate Buffer
+//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOSurfaceTexCoords );					// Get A Valid Name
+//		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBOSurfaceTexCoords );		// Bind The Buffer
+//		// Load The Data
+//		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * cellData->bufferCount, texCoordsSurface, GL_STATIC_DRAW_ARB );
+//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//
+//		assertGl();
+//		// Generate And Bind The Normal Buffer
+//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBONormals );					// Get A Valid Name
+//		glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache.m_nVBONormals );			// Bind The Buffer
+//		// Load The Data
+//		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) * cellData->bufferCount, normals, GL_STATIC_DRAW_ARB );
+//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//
+//		vboCache.hasBuiltVBOs = true;
+//
+//		mapSurfaceVBOCache[cellData->uniqueId] = vboCache;
+//
+//		// don't need the data in computer RAM anymore its in the GPU now
+//		cellData->texCoords.clear();
+//		cellData->texCoordsSurface.clear();
+//		cellData->vertices.clear();
+//		cellData->normals.clear();
+//	}
+//
+//	return &mapSurfaceVBOCache[cellData->uniqueId];
+//}
 
 void Renderer::ReleaseSurfaceVBOs() {
 	for(std::map<uint32,VisibleQuadContainerVBOCache>::iterator iterFind = mapSurfaceVBOCache.begin();
@@ -7685,31 +7685,31 @@ void Renderer::loadConfig() {
 	}
 }
 
-Texture2D *Renderer::saveScreenToTexture(int x, int y, int width, int height) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	Config &config= Config::getInstance();
-	Texture2D::Filter textureFilter = strToTextureFilter(config.getString("Filter"));
-	int maxAnisotropy				= config.getInt("FilterMaxAnisotropy");
-
-	Texture2D *texture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
-	texture->setForceCompressionDisabled(true);
-	texture->setMipmap(false);
-	Pixmap2D *pixmapScreenShot = texture->getPixmap();
-	pixmapScreenShot->init(width, height, 3);
-	texture->init(textureFilter,maxAnisotropy);
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	//glFinish();
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	glReadPixels(x, y, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
-				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	return texture;
-}
+//Texture2D *Renderer::saveScreenToTexture(int x, int y, int width, int height) {
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	Config &config= Config::getInstance();
+//	Texture2D::Filter textureFilter = strToTextureFilter(config.getString("Filter"));
+//	int maxAnisotropy				= config.getInt("FilterMaxAnisotropy");
+//
+//	Texture2D *texture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+//	texture->setForceCompressionDisabled(true);
+//	texture->setMipmap(false);
+//	Pixmap2D *pixmapScreenShot = texture->getPixmap();
+//	pixmapScreenShot->init(width, height, 3);
+//	texture->init(textureFilter,maxAnisotropy);
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//	//glFinish();
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//	glReadPixels(x, y, pixmapScreenShot->getW(), pixmapScreenShot->getH(),
+//				 GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	return texture;
+//}
 
 void Renderer::saveScreen(const string &path,int w, int h) {
 	const Metrics &sm= Metrics::getInstance();
@@ -8303,111 +8303,111 @@ void Renderer::render2dMenuSetup() {
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void Renderer::init3dListMenu(const MainMenu *mm) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	//this->mm3d = mm;
-	//printf("In [%s::%s Line: %d] this->custom_mm3d [%p] this->mm3d [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->custom_mm3d,this->mm3d);
-
-/*
-	assertGl();
-
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	const Metrics &metrics= Metrics::getInstance();
-	//const MenuBackground *mb= mm->getConstMenuBackground();
-	const MenuBackground *mb = NULL;
-	if(mm != NULL) {
-		mb = mm->getConstMenuBackground();
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	if(this->customlist3dMenu != NULL) {
-		*this->customlist3dMenu = glGenLists(1);
-		assertGl();
-	}
-	else {
-		list3dMenu= glGenLists(1);
-		assertGl();
-		list3dMenuValid=true;
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	if(this->customlist3dMenu != NULL) {
-		glNewList(*this->customlist3dMenu, GL_COMPILE);
-	}
-	else {
-		glNewList(list3dMenu, GL_COMPILE);
-	}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		//misc
-		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
-		glClearColor(0.4f, 0.4f, 0.4f, 1.f);
-		glFrontFace(GL_CW);
-		glEnable(GL_CULL_FACE);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, 1000000);
-
-		//texture state
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		//material state
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
-		glColor4fv(defColor.ptr());
-		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-
-		//blend state
-		glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		//alpha test state
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.f);
-
-		//depth test state
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
-		glDepthFunc(GL_LESS);
-
-		//lighting state
-		glEnable(GL_LIGHTING);
-
-		//matrix mode
-		glMatrixMode(GL_MODELVIEW);
-
-		//stencil test
-		glDisable(GL_STENCIL_TEST);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//fog
-		if(mb != NULL && mb->getFog()){
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			glEnable(GL_FOG);
-			glFogi(GL_FOG_MODE, GL_EXP2);
-			glFogf(GL_FOG_DENSITY, mb->getFogDensity());
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	glEndList();
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	//assert
-	assertGl();
-*/
-}
+//void Renderer::init3dListMenu(const MainMenu *mm) {
+//	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+//		return;
+//	}
+//
+//	//this->mm3d = mm;
+//	//printf("In [%s::%s Line: %d] this->custom_mm3d [%p] this->mm3d [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->custom_mm3d,this->mm3d);
+//
+///*
+//	assertGl();
+//
+//    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	const Metrics &metrics= Metrics::getInstance();
+//	//const MenuBackground *mb= mm->getConstMenuBackground();
+//	const MenuBackground *mb = NULL;
+//	if(mm != NULL) {
+//		mb = mm->getConstMenuBackground();
+//	}
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	if(this->customlist3dMenu != NULL) {
+//		*this->customlist3dMenu = glGenLists(1);
+//		assertGl();
+//	}
+//	else {
+//		list3dMenu= glGenLists(1);
+//		assertGl();
+//		list3dMenuValid=true;
+//	}
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	if(this->customlist3dMenu != NULL) {
+//		glNewList(*this->customlist3dMenu, GL_COMPILE);
+//	}
+//	else {
+//		glNewList(list3dMenu, GL_COMPILE);
+//	}
+//
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//		//misc
+//		glViewport(0, 0, metrics.getScreenW(), metrics.getScreenH());
+//		glClearColor(0.4f, 0.4f, 0.4f, 1.f);
+//		glFrontFace(GL_CW);
+//		glEnable(GL_CULL_FACE);
+//		glMatrixMode(GL_PROJECTION);
+//		glLoadIdentity();
+//		gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, 1000000);
+//
+//		//texture state
+//		glEnable(GL_TEXTURE_2D);
+//		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+//
+//		//material state
+//		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
+//		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, defAmbientColor.ptr());
+//		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, defDiffuseColor.ptr());
+//		glColor4fv(defColor.ptr());
+//		glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+//
+//		//blend state
+//		glDisable(GL_BLEND);
+//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//		//alpha test state
+//		glEnable(GL_ALPHA_TEST);
+//		glAlphaFunc(GL_GREATER, 0.f);
+//
+//		//depth test state
+//		glEnable(GL_DEPTH_TEST);
+//		glDepthMask(GL_TRUE);
+//		glDepthFunc(GL_LESS);
+//
+//		//lighting state
+//		glEnable(GL_LIGHTING);
+//
+//		//matrix mode
+//		glMatrixMode(GL_MODELVIEW);
+//
+//		//stencil test
+//		glDisable(GL_STENCIL_TEST);
+//
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//		//fog
+//		if(mb != NULL && mb->getFog()){
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//			glEnable(GL_FOG);
+//			glFogi(GL_FOG_MODE, GL_EXP2);
+//			glFogf(GL_FOG_DENSITY, mb->getFogDensity());
+//		}
+//
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	glEndList();
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//	//assert
+//	assertGl();
+//*/
+//}
 
 void Renderer::render3dMenuSetup(const MainMenu *mm) {
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -8880,60 +8880,60 @@ void Renderer::renderProgressBar(int size, int x, int y, Font2D *font, int custo
 }
 
 
-void Renderer::renderTile(const Vec2i &pos) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	const Map *map= game->getWorld()->getMap();
-	Vec2i scaledPos= pos * Map::cellScale;
-
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glTranslatef(-0.5f, 0.f, -0.5f);
-
-	glInitNames();
-	for(int i=0; i < Map::cellScale; ++i) {
-		for(int j=0; j < Map::cellScale; ++j) {
-
-			Vec2i renderPos= scaledPos + Vec2i(i, j);
-
-			glPushName(renderPos.y);
-			glPushName(renderPos.x);
-
-			glDisable(GL_CULL_FACE);
-
-			float h1 = map->getCell(renderPos.x, renderPos.y)->getHeight();
-			float h2 = map->getCell(renderPos.x, renderPos.y+1)->getHeight();
-			float h3 = map->getCell(renderPos.x+1, renderPos.y)->getHeight();
-			float h4 = map->getCell(renderPos.x+1, renderPos.y+1)->getHeight();
-
-			glBegin(GL_TRIANGLE_STRIP);
-			glVertex3f(
-				static_cast<float>(renderPos.x),
-				h1,
-				static_cast<float>(renderPos.y));
-			glVertex3f(
-				static_cast<float>(renderPos.x),
-				h2,
-				static_cast<float>(renderPos.y+1));
-			glVertex3f(
-				static_cast<float>(renderPos.x+1),
-				h3,
-				static_cast<float>(renderPos.y));
-			glVertex3f(
-				static_cast<float>(renderPos.x+1),
-				h4,
-				static_cast<float>(renderPos.y+1));
-			glEnd();
-
-			glPopName();
-			glPopName();
-		}
-	}
-
-	glPopMatrix();
-}
+//void Renderer::renderTile(const Vec2i &pos) {
+//	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+//		return;
+//	}
+//
+//	const Map *map= game->getWorld()->getMap();
+//	Vec2i scaledPos= pos * Map::cellScale;
+//
+//	glMatrixMode(GL_MODELVIEW);
+//	glPushMatrix();
+//	glTranslatef(-0.5f, 0.f, -0.5f);
+//
+//	glInitNames();
+//	for(int i=0; i < Map::cellScale; ++i) {
+//		for(int j=0; j < Map::cellScale; ++j) {
+//
+//			Vec2i renderPos= scaledPos + Vec2i(i, j);
+//
+//			glPushName(renderPos.y);
+//			glPushName(renderPos.x);
+//
+//			glDisable(GL_CULL_FACE);
+//
+//			float h1 = map->getCell(renderPos.x, renderPos.y)->getHeight();
+//			float h2 = map->getCell(renderPos.x, renderPos.y+1)->getHeight();
+//			float h3 = map->getCell(renderPos.x+1, renderPos.y)->getHeight();
+//			float h4 = map->getCell(renderPos.x+1, renderPos.y+1)->getHeight();
+//
+//			glBegin(GL_TRIANGLE_STRIP);
+//			glVertex3f(
+//				static_cast<float>(renderPos.x),
+//				h1,
+//				static_cast<float>(renderPos.y));
+//			glVertex3f(
+//				static_cast<float>(renderPos.x),
+//				h2,
+//				static_cast<float>(renderPos.y+1));
+//			glVertex3f(
+//				static_cast<float>(renderPos.x+1),
+//				h3,
+//				static_cast<float>(renderPos.y));
+//			glVertex3f(
+//				static_cast<float>(renderPos.x+1),
+//				h4,
+//				static_cast<float>(renderPos.y+1));
+//			glEnd();
+//
+//			glPopName();
+//			glPopName();
+//		}
+//	}
+//
+//	glPopMatrix();
+//}
 
 void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
@@ -9404,16 +9404,16 @@ std::pair<bool,Vec3f> Renderer::posInCellQuadCache(Vec2i pos) {
 	return result;
 }
 
-Vec3f Renderer::getMarkedCellScreenPosQuadCache(Vec2i pos) {
-	Vec3f result(-1,-1,-1);
-	if(std::find(
-			quadCache.visibleScaledCellList.begin(),
-			quadCache.visibleScaledCellList.end(),
-			pos) != quadCache.visibleScaledCellList.end()) {
-		result = quadCache.visibleScaledCellToScreenPosList[pos];
-	}
-	return result;
-}
+//Vec3f Renderer::getMarkedCellScreenPosQuadCache(Vec2i pos) {
+//	Vec3f result(-1,-1,-1);
+//	if(std::find(
+//			quadCache.visibleScaledCellList.begin(),
+//			quadCache.visibleScaledCellList.end(),
+//			pos) != quadCache.visibleScaledCellList.end()) {
+//		result = quadCache.visibleScaledCellToScreenPosList[pos];
+//	}
+//	return result;
+//}
 
 void Renderer::beginRenderToTexture(Texture2D **renderToTexture) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {

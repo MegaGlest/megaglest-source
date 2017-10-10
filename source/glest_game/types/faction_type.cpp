@@ -915,25 +915,25 @@ const UnitType *FactionType::getUnitType(const string &name) const{
 	throw megaglest_runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]",true);
 }
 
-const UnitType *FactionType::getUnitTypeById(int id) const{
-    for(int i=0; i < (int)unitTypes.size();i++){
-		if(unitTypes[i].getId() == id) {
-            return &unitTypes[i];
-		}
-    }
-
-    printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,id,unitTypes.size());
-    for(int i=0; i < (int)unitTypes.size();i++){
-    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str(),unitTypes[i].getId());
-    }
-
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
-    for(int i=0; i < (int)unitTypes.size();i++){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
-    }
-
-	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]",true);
-}
+//const UnitType *FactionType::getUnitTypeById(int id) const{
+//    for(int i=0; i < (int)unitTypes.size();i++){
+//		if(unitTypes[i].getId() == id) {
+//            return &unitTypes[i];
+//		}
+//    }
+//
+//    printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,id,unitTypes.size());
+//    for(int i=0; i < (int)unitTypes.size();i++){
+//    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str(),unitTypes[i].getId());
+//    }
+//
+//    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+//    for(int i=0; i < (int)unitTypes.size();i++){
+//    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
+//    }
+//
+//	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]",true);
+//}
 
 const UpgradeType *FactionType::getUpgradeType(const string &name) const{
     for(int i=0; i < (int)upgradeTypes.size();i++){

@@ -77,7 +77,7 @@ public:
     //set 
     void setCommandType(const CommandType *commandType);
     void setPos(const Vec2i &pos);
-    void setOriginalPos(const Vec2i &pos);
+    //void setOriginalPos(const Vec2i &pos);
     void setPosToOriginalPos();
 
     void setUnit(Unit *unit);

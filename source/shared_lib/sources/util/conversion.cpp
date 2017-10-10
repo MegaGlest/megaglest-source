@@ -201,8 +201,8 @@ bool IsNumeric(const char *p, bool  allowNegative) {
 class Comma: public numpunct<char>// own facet class
 {
      protected:
-          char do_thousands_sep() const { return ','; }// use the comma
-          string do_grouping() const { return "\3"; }//group 3 digits
+          //char do_thousands_sep() const { return ','; }// use the comma
+          //string do_grouping() const { return "\3"; }//group 3 digits
 };
 string formatNumber(uint64 f) {
 

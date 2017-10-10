@@ -238,10 +238,10 @@ public:
 	//std::map<int,int> unitsMovingList;
 	void addUnitToMovingList(int unitId);
 	void removeUnitFromMovingList(int unitId);
-	int getUnitMovingListCount();
+	//int getUnitMovingListCount();
 
 	void addUnitToPathfindingList(int unitId);
-	void removeUnitFromPathfindingList(int unitId);
+	//void removeUnitFromPathfindingList(int unitId);
 	int getUnitPathfindingListCount();
 	void clearUnitsPathfinding();
 	bool canUnitsPathfind();
@@ -347,9 +347,9 @@ public:
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr,int frameIndex);
 	inline int getCacheResourceTargetListSize() const { return (int)cacheResourceTargetList.size(); }
 
-	Unit * findClosestUnitWithSkillClass(const Vec2i &pos,const CommandClass &cmdClass,
-										const std::vector<SkillClass> &skillClassList,
-										const UnitType *unitType);
+//	Unit * findClosestUnitWithSkillClass(const Vec2i &pos,const CommandClass &cmdClass,
+//										const std::vector<SkillClass> &skillClassList,
+//										const UnitType *unitType);
 
 	void deletePixels();
 

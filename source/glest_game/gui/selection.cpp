@@ -324,12 +324,12 @@ void Selection::removeUnitFromGroup(int groupIndex,int unitId) {
 	}
 }
 
-vector<Unit*> Selection::getUnitsForGroup(int groupIndex) {
-	if(groupIndex < 0 || groupIndex >= maxGroups) {
-		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
-	}
-	return groups[groupIndex];
-}
+//vector<Unit*> Selection::getUnitsForGroup(int groupIndex) {
+//	if(groupIndex < 0 || groupIndex >= maxGroups) {
+//		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
+//	}
+//	return groups[groupIndex];
+//}
 
 void Selection::recallGroup(int groupIndex,bool clearSelection){
 	if(groupIndex < 0 || groupIndex >= maxGroups) {

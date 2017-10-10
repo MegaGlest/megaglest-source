@@ -135,7 +135,7 @@ public:
 private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	bool connectToServer(string ipString, int port);
-	void setConsolePos(int yPos);
+	//void setConsolePos(int yPos);
 	void setButtonLinePosition(int pos);
 	void clearServerLines();
 	void clearUserButtons();

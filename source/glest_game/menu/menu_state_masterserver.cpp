@@ -405,11 +405,11 @@ void MenuStateMasterserver::reloadUI() {
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
-void MenuStateMasterserver::setConsolePos(int yPos){
-		consoleIRC.setYPos(yPos);
-		lines[2].setY(consoleIRC.getYPos()-10);
-		chatManager.setYPos(consoleIRC.getYPos()-20);
-}
+//void MenuStateMasterserver::setConsolePos(int yPos){
+//		consoleIRC.setYPos(yPos);
+//		lines[2].setY(consoleIRC.getYPos()-10);
+//		chatManager.setYPos(consoleIRC.getYPos()-20);
+//}
 
 void MenuStateMasterserver::setButtonLinePosition(int pos){
     buttonReturn.setY(pos);

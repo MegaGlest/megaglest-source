@@ -1184,15 +1184,15 @@ bool UnitType::hasCommandType(const CommandType *commandType) const {
     return false;
 }
 
-bool UnitType::hasSkillType(const SkillType *skillType) const {
-    assert(skillType!=NULL);
-    for(int i=0; i < (int)skillTypes.size(); ++i) {
-        if(skillTypes[i]==skillType) {
-            return true;
-        }
-    }
-    return false;
-}
+//bool UnitType::hasSkillType(const SkillType *skillType) const {
+//    assert(skillType!=NULL);
+//    for(int i=0; i < (int)skillTypes.size(); ++i) {
+//        if(skillTypes[i]==skillType) {
+//            return true;
+//        }
+//    }
+//    return false;
+//}
 
 bool UnitType::isOfClass(UnitClass uc) const{
 	switch(uc){

@@ -94,7 +94,7 @@ public:
 	void removeUnitFromGroup(int groupIndex,int UnitId);
 	void recallGroup(int groupIndex, bool clearSelection=true);
 
-	vector<Unit*> getUnitsForGroup(int groupIndex);
+	//vector<Unit*> getUnitsForGroup(int groupIndex);
 
 	virtual void unitEvent(UnitObserver::Event event, const Unit *unit);
 	bool canSelectUnitFactionCheck(const Unit *unit) const;

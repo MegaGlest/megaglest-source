@@ -167,10 +167,10 @@ int getGlProjectionMatrixStackDepth() {
 	return i;
 }
 
-void checkGlExtension(const char *extensionName) {
-	if(!isGlExtensionSupported(extensionName)){
-		throw megaglest_runtime_error("OpenGL extension not supported: " + string(extensionName));
-	}
-}
+//void checkGlExtension(const char *extensionName) {
+//	if(!isGlExtensionSupported(extensionName)){
+//		throw megaglest_runtime_error("OpenGL extension not supported: " + string(extensionName));
+//	}
+//}
 
 }}}// end namespace

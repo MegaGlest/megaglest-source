@@ -92,9 +92,9 @@ void Command::setPos(const Vec2i &pos){
      this->pos= pos;
 }
 
-void Command::setOriginalPos(const Vec2i &pos) {
-     this->originalPos= pos;
-}
+//void Command::setOriginalPos(const Vec2i &pos) {
+//     this->originalPos= pos;
+//}
 
 void Command::setPosToOriginalPos() {
 	this->pos= this->originalPos;

@@ -202,7 +202,7 @@ public:
 	void removeUnitPrecache(Unit *unit);
 	void clearCaches();
 
-	bool unitCannotMove(Unit *unit);
+	//bool unitCannotMove(Unit *unit);
 
 	int findNodeIndex(Node *node, Nodes &nodeList);
 	int findNodeIndex(Node *node, std::vector<Node> &nodeList);

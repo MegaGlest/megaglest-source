@@ -906,29 +906,29 @@ bool Map::canMorph(const Vec2i &pos,const Unit *currentUnit,const UnitType *targ
 	}
 }
 
-bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing) {
-	if (ut->hasCellMap() && isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
-		for (int y=0; y < ut->getSize(); ++y) {
-			for (int x=0; x < ut->getSize(); ++x) {
-				Vec2i cellPos = pos + Vec2i(x, y);
-				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
-					if (ut->getCellMapCell(x, y, facing)) {
-						if (isFreeCell(cellPos, field) == false) {
-							return false;
-						}
-					}
-				}
-				else {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	else {
-		return isFreeCells(pos, ut->getSize(), field);
-	}
-}
+//bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing) {
+//	if (ut->hasCellMap() && isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+//		for (int y=0; y < ut->getSize(); ++y) {
+//			for (int x=0; x < ut->getSize(); ++x) {
+//				Vec2i cellPos = pos + Vec2i(x, y);
+//				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+//					if (ut->getCellMapCell(x, y, facing)) {
+//						if (isFreeCell(cellPos, field) == false) {
+//							return false;
+//						}
+//					}
+//				}
+//				else {
+//					return false;
+//				}
+//			}
+//		}
+//		return true;
+//	}
+//	else {
+//		return isFreeCells(pos, ut->getSize(), field);
+//	}
+//}
 
 // ==================== unit placement ====================
 
@@ -1193,38 +1193,38 @@ Vec2i Map::computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
     return pos;
 }
 
-std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
-	if(unit == NULL) {
-		throw megaglest_runtime_error("unit == NULL");
-	}
-
-	std::pair<float,Vec2i> result(-1,Vec2i(0));
-	//int unitId= unit->getId();
-	Vec2i unitPos= computeDestPos(unit->getPosNotThreadSafe(), unit->getPosNotThreadSafe(), pos);
-
-	Vec2i start = pos - Vec2i(1);
-	int unitTypeSize = 0;
-	if(ut != NULL) {
-		unitTypeSize = ut->getSize();
-	}
-	Vec2i end 	= pos + Vec2i(unitTypeSize);
-
-	for(int i = start.x; i <= end.x; ++i) {
-		for(int j = start.y; j <= end.y; ++j){
-			Vec2i testPos(i,j);
-
-			if(ut == NULL || isInUnitTypeCells(ut, pos,testPos) == false) {
-				float distance = unitPos.dist(testPos);
-				if(result.first < 0 || result.first > distance) {
-					result.first = distance;
-					result.second = testPos;
-				}
-			}
-		}
-	}
-
-	return result;
-}
+//std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
+//	if(unit == NULL) {
+//		throw megaglest_runtime_error("unit == NULL");
+//	}
+//
+//	std::pair<float,Vec2i> result(-1,Vec2i(0));
+//	//int unitId= unit->getId();
+//	Vec2i unitPos= computeDestPos(unit->getPosNotThreadSafe(), unit->getPosNotThreadSafe(), pos);
+//
+//	Vec2i start = pos - Vec2i(1);
+//	int unitTypeSize = 0;
+//	if(ut != NULL) {
+//		unitTypeSize = ut->getSize();
+//	}
+//	Vec2i end 	= pos + Vec2i(unitTypeSize);
+//
+//	for(int i = start.x; i <= end.x; ++i) {
+//		for(int j = start.y; j <= end.y; ++j){
+//			Vec2i testPos(i,j);
+//
+//			if(ut == NULL || isInUnitTypeCells(ut, pos,testPos) == false) {
+//				float distance = unitPos.dist(testPos);
+//				if(result.first < 0 || result.first > distance) {
+//					result.first = distance;
+//					result.second = testPos;
+//				}
+//			}
+//		}
+//	}
+//
+//	return result;
+//}
 
 const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i originalBuildPos,
 								 const UnitType *ut) const {
@@ -2049,9 +2049,9 @@ bool PosQuadIterator::next() {
 	return true;
 }
 
-void PosQuadIterator::skipX() {
-	pos.x+= step;
-}
+//void PosQuadIterator::skipX() {
+//	pos.x+= step;
+//}
 
 const Vec2i &PosQuadIterator::getPos(){
 	return pos;
