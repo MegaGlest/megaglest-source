@@ -48,6 +48,15 @@ static bool launchChild(ProcessType *pid);
 static int closeProcess(ProcessType *pid);
 
 #ifdef _WIN32
+bool fileExists(char *path) {
+	FILE* file= fopen(path, "rb");
+	if(file != NULL) {
+		fclose(file);
+		return true;
+	}
+	return false;
+}
+
 static void fail(const char *err)
 {
     MessageBoxA(NULL, err, "ERROR", MB_ICONERROR | MB_OK);
@@ -132,27 +141,54 @@ static LPWSTR genCommandLine()
             whitespace = false;
         }
     }
-
+	
     // If it doesn't exist, that must mean there are no arguments,
     // so just return GAME_LAUNCH_NAME
-    if (iFirstArg == -1)
-        return _wcsdup(TEXT("\".\\" GAME_LAUNCH_NAME ".exe\""));
+	bool default_file_exists = true;
+	if(!fileExists(GAME_LAUNCH_NAME ".exe")) {
+		default_file_exists = false;
+	}
+    if (iFirstArg == -1) {
+		if(default_file_exists) {
+			return _wcsdup(TEXT("\".\\" GAME_LAUNCH_NAME ".exe\""));
+		}
+		return _wcsdup(TEXT("\".\\" GAME_LAUNCH_NAME "x64.exe\""));
+	}
 
     // Create the new string
     // (`".\.exe" ` == +9
-    LPWSTR newcmdline = (LPWSTR)malloc(sizeof(TEXT(GAME_LAUNCH_NAME))
-                                       + sizeof(WCHAR) * (wcslen(cmdline) - iFirstArg + 9));
-    wsprintf(newcmdline, TEXT("\".\\" GAME_LAUNCH_NAME ".exe\" %s"), cmdline + iFirstArg);
+    LPWSTR newcmdline = NULL;
+	if(default_file_exists) {
+		newcmdline = (LPWSTR)malloc(sizeof(TEXT(GAME_LAUNCH_NAME))
+										   + sizeof(WCHAR) * (wcslen(cmdline) - iFirstArg + 9));
+		wsprintf(newcmdline, TEXT("\".\\" GAME_LAUNCH_NAME ".exe\" %s"), cmdline + iFirstArg);
+	}
+	else {
+		newcmdline = (LPWSTR)malloc(sizeof(TEXT(GAME_LAUNCH_NAME "x64"))
+										   + sizeof(WCHAR) * (wcslen(cmdline) - iFirstArg + 9));
+		wsprintf(newcmdline, TEXT("\".\\" GAME_LAUNCH_NAME "x64.exe\" %s"), cmdline + iFirstArg);
+	}
     return newcmdline;
 }
 
 static bool launchChild(ProcessType *pid)
 {
+	bool default_file_exists = true;
+	if(!fileExists(GAME_LAUNCH_NAME ".exe")) {
+		default_file_exists = false;
+	}
+
     STARTUPINFOW si;
     memset(&si, 0, sizeof(si));
-    return CreateProcessW(TEXT(".\\" GAME_LAUNCH_NAME ".exe"),
+	if(default_file_exists) {
+		return CreateProcessW(TEXT(".\\" GAME_LAUNCH_NAME ".exe"),
+							  genCommandLine(), NULL, NULL, TRUE, 0, NULL,
+							  NULL, &si, pid);
+	}
+    return CreateProcessW(TEXT(".\\" GAME_LAUNCH_NAME "x64.exe"),
                           genCommandLine(), NULL, NULL, TRUE, 0, NULL,
                           NULL, &si, pid);
+	
 } // launchChild
 
 static int closeProcess(ProcessType *pid)
