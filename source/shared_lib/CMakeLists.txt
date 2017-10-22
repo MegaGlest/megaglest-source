@@ -305,7 +305,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
                    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
                       add_definitions (-DMACOSX -D_DARWIN_C_SOURCE)
                    else()
-                      add_definitions (-D_POSIX_C_SOURCE=1)
+                      add_definitions (-D_POSIX_C_SOURCE=200809L)
                    endif ()
                 endif()
 
