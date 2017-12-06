@@ -2059,7 +2059,6 @@ void MenuStateConnectedGame::switchToMapGroup(int filterIndex){
 	int i = filterIndex;
 	listBoxMapFilter.setSelectedItemIndex(i);
 	listBoxMap.setItems(formattedPlayerSortedMaps[i]);
-	listBoxMap.setSelectedItemIndex(0);
 //	printf("switching map group to filter=%d mapgroup has %d maps. map=%s \n",i,
 //			(int)formattedPlayerSortedMaps[i].size(),formattedPlayerSortedMaps[i][0].c_str());
 }
