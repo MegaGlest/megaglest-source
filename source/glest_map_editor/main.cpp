@@ -797,7 +797,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
 		currentFile = utf8_encode(wstr.get());
 #elif wxCHECK_VERSION(2, 9, 1)
-		currentFile = fileDialog->GetPath().ToStdString();
+		currentFile = fd.GetPath().ToStdString();
 #else
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
 		currentFile = tmp_buf;
