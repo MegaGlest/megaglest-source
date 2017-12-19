@@ -220,20 +220,20 @@ void MainWindow::init(string fname) {
 	menuBrushResource->AppendCheckItem(miBrushResource+6, wxT("&5 - custom"));
 	menuBar->Append(menuBrushResource, wxT("&Resource"));
 
-	//objects
+	//objects: The object descriptions are displayed in the "Object" menu.
 	menuBrushObject = new wxMenu();
 	menuBrushObject->AppendCheckItem(miBrushObject+1, wxT("&None (erase)\tALT+0"));
 	menuBrushObject->AppendSeparator();
 	menuBrushObject->AppendCheckItem(miBrushObject+2, wxT("&Tree (harvestable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("&Dead tree/Cactuses/Thornbush"));
-	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("&Stone"));
+	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("&Dead tree/Cactuses/Thornbush (unwalkable/not harvestable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("&Stone (unwalkable/not harvestable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("&Bush/Grass/Fern (walkable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("&Water object/Reed/Papyrus (walkable)"));
-	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("Big tree/&Old palm"));
-	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("&Hanged/Impaled "));
-	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("St&atues"));
-	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("&Mountain"));
-	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("&Invisible blocking object"));
+	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("Big tree/&Old palm (unwalkable/not harvestable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+8, wxT("&Hanged/Impaled (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+9, wxT("St&atues (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+10, wxT("&Mountain (unwalkable)"));
+	menuBrushObject->AppendCheckItem(miBrushObject+11, wxT("&Invisible blocking object (unwalkable)"));
 	menuBar->Append(menuBrushObject, wxT("&Object"));
 
 	// ZombiePirate height brush
