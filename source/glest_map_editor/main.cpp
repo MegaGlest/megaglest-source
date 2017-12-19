@@ -334,9 +334,9 @@ void MainWindow::init(string fname) {
 	toolbar->AddTool(miBrushResource + 6, _("resource5"), wxBitmap(brush_resource_5), _("custom5"));
 	toolbar->AddSeparator();
 
-	for (int currObject = 1; currObject <= objectCount; currObject++)
+	for (int currObject = 0; currObject < objectCount; currObject++)
 	{
-		toolbar->AddTool(miBrushObject + currObject, objects[currObject].brush_desc, wxBitmap(objects[currObject].brush), objects[currObject].obj_desc);
+		toolbar->AddTool(miBrushObject + currObject + 1, objects[currObject].brushDesc, wxBitmap(objects[currObject].brush), objects[currObject].objDesc);
 	}
 
 	toolbar->AddSeparator();
@@ -619,7 +619,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 			objectUnderMouse = 0;
 		} else {
 			int currObject = program->getObject(x, y);
-			SetStatusText(wxT("Object: ") + ToUnicode(objects[currObject].obj_desc), siCURR_OBJECT);
+			SetStatusText(wxT("Object: ") + ToUnicode(objects[currObject].objDesc), siCURR_OBJECT);
 			resourceUnderMouse = 0;
 			objectUnderMouse = currObject;
 		}
@@ -1242,7 +1242,7 @@ void MainWindow::onMenuBrushObject(wxCommandEvent &e) {
 	SetStatusText(wxT("Brush: Object"), siBRUSH_TYPE);
 	SetStatusText(
 		wxT("Value: ") + ToUnicode(intToStr(object)) + wxT(" ")
-		+ ToUnicode(objects[object].obj_desc), siBRUSH_VALUE);
+		+ ToUnicode(objects[object].objDesc), siBRUSH_VALUE);
 }
 
 void MainWindow::onMenuBrushResource(wxCommandEvent &e) {

@@ -60,15 +60,15 @@ enum StatusItems {
 
 struct obj
 {
-  const char *brush_desc;
+  const char *brushDesc;
   const char **brush;
-  const char *obj_desc;
+  const char *objDesc;
 };
 
 #define OBJECT_COUNT 11
 
 struct obj objects[OBJECT_COUNT] = {
-  { _("brush_none"), brush_none, _("None (erase)") },
+  { _("brush_none"), brush_none, _("None") },
   { _("brush_tree"), brush_object_tree, _("Tree (unwalkable/harvestable)") },
   { _("brush_dead_tree"), brush_object_dead_tree, _("Dead tree/Cactuses/Thornbush (unwalkable)") },
   { _("brush_stone"), brush_object_stone, _("Stone (unwalkable/not harvestable)") },
@@ -116,7 +116,7 @@ private:
 	static const string winHeader;
 	static const int heightCount = 11;
 	static const int surfaceCount = 5;
-	static const int objectCount = 11;
+	static const int objectCount = OBJECT_COUNT;
 	static const int resourceCount = 6;
 	static const int startLocationCount = 8;
 	static const int radiusCount = 9;
