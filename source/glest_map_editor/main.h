@@ -26,6 +26,7 @@
 #include "program.h"
 #include "util.h"
 #include "platform_common.h"
+#include "icons.h"
 
 using std::string;
 using std::vector;
@@ -57,18 +58,27 @@ enum StatusItems {
 	siCOUNT
 };
 
-const char *object_descs[] = {
-	"None (Erase)",
-	"Tree",
-	"Dead tree",
-	"Stone (non harvest)",
-	"Bush",
-	"Water object",
-	"Big tree",
-	"Hanged/Impaled",
-	"Statues",
-	"Mountain",
-	"Invisible blocking"
+struct obj
+{
+	const char *brushDesc;
+	const char **brush;
+	const char *objDesc;
+};
+
+#define OBJECT_COUNT 11
+
+struct obj objects[OBJECT_COUNT] = {
+	{ _("brush_none"), brush_none, _("None") },
+	{ _("brush_tree"), brush_object_tree, _("Tree (unwalkable/harvestable)") },
+	{ _("brush_dead_tree"), brush_object_dead_tree, _("Dead tree/Cactuses/Thornbush (unwalkable)") },
+	{ _("brush_stone"), brush_object_stone, _("Stone (unwalkable/not harvestable)") },
+	{ _("brush_bush"), brush_object_bush, _("Bush/Grass/Fern (walkable)") },
+	{ _("brush_water"), brush_object_water_object, _("Water object/Reed/Papyrus (walkable)") },
+	{ _("brush_c1_bigtree"), brush_object_c1_bigtree, _("Big tree/Old palm (unwalkable/not harvestable)") },
+	{ _("brush_c2_hanged"), brush_object_c2_hanged, _("Hanged/Impaled (unwalkable)") },
+	{ _("brush_c3_statue"), brush_object_c3_statue, _("Statues (unwalkable)") },
+	{ _("brush_c4_bigrock"), brush_object_c4_bigrock, _("Mountain (unwalkable)") },
+	{ _("brush_c5_blocking"), brush_object_c5_blocking, _("Invisible blocking object (unwalkable)") }
 };
 
 const char *resource_descs[] = {
@@ -106,7 +116,7 @@ private:
 	static const string winHeader;
 	static const int heightCount = 11;
 	static const int surfaceCount = 5;
-	static const int objectCount = 11;
+	static const int objectCount = OBJECT_COUNT;
 	static const int resourceCount = 6;
 	static const int startLocationCount = 8;
 	static const int radiusCount = 9;

@@ -12,7 +12,6 @@
 #include "main.h"
 #include <ctime>
 #include "conversion.h"
-#include "icons.h"
 #include "platform_common.h"
 #include "config.h"
 #include <iostream>
@@ -334,17 +333,12 @@ void MainWindow::init(string fname) {
 	toolbar->AddTool(miBrushResource + 5, _("resource4"), wxBitmap(brush_resource_4), _("custom4"));
 	toolbar->AddTool(miBrushResource + 6, _("resource5"), wxBitmap(brush_resource_5), _("custom5"));
 	toolbar->AddSeparator();
-	toolbar->AddTool(miBrushObject + 1, _("brush_none"), wxBitmap(brush_none), _("None (erase)"));
-	toolbar->AddTool(miBrushObject + 2, _("brush_tree"), wxBitmap(brush_object_tree), _("Tree (unwalkable/harvestable)"));
-	toolbar->AddTool(miBrushObject + 3, _("brush_dead_tree"), wxBitmap(brush_object_dead_tree), _("Dead tree/Cactuses/Thornbush (unwalkable)"));
-	toolbar->AddTool(miBrushObject + 4, _("brush_stone"), wxBitmap(brush_object_stone), _("Stone (unwalkable/not harvestable)"));
-	toolbar->AddTool(miBrushObject + 5, _("brush_bush"), wxBitmap(brush_object_bush), _("Bush/Grass/Fern (walkable)"));
-	toolbar->AddTool(miBrushObject + 6, _("brush_water"), wxBitmap(brush_object_water_object), _("Water object/Reed/Papyrus (walkable)"));
-	toolbar->AddTool(miBrushObject + 7, _("brush_c1_bigtree"), wxBitmap(brush_object_c1_bigtree), _("Big tree/Old palm (unwalkable/not harvestable)"));
-	toolbar->AddTool(miBrushObject + 8, _("brush_c2_hanged"), wxBitmap(brush_object_c2_hanged), _("Hanged/Impaled (unwalkable)"));
-	toolbar->AddTool(miBrushObject + 9, _("brush_c3_statue"), wxBitmap(brush_object_c3_statue), _("Statues (unwalkable)"));
-	toolbar->AddTool(miBrushObject +10, _("brush_c4_bigrock"), wxBitmap(brush_object_c4_bigrock), _("Mountain (unwalkable)"));
-	toolbar->AddTool(miBrushObject +11, _("brush_c5_blocking"), wxBitmap(brush_object_c5_blocking), _("Invisible blocking object (unwalkable)"));
+
+	for (int currObject = 0; currObject < objectCount; currObject++)
+	{
+		toolbar->AddTool(miBrushObject + currObject + 1, objects[currObject].brushDesc, wxBitmap(objects[currObject].brush), objects[currObject].objDesc);
+	}
+
 	toolbar->AddSeparator();
 	toolbar->AddTool(toolPlayer, _("brush_player"), wxBitmap(brush_players_player),  _("Player start position"));
 	toolbar->Realize();
@@ -625,7 +619,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 			objectUnderMouse = 0;
 		} else {
 			int currObject = program->getObject(x, y);
-			SetStatusText(wxT("Object: ") + ToUnicode(object_descs[currObject]), siCURR_OBJECT);
+			SetStatusText(wxT("Object: ") + ToUnicode(objects[currObject].objDesc), siCURR_OBJECT);
 			resourceUnderMouse = 0;
 			objectUnderMouse = currObject;
 		}
@@ -1248,7 +1242,7 @@ void MainWindow::onMenuBrushObject(wxCommandEvent &e) {
 	SetStatusText(wxT("Brush: Object"), siBRUSH_TYPE);
 	SetStatusText(
 		wxT("Value: ") + ToUnicode(intToStr(object)) + wxT(" ")
-		+ ToUnicode(object_descs[object]), siBRUSH_VALUE);
+		+ ToUnicode(objects[object].objDesc), siBRUSH_VALUE);
 }
 
 void MainWindow::onMenuBrushResource(wxCommandEvent &e) {
