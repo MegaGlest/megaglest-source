@@ -347,7 +347,10 @@ void FactionThread::execute() {
 				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 				//bool sortedUnitsAllowed = false;
 				//if(sortedUnitsAllowed == true) {
-				this->faction->sortUnitsByCommandGroups();
+				
+				/// TODO: Why does this cause an OOS?
+				//this->faction->sortUnitsByCommandGroups();
+                
 				//}
 
 				codeLocation = "8";
