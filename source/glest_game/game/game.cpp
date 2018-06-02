@@ -5325,7 +5325,7 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 	        }
 	        saveFilePlayerLocalStats = userData + saveFilePlayerLocalStats;
 		}
-		std::unique_ptr<SteamLocal> playerLocalStats(new SteamLocal(saveFilePlayerLocalStats));
+		unique_ptr<SteamLocal> playerLocalStats(new SteamLocal(saveFilePlayerLocalStats));
 		PlayerAchievementsInterface *playerStats = playerLocalStats.get();
 
 		// Write out achievements here
