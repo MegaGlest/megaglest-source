@@ -5,6 +5,10 @@
 #include <map>
 #include "game_constants.h"
 
+namespace Shared{ namespace Util{
+	class Properties;
+}}
+
 namespace Glest{ namespace Game{
 
 struct SteamPrivate;
@@ -74,7 +78,22 @@ inline EnumParser<SteamAchievementName>::EnumParser() {
 	enumMap["ACH_WIN_OVER_THOUSAND_GAMES_ONLINE"]		= ACH_WIN_OVER_THOUSAND_GAMES_ONLINE;
 }
 
-class Steam
+//
+// This interface describes the methods a callback object must implement
+//
+class PlayerAchievementsInterface {
+public:
+	virtual void unlock(const char *name) = 0;
+	virtual void lock(const char *name)  = 0;
+	virtual bool isUnlocked(const char *name) = 0;
+	virtual int getStatAsInt(const char *name) const = 0;
+	virtual void setStatAsInt(const char *name, int value) = 0;
+	virtual void storeStats() const = 0;
+
+	virtual ~PlayerAchievementsInterface() {}
+};
+
+class Steam: public PlayerAchievementsInterface
 {
 public:
 	void unlock(const char *name);
@@ -118,6 +137,27 @@ private:
 		steamStatNameTypes["stat_online_minutes_played"]		= stat_float;
 		return steamStatNameTypes;
 	}
+};
+
+class SteamLocal: public PlayerAchievementsInterface
+{
+public:
+	SteamLocal(string file);
+	~SteamLocal();
+
+	void unlock(const char *name);
+	void lock(const char *name);
+	bool isUnlocked(const char *name);
+	int getStatAsInt(const char *name) const;
+
+	void setStatAsInt(const char *name, int value);
+
+	//void save(const string &path);
+	void storeStats() const;
+
+private:
+	Properties *p;
+	string saveFilePlayerLocalStats;
 };
 
 }}//end namespace

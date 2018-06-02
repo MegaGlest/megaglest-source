@@ -4,6 +4,9 @@
 #include <SDL.h>
 #include "steamshim_child.h"
 #include "platform_common.h"
+#include "properties.h"
+
+using Shared::PlatformCommon::fileExists;
 
 namespace Glest{ namespace Game{
 
@@ -307,6 +310,48 @@ bool Steam::isUnlocked(const char *name) {
 
 void Steam::setDebugEnabled(bool value) {
 	SteamPrivate::setDebugEnabled(value);
+}
+
+/* SteamLocal */
+SteamLocal::SteamLocal(string file) : p(new Properties()) {
+	saveFilePlayerLocalStats = file;
+	if(fileExists(saveFilePlayerLocalStats)) {
+		p->load(saveFilePlayerLocalStats);
+	}
+}
+
+SteamLocal::~SteamLocal() {
+	delete p;
+}
+
+void SteamLocal::unlock(const char *name) {
+	//p->setAchievement(name, true);
+	p->setBool(name,true);
+}
+
+void SteamLocal::lock(const char *name) {
+	//p->setAchievement(name, false);
+}
+
+bool SteamLocal::isUnlocked(const char *name) {
+	//return p->isAchievementSet(name);
+	return p->getBool(name,"false");
+}
+
+int SteamLocal::getStatAsInt(const char *name) const {
+	return p->getInt(name,"0");
+}
+
+void SteamLocal::setStatAsInt(const char *name, int value) {
+	p->setInt(name,value);
+}
+
+//void SteamLocal::save(const string &path) {
+//	p->save(path);
+//}
+
+void SteamLocal::storeStats() const {
+	p->save(saveFilePlayerLocalStats);
 }
 
 }}//end namespace
