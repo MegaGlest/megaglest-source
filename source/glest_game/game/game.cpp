@@ -5179,65 +5179,68 @@ void savePlayerStats(Game* game, Stats& endStats, PlayerAchievementsInterface *p
 	const double MIN_PLAY_TIME_MINUTES = 10.0;
 
 	// Write out achievements here
+	double elapsedGameMinutes = (game->getWorld()->getStats()->getFramesToCalculatePlaytime() / GameConstants::updateFps / 60.0);
+
 	for (int factionIndex = 0;
 			factionIndex < game->getWorld()->getFactionCount(); ++factionIndex) {
 		if (factionIndex == game->getWorld()->getThisFactionIndex()) {
 			//printf("\nWriting out game stats for Faction Index: %d won status: %d\n",factionIndex,endStats.getVictory(factionIndex));
-			if (endStats.getVictory(factionIndex)) {
-				double elapsedGameMinutes = (game->getWorld()->getStats()->getFramesToCalculatePlaytime() / GameConstants::updateFps / 60.0);
-				if(elapsedGameMinutes >= MIN_PLAY_TIME_MINUTES) {
-					int gamesWonCount = playerStats->getStatAsInt("games-won") + 1;
-					playerStats->setStatAsInt("games-won",gamesWonCount);
+			if(elapsedGameMinutes >= MIN_PLAY_TIME_MINUTES) {
+				int gamesPlayedCount = playerStats->getStatAsInt(EnumParser<SteamStatName>::getString(games_played).c_str()) + 1;
+				playerStats->setStatAsInt(EnumParser<SteamStatName>::getString(games_played).c_str(),gamesPlayedCount);
 
+				if(gamesPlayedCount >= 50 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIFTY_GAMES).c_str()) == false) {
+					playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIFTY_GAMES).c_str());
+				}
+				if(gamesPlayedCount >= 100 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_ONE_HUNDRED_GAMES).c_str()) == false) {
+					playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_ONE_HUNDRED_GAMES).c_str());
+				}
+				if(gamesPlayedCount >= 250 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_TWO_HUNDRED_FIFTY_GAMES).c_str()) == false) {
+					playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_TWO_HUNDRED_FIFTY_GAMES).c_str());
+				}
+				if(gamesPlayedCount >= 500 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIVE_HUNDRED_GAMES).c_str()) == false) {
+					playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIVE_HUNDRED_GAMES).c_str());
+				}
+				if(gamesPlayedCount > 1000 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_OVER_THOUSAND_GAMES).c_str()) == false) {
+					playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_OVER_THOUSAND_GAMES).c_str());
+				}
+
+				if (NetworkManager::getInstance().isNetworkGame()) {
+					int networkGamesPlayedCount = playerStats->getStatAsInt(EnumParser<SteamStatName>::getString(network_games_played).c_str()) + 1;
+					playerStats->setStatAsInt(EnumParser<SteamStatName>::getString(network_games_played).c_str(),networkGamesPlayedCount);
+
+					if(networkGamesPlayedCount >= 50 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIFTY_GAMES_ONLINE).c_str()) == false) {
+						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIFTY_GAMES_ONLINE).c_str());
+					}
+					if(networkGamesPlayedCount >= 100 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_ONE_HUNDRED_GAMES_ONLINE).c_str()) == false) {
+						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_ONE_HUNDRED_GAMES_ONLINE).c_str());
+					}
+					if(networkGamesPlayedCount >= 250 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_TWO_HUNDRED_FIFTY_GAMES_ONLINE).c_str()) == false) {
+						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_TWO_HUNDRED_FIFTY_GAMES_ONLINE).c_str());
+					}
+					if(networkGamesPlayedCount >= 500 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIVE_HUNDRED_GAMES_ONLINE).c_str()) == false) {
+						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_FIVE_HUNDRED_GAMES_ONLINE).c_str());
+					}
+					if(networkGamesPlayedCount > 1000 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_PLAY_OVER_THOUSAND_GAMES_ONLINE).c_str()) == false) {
+						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_PLAY_OVER_THOUSAND_GAMES_ONLINE).c_str());
+					}
+				}
+
+				if (endStats.getVictory(factionIndex)) {
 					if(playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str()) == false) {
 						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str());
 					}
-					if(gamesWonCount >= 50 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIFTY_GAMES).c_str()) == false) {
-						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIFTY_GAMES).c_str());
-					}
-					if(gamesWonCount >= 100 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_HUNDRED_GAMES).c_str()) == false) {
-						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_HUNDRED_GAMES).c_str());
-					}
-					if(gamesWonCount >= 250 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_TWO_HUNDRED_FIFTY_GAMES).c_str()) == false) {
-						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_TWO_HUNDRED_FIFTY_GAMES).c_str());
-					}
-					if(gamesWonCount >= 500 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIVE_HUNDRED_GAMES).c_str()) == false) {
-						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIVE_HUNDRED_GAMES).c_str());
-					}
-					if(gamesWonCount > 1000 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_OVER_THOUSAND_GAMES).c_str()) == false) {
-						playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_OVER_THOUSAND_GAMES).c_str());
-					}
-
 
 					if (NetworkManager::getInstance().isNetworkGame()) {
 						int networkGamesWonCount = playerStats->getStatAsInt("network-games-won") + 1;
 						playerStats->setStatAsInt("network-games-won",networkGamesWonCount);
-
-						if(playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str()) == false) {
-							playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str());
-						}
-						if(networkGamesWonCount >= 50 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIFTY_GAMES_ONLINE).c_str()) == false) {
-							playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIFTY_GAMES_ONLINE).c_str());
-						}
-						if(networkGamesWonCount >= 100 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_HUNDRED_GAMES_ONLINE).c_str()) == false) {
-							playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_HUNDRED_GAMES_ONLINE).c_str());
-						}
-						if(networkGamesWonCount >= 250 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_TWO_HUNDRED_FIFTY_GAMES_ONLINE).c_str()) == false) {
-							playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_TWO_HUNDRED_FIFTY_GAMES_ONLINE).c_str());
-						}
-						if(networkGamesWonCount >= 500 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIVE_HUNDRED_GAMES_ONLINE).c_str()) == false) {
-							playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_FIVE_HUNDRED_GAMES_ONLINE).c_str());
-						}
-						if(networkGamesWonCount > 1000 && playerStats->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_OVER_THOUSAND_GAMES_ONLINE).c_str()) == false) {
-							playerStats->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_OVER_THOUSAND_GAMES_ONLINE).c_str());
-						}
 					}
 
 					//printf("\nPlayer won the game with at least 10 minutes of play: %f!\n",elapsedGameMinutes);
 				}
-				else {
-					//printf("\nPlayer won the game BUT NOT with at least 10 minutes of play: %f!\n",elapsedGameMinutes);
-				}
+			}
+			else {
+				//printf("\nPlayer won the game BUT NOT with at least 10 minutes of play: %f!\n",elapsedGameMinutes);
 			}
 		}
 	}
