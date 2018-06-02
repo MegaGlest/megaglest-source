@@ -5175,6 +5175,9 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 }
 
 void saveStatsToSteam(Game* game, Stats& endStats) {
+
+	const double MIN_PLAY_TIME_MINUTES = 10.0;
+
 	Steam* steamInstance = CacheManager::getCachedItem<Steam*>(GameConstants::steamCacheInstanceKey);
 	if (steamInstance != NULL) {
 		printf("\nSTEAM detected, writing out end game stats for player!\n");
@@ -5237,12 +5240,15 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 			if (factionIndex == game->getWorld()->getThisFactionIndex()) {
 				//printf("\nWriting out game stats for Faction Index: %d won status: %d\n",factionIndex,endStats.getVictory(factionIndex));
 				if (endStats.getVictory(factionIndex)) {
-					if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str()) == false) {
-						steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str());
-					}
-					if (NetworkManager::getInstance().isNetworkGame()) {
-						if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str()) == false) {
-							steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str());
+					double elapsedGameMinutes = (game->getWorld()->getStats()->getFramesToCalculatePlaytime() / GameConstants::updateFps / 60.0);
+					if(elapsedGameMinutes >= MIN_PLAY_TIME_MINUTES) {
+						if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str()) == false) {
+							steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str());
+						}
+						if (NetworkManager::getInstance().isNetworkGame()) {
+							if(steamInstance->isUnlocked(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str()) == false) {
+								steamInstance->unlock(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str());
+							}
 						}
 					}
 				}
@@ -5253,6 +5259,56 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 		steamInstance->storeStats();
 		//printf("\nSTEAM Refresh Stats!\n");
 		steamInstance->requestRefreshStats();
+	}
+	// Local Player stats for now just write out to player-stats.ini
+	// We'll clean this up to use an interface that both steam and lcoal comply with so the 'update' logic
+	// doesn't need to be duplicated.
+	else {
+		printf("\n**STEAM NOT detected, writing out NON STEAM end game stats for player!\n");
+		string saveFilePlayerLocalStats = "player-stats.ini";
+		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+			saveFilePlayerLocalStats = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveFilePlayerLocalStats;
+		}
+		else {
+	        string userData = Config::getInstance().getString("UserData_Root","");
+	        if(userData != "") {
+	        	endPathWithSlash(userData);
+	        }
+	        saveFilePlayerLocalStats = userData + saveFilePlayerLocalStats;
+		}
+
+		Properties playerLocalStats;
+		if(fileExists(saveFilePlayerLocalStats)) {
+			playerLocalStats.load(saveFilePlayerLocalStats);
+		}
+
+		// Write out achievements here
+		for (int factionIndex = 0;
+				factionIndex < game->getWorld()->getFactionCount(); ++factionIndex) {
+			if (factionIndex == game->getWorld()->getThisFactionIndex()) {
+				//printf("\nWriting out game stats for Faction Index: %d won status: %d\n",factionIndex,endStats.getVictory(factionIndex));
+				if (endStats.getVictory(factionIndex)) {
+					double elapsedGameMinutes = (game->getWorld()->getStats()->getFramesToCalculatePlaytime() / GameConstants::updateFps / 60.0);
+					if(elapsedGameMinutes >= MIN_PLAY_TIME_MINUTES) {
+						if(playerLocalStats.getBool(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str()) == false) {
+							playerLocalStats.setBool(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME).c_str(),true);
+						}
+						if (NetworkManager::getInstance().isNetworkGame()) {
+							if(playerLocalStats.getBool(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str()) == false) {
+								playerLocalStats.setBool(EnumParser<SteamAchievementName>::getString(ACH_WIN_ONE_GAME_ONLINE).c_str(),true);
+							}
+						}
+
+						//printf("\nPlayer won the game with at least 10 minutes of play: %f!\n",elapsedGameMinutes);
+					}
+					else {
+						//printf("\nPlayer won the game BUT NOT with at least 10 minutes of play: %f!\n",elapsedGameMinutes);
+					}
+				}
+			}
+		}
+
+		playerLocalStats.save(saveFilePlayerLocalStats);
 	}
 }
 
