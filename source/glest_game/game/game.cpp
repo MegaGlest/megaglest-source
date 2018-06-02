@@ -5325,8 +5325,8 @@ void saveStatsToSteam(Game* game, Stats& endStats) {
 	        }
 	        saveFilePlayerLocalStats = userData + saveFilePlayerLocalStats;
 		}
-		unique_ptr<SteamLocal> playerLocalStats(new SteamLocal(saveFilePlayerLocalStats));
-		PlayerAchievementsInterface *playerStats = playerLocalStats.get();
+		SteamLocal playerLocalStats(saveFilePlayerLocalStats);
+		PlayerAchievementsInterface *playerStats = &playerLocalStats;
 
 		// Write out achievements here
 		savePlayerStats(game, endStats, playerStats);
