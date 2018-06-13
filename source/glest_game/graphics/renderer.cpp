@@ -2408,7 +2408,17 @@ void Renderer::renderResourceStatus() {
 	}
 
 	const Faction *thisFaction = world->getFaction(world->getThisFactionIndex());
-
+	if(thisFaction->getPersonalityType() == fpt_Observer){
+		// render resources of selected units faction
+		const Gui *gui = game->getGui();
+		if(gui != NULL) {
+			const Selection *selection = gui->getSelection();
+			if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
+				const Unit *selectedUnit = selection->getFrontUnit();
+			    thisFaction=selectedUnit->getFaction();
+			}
+		}
+	}
 	assertGl();
 	glPushAttrib(GL_ENABLE_BIT);
 
