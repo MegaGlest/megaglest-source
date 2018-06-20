@@ -102,6 +102,7 @@ SERVER_SCRIPT="$(basename "$0")"
 if [ -f "$GAMEDIR/glest.ini" ]; then
     GLEST_INI="$(cat "$GAMEDIR/glest.ini" | sed -e 's:\$HOME:'"$HOME_DIR"':g')"
     LOG_DIR="$(echo "$GLEST_INI" | grep '^LogPath=' | awk -F '=' '{print $2}')"
+    mkdir -p "$LOG_DIR"
     # e.g. on macos are problems with more advanced using awk ^
     if [ "$LOG_DIR" != "" ] && [ "$(echo "$LOG_DIR" | grep '/$')" ]; then LOG_DIR="${LOG_DIR%?}"; fi
     MASTER_SERVER="$(echo "$GLEST_INI" | grep '^Masterserver=' | awk -F '=' '{print $2}')"
