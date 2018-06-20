@@ -6,4 +6,4 @@
 	url = https://github.com/MegaGlest/megaglest-masterserver.git
 [submodule "mk/linux/tools-for-standalone-client/installer/mojosetup"]
 	path = mk/linux/tools-for-standalone-client/installer/mojosetup
-	url = https://github.com/MegaGlest-Community/mojosetup-fork.git
+	url = https://github.com/MegaGlest/mojosetup-fork.git
