@@ -63,7 +63,6 @@ bool CounterBasedAchievement::checkAchieved(Game *game, PlayerAchievementsInterf
 // 	class Achievements
 // =====================================================
 Achievements::Achievements(){
-	Config &config=Config::getInstance();
 	string dataPath= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	string filepath=getGameCustomCoreDataPath(dataPath, "data/achievements/achievements.xml");
 	load(filepath);
@@ -78,7 +77,7 @@ void Achievements::load( string xmlFilePath){
 	XmlTree	xmlTree;
 	xmlTree.load(xmlFilePath,Properties::getTagReplacementValues());
 	const XmlNode *node= xmlTree.getRootNode();
-	for (int i=0; i<node->getChildCount();++i){
+	for (unsigned int i=0; i<node->getChildCount();++i){
 		XmlNode *currentNode=node->getChild(i);
 		if("counterBasedAchievement"==currentNode->getName()){
 			CounterBasedAchievement a;

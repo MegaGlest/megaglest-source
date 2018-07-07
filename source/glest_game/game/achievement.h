@@ -11,6 +11,12 @@
 #ifndef _GLEST_GAME_ACHIEVEMENT_H_
 #define _GLEST_GAME_ACHIEVEMENT_H_
 
+#ifdef WIN32
+    #include <winsock2.h>
+    #include <winsock.h>
+#endif
+
+#include <string>
 #include "util.h"
 #include "vec.h"
 #include "xml_parser.h"
