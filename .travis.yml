@@ -20,6 +20,14 @@ matrix:
           apt:
             packages:
             - libsdl2-dev
+      env: Tr_Compiler_Version="8"
+      dist: trusty
+    - os: linux
+      compiler: gcc
+      addons:
+          apt:
+            packages:
+            - libsdl2-dev
       env: Tr_Compiler_Version="default"
       dist: trusty
     - os: linux
