@@ -30,9 +30,8 @@ if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
 	if [ "$distribution" = "Ubuntu" ]; then
 	    #if [ "$Compiler_name" = "gcc" ] || ( [ "$Compiler_name" = "clang" ] && [ "$codename" = "precise" ] ); then
 	    if [ "$Compiler_name" = "gcc" ] || [ "$Compiler_name" = "clang" ]; then
-		# https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
-		sudo add-apt-repository --yes "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu ${codename} main"
-		#sudo add-apt-repository --yes "deb-src http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu ${codename} main"
+			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157 &&
+			sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 	    fi
 	fi
 	if [ "$distribution" = "Ubuntu" ] || [ "$distribution" = "Debian" ]; then
@@ -63,12 +62,12 @@ if [ "$Compiler_version" != "" ] && [ "$Compiler_version" != "default" ]; then
 	Gcc_AvSepGpp="$(apt-cache search ^g[c+][c+]-[0-9] | grep -v '[0-9]-[a-zA-Z]' | grep "^g++-$Compiler_version_grep")"
 	set -ex
 	if [ "$Gcc_AvSepGpp" = "" ]; then
-	    sudo apt-get --allow-unauthenticated install -qq --force-yes gcc-${Compiler_version}
+	    sudo apt-get install -qq -y gcc-${Compiler_version}
 	else
-	    sudo apt-get --allow-unauthenticated install -qq --force-yes gcc-${Compiler_version} g++-${Compiler_version}
+	    sudo apt-get install -qq -y gcc-${Compiler_version} g++-${Compiler_version}
 	fi
     elif [ "$Compiler_name" = "clang" ]; then
-	sudo apt-get --allow-unauthenticated install -qq --force-yes clang-${Compiler_version}
+	sudo apt-get install -qq -y clang-${Compiler_version}
     fi
 fi
 
