@@ -54,6 +54,10 @@ matrix:
       #env: Tr_Xcode_Version="6.4"
       # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
       # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
+    - os: osx
+      env: Tr_Xcode_Version="9.2"
+    - os: osx
+      env: Tr_Xcode_Version="10.1"
   fast_finish: true
   allow_failures:
     - os: osx
