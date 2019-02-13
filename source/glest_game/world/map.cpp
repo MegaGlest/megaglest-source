@@ -765,11 +765,11 @@ bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt
 
 // ==================== free cells ====================
 
-bool Map::isFreeCell(const Vec2i &pos, Field field) const {
+bool Map::isFreeCell(const Vec2i &pos, Field field, bool buildingsOnly) const {
 	return
 		isInside(pos) &&
 		isInsideSurface(toSurfCoords(pos)) &&
-		getCell(pos)->isFree(field) &&
+		(getCell(pos)->isFree(field) ? true : (buildingsOnly && !getCell(pos)->getUnit(field)->getType()->hasSkillClass(scBeBuilt))) &&
 		(field==fAir || getSurfaceCell(toSurfCoords(pos))->isFree()) &&
 		(field!=fLand || getDeepSubmerged(getCell(pos)) == false);
 }
@@ -843,11 +843,11 @@ bool Map::isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const {
 	return false;
 }
 
-bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
+bool Map::isFreeCells(const Vec2i & pos, int size, Field field, bool buildingsOnly) const {
 	for(int i=pos.x; i<pos.x+size; ++i) {
 		for(int j=pos.y; j<pos.y+size; ++j) {
 			Vec2i testPos(i,j);
-			if(isFreeCell(testPos, field) == false) {
+			if (isFreeCell(testPos, field, buildingsOnly) == false) {
 				return false;
 			}
 		}
@@ -1417,9 +1417,10 @@ void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, 
 //                    }
 				}
 
-
 				if(getCell(currPos)->getUnit(field) == NULL ||
-								   getCell(currPos)->getUnit(field) == unit) {
+				    getCell(currPos)->getUnit(field) == unit ||
+				    (unit->getType()->hasSkillClass(scBeBuilt) != getCell(currPos)->getUnit(field)->getType()->hasSkillClass(scBeBuilt))) {
+
 					if(isMorph) {
 						// unit is beeing morphed to another unit with maybe other field.
 						getCell(currPos)->setUnit(field, unit);

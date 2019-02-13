@@ -325,10 +325,10 @@ public:
 	bool isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit=NULL,bool fallbackToPeersHarvestingSameResource=false,Vec2i *resourceClickPos=NULL) const;
 
 	//free cells
-	bool isFreeCell(const Vec2i &pos, Field field) const;
+	bool isFreeCell(const Vec2i &pos, Field field, bool buildingsOnly = false) const;
 	bool isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const;
 	bool isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const;
-	bool isFreeCells(const Vec2i &pos, int size, Field field) const;
+	bool isFreeCells(const Vec2i &pos, int size, Field field, bool buildingsOnly = false) const;
 	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const;
 	bool isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const;
 	bool canMorph(const Vec2i &pos,const Unit *currentUnit,const UnitType *targetUnitType ) const;
