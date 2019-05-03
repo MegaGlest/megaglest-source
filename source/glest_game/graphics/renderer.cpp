@@ -181,6 +181,7 @@ Renderer::Renderer() : BaseRenderer(), saveScreenShotThreadAccessor(new Mutex(CO
 	pointCount = 0;
 	maxLights = 0;
 	waterAnim = 0;
+	waves = 0;
 
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
@@ -5052,7 +5053,13 @@ void Renderer::renderWater() {
 	scaledRect.clamp(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 
 	float waterLevel= world->getMap()->getWaterLevel();
-    for(int j=scaledRect.p[0].y; j<scaledRect.p[1].y; ++j){
+	waterWaves waterWaves = world->getTileset()->getWaterWaves();
+	waves += waterWaves.speed;
+	if(waves >= pi*2){
+		waves = 0.0f;
+	}
+
+	for(int j=scaledRect.p[0].y; j<scaledRect.p[1].y; ++j){
         glBegin(GL_TRIANGLE_STRIP);
 
 		for(int i=scaledRect.p[0].x; i<=scaledRect.p[1].x; ++i){
@@ -5069,6 +5076,8 @@ void Renderer::renderWater() {
                 cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
             }
 
+            float wave = std::sin(static_cast<float>(i)*waterWaves.frequency+waves)*waterWaves.amplitude;
+
 			if(cellExplored == true && tc0->getNearSubmerged()) {
 				glNormal3f(0.f, 1.f, 0.f);
                 closed= false;
@@ -5084,7 +5093,7 @@ void Renderer::renderWater() {
                 glTexCoord3f(i, 1.f, waterAnim);
 				glVertex3f(
 					static_cast<float>(i)*Map::mapScale,
-					waterLevel,
+					waterLevel + wave,
 					static_cast<float>(j+1)*Map::mapScale);
 
                 //vertex 2
@@ -5095,7 +5104,7 @@ void Renderer::renderWater() {
                 glTexCoord3f(i, 0.f, waterAnim);
                 glVertex3f(
 					static_cast<float>(i)*Map::mapScale,
-					waterLevel,
+					waterLevel + wave,
 					static_cast<float>(j)*Map::mapScale);
 
             }
@@ -5111,7 +5120,7 @@ void Renderer::renderWater() {
 					glTexCoord3f(i, 1.f, waterAnim);
 					glVertex3f(
 						static_cast<float>(i)*Map::mapScale,
-						waterLevel,
+						waterLevel + wave,
 						static_cast<float>(j+1)*Map::mapScale);
 
 					//vertex 2
@@ -5122,7 +5131,7 @@ void Renderer::renderWater() {
 					glTexCoord3f(i, 0.f, waterAnim);
 					glVertex3f(
 						static_cast<float>(i)*Map::mapScale,
-						waterLevel,
+						waterLevel + wave,
 						static_cast<float>(j)*Map::mapScale);
 
 					glEnd();
