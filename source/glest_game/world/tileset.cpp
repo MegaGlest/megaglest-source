@@ -400,11 +400,11 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		waterEffects= waterNode->getAttribute("effects")->getBoolValue();
 		//waves
 		if(waterNode->hasAttribute("waves")) {
-			ww.enabled = waterNode->getAttribute("waves")->getBoolValue();
-			if(ww.enabled) {
-				ww.frequency = waterNode->getAttribute("waveFrequency")->getFloatValue();
-				ww.amplitude = waterNode->getAttribute("waveAmplitude")->getFloatValue();
-				ww.speed = waterNode->getAttribute("waveSpeed")->getFloatValue();
+			waterWavesConfig.enabled = waterNode->getAttribute("waves")->getBoolValue();
+			if(waterWavesConfig.enabled) {
+				waterWavesConfig.frequency = waterNode->getAttribute("waveFrequency")->getFloatValue();
+				waterWavesConfig.amplitude = waterNode->getAttribute("waveAmplitude")->getFloatValue();
+				waterWavesConfig.speed = waterNode->getAttribute("waveSpeed")->getFloatValue();
 			}
 		}
 

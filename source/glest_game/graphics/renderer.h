@@ -310,7 +310,7 @@ private:
 
 	//water
 	float waterAnim;
-	float waves;
+	float waterWavesAnim;
 
 	bool allowRenderUnitTitles;
 	//std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
