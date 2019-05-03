@@ -181,7 +181,7 @@ Renderer::Renderer() : BaseRenderer(), saveScreenShotThreadAccessor(new Mutex(CO
 	pointCount = 0;
 	maxLights = 0;
 	waterAnim = 0;
-	waves = 0;
+	waterWavesAnim = 0;
 
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
@@ -5066,9 +5066,9 @@ void Renderer::renderWater() {
 
 	float waterLevel= world->getMap()->getWaterLevel();
 	waterWaves waterWaves = world->getTileset()->getWaterWaves();
-	waves += waterWaves.speed;
-	if(waves >= pi*2){
-		waves = 0.0f;
+	waterWavesAnim += waterWaves.speed;
+	if(waterWavesAnim >= pi*2){
+		waterWavesAnim = 0.0f;
 	}
 
 	for(int j=scaledRect.p[0].y; j<scaledRect.p[1].y; ++j){
@@ -5088,7 +5088,7 @@ void Renderer::renderWater() {
                 cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
             }
 
-            float wave = std::sin(static_cast<float>(i)*waterWaves.frequency+waves)*waterWaves.amplitude;
+            float wave = std::sin(static_cast<float>(i)*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude;
 
 			if(cellExplored == true && tc0->getNearSubmerged()) {
 				glNormal3f(0.f, 1.f, 0.f);
