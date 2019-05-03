@@ -2043,6 +2043,12 @@ void Unit::born(const CommandType *ct) {
 	faction->applyStaticProduction(type,ct);
 	setCurrSkill(scStop);
 
+	if(ct != NULL && (ct->getClass() == ccBuild || ct->getClass() == ccRepair)) {
+		//assume this is a building. This could lead to problems in the future,
+		//but there is no real way to detect a building
+		game->getConsole()->addStdMessage("BuildingFinished",": " + formatString(getFullName(true)));
+	}
+
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;
 
