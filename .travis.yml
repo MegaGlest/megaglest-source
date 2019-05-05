@@ -11,8 +11,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-4.7
-      env: MATRIX_EVAL="CC=gcc-4.7 && CXX=g++-4.7"
+            - g++-4.8
+      env: MATRIX_EVAL="CC=gcc-4.8 && CXX=g++-4.8"
 # use xenial for new versions of gcc and because libsdl2-dev isn't available
 # on trusty
     - os: linux
@@ -106,8 +106,6 @@ notifications:
   irc:
     channels:
       - "irc.freenode.org#megaglest"
-      - "irc.freenode.org#megaglest-overflow"
-      - "irc.freenode.org#megaglest-de"
     skip_join: true
     use_notice: true
     on_success: change
