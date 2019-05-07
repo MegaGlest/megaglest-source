@@ -4,14 +4,8 @@ cache: ccache
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: trusty
       compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.8
       env: MATRIX_EVAL="CC=gcc-4.8 && CXX=g++-4.8"
 # use xenial for new versions of gcc and because libsdl2-dev isn't available
 # on trusty
@@ -79,23 +73,35 @@ matrix:
 git:
   submodules: false
 
-before_install:
+install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       eval "${MATRIX_EVAL}";
       sudo apt-get update -qq &&
       sudo $TRAVIS_BUILD_DIR/mk/linux/setupBuildDeps.sh --quiet;
+      if [ "$TRAVIS_DIST" = "trusty" ]; then
+        SDL2_version="2.0.5";
+        wget https://www.libsdl.org/release/SDL2-${SDL2_version}.tar.gz &&
+        tar xf SDL2-${SDL2_version}.tar.gz                              &&
+        cd SDL2-${SDL2_version}                                         &&
+        ./configure --enable-static --disable-shared                    &&
+        make                                                            &&
+        sudo make install;
+        cd $TRAVIS_BUILD_DIR;
+      fi;
     else
       brew update &&
       brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac &&
       brew outdated cmake || brew upgrade cmake; brew outdated pkgconfig || brew upgrade pkgconfig &&
       brew link --force gettext;
     fi
-  - echo $CC
-  - echo $CXX
+
+before_script:
+  - $CC --version
+  - $CXX --version
   - cmake --version
+  - BUILD_OPTIONS="-c 4 $FORCE_EMBEDDED $WITHOUT_WXWIDGETS"
 
 script:
-  - BUILD_OPTIONS="-c 4 $FORCE_EMBEDDED $WITHOUT_WXWIDGETS"
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       mk/linux/build-mg.sh $BUILD_OPTIONS;
     else
