@@ -2982,6 +2982,9 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	//attack enemies that can attack first
 	float distToUnit= -1;
 	Unit* enemySeen= NULL;
+	std::vector<Unit*> fightingEnemiesInRange;
+	std::vector<Unit*> damagedFightingEnemiesInRange;
+	Unit* myFightingEnemyInRange= NULL;
 
 	float distToStandingUnit= -1;
 	Unit* attackingEnemySeen= NULL;
@@ -3015,38 +3018,75 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
     			//randomInfoData += " currentDist = " + floatToStr(currentDist);
 
-    			// Select closest attacking unit
-    			if(distToUnit < 0 ||  currentDist< distToUnit) {
-    				distToUnit = currentDist;
-					*rangedPtr	= enemies[i];
-					enemySeen	= enemies[i];
-					result		= true;
-    			}
+					// Select closest attacking unit
+					if (distToUnit < 0 || currentDist < distToUnit) {
+						distToUnit = currentDist;
+						*rangedPtr = enemy;
+						enemySeen = enemy;
+						result = true;
+					}
 
-    			if(isUltra || isMega) {
+					if (distToStandingUnit < 0
+							|| currentDist < distToStandingUnit) {
+						if (enemy->getCurrSkill() != NULL
+								&& enemy->getCurrSkill()->getClass()
+										== scAttack) {
+							distToStandingUnit = currentDist;
+							attackingEnemySeen = enemy;
+						}
+					}
 
-        			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
-        			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
-        			    	distToStandingUnit = currentDist;
-        			    	attackingEnemySeen=enemies[i];
-        			    }
-        			}
-    			}
+					if (enemy->getCurrSkill() != NULL
+							&& enemy->getCurrSkill()->getClass() == scAttack) {
+						if(enemy->getId()==unit->getLastAttackedUnitId())
+							myFightingEnemyInRange=enemy;
+						AttackSkillType* ast =
+								(AttackSkillType*) (enemy->getCurrSkill());
+						int enemyAttackRange = ast->getTotalAttackRange(unit->getTotalUpgrade());
+						if (enemyAttackRange > 1) {
+							fightingEnemiesInRange.push_back(enemy);
+							if( unit->getHpRatio()<0.9){
+								damagedFightingEnemiesInRange.push_back(enemy);
+							}
+						}
+					}
+
     		}
     	}
     }
+		if (evalMode == false) {
+			if ((isUltra)) {
+				unit->getRandom()->addLastCaller(randomInfoData);
+				bool doit = unit->getRandom()->randRange(0, 2, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2;
+				if (attackingEnemySeen != NULL && doit) {
+					//if( attackingEnemySeen != NULL) {
+					*rangedPtr = attackingEnemySeen;
+					enemySeen = attackingEnemySeen;
+					//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
+				}
+			} else if (isMega) {
+				if (myFightingEnemyInRange != NULL) {
+					//printf("Choosed my good old friend\n");
+					*rangedPtr = myFightingEnemyInRange;
+					 enemySeen = myFightingEnemyInRange;
+				} else {
+					unit->getRandom()->addLastCaller(randomInfoData);
+					bool doit = unit->getRandom()->randRange(0, 3, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) == 1;
+					//printf("fightingEnemiesInRange.size()=%d\n",fightingEnemiesInRange.size());
+					if (fightingEnemiesInRange.size() > 0 && doit) {
+						//printf("Choosing new one\n");
+						int myChoice = unit->getRandom()->randRange(1, fightingEnemiesInRange.size(),
+								extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__));
+						//printf("myChoice=%d\n", myChoice);
+						Unit* choosenOne = fightingEnemiesInRange[myChoice - 1];
+						//printf("choosenOne=%s team=%d\n", choosenOne->getType()->getName().c_str(), choosenOne->getFactionIndex());
+						*rangedPtr = choosenOne;
+						enemySeen = choosenOne;
+					}
+				}
+			}
+		}
 
-    if(evalMode == false && (isUltra || isMega)) {
-
-    	unit->getRandom()->addLastCaller(randomInfoData);
-
-    	if( attackingEnemySeen != NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
-    	//if( attackingEnemySeen != NULL) {
-    		*rangedPtr 	= attackingEnemySeen;
-    		enemySeen 	= attackingEnemySeen;
-    		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
-    	}
-    }
 
 	if(result == true) {
 
