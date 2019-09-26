@@ -3055,34 +3055,40 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     	}
     }
 		if (evalMode == false) {
-			if ((isUltra)) {
-				unit->getRandom()->addLastCaller(randomInfoData);
-				bool doit = unit->getRandom()->randRange(0, 2, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2;
-				if (attackingEnemySeen != NULL && doit) {
-					//if( attackingEnemySeen != NULL) {
-					*rangedPtr = attackingEnemySeen;
-					enemySeen = attackingEnemySeen;
-					//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
-				}
-			} else if (isMega) {
+			bool doUltra = false;
+			if (isMega) {
 				if (myFightingEnemyInRange != NULL) {
 					//printf("Choosed my good old friend\n");
 					*rangedPtr = myFightingEnemyInRange;
-					 enemySeen = myFightingEnemyInRange;
+					enemySeen = myFightingEnemyInRange;
 				} else {
 					unit->getRandom()->addLastCaller(randomInfoData);
-					bool doit = unit->getRandom()->randRange(0, 3, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) == 1;
+					bool doit = unit->getRandom()->randRange(0, 2, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) < 2;
 					//printf("fightingEnemiesInRange.size()=%d\n",fightingEnemiesInRange.size());
 					if (fightingEnemiesInRange.size() > 0 && doit) {
+						std::vector<Unit*> * unitList;
+						if (damagedFightingEnemiesInRange.size() > 0)
+							unitList = &damagedFightingEnemiesInRange;
+						else
+							unitList = &fightingEnemiesInRange;
+
 						//printf("Choosing new one\n");
-						int myChoice = unit->getRandom()->randRange(1, fightingEnemiesInRange.size(),
-								extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__));
+						int myChoice = unit->getRandom()->randRange(1, unitList->size(), extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__));
 						//printf("myChoice=%d\n", myChoice);
-						Unit* choosenOne = fightingEnemiesInRange[myChoice - 1];
+						Unit* choosenOne = (*unitList)[myChoice - 1];
 						//printf("choosenOne=%s team=%d\n", choosenOne->getType()->getName().c_str(), choosenOne->getFactionIndex());
 						*rangedPtr = choosenOne;
 						enemySeen = choosenOne;
-					}
+					} else
+						doUltra = true;;
+				}
+			}
+			if ((isUltra || doUltra)) {
+				unit->getRandom()->addLastCaller(randomInfoData);
+				bool doit = unit->getRandom()->randRange(0, 2, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2;
+				if (attackingEnemySeen != NULL && doit) {
+					*rangedPtr = attackingEnemySeen;
+					enemySeen = attackingEnemySeen;
 				}
 			}
 		}
