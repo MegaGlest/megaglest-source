@@ -48,7 +48,7 @@ const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 2;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
 
 const int mapPreviewTexture_X = 5;
-const int mapPreviewTexture_Y = 185;
+const int mapPreviewTexture_Y = 260;
 const int mapPreviewTexture_W = 150;
 const int mapPreviewTexture_H = 150;
 
@@ -164,14 +164,268 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
     techTree.reset(new TechTree(techtreesList));
 
-	vector<string> teamItems, controlItems, results, rMultiplier, playerStatuses;
-	int labelOffset=23;
-	int setupPos=590;
-	int mapHeadPos=330;
+	int labelOffset=22;
+	int setupPos=650;
+	int mapHeadPos=mapPreviewTexture_Y+mapPreviewTexture_H;
 	int mapPos=mapHeadPos-labelOffset;
-	int aHeadPos=240;
+	int aHeadPos=280;
 	int aPos=aHeadPos-labelOffset;
-	int networkHeadPos=700;
+	int networkHeadPos=750-labelOffset;
+	int xoffset=10;
+	int currX=0;
+	int currY=750;
+	int currXLabel=currX+20;
+	int lineHeightSmall=18;
+
+	int buttonx=165;
+	int buttony=180;
+
+    // player status
+	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+	listBoxPlayerStatus.init(buttonx, buttony, 165);
+	vector<string> playerStatuses;
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+	listBoxPlayerStatus.setSelectedItemIndex(2,true);
+	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+	listBoxPlayerStatus.setLighted(false);
+	listBoxPlayerStatus.setVisible(true);
+	buttonx+=180;
+
+	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
+	buttonDisconnect.init(buttonx, buttony, 125);
+	buttonDisconnect.setText(lang.getString("Return"));
+	buttonx+=132;
+
+	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
+	buttonRestoreLastSettings.init(buttonx, buttony, 240);
+	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
+	buttonx+=247;
+
+	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
+	buttonPlayNow.init(buttonx, buttony, 125);
+	buttonPlayNow.setText(lang.getString("PlayNow"));
+	buttonPlayNow.setVisible(false);
+
+	// network options
+	currY=680;
+	currX=390;
+	currXLabel=currX+20;
+
+	vector<string> rMultiplier;
+		for(int i=0; i<45; ++i){
+			rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
+		}
+	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
+	listBoxFallbackCpuMultiplier.init(currX-44, currY+2, 60,16);
+	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
+	listBoxFallbackCpuMultiplier.setSelectedItem("1.5");
+	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
+	labelFallbackCpuMultiplier.init(currXLabel, currY, 80);
+	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
+
+	xoffset=65;
+	// MapFilter
+	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
+	labelMapFilter.init(xoffset+525, mapHeadPos);
+	labelMapFilter.setText(lang.getString("MapFilter"));
+	labelMapFilter.setVisible(false);
+
+	labelMap.registerGraphicComponent(containerName,"labelMap");
+	labelMap.init(xoffset+100, mapPos+20);
+	labelMap.setText(lang.getString("Map"));
+
+	//Map Filter
+	listBoxMapFilter.registerGraphicComponent(containerName,"listBoxMapFilter");
+	listBoxMapFilter.init(xoffset+260, mapPos-labelOffset, 60);
+	listBoxMapFilter.pushBackItem("-");
+	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
+		listBoxMapFilter.pushBackItem(intToStr(i));
+	}
+	listBoxMapFilter.setSelectedItemIndex(0);
+
+	//map listBox
+	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
+	listBoxMap.init(xoffset+100, mapPos, 220);
+	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
+	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	int initialMapSelection = setupMapList("");
+    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    listBoxMap.setSelectedItemIndex(initialMapSelection);
+
+    labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
+	setSmallFont(labelMapInfo);
+
+	// fog - o - war
+	// @350 ? 300 ?
+	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
+	labelFogOfWar.init(xoffset+100, aHeadPos, 165);
+	labelFogOfWar.setText(lang.getString("FogOfWar"));
+
+	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
+	listBoxFogOfWar.init(xoffset+100, aPos, 165);
+	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
+	listBoxFogOfWar.setSelectedItemIndex(0);
+
+    //tech Tree listBox
+    labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
+	labelTechTree.init(xoffset+325, mapHeadPos);
+	labelTechTree.setText(lang.getString("TechTree"));
+
+    int initialTechSelection = setupTechList("", true);
+	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
+	listBoxTechTree.init(xoffset+325, mapPos, 180);
+	if(listBoxTechTree.getItemCount() > 0) {
+		listBoxTechTree.setSelectedItemIndex(initialTechSelection);
+	}
+
+    labelTileset.registerGraphicComponent(containerName,"labelTileset");
+	labelTileset.init(xoffset+325, mapHeadPos-44);
+	labelTileset.setText(lang.getString("Tileset"));
+
+	//tileset listBox
+	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
+	listBoxTileset.init(xoffset+325, mapPos-44, 180);
+
+	setupTilesetList("");
+	Chrono seed(true);
+	srand((unsigned int)seed.getCurTicks());
+
+	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
+
+
+	// Toy Block
+	currY=mapHeadPos;
+	currX=750;
+	currXLabel=currX+20;
+
+	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
+	checkBoxAllowTeamUnitSharing.init(currX, currY+2,16,16);
+	checkBoxAllowTeamUnitSharing.setValue(false);
+	checkBoxAllowTeamUnitSharing.setVisible(true);
+
+	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
+	labelAllowTeamUnitSharing.init(currXLabel, currY, 80);
+	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	labelAllowTeamUnitSharing.setVisible(true);
+	setSmallFont(labelAllowTeamUnitSharing);
+	currY = currY - lineHeightSmall;
+
+	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
+	checkBoxAllowTeamResourceSharing.init(currX, currY+2,16,16);
+	checkBoxAllowTeamResourceSharing.setValue(false);
+	checkBoxAllowTeamResourceSharing.setVisible(true);
+	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
+	labelAllowTeamResourceSharing.init(currXLabel, currY, 80);
+	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
+	labelAllowTeamResourceSharing.setVisible(true);
+	setSmallFont(labelAllowTeamResourceSharing);
+	currY = currY - lineHeightSmall;
+
+	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
+	checkBoxAllowNativeLanguageTechtree.init(currX, currY+2,16,16);
+	checkBoxAllowNativeLanguageTechtree.setValue(false);
+
+	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
+	labelAllowNativeLanguageTechtree.init(currXLabel, currY, 80);
+	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
+
+	// Allow Observers
+	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
+	checkBoxAllowObservers.init(currX, currY+2,16,16);
+	checkBoxAllowObservers.setValue(true);
+
+	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
+	labelAllowObservers.init(currXLabel, currY, 80);
+	labelAllowObservers.setText(lang.getString("AllowObservers"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
+
+	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
+	checkBoxEnableSwitchTeamMode.init(currX, currY+2,16,16);
+	checkBoxEnableSwitchTeamMode.setValue(false);
+	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
+	labelEnableSwitchTeamMode.init(currXLabel, currY);
+	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+	setSmallFont(labelEnableSwitchTeamMode);
+    currY=currY-lineHeightSmall;
+
+	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
+	listBoxAISwitchTeamAcceptPercent.init(currX-44, currY+2, 60,16);
+	for(int i = 0; i <= 100; i = i + 10) {
+		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
+	}
+	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
+	listBoxAISwitchTeamAcceptPercent.setVisible(false);
+	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
+	labelAISwitchTeamAcceptPercent.init(currXLabel, currY, 80);
+	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
+	labelAISwitchTeamAcceptPercent.setVisible(false);
+	setSmallFont(labelEnableSwitchTeamMode);
+    currY=currY-lineHeightSmall;
+
+	// Network Scenario
+    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    checkBoxScenario.init(currX, currY+2,16,16);
+    checkBoxScenario.setValue(false);
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(currXLabel, currY);
+    labelScenario.setText(lang.getString("NetworkScenarios"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(currX, currY,190,16);
+
+    //scenario listbox
+    vector<string> resultsScenarios;
+	findDirs(dirList, resultsScenarios);
+	// Filter out only scenarios with no network slots
+	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
+		string scenario = resultsScenarios[i];
+		string file = Scenario::getScenarioPath(dirList, scenario);
+
+		try {
+			if(file != "") {
+				bool isTutorial = Scenario::isGameTutorial(file);
+				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
+
+				bool isNetworkScenario = false;
+				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
+					if(scenarioInfo.factionControls[j] == ctNetwork) {
+						isNetworkScenario = true;
+					}
+				}
+				if(isNetworkScenario == true) {
+					scenarioFiles.push_back(scenario);
+				}
+			}
+		}
+		catch(const std::exception &ex) {
+		    char szBuf[8096]="";
+		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
+		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		    showMessageBox( szBuf, "Error", false);
+		}
+	}
+	resultsScenarios.clear();
+	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
+		resultsScenarios.push_back(formatString(scenarioFiles[i]));
+	}
+    listBoxScenario.setItems(resultsScenarios);
+    if(resultsScenarios.empty() == true) {
+    	checkBoxScenario.setEnabled(false);
+    }
 
 	//state
 	labelStatus.registerGraphicComponent(containerName,"labelStatus");
@@ -198,173 +452,15 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-	int xoffset=90;
-	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
-	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
-	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
-	labelAllowTeamUnitSharing.setVisible(true);
-
-	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
-	checkBoxAllowTeamUnitSharing.init(xoffset+612, 670);
-	checkBoxAllowTeamUnitSharing.setValue(false);
-	checkBoxAllowTeamUnitSharing.setVisible(true);
-	checkBoxAllowTeamUnitSharing.setEditable(false);
-
-	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
-	labelAllowTeamResourceSharing.init(xoffset+410, 640, 80);
-	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
-	labelAllowTeamResourceSharing.setVisible(true);
-
-	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
-	checkBoxAllowTeamResourceSharing.init(xoffset+612, 640);
-	checkBoxAllowTeamResourceSharing.setValue(false);
-	checkBoxAllowTeamResourceSharing.setVisible(true);
-	checkBoxAllowTeamResourceSharing.setEditable(false);
-
-	// fog - o - war
-	xoffset=65;
-	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
-	labelFogOfWar.init(xoffset+100, aHeadPos, 165);
-	labelFogOfWar.setText(lang.getString("FogOfWar"));
-
-	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset+100, aPos, 165);
-	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
-	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
-	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
-	listBoxFogOfWar.setSelectedItemIndex(0);
-	listBoxFogOfWar.setEditable(false);
-
-	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+325, aHeadPos, 80);
-	labelAllowObservers.setText(lang.getString("AllowObservers"));
-
-	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
-	checkBoxAllowObservers.init(xoffset+325, aPos);
-	checkBoxAllowObservers.setValue(false);
-	checkBoxAllowObservers.setEditable(false);
-
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
-
-	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
-	labelFallbackCpuMultiplier.init(xoffset+500, aHeadPos, 80);
-	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
-
-	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
-	listBoxFallbackCpuMultiplier.init(xoffset+500, aPos, 80);
-	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
-	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
-
-
-	// Allow Switch Team Mode
-	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-	labelEnableSwitchTeamMode.init(xoffset+325, aHeadPos+45, 80);
-	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
-
-	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
-	checkBoxEnableSwitchTeamMode.init(xoffset+325, aPos+45);
-	checkBoxEnableSwitchTeamMode.setValue(false);
-	checkBoxEnableSwitchTeamMode.setEditable(false);
-
-	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
-	labelAISwitchTeamAcceptPercent.init(xoffset+500, aHeadPos+45, 80);
-	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
-
-	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
-	listBoxAISwitchTeamAcceptPercent.init(xoffset+500, aPos+45, 80);
-	for(int i = 0; i <= 100; i = i + 10) {
-		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
-	}
-	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
-	listBoxAISwitchTeamAcceptPercent.setEditable(false);
 
 	//create
 	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
 	buttonCancelDownloads.init(xoffset+620, 180, 150);
 	buttonCancelDownloads.setText(lang.getString("CancelDownloads"));
 
-	// Network Frame Period
-	xoffset=65;
-    //map listBox
-
-	xoffset=65;
-	// MapFilter
-	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
-	labelMapFilter.init(xoffset+325, mapHeadPos);
-	labelMapFilter.setText(lang.getString("MapFilter"));
-
-	listBoxMapFilter.registerGraphicComponent(containerName,"listBoxMapFilter");
-	listBoxMapFilter.init(xoffset+325, mapPos, 80);
-	listBoxMapFilter.pushBackItem("-");
-	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
-		listBoxMapFilter.pushBackItem(intToStr(i));
-	}
-	listBoxMapFilter.setSelectedItemIndex(0);
-	listBoxMapFilter.setEditable(false);
-
-
-	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
-	// will also ensure they are alphabetically listed (rather than how the OS provides them)
-	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
-	listBoxMap.init(xoffset+100, mapPos, 220);
-	listBoxMap.setEditable(false);
-
-    labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
-	labelMapInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
-	labelMapInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
-    labelMapInfo.setText("?");
-
-	labelMap.registerGraphicComponent(containerName,"labelMap");
-	labelMap.init(xoffset+100, mapHeadPos);
-	labelMap.setText(lang.getString("Map"));
-
-    //tileset listBox
-	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
-	listBoxTileset.init(xoffset+500, mapPos, 160);
-	listBoxTileset.setEditable(false);
-
-	labelTileset.registerGraphicComponent(containerName,"labelTileset");
-	labelTileset.init(xoffset+500, mapHeadPos);
-	labelTileset.setText(lang.getString("Tileset"));
-
-
-    //tech Tree listBox
-	listBoxTechTree.setEditable(false);
-
-	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
-	listBoxTechTree.init(xoffset+700, mapPos, 180);
-
-	labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
-	labelTechTree.init(xoffset+700, mapHeadPos);
-	labelTechTree.setText(lang.getString("TechTree"));
-
-	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
-	labelAllowNativeLanguageTechtree.init(xoffset+700, aHeadPos+45);
-	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
-
-	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
-	checkBoxAllowNativeLanguageTechtree.init(xoffset+700, aPos+45);
-	checkBoxAllowNativeLanguageTechtree.setValue(false);
-	checkBoxAllowNativeLanguageTechtree.setEditable(false);
-	checkBoxAllowNativeLanguageTechtree.setEnabled(false);
-
-	// Network Scenario
-	int scenarioX=xoffset+700;
-	int scenarioY=aPos;
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, aHeadPos);
-    labelScenario.setText(lang.getString("Scenario"));
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX+30, scenarioY,190);
-    listBoxScenario.setEditable(false);
-    listBoxScenario.setEnabled(false);
-    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX, scenarioY);
-    checkBoxScenario.setValue(false);
-    checkBoxScenario.setEditable(false);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -435,6 +531,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//texts
 	buttonDisconnect.setText(lang.getString("Return"));
 
+	vector<string> controlItems;
     controlItems.push_back(lang.getString("Closed"));
 	controlItems.push_back(lang.getString("CpuEasy"));
 	controlItems.push_back(lang.getString("Cpu"));
@@ -452,6 +549,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	    controlItems.push_back(lang.getString("NetworkCpuMega"));
 	}
 
+	vector<string> teamItems;
 	for(int i = 1; i <= GameConstants::maxPlayers; ++i) {
 		teamItems.push_back(intToStr(i));
 	}
@@ -490,33 +588,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 
-	int buttonx=165;
-	int buttony=180;
-
-	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(buttonx, buttony, 165);
-	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
-	listBoxPlayerStatus.setLighted(true);
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
-	buttonx+=180;
-
-	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
-	buttonDisconnect.init(buttonx, buttony, 125);
-	buttonx+=132;
-
-	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(buttonx, buttony, 240);
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
-	buttonx+=247;
-
-	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(buttonx, buttony, 125);
-	buttonPlayNow.setText(lang.getString("PlayNow"));
-	buttonPlayNow.setVisible(false);
-
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -525,54 +596,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	chatManager.init(&console, -1,true);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
-
-	//tileset listBox
-	setupTilesetList("");
-
-	int initialTechSelection = setupTechList("",true);
-	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
-
-
-    //scenario listbox
-    vector<string> resultsScenarios;
-	findDirs(dirList, resultsScenarios);
-	// Filter out only scenarios with no network slots
-	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
-		string scenario = resultsScenarios[i];
-		string file = Scenario::getScenarioPath(dirList, scenario);
-
-		try {
-			if(file != "") {
-				bool isTutorial = Scenario::isGameTutorial(file);
-				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
-
-				bool isNetworkScenario = false;
-				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
-					if(scenarioInfo.factionControls[j] == ctNetwork) {
-						isNetworkScenario = true;
-					}
-				}
-				if(isNetworkScenario == true) {
-					scenarioFiles.push_back(scenario);
-				}
-			}
-		}
-		catch(const std::exception &ex) {
-		    char szBuf[8096]="";
-		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
-		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-
-		    showMessageBox( szBuf, "Error", false);
-		    //throw megaglest_runtime_error(szBuf);
-		}
-	}
-	resultsScenarios.clear();
-	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
-		resultsScenarios.push_back(formatString(scenarioFiles[i]));
-	}
-    listBoxScenario.setItems(resultsScenarios);
-    checkBoxScenario.setEnabled(false);
 
     if(config.getBool("EnableFTPXfer","true") == true) {
         ClientInterface *clientInterface = networkManager.getClientInterface();
@@ -692,14 +715,6 @@ void MenuStateConnectedGame::reloadUI() {
 
 	buttonCancelDownloads.setText(lang.getString("CancelDownloads"));
 
-	labelFogOfWar.setText(lang.getString("FogOfWar"));
-
-	vector<string> fowItems;
-	fowItems.push_back(lang.getString("Enabled"));
-	fowItems.push_back(lang.getString("Explored"));
-	fowItems.push_back(lang.getString("Disabled"));
-	listBoxFogOfWar.setItems(fowItems);
-
 	labelAllowObservers.setText(lang.getString("AllowObservers"));
 	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
 
@@ -750,9 +765,6 @@ void MenuStateConnectedGame::reloadUI() {
 	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-
-	//texts
-	buttonDisconnect.setText(lang.getString("Return"));
 
 	vector<string> controlItems;
     controlItems.push_back(lang.getString("Closed"));
@@ -2541,9 +2553,6 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	listBoxTechTree.mouseMove(x, y);
 	listBoxPlayerStatus.mouseMove(x,y);
 
-	checkBoxScenario.mouseMove(x, y);
-	listBoxScenario.mouseMove(x, y);
-
 	labelAllowTeamUnitSharing.mouseMove(x,y);
 	checkBoxAllowTeamUnitSharing.mouseMove(x,y);
 	labelAllowTeamResourceSharing.mouseMove(x,y);
@@ -3952,6 +3961,11 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 }
 
 // ============ PRIVATE ===========================
+
+void MenuStateConnectedGame::setSmallFont(GraphicLabel l){
+	l.setFont(CoreData::getInstance().getDisplayFontSmall());
+	l.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+}
 
 bool MenuStateConnectedGame::hasNetworkGameSettings() {
     bool hasNetworkSlot = false;
