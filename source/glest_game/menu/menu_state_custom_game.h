@@ -55,8 +55,6 @@ private:
 	GraphicLabel labelTechTree;
 	GraphicLabel labelTileset;
 	GraphicLabel labelMapInfo;
-	GraphicLabel labelLocalGameVersion;
-	GraphicLabel labelLocalIP;
 	GraphicLabel labelGameName;
 
 	GraphicListBox listBoxMap;
@@ -125,6 +123,8 @@ private:
 
 	GraphicLabel labelAllowNativeLanguageTechtree;
 	GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
+
+	GraphicButton buttonShowLanInfo;
 
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;
@@ -255,6 +255,7 @@ public:
     virtual bool isVideoPlaying();
 private:
 
+    void setSmallFont(GraphicLabel l);
     void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);

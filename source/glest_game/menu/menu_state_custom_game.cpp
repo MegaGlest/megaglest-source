@@ -46,7 +46,7 @@ static const char *DEFAULT_GAME_FILENAME 			= "data/defaultGameSetup.mgg";
 static const char *DEFAULT_NETWORKGAME_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
 
 const int mapPreviewTexture_X = 5;
-const int mapPreviewTexture_Y = 185;
+const int mapPreviewTexture_Y = 260;
 const int mapPreviewTexture_W = 150;
 const int mapPreviewTexture_H = 150;
 
@@ -168,6 +168,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		generalErrorToShow = szBuf;
 	}
 
+	string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
+	string externalPort=config.getString("PortExternal", serverPort.c_str());
+	ServerSocket::setExternalPort(strToInt(externalPort));
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	needToSetChangedGameSettings = false;
@@ -184,17 +188,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	techTree.reset(new TechTree(config.getPathListForType(ptTechs)));
 
-	int labelOffset=23;
-	int setupPos=605;
-	int mapHeadPos=330;
+	int labelOffset=22;
+	int setupPos=650;
+	int mapHeadPos=mapPreviewTexture_Y+mapPreviewTexture_H;
 	int mapPos=mapHeadPos-labelOffset;
-	int aHeadPos=240;
+	int aHeadPos=280;
 	int aPos=aHeadPos-labelOffset;
-	int networkHeadPos=700;
-	int networkPos=networkHeadPos-labelOffset;
+	int networkHeadPos=750-labelOffset;
 	int xoffset=10;
+	int currX=0;
+	int currY=750;
+	int currXLabel=currX+20;
+	int lineHeightSmall=18;
 
-	//create
 	int buttonx=165;
 	int buttony=180;
 
@@ -214,64 +220,106 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(buttonx, buttony, 125);
+	buttonReturn.setText(lang.getString("Return"));
 	buttonx+=132;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
 	buttonRestoreLastSettings.init(buttonx, buttony, 240);
+	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
 	buttonx+=247;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
+	buttonPlayNow.setText(lang.getString("PlayNow"));
 
-	labelLocalGameVersion.registerGraphicComponent(containerName,"labelLocalGameVersion");
-	labelLocalGameVersion.init(10, networkHeadPos+labelOffset);
+	// network options
+	currY=networkHeadPos;
+	currX=10;
+	currXLabel=currX+20;
 
-	labelLocalIP.registerGraphicComponent(containerName,"labelLocalIP");
-	labelLocalIP.init(360, networkHeadPos+labelOffset);
+	labelPublishServer.registerGraphicComponent(containerName,"labelPublishServer");
+	labelPublishServer.init(currX, currY, 100);
+	labelPublishServer.setText(lang.getString("PublishServer"));
 
-	string ipText = "none";
-	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
-	if(ipList.empty() == false) {
-		ipText = "";
-		for(int idx = 0; idx < (int)ipList.size(); idx++) {
-			string ip = ipList[idx];
-			if(ipText != "") {
-				ipText += ", ";
-			}
-			ipText += ip;
+	currY=currY-labelOffset;
+
+	checkBoxPublishServer.registerGraphicComponent(containerName,"checkBoxPublishServer");
+	checkBoxPublishServer.init(currX, currY);
+	checkBoxPublishServer.setValue(false);
+	if((this->headlessServerMode == true ||
+		(openNetworkSlots == true && parentMenuState != pLanGame)) &&
+			GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false) {
+		checkBoxPublishServer.setValue(true);
+	}
+
+	labelGameName.registerGraphicComponent(containerName,"labelGameName");
+	labelGameName.init(currX+checkBoxPublishServer.getW()+5, currY,200);
+	//labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
+	//labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelGameName.setText(createGameName());
+	labelGameName.setEditable(true);
+	labelGameName.setMaxEditWidth(20);
+	labelGameName.setMaxEditRenderWidth(200);
+
+	currY=730;
+	currX=390;
+	currXLabel=currX+20;
+
+	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
+	checkBoxNetworkPauseGameForLaggedClients.init(currX, currY+2,16,16);
+	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
+
+	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
+	labelNetworkPauseGameForLaggedClients.init(currXLabel, currY, 80);
+	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
+	currY = currY - lineHeightSmall;
+
+    bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
+	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
+	labelAllowInGameJoinPlayer.init(currXLabel, currY, 80);
+	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
+	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
+
+	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
+	checkBoxAllowInGameJoinPlayer.init(currX, currX,16,16);
+	checkBoxAllowInGameJoinPlayer.setValue(false);
+	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
+
+	currY=680;
+	vector<string> rMultiplier;
+		for(int i=0; i<45; ++i){
+			rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 		}
-	}
-	string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
-	string externalPort=config.getString("PortExternal", serverPort.c_str());
-	labelLocalIP.setText(lang.getString("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
-	ServerSocket::setExternalPort(strToInt(externalPort));
+	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
+	listBoxFallbackCpuMultiplier.init(currX-44, currY+2, 60,16);
+	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
+	listBoxFallbackCpuMultiplier.setSelectedItem("1.5");
+	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
+	labelFallbackCpuMultiplier.init(currXLabel, currY, 80);
+	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
 
-	if(EndsWith(glestVersionString, "-dev") == false){
-		labelLocalGameVersion.setText(glestVersionString);
-	}
-	else {
-		//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
-		labelLocalGameVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
-	}
 
 	xoffset=65;
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
-	labelMapFilter.init(xoffset+325, mapHeadPos);
+	labelMapFilter.init(xoffset+525, mapHeadPos);
 	labelMapFilter.setText(lang.getString("MapFilter"));
+	labelMapFilter.setVisible(false);
 
+	labelMap.registerGraphicComponent(containerName,"labelMap");
+	labelMap.init(xoffset+100, mapPos+20);
+	labelMap.setText(lang.getString("Map"));
+
+	//Map Filter
 	listBoxMapFilter.registerGraphicComponent(containerName,"listBoxMapFilter");
-	listBoxMapFilter.init(xoffset+325, mapPos, 80);
+	listBoxMapFilter.init(xoffset+260, mapPos-labelOffset, 60);
 	listBoxMapFilter.pushBackItem("-");
 	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
 		listBoxMapFilter.pushBackItem(intToStr(i));
 	}
 	listBoxMapFilter.setSelectedItemIndex(0);
-
-	// Map
-	labelMap.registerGraphicComponent(containerName,"labelMap");
-	labelMap.init(xoffset+100, mapHeadPos);
-	labelMap.setText(lang.getString("Map"));
 
 	//map listBox
 	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
@@ -284,35 +332,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
 	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
-	labelMapInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
-	labelMapInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+	setSmallFont(labelMapInfo);
 
-    labelTileset.registerGraphicComponent(containerName,"labelTileset");
-	labelTileset.init(xoffset+500, mapHeadPos);
-	labelTileset.setText(lang.getString("Tileset"));
-
-	//tileset listBox
-	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
-	listBoxTileset.init(xoffset+500, mapPos, 160);
-
-	setupTilesetList("");
-	Chrono seed(true);
-	srand((unsigned int)seed.getCurTicks());
-
-	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
-
-    //tech Tree listBox
-    int initialTechSelection = setupTechList("", true);
-
-	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
-	listBoxTechTree.init(xoffset+700, mapPos, 180);
-	if(listBoxTechTree.getItemCount() > 0) {
-		listBoxTechTree.setSelectedItemIndex(initialTechSelection);
-	}
-
-    labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
-	labelTechTree.init(xoffset+700, mapHeadPos);
-	labelTechTree.setText(lang.getString("TechTree"));
 
 	// fog - o - war
 	// @350 ? 300 ?
@@ -327,68 +348,115 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 
-	// Allow Observers
-	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+325, aHeadPos, 80);
-	labelAllowObservers.setText(lang.getString("AllowObservers"));
+    //tech Tree listBox
+    labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
+	labelTechTree.init(xoffset+325, mapHeadPos);
+	labelTechTree.setText(lang.getString("TechTree"));
 
-	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
-	checkBoxAllowObservers.init(xoffset+325, aPos);
-	checkBoxAllowObservers.setValue(false);
-
-	vector<string> rMultiplier;
-	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
+    int initialTechSelection = setupTechList("", true);
+	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
+	listBoxTechTree.init(xoffset+325, mapPos, 180);
+	if(listBoxTechTree.getItemCount() > 0) {
+		listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 	}
 
-	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
-	labelFallbackCpuMultiplier.init(xoffset+500, aHeadPos, 80);
-	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
+    labelTileset.registerGraphicComponent(containerName,"labelTileset");
+	labelTileset.init(xoffset+325, mapHeadPos-44);
+	labelTileset.setText(lang.getString("Tileset"));
 
-	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
-	listBoxFallbackCpuMultiplier.init(xoffset+500, aPos, 80);
-	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
-	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
+	//tileset listBox
+	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
+	listBoxTileset.init(xoffset+325, mapPos-44, 180);
 
-	// Allow Switch Team Mode
-	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-	labelEnableSwitchTeamMode.init(xoffset+325, aHeadPos+45, 80);
-	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+	setupTilesetList("");
+	Chrono seed(true);
+	srand((unsigned int)seed.getCurTicks());
+
+	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
+
+	// Toy Block
+	currY=mapHeadPos;
+	currX=750;
+	currXLabel=currX+20;
+
+	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
+	checkBoxAllowTeamUnitSharing.init(currX, currY+2,16,16);
+	checkBoxAllowTeamUnitSharing.setValue(false);
+	checkBoxAllowTeamUnitSharing.setVisible(true);
+
+	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
+	labelAllowTeamUnitSharing.init(currXLabel, currY, 80);
+	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	labelAllowTeamUnitSharing.setVisible(true);
+	setSmallFont(labelAllowTeamUnitSharing);
+	currY = currY - lineHeightSmall;
+
+	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
+	checkBoxAllowTeamResourceSharing.init(currX, currY+2,16,16);
+	checkBoxAllowTeamResourceSharing.setValue(false);
+	checkBoxAllowTeamResourceSharing.setVisible(true);
+	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
+	labelAllowTeamResourceSharing.init(currXLabel, currY, 80);
+	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
+	labelAllowTeamResourceSharing.setVisible(true);
+	setSmallFont(labelAllowTeamResourceSharing);
+	currY = currY - lineHeightSmall;
+
+	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
+	checkBoxAllowNativeLanguageTechtree.init(currX, currY+2,16,16);
+	checkBoxAllowNativeLanguageTechtree.setValue(false);
+
+	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
+	labelAllowNativeLanguageTechtree.init(currXLabel, currY, 80);
+	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
+
+	// Allow Observers
+	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
+	checkBoxAllowObservers.init(currX, currY+2,16,16);
+	checkBoxAllowObservers.setValue(true);
+
+	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
+	labelAllowObservers.init(currXLabel, currY, 80);
+	labelAllowObservers.setText(lang.getString("AllowObservers"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
 
 	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
-	checkBoxEnableSwitchTeamMode.init(xoffset+325, aPos+45);
+	checkBoxEnableSwitchTeamMode.init(currX, currY+2,16,16);
 	checkBoxEnableSwitchTeamMode.setValue(false);
-
-	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
-	labelAISwitchTeamAcceptPercent.init(xoffset+500, aHeadPos+45, 80);
-	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
+	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
+	labelEnableSwitchTeamMode.init(currXLabel, currY);
+	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+	setSmallFont(labelEnableSwitchTeamMode);
+    currY=currY-lineHeightSmall;
 
 	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
-	listBoxAISwitchTeamAcceptPercent.init(xoffset+500, aPos+45, 80);
+	listBoxAISwitchTeamAcceptPercent.init(currX-44, currY+2, 60,16);
 	for(int i = 0; i <= 100; i = i + 10) {
 		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
-
-	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
-	labelAllowNativeLanguageTechtree.init(xoffset+700, aHeadPos+45);
-	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
-
-	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
-	checkBoxAllowNativeLanguageTechtree.init(xoffset+700, aPos+45);
-	checkBoxAllowNativeLanguageTechtree.setValue(false);
+	listBoxAISwitchTeamAcceptPercent.setVisible(false);
+	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
+	labelAISwitchTeamAcceptPercent.init(currXLabel, currY, 80);
+	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
+	labelAISwitchTeamAcceptPercent.setVisible(false);
+	setSmallFont(labelEnableSwitchTeamMode);
+    currY=currY-lineHeightSmall;
 
 	// Network Scenario
-	int scenarioX=xoffset+700;
-	int scenarioY=aPos;
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, aHeadPos);
-    labelScenario.setText(lang.getString("Scenario"));
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX+30, scenarioY,190);
     checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX, scenarioY);
+    checkBoxScenario.init(currX, currY+2,16,16);
     checkBoxScenario.setValue(false);
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(currXLabel, currY);
+    labelScenario.setText(lang.getString("NetworkScenarios"));
+	setSmallFont(labelAllowNativeLanguageTechtree);
+	currY = currY - lineHeightSmall;
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(currX, currY,190,16);
 
     //scenario listbox
     vector<string> resultsScenarios;
@@ -433,88 +501,26 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     if(resultsScenarios.empty() == true) {
     	checkBoxScenario.setEnabled(false);
     }
+
+	currY = currY - lineHeightSmall;
+	buttonShowLanInfo .registerGraphicComponent(containerName,"buttonShowLanInfo");
+	buttonShowLanInfo.init(currX, currY, 200,16);
+	buttonShowLanInfo.setText(lang.getString("showIP"));
+	currY = currY - lineHeightSmall;
+
 	// Advanced Options
 	labelAdvanced.registerGraphicComponent(containerName,"labelAdvanced");
-	labelAdvanced.init(scenarioX, 80, 80);
+	labelAdvanced.init(750, 80, 80);
 	labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
 
 	checkBoxAdvanced.registerGraphicComponent(containerName,"checkBoxAdvanced");
-	checkBoxAdvanced.init(scenarioX, 80-labelOffset);
+	checkBoxAdvanced.init(750, 80-labelOffset);
 	checkBoxAdvanced.setValue(false);
 
-	// network things
-	// PublishServer
-	xoffset=90;
-
-	labelPublishServer.registerGraphicComponent(containerName,"labelPublishServer");
-	labelPublishServer.init(20, networkHeadPos, 100);
-	labelPublishServer.setText(lang.getString("PublishServer"));
-
-	checkBoxPublishServer.registerGraphicComponent(containerName,"checkBoxPublishServer");
-	checkBoxPublishServer.init(20, networkPos);
-
-	checkBoxPublishServer.setValue(false);
-	if((this->headlessServerMode == true ||
-		(openNetworkSlots == true && parentMenuState != pLanGame)) &&
-			GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false) {
-		checkBoxPublishServer.setValue(true);
-	}
-
-	labelGameName.registerGraphicComponent(containerName,"labelGameName");
-	labelGameName.init(20+checkBoxPublishServer.getW()+5, networkPos,200);
-	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
-	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelGameName.setText(createGameName());
-	labelGameName.setEditable(true);
-	labelGameName.setMaxEditWidth(20);
-	labelGameName.setMaxEditRenderWidth(200);
-
-
-	bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
-	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
-	labelAllowInGameJoinPlayer.init(50, networkPos - 30, 80);
-	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
-	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
-
-	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
-	checkBoxAllowInGameJoinPlayer.init(20, networkPos - 30);
-	checkBoxAllowInGameJoinPlayer.setValue(false);
-	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
-
-
-	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
-	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
-	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
-	labelAllowTeamUnitSharing.setVisible(true);
-
-	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
-	checkBoxAllowTeamUnitSharing.init(xoffset+612, 670);
-	checkBoxAllowTeamUnitSharing.setValue(false);
-	checkBoxAllowTeamUnitSharing.setVisible(true);
-
-	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
-	labelAllowTeamResourceSharing.init(xoffset+410, 640, 80);
-	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
-	labelAllowTeamResourceSharing.setVisible(true);
-
-	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
-	checkBoxAllowTeamResourceSharing.init(xoffset+612, 640);
-	checkBoxAllowTeamResourceSharing.setValue(false);
-	checkBoxAllowTeamResourceSharing.setVisible(true);
-
-
-	// Network Pause for lagged clients
-	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
-	labelNetworkPauseGameForLaggedClients.init(labelAllowTeamResourceSharing.getX(), networkHeadPos, 80);
-	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
-
-	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
-	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowTeamResourceSharing.getX(), networkHeadPos);
-	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
 
 	//list boxes
 	xoffset=5;
-	int rowHeight=27;
+	int rowHeight=22;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
@@ -541,21 +547,22 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
         listBoxRMultiplier[i].init(xoffset+336, setupPos-30-i*rowHeight,70);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 247);
+        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 147);
         listBoxFactions[i].setLeftControlled(true);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+660, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+560, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+726, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+626, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
     }
 
 	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
 	buttonClearBlockedPlayers.init(xoffset+160, setupPos-30-8*rowHeight, 174+2+70);
+	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
 
 	labelControl.registerGraphicComponent(containerName,"labelControl");
 	labelControl.init(xoffset+160, setupPos, 50, GraphicListBox::defH, true);
@@ -569,7 +576,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     labelFaction.setText(lang.getString("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+660, setupPos, 50, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+560, setupPos, 50, GraphicListBox::defH, true);
     labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -583,11 +590,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
     //xoffset=100;
 
-	//texts
-	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
-	buttonReturn.setText(lang.getString("Return"));
-	buttonPlayNow.setText(lang.getString("PlayNow"));
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
+
 
 	vector<string> controlItems;
     controlItems.push_back(lang.getString("Closed"));
@@ -733,6 +736,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 }
 
+
+
 string MenuStateCustomGame::createGameName(string controllingPlayer){
 	Config &config = Config::getInstance();
 	string serverTitle=config.getString("ServerTitle","");
@@ -762,34 +767,6 @@ void MenuStateCustomGame::reloadUI() {
 
     console.resetFonts();
 	mainMessageBox.init(lang.getString("Ok"),500,300);
-
-
-	if(EndsWith(glestVersionString, "-dev") == false){
-		labelLocalGameVersion.setText(glestVersionString);
-	}
-	else {
-		//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
-		labelLocalGameVersion.setText(glestVersionString + " [" + getGITRevisionString() + "]");
-	}
-
-	//vector<string> teamItems, controlItems, results , rMultiplier;
-
-	string ipText = "none";
-	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
-	if(ipList.empty() == false) {
-		ipText = "";
-		for(int idx = 0; idx < (int)ipList.size(); idx++) {
-			string ip = ipList[idx];
-			if(ipText != "") {
-				ipText += ", ";
-			}
-			ipText += ip;
-		}
-	}
-	string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
-	string externalPort=config.getString("PortExternal", serverPort.c_str());
-
-	labelLocalIP.setText(lang.getString("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 
 	labelMap.setText(lang.getString("Map"));
 
@@ -894,7 +871,8 @@ void MenuStateCustomGame::reloadUI() {
 	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
 
-	labelScenario.setText(lang.getString("Scenario"));
+	labelScenario.setText(lang.getString("NetworkScenarios"));
+	buttonShowLanInfo.setText(lang.getString("LanIP"));
 
 	reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 
@@ -1210,6 +1188,27 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					needToSetChangedGameSettings = true;
 					lastSetChangedGameSettings   = time(NULL);
 				}
+			}
+			else if (checkBoxAdvanced.getValue() == 1 && buttonShowLanInfo.mouseClick(x, y)) {
+				// show to console
+				string ipText = "none";
+					std::vector<std::string> ipList = Socket::getLocalIPAddressList();
+					if(ipList.empty() == false) {
+						ipText = "";
+						for(int idx = 0; idx < (int)ipList.size(); idx++) {
+							string ip = ipList[idx];
+							if(ipText != "") {
+								ipText += ", ";
+							}
+							ipText += ip;
+						}
+					}
+			    Config &config = Config::getInstance();
+				Lang &lang= Lang::getInstance();
+
+				string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
+				string externalPort=config.getString("PortExternal", serverPort.c_str());
+				console.addLine(lang.getString("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowObservers.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -2030,6 +2029,8 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		listBoxFogOfWar.mouseMove(x, y);
 		checkBoxAllowObservers.mouseMove(x, y);
 
+		buttonShowLanInfo.mouseMove(x,y);
+
 		checkBoxEnableSwitchTeamMode.mouseMove(x, y);
 		listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
 		listBoxFallbackCpuMultiplier.mouseMove(x, y);
@@ -2041,6 +2042,7 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		checkBoxAllowTeamUnitSharing.mouseMove(x,y);
 		labelAllowTeamResourceSharing.mouseMove(x,y);
 		checkBoxAllowTeamResourceSharing.mouseMove(x,y);
+
 	}
 	checkBoxAllowInGameJoinPlayer.mouseMove(x, y);
 
@@ -2162,6 +2164,7 @@ void MenuStateCustomGame::render() {
 		    if(hasNetworkGameSettings() == true) {
 		    	renderer.renderListBox(&listBoxPlayerStatus);
 		    	if( serverInterface != NULL &&
+		    		buttonClearBlockedPlayers.getEditable() &&
 		    		serverInterface->getServerSocket() != NULL ) {
 		    		renderer.renderButton(&buttonClearBlockedPlayers);
 		    	}
@@ -2230,31 +2233,36 @@ void MenuStateCustomGame::render() {
 					renderer.renderLabel(&labelNetStatus[i]);
 				}
 			}
-
-			renderer.renderLabel(&labelLocalGameVersion);
-			renderer.renderLabel(&labelLocalIP);
 			renderer.renderLabel(&labelMap);
 
 			if(checkBoxAdvanced.getValue() == 1) {
 				renderer.renderLabel(&labelFogOfWar);
-				renderer.renderLabel(&labelAllowObservers);
-				renderer.renderLabel(&labelFallbackCpuMultiplier);
-
-				renderer.renderLabel(&labelEnableSwitchTeamMode);
-				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
-
 				renderer.renderListBox(&listBoxFogOfWar);
-				renderer.renderCheckBox(&checkBoxAllowObservers);
-
-				renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
-				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
-				renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 
 				renderer.renderLabel(&labelAllowTeamUnitSharing);
 				renderer.renderCheckBox(&checkBoxAllowTeamUnitSharing);
 
+				renderer.renderButton(&buttonShowLanInfo);
+
 				renderer.renderLabel(&labelAllowTeamResourceSharing);
 				renderer.renderCheckBox(&checkBoxAllowTeamResourceSharing);
+
+				renderer.renderLabel(&labelAllowNativeLanguageTechtree);
+				renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
+
+				renderer.renderLabel(&labelAllowObservers);
+				renderer.renderCheckBox(&checkBoxAllowObservers);
+
+				renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
+				renderer.renderLabel(&labelEnableSwitchTeamMode);
+				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
+				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
+
+				renderer.renderCheckBox(&checkBoxScenario);
+				renderer.renderLabel(&labelScenario);
+				if(checkBoxScenario.getValue() == true) {
+					renderer.renderListBox(&listBoxScenario);
+				}
 			}
 			renderer.renderLabel(&labelAllowInGameJoinPlayer);
 			renderer.renderCheckBox(&checkBoxAllowInGameJoinPlayer);
@@ -2282,17 +2290,10 @@ void MenuStateCustomGame::render() {
 				if(checkBoxAdvanced.getValue() == 1) {
 					renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
 					renderer.renderCheckBox(&checkBoxNetworkPauseGameForLaggedClients);
+					renderer.renderListBox(&listBoxFallbackCpuMultiplier);
+					renderer.renderLabel(&labelFallbackCpuMultiplier);
 				}
 			}
-
-			renderer.renderCheckBox(&checkBoxScenario);
-			renderer.renderLabel(&labelScenario);
-			if(checkBoxScenario.getValue() == true) {
-				renderer.renderListBox(&listBoxScenario);
-			}
-
-			renderer.renderLabel(&labelAllowNativeLanguageTechtree);
-			renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
 		}
 
 		if(program != NULL) program->renderProgramMsgBox();
@@ -2588,7 +2589,8 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
-		listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue());
+		listBoxAISwitchTeamAcceptPercent.setVisible(checkBoxEnableSwitchTeamMode.getValue());
+		labelAISwitchTeamAcceptPercent.setVisible(checkBoxEnableSwitchTeamMode.getValue());
 
 		int factionCount = 0;
 		for(int i= 0; i< mapInfo.players; ++i) {
@@ -2747,7 +2749,17 @@ void MenuStateCustomGame::update() {
 					labelNetStatus[i].setText("--- " + port);
 				}
 			}
-			else{
+			else if(listBoxControls[i].getSelectedItemIndex() == ctHuman)
+			{
+				if(EndsWith(glestVersionString, "-dev") == false) {
+					labelNetStatus[i].setText(glestVersionString);
+				}
+				else {
+					//labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+					labelNetStatus[i].setText(glestVersionString + " [" + getGITRevisionString() + "]");
+				}
+			}
+			else {
 				labelNetStatus[i].setText("");
 			}
 		}
@@ -2841,7 +2853,6 @@ void MenuStateCustomGame::update() {
 			checkBoxPublishServer.setValue(false);
 			checkBoxPublishServer.setEditable(false);
 			listBoxFallbackCpuMultiplier.setEditable(false);
-			listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             serverInterface->setPublishEnabled(checkBoxPublishServer.getValue() == true);
@@ -4197,6 +4208,11 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 }
 // ============ PRIVATE ===========================
 
+void MenuStateCustomGame::setSmallFont(GraphicLabel l){
+	l.setFont(CoreData::getInstance().getDisplayFontSmall());
+	l.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+}
+
 void MenuStateCustomGame::lastPlayerDisconnected() {
 	// this is for headless mode only!
 	// if last player disconnects we load the network defaults.
@@ -4913,7 +4929,10 @@ void MenuStateCustomGame::processScenario() {
 			loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true);
 			labelMapInfo.setText(mapInfo.desc);
 
-			setupTechList("", false);
+			int initialTechSelection=setupTechList("", false);
+			if(listBoxTechTree.getItemCount() > 0) {
+				listBoxTechTree.setSelectedItemIndex(initialTechSelection);
+			}
 			reloadFactions(false,"");
 			setupTilesetList("");
 			updateControlers();

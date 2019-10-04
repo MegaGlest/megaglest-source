@@ -391,6 +391,17 @@ void MenuStateOptions::reloadUI() {
 
 	labelVisibleHud.setText(lang.getString("VisibleHUD"));
 	labelHealthBars.setText(lang.getString("Healthbar"));
+
+	int healthBarSelection=listBoxHealthBars.getSelectedItemIndex();
+	listBoxHealthBars.clearItems();
+	listBoxHealthBars.pushBackItem(lang.getString("HealthbarsFactionDefault"));
+	listBoxHealthBars.pushBackItem(lang.getString("HealthbarsOff"));
+	listBoxHealthBars.pushBackItem(lang.getString("HealthbarsAlways"));
+	listBoxHealthBars.pushBackItem(lang.getString("HealthbarsIfNeeded"));
+	listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelected"));
+	listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelectedOrNeeded"));
+	listBoxHealthBars.setSelectedItemIndex(healthBarSelection);
+
 	labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
 	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 

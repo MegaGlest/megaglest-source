@@ -481,8 +481,8 @@ void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
 	GraphicComponent::init(x, y, w, h);
 
 	this->textColor=textColor;
-	graphButton1.init(x, y, 22, h);
-    graphButton2.init(x+w-22, y, 22, h);
+	graphButton1.init(x, y, h, h);
+    graphButton2.init(x+w-h, y, h, h);
     graphButton1.setText("<");
     graphButton2.setText(">");
     selectedItemIndex=-1;
@@ -507,6 +507,14 @@ void GraphicListBox::pushBackItem(string item, string translated_item){
     translated_items.push_back(translated_item);
     setSelectedItemIndex(0);
 }
+
+void GraphicListBox::clearItems(){
+    items.clear();
+    translated_items.clear();
+	selectedItemIndex=-1;
+	setText("");
+}
+
 
 void GraphicListBox::setItems(const vector<string> &items, const vector<string> translated_items){
     this->items= items;

@@ -277,6 +277,7 @@ public:
 
 private:
 
+    void setSmallFont(GraphicLabel l);
     bool hasNetworkGameSettings();
 	bool loadFactions(const GameSettings *gameSettings,bool errorOnNoFactions);
 	void returnToJoinMenu();

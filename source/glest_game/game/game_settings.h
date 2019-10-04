@@ -183,7 +183,7 @@ public:
 		aiAcceptSwitchTeamPercentChance = 30;
 		masterserver_admin = -1;
 		masterserver_admin_factionIndex = -1;
-    	fallbackCpuMultiplier = 1.0f;
+    	fallbackCpuMultiplier = 1.5f;
     	networkAllowNativeLanguageTechtree = true;
     }
 
