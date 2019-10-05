@@ -550,6 +550,7 @@ public:
     void renderLine(const GraphicLine *line);
     void renderScrollBar(const GraphicScrollBar *sb);
     void renderListBox(GraphicListBox *listBox);
+    void renderComboBox(GraphicComboBox *comboBox);
 	void renderMessageBox(GraphicMessageBox *listBox);
 	void renderPopupMenu(PopupMenu *menu);
 

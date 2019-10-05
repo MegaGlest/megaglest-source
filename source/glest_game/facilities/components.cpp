@@ -709,6 +709,281 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 }
 
 // =====================================================
+//	class GraphicComboBox
+// =====================================================
+
+const int GraphicComboBox::defH= 22;
+const int GraphicComboBox::defW= 140;
+
+GraphicComboBox::GraphicComboBox(const std::string &containerName, const std::string &objName)
+: GraphicComponent(containerName, objName), dropDownButton(containerName, objName + "_button") {
+    selectedItemIndex = 0;
+    lighted = false;
+}
+
+void GraphicComboBox::init(int x, int y, int w, int h, Vec3f textColor){
+	GraphicComponent::init(x, y, w, h);
+
+	this->textColor=textColor;
+	dropDownButton.init(x+w-h, y, h, h);
+    dropDownButton.setText("v");
+
+    popupLineCount=15;
+    popupButtonHeight=20;
+
+    int scrollBarLength=popupLineCount*popupButtonHeight;
+    int popupYpos=y+h;
+    if( y>200) popupYpos=y-scrollBarLength;
+    scrollBar.init(x+w-h,popupYpos,false,scrollBarLength,20);
+	scrollBar.setVisibleSize(popupLineCount);
+	scrollBar.setVisibleStart(0);
+	scrollBar.setLighted(false);
+	scrollBar.setVisible(true);
+
+    selectedItemIndex=-1;
+    popupShowing=false;
+    lighted=false;
+    preselectedItemIndex=-1;
+
+}
+
+const string & GraphicComboBox::getTextNativeTranslation(int index) {
+	if(this->translated_items.empty() == true ||
+			index < 0 ||
+			index >= (int)this->translated_items.size() ||
+			this->items.size() != this->translated_items.size()) {
+		return this->text;
+	}
+	else {
+		return this->translated_items[index];
+	}
+}
+
+const string & GraphicComboBox::getTextNativeTranslation() {
+	return getTextNativeTranslation(this->selectedItemIndex);
+}
+
+//queryes
+void GraphicComboBox::pushBackItem(string item, string translated_item){
+    items.push_back(item);
+    translated_items.push_back(translated_item);
+    setSelectedItemIndex(0);
+    createButton(item);
+}
+
+void GraphicComboBox::clearItems(){
+	clearButtons();
+    items.clear();
+    translated_items.clear();
+	selectedItemIndex=-1;
+	setText("");
+}
+
+GraphicButton* GraphicComboBox::createButton(string item) {
+	GraphicButton *button = new GraphicButton();
+	button->init(getX(), scrollBar.getY(), getW()-scrollBar.getW(), getPopupButtonHeight());
+	button->setText(item);
+	button->setUseCustomTexture(true);
+	button->setCustomTexture(CoreData::getInstance().getCustomTexture());
+	popupButtons.push_back(button);
+	scrollBar.setElementCount((int)popupButtons.size());
+	layoutButtons();
+	return button;
+}
+
+void GraphicComboBox::layoutButtons() {
+	if (scrollBar.getElementCount() != 0) {
+		int keyButtonsYBase=scrollBar.getY()+scrollBar.getLength();;
+		for (int i = scrollBar.getVisibleStart();
+				i <= scrollBar.getVisibleEnd(); ++i) {
+			if(i >= (int)popupButtons.size()) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"i >= popupButtons.size(), i = %d, popupButtons.size() = %d",i,(int)popupButtons.size());
+				throw megaglest_runtime_error(szBuf);
+			}
+			popupButtons[i]->setY(keyButtonsYBase - getPopupButtonHeight() * (i+1
+					- scrollBar.getVisibleStart()));
+		}
+	}
+
+}
+
+void GraphicComboBox::clearButtons() {
+	while(!popupButtons.empty()) {
+		delete popupButtons.back();
+		popupButtons.pop_back();
+	}
+	scrollBar.setElementCount(0);
+}
+
+void GraphicComboBox::setItems(const vector<string> &items, const vector<string> translated_items){
+	clearItems();
+    this->items= items;
+    this->translated_items = translated_items;
+    if(items.empty() == false) {
+    	setSelectedItemIndex(0);
+    }
+    else {
+    	selectedItemIndex=-1;
+    	setText("");
+    }
+	for(int idx = 0; idx < (int)items.size(); idx++) {
+		createButton(this->items[idx]);
+	}
+}
+
+void GraphicComboBox::setSelectedItemIndex(int index, bool errorOnMissing){
+	if(errorOnMissing == true && (index < 0 || index >= (int)items.size())) {
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"Index not found in listbox name: [%s] value index: %d size: %lu",this->instanceName.c_str(),index,(unsigned long)items.size());
+		throw megaglest_runtime_error(szBuf);
+	}
+    selectedItemIndex= index;
+    preselectedItemIndex= index;
+    setText(getSelectedItem());
+}
+
+
+void GraphicComboBox::setX(int x) {
+	this->x= x;
+	dropDownButton.setX(x+w);
+}
+
+void GraphicComboBox::setY(int y) {
+	this->y= y;
+	dropDownButton.setY(y);
+}
+
+void GraphicComboBox::setEditable(bool editable){
+    dropDownButton.setEditable(editable);
+    GraphicComponent::setEditable(editable);
+}
+
+bool GraphicComboBox::hasItem(string item) const {
+	bool result = false;
+	vector<string>::const_iterator iter= find(items.begin(), items.end(), item);
+	if(iter != items.end()) {
+		result = true;
+	}
+
+	return result;
+}
+
+void GraphicComboBox::setSelectedItem(string item, bool errorOnMissing){
+	vector<string>::iterator iter;
+
+    iter= find(items.begin(), items.end(), item);
+
+	if(iter==items.end()) {
+		if(errorOnMissing == true) {
+			for(int idx = 0; idx < (int)items.size(); idx++) {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\ninstanceName [%s] idx = %d items[idx] = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,instanceName.c_str(),idx,items[idx].c_str());
+			}
+
+		    char szBuf[8096]="";
+		    snprintf(szBuf,8096,"Value not found in listbox name: [%s] value: %s",this->instanceName.c_str(),item.c_str());
+			throw megaglest_runtime_error(szBuf);
+		}
+	}
+	else {
+		setSelectedItemIndex(iter-items.begin());
+	}
+
+}
+
+void GraphicComboBox::togglePopupVisibility(){
+	if( popupShowing == true ){
+		popupShowing=false;
+		scrollBar.setVisible(false);
+	}
+	else {
+		popupShowing=true;
+		scrollBar.setVisible(true);
+		layoutButtons();
+	}
+}
+
+bool GraphicComboBox::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+	bool result=false;
+	result=result||scrollBar.mouseMove(x,y);
+	result=result||dropDownButton.mouseMove(x, y);
+	if (popupShowing) {
+		bool foundMouseOver=false;
+		for (int i = scrollBar.getVisibleStart(); i <= scrollBar.getVisibleEnd(); ++i) {
+			if (popupButtons[i]->mouseMove(x, y)) {
+				foundMouseOver=true;
+				result = true;
+				setPreselectedItemIndex(i);
+				layoutButtons();
+			}
+			if(!foundMouseOver){
+				setPreselectedItemIndex(getSelectedItemIndex());
+			}
+		}
+	}
+	 return result;
+}
+
+bool GraphicComboBox::mouseClick(int x, int y) {
+	if(this->getVisible() == false) {
+		return false;
+	}
+
+	if(!items.empty()) {
+		bool returnValue=true;
+		if( dropDownButton.mouseClick(x, y)&& selectedItemIndex>=0) {
+		    scrollBar.setVisibleStart(selectedItemIndex);
+		    popupButtons[selectedItemIndex]->setLighted(true);
+			togglePopupVisibility();
+		}
+		else if(scrollBar.mouseClick(x,y)){
+			layoutButtons();
+			returnValue=false;
+		}
+		else if (popupShowing){
+			returnValue=false;
+			for (int i = scrollBar.getVisibleStart();
+							i <= scrollBar.getVisibleEnd(); ++i) {
+						if( popupButtons[i]->mouseClick(x,y)){
+							setSelectedItemIndex(i);
+							layoutButtons();
+							togglePopupVisibility();
+							returnValue=true;
+						}
+					}
+			if(returnValue==false){
+				returnValue=true;
+				togglePopupVisibility();
+				setPreselectedItemIndex(selectedItemIndex);
+			}
+		}
+		else{
+			returnValue=false;
+		}
+
+		return returnValue;
+	}
+	return false;
+}
+
+bool GraphicComboBox::mouseDown(int x, int y) {
+	if( scrollBar.mouseDown(x,y)){
+		layoutButtons();
+		return true;
+	}
+	return false;
+}
+void GraphicComboBox::mouseUp(int x, int y) {
+	scrollBar.mouseUp(x,y);
+}
+
+
+
+
+// =====================================================
 //	class GraphicMessageBox
 // =====================================================
 
@@ -930,6 +1205,7 @@ void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickn
 }
 
 bool GraphicScrollBar::mouseDown(int x, int y) {
+	bool result=false;
 	if(getVisible() && getEnabled() && getEditable())
 	{
 		if(activated && elementCount>0)
@@ -949,11 +1225,11 @@ bool GraphicScrollBar::mouseDown(int x, int y) {
 
 				visibleStart=startPos/partSize;
 				setVisibleStart(visibleStart);
-
+				result=true;
 			}
 		}
 	}
-	return false;
+	return result;
 }
 
 void GraphicScrollBar::mouseUp(int x, int y) {

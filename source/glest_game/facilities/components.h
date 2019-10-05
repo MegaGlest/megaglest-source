@@ -245,6 +245,59 @@ public:
 };
 
 // ===========================================================
+// 	class GraphicScrollBar
+// ===========================================================
+
+class GraphicScrollBar: public GraphicComponent {
+public:
+	static const int defLength;
+	static const int defThickness;
+
+private:
+	bool activated;
+	bool lighted;
+	bool horizontal;
+	int elementCount;
+	int visibleSize;
+	int visibleStart;
+
+	// position on component for renderer
+	int visibleCompPosStart;
+	int visibleCompPosEnd;
+
+public:
+	GraphicScrollBar(const std::string &containerName="", const std::string &objName="");
+	void init(int x, int y, bool horizontal,int length=defLength, int thickness=defThickness);
+	virtual bool mouseDown(int x, int y);
+	virtual bool mouseMove(int x, int y);
+	virtual void mouseUp(int x, int y);
+	virtual bool mouseClick(int x, int y);
+
+
+	bool getHorizontal() const		{return horizontal;}
+	int getLength() const;
+	void setLength(int length)	{horizontal?setW(length):setH(length);}
+	//int getThickness() const;
+
+
+	bool getLighted() const			{return lighted;}
+	void setLighted(bool lighted)	{this->lighted= lighted;}
+
+	int getElementCount() const		{return elementCount;}
+	void setElementCount(int elementCount);
+	int getVisibleSize() const		{return visibleSize;}
+	void setVisibleSize(int visibleSize);
+	int getVisibleStart() const		{return visibleStart;}
+	int getVisibleEnd() const		{return visibleStart+visibleSize>elementCount-1?elementCount-1: visibleStart+visibleSize-1;}
+	void setVisibleStart(int visibleStart);
+
+	int getVisibleCompPosStart() const		{return visibleCompPosStart;}
+	int getVisibleCompPosEnd() const		{return visibleCompPosEnd;}
+	void arrangeComponents(vector<GraphicComponent *> &gcs);
+};
+
+
+// ===========================================================
 // 	class GraphicListBox  
 // ===========================================================
 
@@ -298,9 +351,99 @@ public:
 };
 
 // ===========================================================
-// 	class GraphicMessageBox  
+// 	class GraphicComboBox
 // ===========================================================
 typedef vector<GraphicButton*> GraphicButtons;
+class GraphicComboBox: public GraphicComponent {
+public:
+	static const int defH;
+	static const int defW;
+
+private:
+	GraphicScrollBar scrollBar;
+	GraphicButtons popupButtons;
+    GraphicButton dropDownButton;
+    bool popupShowing;
+    int preselectedItemIndex;
+    int popupLineCount;
+    int popupButtonHeight;
+    vector<string> items;
+    vector<string> translated_items;
+    int selectedItemIndex;
+    bool lighted;
+	Vec3f textColor;
+
+public:
+	GraphicComboBox(const std::string &containerName="", const std::string &objName="");
+    void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=GraphicComponent::customTextColor);
+
+	int getItemCount() const				{return (int)items.size();}
+	string getItem(int index) const			{return items[index];}
+	int getSelectedItemIndex() const		{return selectedItemIndex;}
+	string getSelectedItem() const			{return items[selectedItemIndex];}
+	GraphicButton *getButton() 			{return &dropDownButton;}
+	GraphicScrollBar *getScrollbar() 			{return &scrollBar;}
+	GraphicButtons *getPopupButtons() {return &popupButtons;}
+	bool getLighted() const					{return lighted;}
+    void setLighted(bool lighted)			{this->lighted= lighted;}
+	Vec3f getTextColor() const				{return textColor;}
+    void setTextColor(Vec3f color)			{this->textColor= color;}
+    bool isDropDownShowing()           {return this->popupShowing; }
+
+    void pushBackItem(string item, string translated_item="");
+    void clearItems();
+
+    GraphicButton* createButton(string item);
+    void setItems(const vector<string> &items, const vector<string> translated_items=vector<string>());
+	void setSelectedItemIndex(int index, bool errorOnMissing=true);
+    void setSelectedItem(string item, bool errorOnMissing=true);
+    void setEditable(bool editable);
+
+    bool hasItem(string item) const;
+
+    virtual void setX(int x);
+    virtual void setY(int y);
+
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
+	virtual bool mouseDown(int x, int y);
+	virtual void mouseUp(int x, int y);
+
+    virtual const string &getTextNativeTranslation();
+
+	int getPopupLineCount() const {return popupLineCount;}
+	void setPopupLineCount(int popupLineCount) {
+		this->popupLineCount = popupLineCount;
+		scrollBar.setLength(popupLineCount * popupButtonHeight);
+	}
+
+	int getPopupButtonHeight() const {return popupButtonHeight;	}
+	void setPopupButtonHeight(int popupButtonHeight) {
+		this->popupButtonHeight = popupButtonHeight;
+		scrollBar.setLength(popupLineCount * popupButtonHeight);
+	}
+
+	string getPreselectedItem() const {
+		return items[preselectedItemIndex];
+	}
+
+	int getPreselectedItemIndex() const {
+		return preselectedItemIndex;
+	}
+
+private:
+	void setPreselectedItemIndex(int index) {
+		this->preselectedItemIndex = index;
+	}
+    virtual const string &getTextNativeTranslation(int index);
+    virtual  void togglePopupVisibility();
+    void clearButtons();
+    void layoutButtons();
+};
+
+// ===========================================================
+// 	class GraphicMessageBox  
+// ===========================================================
 class GraphicMessageBox: public GraphicComponent {
 public:
 	static const int defH;
@@ -382,57 +525,6 @@ public:
     virtual bool mouseClick(int x, int y);
 };
 
-// ===========================================================
-// 	class GraphicScrollBar
-// ===========================================================
-
-class GraphicScrollBar: public GraphicComponent {
-public:
-	static const int defLength;
-	static const int defThickness;
-
-private:
-	bool activated;
-	bool lighted;
-	bool horizontal;
-	int elementCount;
-	int visibleSize;
-	int visibleStart;
-
-	// position on component for renderer
-	int visibleCompPosStart;
-	int visibleCompPosEnd;
-
-public:
-	GraphicScrollBar(const std::string &containerName="", const std::string &objName="");
-	void init(int x, int y, bool horizontal,int length=defLength, int thickness=defThickness);
-	virtual bool mouseDown(int x, int y);
-	virtual bool mouseMove(int x, int y);
-	virtual void mouseUp(int x, int y);
-	virtual bool mouseClick(int x, int y);
-
-
-	bool getHorizontal() const		{return horizontal;}
-	int getLength() const;
-	void setLength(int length)	{horizontal?setW(length):setH(length);}
-	//int getThickness() const;
-
-
-	bool getLighted() const			{return lighted;}
-	void setLighted(bool lighted)	{this->lighted= lighted;}
-
-	int getElementCount() const		{return elementCount;}
-	void setElementCount(int elementCount);
-	int getVisibleSize() const		{return visibleSize;}
-	void setVisibleSize(int visibleSize);
-	int getVisibleStart() const		{return visibleStart;}
-	int getVisibleEnd() const		{return visibleStart+visibleSize>elementCount-1?elementCount-1: visibleStart+visibleSize-1;}
-	void setVisibleStart(int visibleStart);
-
-	int getVisibleCompPosStart() const		{return visibleCompPosStart;}
-	int getVisibleCompPosEnd() const		{return visibleCompPosEnd;}
-	void arrangeComponents(vector<GraphicComponent *> &gcs);
-};
 
 // ===========================================================
 // 	class PopupMenu
