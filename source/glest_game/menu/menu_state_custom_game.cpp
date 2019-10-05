@@ -332,7 +332,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     listBoxMap.setSelectedItemIndex(initialMapSelection);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);// position is set by update() !
 	setSmallFont(labelMapInfo);
 
 
@@ -2490,6 +2490,14 @@ void MenuStateCustomGame::update() {
 			buttonClearBlockedPlayers.setEditable( serverInterface->getServerSocket()->hasBlockedIPAddresses());
 		}
 
+		if(listBoxMap.isDropDownShowing()){
+			labelMapInfo.setX(0);
+			labelMapInfo.setY(mapPreviewTexture_Y-30);
+		}
+		else{
+			labelMapInfo.setX(165);
+			labelMapInfo.setY(mapPreviewTexture_Y+mapPreviewTexture_H-60);
+		}
 		if(this->autoloadScenarioName != "") {
 			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
 			lastSetChangedGameSettings = time(NULL);
