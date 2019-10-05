@@ -3664,6 +3664,11 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 
+	Vec4f fontColor;
+	fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
+	Vec4f color= fontColor;
+	glColor4fv(color.ptr());
+
 	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
 
 	glBegin(GL_TRIANGLE_STRIP);
@@ -3704,20 +3709,6 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
 
 	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(selectTexture)->getHandle());
 
-	//button
-	Vec4f fontColor;
-	//if(game!=NULL){
-	//	fontColor=game->getGui()->getDisplay()->getColor();
-	//	fontColor.w = GraphicComponent::getFade();
-	//}
-	//else {
-		// white shadowed is default ( in the menu for example )
-		fontColor=Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
-	//}
-
-	//Vec4f color= Vec4f(1.f, 1.f, 1.f, GraphicComponent::getFade());
-	Vec4f color= fontColor;
-	glColor4fv(color.ptr());
 
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(0.f, 0.f);
@@ -3839,6 +3830,110 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 		    int y= listBox->getY();
 		    int h= listBox->getH();
 		    int w= listBox->getW()-listBox->getButton1()->getW()-listBox->getButton2()->getW();
+
+			const int lightSize= 0;
+			const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);
+			const Vec4f color2= Vec4f(color.x, color.y, color.z, 0.3f+anim);
+
+			glBegin(GL_TRIANGLE_FAN);
+
+			glColor4fv(color2.ptr());
+			glVertex2f(x+w/2, y+h/2);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x-lightSize, y-lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x+w+lightSize, y-lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x+w+lightSize, y+h+lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x+w+lightSize, y+h+lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x-lightSize, y+h+lightSize);
+
+			glColor4fv(color1.ptr());
+			glVertex2f(x-lightSize, y-lightSize);
+
+			glEnd();
+		}
+
+	glPopAttrib();
+}
+
+void Renderer::renderComboBox(GraphicComboBox *comboBox) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	if(comboBox->getVisible() == false) {
+		return;
+	}
+
+	int x= comboBox->getX();
+	int y= comboBox->getY();
+	int h= comboBox->getH();
+	int w= comboBox->getW();
+	if(h>0){
+		//background
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glEnable(GL_BLEND);
+
+		glColor4f(0.0f, 0.0f, 0.0f, 0.6f*comboBox->getFade()) ;
+
+		glBegin(GL_TRIANGLE_STRIP);
+			glVertex2i(x, y);
+			glVertex2i(x, y+h);
+			glVertex2i(x+w, y);
+			glVertex2i(x+w, y+h);
+		glEnd();
+		glPopAttrib();
+	}
+
+	renderButton(comboBox->getButton());
+
+	if( comboBox->isDropDownShowing()){
+		renderScrollBar(comboBox->getScrollbar());
+
+		if(comboBox->getPopupButtons()->size() != 0) {
+			for(int i = comboBox->getScrollbar()->getVisibleStart();
+					i <= comboBox->getScrollbar()->getVisibleEnd(); ++i) {
+				renderButton((* comboBox->getPopupButtons())[i]);
+			}
+		}
+	}
+
+	glPushAttrib(GL_ENABLE_BIT);
+	glEnable(GL_BLEND);
+
+	GraphicLabel label("ComboBox_render_label","label",false);
+	//label.setInstanceName("ComboBox_render_label");
+
+    label.init(comboBox->getX(), comboBox->getY(), comboBox->getW(), comboBox->getH(), true,comboBox->getTextColor());
+	label.setText(comboBox->getText());
+	label.setTextNativeTranslation(comboBox->getTextNativeTranslation());
+	label.setFont(comboBox->getFont());
+	label.setFont3D(comboBox->getFont3D());
+	renderLabel(&label);
+
+
+	//lighting
+
+		bool renderLighted= (comboBox->getLighted());
+
+
+		if(renderLighted) {
+			float anim= GraphicComponent::getAnim();
+			if(anim>0.5f) anim= 1.f-anim;
+
+			Vec3f color=comboBox->getTextColor();
+		    int x= comboBox->getX()+comboBox->getButton()->getW();
+		    int y= comboBox->getY();
+		    int h= comboBox->getH();
+		    int w= comboBox->getW()-comboBox->getButton()->getW();
 
 			const int lightSize= 0;
 			const Vec4f color1= Vec4f(color.x, color.y, color.z, 0.1f+anim*0.5f);

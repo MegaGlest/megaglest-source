@@ -57,7 +57,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelGameName;
 
-	GraphicListBox listBoxMap;
+	GraphicComboBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
@@ -225,6 +225,8 @@ private:
 
     int lastGameSettingsreceivedCount;
 
+    string currentMapFile;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,
@@ -234,6 +236,7 @@ public:
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
+	void mouseUp(int x, int y, const MouseButton mouseButton);
 	void render();
 	void update();
 
@@ -259,7 +262,7 @@ private:
     void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);
-	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);
+	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview, bool doPlayerSetup);
 	void cleanupMapPreviewTexture();
 
 	void updateControlers();

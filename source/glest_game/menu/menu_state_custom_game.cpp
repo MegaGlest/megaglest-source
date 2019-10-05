@@ -111,6 +111,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	needToPublishDelayed=false;
 	mapPublishingDelayTimer=time(NULL);
 	headlessHasConnectedPlayer=false;
+	currentMapFile="";
 
     lastCheckedCRCTilesetName					= "";
     lastCheckedCRCTechtreeName					= "";
@@ -314,7 +315,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	//Map Filter
 	listBoxMapFilter.registerGraphicComponent(containerName,"listBoxMapFilter");
-	listBoxMapFilter.init(xoffset+260, mapPos-labelOffset, 60);
+	listBoxMapFilter.init(xoffset+260, mapPos+labelOffset, 60);
 	listBoxMapFilter.pushBackItem("-");
 	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
 		listBoxMapFilter.pushBackItem(intToStr(i));
@@ -646,7 +647,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelNetStatus[i].setText("");
     }
 
-	loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
+	loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true,true);
 	labelMapInfo.setText(mapInfo.desc);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1053,6 +1054,12 @@ void MenuStateCustomGame::returnToParentMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
+void MenuStateCustomGame::mouseUp(int x, int y, const MouseButton mouseButton){
+	if (mouseButton == mbLeft) {
+		listBoxMap.mouseUp(x, y);
+	}
+}
+
 void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 	if(isMasterserverMode() == true) {
 		return;
@@ -1072,6 +1079,30 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                 }
             }
         }
+		else if(listBoxMap.mouseClick(x, y)){
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true,true);
+			labelMapInfo.setText(mapInfo.desc);
+			updateControlers();
+			updateNetworkSlots();
+
+			if(checkBoxPublishServer.getValue() == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				//delay publishing for 5 seconds
+				needToPublishDelayed=true;
+				mapPublishingDelayTimer=time(NULL);
+			}
+		}
+		else if(listBoxMap.isDropDownShowing()){
+			//do nothing
+		}
         else {
         	string advanceToItemStartingWith = "";
         	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
@@ -1154,27 +1185,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 				RestoreLastGameSettings();
 			}
-			else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)){
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
-				labelMapInfo.setText(mapInfo.desc);
-				updateControlers();
-				updateNetworkSlots();
-
-				if(checkBoxPublishServer.getValue() == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true) {
-					//delay publishing for 5 seconds
-					needToPublishDelayed=true;
-					mapPublishingDelayTimer=time(NULL);
-				}
-			}
 			else if (checkBoxAdvanced.getValue() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1350,7 +1361,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-				loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
+				loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true,true);
 				labelMapInfo.setText(mapInfo.desc);
 				updateControlers();
 				updateNetworkSlots();
@@ -2010,6 +2021,16 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
 	}
+
+	if (ms->get(mbLeft)) {
+		listBoxMap.mouseDown(x, y);
+	}
+	if (listBoxMap.isDropDownShowing()) {
+		    listBoxMap.mouseMove(x, y);
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
+			labelMapInfo.setText(mapInfo.desc);
+	}
+
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 	buttonRestoreLastSettings.mouseMove(x, y);
@@ -2023,7 +2044,6 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		listBoxTeams[i].mouseMove(x, y);
     }
 
-	listBoxMap.mouseMove(x, y);
 
 	if(checkBoxAdvanced.getValue() == 1) {
 		listBoxFogOfWar.mouseMove(x, y);
@@ -2276,7 +2296,7 @@ void MenuStateCustomGame::render() {
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelAdvanced);
 
-			renderer.renderListBox(&listBoxMap);
+			renderer.renderComboBox(&listBoxMap);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
@@ -4067,7 +4087,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		mapFile = formatString(mapFile);
 		listBoxMap.setSelectedItem(mapFile);
 
-		loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
+		loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true,true);
 		labelMapInfo.setText(mapInfo.desc);
 	}
 
@@ -4279,29 +4299,31 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
     return hasNetworkSlot;
 }
 
-void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
-	try {
+void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview, bool doPlayerSetup) {
+
+	if(currentMapFile!=file)
+		try {
 		Lang &lang= Lang::getInstance();
 		if(MapPreview::loadMapInfo(file, mapInfo, lang.getString("MaxPlayers"),lang.getString("Size"),true) == true) {
-			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-				if(serverInterface->getSlot(i,true) != NULL &&
-					(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
-					listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
-					if(serverInterface->getSlot(i,true)->isConnected() == true) {
-						if(i+1 > mapInfo->players &&
-							listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
-							listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+			if (doPlayerSetup) {
+				ServerInterface* serverInterface = NetworkManager::getInstance().getServerInterface();
+				for (int i = 0; i < GameConstants::maxPlayers; ++i) {
+					if (serverInterface->getSlot(i, true) != NULL
+							&& (listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
+						if (serverInterface->getSlot(i, true)->isConnected() == true) {
+							if (i + 1 > mapInfo->players && listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+								listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+							}
 						}
 					}
-				}
 
-				labelPlayers[i].setVisible(i+1 <= mapInfo->players);
-				labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
-				listBoxControls[i].setVisible(i+1 <= mapInfo->players);
-				listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
-				listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-				labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+					labelPlayers[i].setVisible(i + 1 <= mapInfo->players);
+					labelPlayerNames[i].setVisible(i + 1 <= mapInfo->players);
+					listBoxControls[i].setVisible(i + 1 <= mapInfo->players);
+					listBoxFactions[i].setVisible(i + 1 <= mapInfo->players);
+					listBoxTeams[i].setVisible(i + 1 <= mapInfo->players);
+					labelNetStatus[i].setVisible(i + 1 <= mapInfo->players);
+				}
 			}
 
 			// Not painting properly so this is on hold
@@ -4314,6 +4336,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 				cleanupMapPreviewTexture();
 			}
 		}
+		currentMapFile=file;
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what(),file.c_str());
@@ -4659,7 +4682,7 @@ void MenuStateCustomGame::switchToNextMapGroup(const int direction){
 
 string MenuStateCustomGame::getCurrentMapFile(){
 	int i=listBoxMapFilter.getSelectedItemIndex();
-	int mapIndex=listBoxMap.getSelectedItemIndex();
+	int mapIndex=listBoxMap.getPreselectedItemIndex();
 	if(playerSortedMaps[i].empty() == false) {
 		return playerSortedMaps[i].at(mapIndex);
 	}
@@ -4797,7 +4820,7 @@ void MenuStateCustomGame::processScenario() {
 
 			setupMapList(scenarioInfo.name);
 			listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
-			loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true,true);
 			labelMapInfo.setText(mapInfo.desc);
 
 			//printf("scenarioInfo.name [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str());
@@ -4926,7 +4949,7 @@ void MenuStateCustomGame::processScenario() {
 		else {
 			setupMapList("");
 			listBoxMap.setSelectedItem(formatString(formattedPlayerSortedMaps[0][0]));
-			loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true);
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true,true);
 			labelMapInfo.setText(mapInfo.desc);
 
 			int initialTechSelection=setupTechList("", false);
@@ -5043,7 +5066,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 
 		// fill playerSortedMaps and formattedPlayerSortedMaps according to map player count
 		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
-			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false,true);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 				char szBuf[8096]="";
@@ -5063,7 +5086,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 			loadScenarioInfo(file, &scenarioInfo);
 
 			//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
-			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false,true);
 			//printf("#6.2\n");
 			listBoxMapFilter.setSelectedItem(intToStr(mapInfo.players));
 			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
