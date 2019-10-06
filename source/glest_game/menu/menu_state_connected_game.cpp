@@ -131,6 +131,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	currentFactionName="";
 	currentMap="";
+	currentMapFile="";
 	settingsReceivedFromServer=false;
 	initialSettingsReceivedFromServer=false;
 
@@ -241,7 +242,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	//Map Filter
 	listBoxMapFilter.registerGraphicComponent(containerName,"listBoxMapFilter");
-	listBoxMapFilter.init(xoffset+260, mapPos-labelOffset, 60);
+	listBoxMapFilter.init(xoffset+260, mapPos+labelOffset, 60);
 	listBoxMapFilter.pushBackItem("-");
 	for(int i=1; i<GameConstants::maxPlayers+1; ++i){
 		listBoxMapFilter.pushBackItem(intToStr(i));
@@ -249,16 +250,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxMapFilter.setSelectedItemIndex(0);
 
 	//map listBox
-	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
-	listBoxMap.init(xoffset+100, mapPos, 220);
+	comboBoxMap.registerGraphicComponent(containerName,"listBoxMap");
+	comboBoxMap.init(xoffset+100, mapPos, 220);
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	int initialMapSelection = setupMapList("");
-    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
-    listBoxMap.setSelectedItemIndex(initialMapSelection);
+    comboBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    comboBoxMap.setSelectedItemIndex(initialMapSelection);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
-	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);
+	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);// position is set by update() !
 	setSmallFont(labelMapInfo);
 
 	// fog - o - war
@@ -586,7 +587,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	setupMapList("");
-    listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    comboBoxMap.setItems(formattedPlayerSortedMaps[0]);
 
 
 	// write hint to console:
@@ -1854,11 +1855,11 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)) {
+        else if(comboBoxMap.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-            if(loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true) == true) {
+            if(loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true,true) == true) {
             	labelMapInfo.setText(mapInfo.desc);
             }
             else {
@@ -1902,7 +1903,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 		else if(listBoxMapFilter.mouseClick(x, y)){
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 			switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
-            if(loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true) == true) {
+            if(loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true,true) == true) {
             	labelMapInfo.setText(mapInfo.desc);
             }
             else {
@@ -2072,14 +2073,14 @@ void MenuStateConnectedGame::switchToNextMapGroup(const int direction){
 void MenuStateConnectedGame::switchToMapGroup(int filterIndex){
 	int i = filterIndex;
 	listBoxMapFilter.setSelectedItemIndex(i);
-	listBoxMap.setItems(formattedPlayerSortedMaps[i]);
+	comboBoxMap.setItems(formattedPlayerSortedMaps[i]);
 //	printf("switching map group to filter=%d mapgroup has %d maps. map=%s \n",i,
 //			(int)formattedPlayerSortedMaps[i].size(),formattedPlayerSortedMaps[i][0].c_str());
 }
 
 string MenuStateConnectedGame::getCurrentMapFile(){
 	int i=listBoxMapFilter.getSelectedItemIndex();
-	int mapIndex=listBoxMap.getSelectedItemIndex();
+	int mapIndex=comboBoxMap.getSelectedItemIndex();
 	if(playerSortedMaps[i].empty() == false) {
 		return playerSortedMaps[i].at(mapIndex);
 	}
@@ -2187,9 +2188,9 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 	gameSettings->setNetworkAllowNativeLanguageTechtree(checkBoxAllowNativeLanguageTechtree.getValue());
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),getCurrentMapFile().c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,comboBoxMap.getSelectedItemIndex(),mapFiles.size(),getCurrentMapFile().c_str());
 
-	if(listBoxMap.getSelectedItemIndex() >= 0 && listBoxMap.getSelectedItemIndex() < (int)mapFiles.size()) {
+	if(comboBoxMap.getSelectedItemIndex() >= 0 && comboBoxMap.getSelectedItemIndex() < (int)mapFiles.size()) {
 		gameSettings->setDescription(formatString(getCurrentMapFile()));
 		gameSettings->setMap(getCurrentMapFile());
 		gameSettings->setMapFilter(listBoxMapFilter.getSelectedItemIndex());
@@ -2202,10 +2203,10 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
 			char szMsg[8096]="";
 			if(lang.hasString("DataMissingMap=Player",languageList[i]) == true) {
-				snprintf(szMsg,8096,lang.getString("DataMissingMap=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
+				snprintf(szMsg,8096,lang.getString("DataMissingMap=Player",languageList[i]).c_str(),getHumanPlayerName().c_str(),comboBoxMap.getSelectedItem().c_str());
 			}
 			else {
-				snprintf(szMsg,8096,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),listBoxMap.getSelectedItem().c_str());
+				snprintf(szMsg,8096,"Player: %s is missing the map: %s",getHumanPlayerName().c_str(),comboBoxMap.getSelectedItem().c_str());
 			}
 			bool localEcho = lang.isLanguageLocal(languageList[i]);
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
@@ -2535,6 +2536,15 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 		ftpMessageBox.mouseMove(x, y);
 	}
 
+	if (ms->get(mbLeft)) {
+		comboBoxMap.mouseDown(x, y);
+	}
+	if (comboBoxMap.isDropDownShowing()) {
+		    comboBoxMap.mouseMove(x, y);
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
+			labelMapInfo.setText(mapInfo.desc);
+	}
+
 	buttonCancelDownloads.mouseMove(x, y);
 	buttonDisconnect.mouseMove(x, y);
 
@@ -2545,7 +2555,7 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 		grabSlotButton[i].mouseMove(x, y);
     }
 
-	listBoxMap.mouseMove(x, y);
+	comboBoxMap.mouseMove(x, y);
 	listBoxFogOfWar.mouseMove(x, y);
 	checkBoxAllowObservers.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
@@ -2791,7 +2801,6 @@ void MenuStateConnectedGame::render() {
 		renderer.renderLabel(&labelTeam);
 		renderer.renderLabel(&labelMapInfo);
 
-		renderer.renderListBox(&listBoxMap);
 		renderer.renderListBox(&listBoxMapFilter);
 		renderer.renderListBox(&listBoxFogOfWar);
 		renderer.renderCheckBox(&checkBoxAllowObservers);
@@ -2898,6 +2907,8 @@ void MenuStateConnectedGame::render() {
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
 
+		renderer.renderComboBox(&comboBoxMap);
+
         if(difftime((long int)time(NULL),timerLabelFlash) > 2) {
             timerLabelFlash = time(NULL);
         }
@@ -2916,6 +2927,15 @@ void MenuStateConnectedGame::update() {
 
 	Lang &lang= Lang::getInstance();
 	ClientInterface *clientInterface= NetworkManager::getInstance().getClientInterface();
+
+	if(comboBoxMap.isDropDownShowing()){
+		labelMapInfo.setX(0);
+		labelMapInfo.setY(mapPreviewTexture_Y-40);
+	}
+	else{
+		labelMapInfo.setX(165);
+		labelMapInfo.setY(mapPreviewTexture_Y+mapPreviewTexture_H-60);
+	}
 
 	string newLabelConnectionInfo = lang.getString("WaitingHost");
 	if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
@@ -2952,7 +2972,7 @@ void MenuStateConnectedGame::update() {
 		checkBoxAllowNativeLanguageTechtree.setEditable(isHeadlessAdmin());
 		checkBoxAllowNativeLanguageTechtree.setEnabled(isHeadlessAdmin());
 
-		listBoxMap.setEditable(isHeadlessAdmin());
+		comboBoxMap.setEditable(isHeadlessAdmin());
 		listBoxMapFilter.setEditable(isHeadlessAdmin());
 		buttonPlayNow.setVisible(isHeadlessAdmin() ||
 				clientInterface->getJoinGameInProgress() == true);
@@ -3216,18 +3236,18 @@ void MenuStateConnectedGame::update() {
                     string labelSynch = lang.getString("DataNotSynchedTitle");
 
                     if(mapCRC != 0 && mapCRC != displayedGamesettings.getMapCRC() &&
-                    		listBoxMap.getSelectedItemIndex() >= 0 &&
-                    		listBoxMap.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
+                    		comboBoxMap.getSelectedItemIndex() >= 0 &&
+                    		comboBoxMap.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.getString("Map");
 
                         if(updateDataSynchDetailText == true &&
-                            lastMapDataSynchError != lang.getString("DataNotSynchedMap") + " " + listBoxMap.getSelectedItem()) {
-                            lastMapDataSynchError = lang.getString("DataNotSynchedMap") + " " + listBoxMap.getSelectedItem();
+                            lastMapDataSynchError != lang.getString("DataNotSynchedMap") + " " + comboBoxMap.getSelectedItem()) {
+                            lastMapDataSynchError = lang.getString("DataNotSynchedMap") + " " + comboBoxMap.getSelectedItem();
 
             		    	Lang &lang= Lang::getInstance();
             		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
             		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-            		    		string msg = lang.getString("DataNotSynchedMap",languageList[i]) + " " + listBoxMap.getSelectedItem();
+            		    		string msg = lang.getString("DataNotSynchedMap",languageList[i]) + " " + comboBoxMap.getSelectedItem();
             		    		bool localEcho = lang.isLanguageLocal(languageList[i]);
             		    		clientInterface->sendTextMessage(msg,-1,localEcho,languageList[i]);
             		    	}
@@ -3420,8 +3440,8 @@ void MenuStateConnectedGame::update() {
 
                     if(updateDataSynchDetailText == true &&
                     	clientInterface->getReceivedDataSynchCheck() &&
-                    	lastMapDataSynchError != "map CRC mismatch, " + listBoxMap.getSelectedItem()) {
-                    	lastMapDataSynchError = "map CRC mismatch, " + listBoxMap.getSelectedItem();
+                    	lastMapDataSynchError != "map CRC mismatch, " + comboBoxMap.getSelectedItem()) {
+                    	lastMapDataSynchError = "map CRC mismatch, " + comboBoxMap.getSelectedItem();
                     	clientInterface->sendTextMessage(lastMapDataSynchError,-1,true, "");
                     }
                 }
@@ -4154,9 +4174,10 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 	}
 }
 
-bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
+bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview, bool doPlayerSetup) {
 	bool mapLoaded = false;
-	try {
+	if(currentMapFile!=file)
+		try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 
 		if(file != "") {
@@ -4224,7 +4245,7 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 		showMessageBox( "Error loading map file: "+file+'\n'+e.what(), "Error", false);
 	}
-
+	currentMapFile=file;
 	return mapLoaded;
 }
 
@@ -4963,7 +4984,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		if(currentMap != gameSettings->getMap()) {// load the setup again
 			currentMap = gameSettings->getMap();
 		}
-		bool mapLoaded = loadMapInfo(Config::getMapPath(currentMap,scenarioDir,false), &mapInfo, true);
+		bool mapLoaded = loadMapInfo(Config::getMapPath(currentMap,scenarioDir,false), &mapInfo, true,true);
 		if(mapLoaded == false) {
 			// try to get the map via ftp
 			if(ftpClientThread != NULL && (getMissingMapFromFTPServer != currentMap ||
@@ -4997,7 +5018,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			missingMap=true;
 		}
 
-		if( isHeadlessAdmin() && !missingMap && mapFile!=listBoxMap.getSelectedItem()){
+		if( isHeadlessAdmin() && !missingMap && mapFile!=comboBoxMap.getSelectedItem()){
 			//console.addLine("Headless server does not have map, switching to next one");
 			if(isfirstSwitchingMapMessage){
 				isfirstSwitchingMapMessage=false;
@@ -5005,10 +5026,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				console.addLine(Lang::getInstance().getString("HeadlessServerDoesNotHaveMap","",true));
 			}
 		}
-		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings->getMapFilter()]);
+		comboBoxMap.setItems(formattedPlayerSortedMaps[gameSettings->getMapFilter()]);
 
 		//printf("Setting map from game settings map:%s , settingsfilter=%d , boxfilter=%d \n",gameSettings->getMap().c_str(),gameSettings->getMapFilter(),listBoxMapFilter.getSelectedItemIndex());
-		listBoxMap.setSelectedItem(mapFile);
+		comboBoxMap.setSelectedItem(mapFile);
 		labelMapInfo.setText(mapInfo.desc);
 	}
 
@@ -5344,7 +5365,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 
 		formattedMapFiles.clear();
 		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
-			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false,true);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 				char szBuf[8096]="";
@@ -5363,10 +5384,10 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 			string file = Scenario::getScenarioPath(dirList, scenario);
 			loadScenarioInfo(file, &scenarioInfo);
 
-			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false,true);
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", mapInfo.players = %d, formattedPlayerSortedMaps[mapInfo.players].size() = " MG_SIZE_T_SPECIFIER ", scenarioInfo.mapName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),mapInfo.players,formattedPlayerSortedMaps[mapInfo.players].size(),scenarioInfo.mapName.c_str());
-			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", mapInfo.players = %d, formattedPlayerSortedMaps[mapInfo.players].size() = " MG_SIZE_T_SPECIFIER ", scenarioInfo.mapName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,comboBoxMap.getSelectedItemIndex(),mapFiles.size(),mapInfo.players,formattedPlayerSortedMaps[mapInfo.players].size(),scenarioInfo.mapName.c_str());
+			comboBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
 		}
 	}
 	catch(const std::exception &ex) {

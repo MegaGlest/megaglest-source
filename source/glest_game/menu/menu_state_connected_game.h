@@ -76,7 +76,7 @@ private:
 	GraphicLabel labelAdvanced;
 	GraphicListBox listBoxAdvanced;
 
-	GraphicListBox listBoxMap;
+	GraphicComboBox comboBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
@@ -253,6 +253,7 @@ private:
 	GameSettings displayedGamesettings;
 	bool validDisplayedGamesettings;
 
+    string currentMapFile;
 
 public:
 
@@ -285,7 +286,7 @@ private:
 	void setActiveInputLabel(GraphicLabel *newLable);
 
 	void loadFactionTexture(string filepath);
-	bool loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview);
+	bool loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview, bool doPlayerSetup);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
     void showFTPMessageBox(const string &text, const string &header, bool toggle);

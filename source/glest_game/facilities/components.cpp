@@ -918,8 +918,9 @@ bool GraphicComboBox::mouseMove(int x, int y){
 		return false;
 	}
 	bool result=false;
-	result=result||scrollBar.mouseMove(x,y);
-	result=result||dropDownButton.mouseMove(x, y);
+	bool scrollbarResult=scrollBar.mouseMove(x,y);
+	bool buttonResult=dropDownButton.mouseMove(x, y);
+	result=scrollbarResult||buttonResult;
 	if (popupShowing) {
 		bool foundMouseOver=false;
 		for (int i = scrollBar.getVisibleStart(); i <= scrollBar.getVisibleEnd(); ++i) {
