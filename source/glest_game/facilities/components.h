@@ -412,10 +412,7 @@ public:
     virtual const string &getTextNativeTranslation();
 
 	int getPopupLineCount() const {return popupLineCount;}
-	void setPopupLineCount(int popupLineCount) {
-		this->popupLineCount = popupLineCount;
-		scrollBar.setLength(popupLineCount * popupButtonHeight);
-	}
+	void setPopupLineCount(int popupLineCount);
 
 	int getPopupButtonHeight() const {return popupButtonHeight;	}
 	void setPopupButtonHeight(int popupButtonHeight) {

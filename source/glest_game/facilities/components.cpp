@@ -739,13 +739,23 @@ void GraphicComboBox::init(int x, int y, int w, int h, Vec3f textColor){
 	scrollBar.setVisibleStart(0);
 	scrollBar.setLighted(false);
 	scrollBar.setVisible(true);
+	setPopupLineCount(popupLineCount);
 
     selectedItemIndex=-1;
     popupShowing=false;
     lighted=false;
     preselectedItemIndex=-1;
-
 }
+
+void  GraphicComboBox::setPopupLineCount(int popupLineCount) {
+		this->popupLineCount = popupLineCount;
+		int scrollBarLength=popupLineCount*popupButtonHeight;
+	    int popupYpos=getY()+getH();
+	    if( y>200) popupYpos=y-scrollBarLength;
+	    scrollBar.setY(popupYpos);
+		scrollBar.setLength(scrollBarLength);
+		scrollBar.setVisibleSize(popupLineCount);
+	}
 
 const string & GraphicComboBox::getTextNativeTranslation(int index) {
 	if(this->translated_items.empty() == true ||

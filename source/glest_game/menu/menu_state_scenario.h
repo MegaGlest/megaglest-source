@@ -29,7 +29,7 @@ private:
 
 	GraphicLabel labelInfo;
 	GraphicLabel labelScenario;
-	GraphicListBox listBoxScenario;
+	GraphicComboBox comboBoxScenario;
 	GraphicLabel labelScenarioName;
 
 
@@ -62,7 +62,7 @@ public:
 
 	void launchGame();
 	void setScenario(int i);
-	int getScenarioCount() const	{ return listBoxScenario.getItemCount(); }
+	int getScenarioCount() const	{ return comboBoxScenario.getItemCount(); }
 
 	virtual void keyDown(SDL_KeyboardEvent key);
 
