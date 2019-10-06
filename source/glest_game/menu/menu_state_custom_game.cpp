@@ -2296,7 +2296,6 @@ void MenuStateCustomGame::render() {
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelAdvanced);
 
-			renderer.renderComboBox(&comboBoxMap);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
@@ -2341,6 +2340,7 @@ void MenuStateCustomGame::render() {
 			}
 		}
 		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
+		renderer.renderComboBox(&comboBoxMap);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
@@ -2492,7 +2492,7 @@ void MenuStateCustomGame::update() {
 
 		if(comboBoxMap.isDropDownShowing()){
 			labelMapInfo.setX(0);
-			labelMapInfo.setY(mapPreviewTexture_Y-30);
+			labelMapInfo.setY(mapPreviewTexture_Y-40);
 		}
 		else{
 			labelMapInfo.setX(165);
