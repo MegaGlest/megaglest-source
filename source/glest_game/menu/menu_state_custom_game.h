@@ -57,7 +57,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelGameName;
 
-	GraphicComboBox lcomboBoxMap;
+	GraphicComboBox comboBoxMap;
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;

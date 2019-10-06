@@ -323,13 +323,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxMapFilter.setSelectedItemIndex(0);
 
 	//map listBox
-	lcomboBoxMap.registerGraphicComponent(containerName,"listBoxMap");
-	lcomboBoxMap.init(xoffset+100, mapPos, 220);
+	comboBoxMap.registerGraphicComponent(containerName,"listBoxMap");
+	comboBoxMap.init(xoffset+100, mapPos, 220);
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
 	int initialMapSelection = setupMapList("");
-    lcomboBoxMap.setItems(formattedPlayerSortedMaps[0]);
-    lcomboBoxMap.setSelectedItemIndex(initialMapSelection);
+    comboBoxMap.setItems(formattedPlayerSortedMaps[0]);
+    comboBoxMap.setSelectedItemIndex(initialMapSelection);
 
     labelMapInfo.registerGraphicComponent(containerName,"labelMapInfo");
 	labelMapInfo.init(xoffset+100, mapPos-labelOffset-10, 200, 40);// position is set by update() !
@@ -1056,7 +1056,7 @@ void MenuStateCustomGame::returnToParentMenu() {
 
 void MenuStateCustomGame::mouseUp(int x, int y, const MouseButton mouseButton){
 	if (mouseButton == mbLeft) {
-		lcomboBoxMap.mouseUp(x, y);
+		comboBoxMap.mouseUp(x, y);
 	}
 }
 
@@ -1079,7 +1079,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
                 }
             }
         }
-		else if(lcomboBoxMap.mouseClick(x, y)){
+		else if(comboBoxMap.mouseClick(x, y)){
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
 			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1100,7 +1100,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				mapPublishingDelayTimer=time(NULL);
 			}
 		}
-		else if(lcomboBoxMap.isDropDownShowing()){
+		else if(comboBoxMap.isDropDownShowing()){
 			//do nothing
 		}
         else {
@@ -2023,10 +2023,10 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	}
 
 	if (ms->get(mbLeft)) {
-		lcomboBoxMap.mouseDown(x, y);
+		comboBoxMap.mouseDown(x, y);
 	}
-	if (lcomboBoxMap.isDropDownShowing()) {
-		    lcomboBoxMap.mouseMove(x, y);
+	if (comboBoxMap.isDropDownShowing()) {
+		    comboBoxMap.mouseMove(x, y);
 			loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
 			labelMapInfo.setText(mapInfo.desc);
 	}
@@ -2296,7 +2296,7 @@ void MenuStateCustomGame::render() {
 			renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelAdvanced);
 
-			renderer.renderComboBox(&lcomboBoxMap);
+			renderer.renderComboBox(&comboBoxMap);
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
@@ -2490,7 +2490,7 @@ void MenuStateCustomGame::update() {
 			buttonClearBlockedPlayers.setEditable( serverInterface->getServerSocket()->hasBlockedIPAddresses());
 		}
 
-		if(lcomboBoxMap.isDropDownShowing()){
+		if(comboBoxMap.isDropDownShowing()){
 			labelMapInfo.setX(0);
 			labelMapInfo.setY(mapPreviewTexture_Y-30);
 		}
@@ -2718,8 +2718,8 @@ void MenuStateCustomGame::update() {
 								label = label + " map";
 
 								if(serverInterface->getSlot(i,true)->getReceivedDataSynchCheck() == true &&
-									lastMapDataSynchError != "map CRC mismatch, " + lcomboBoxMap.getSelectedItem()) {
-									lastMapDataSynchError = "map CRC mismatch, " + lcomboBoxMap.getSelectedItem();
+									lastMapDataSynchError != "map CRC mismatch, " + comboBoxMap.getSelectedItem()) {
+									lastMapDataSynchError = "map CRC mismatch, " + comboBoxMap.getSelectedItem();
 									ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 									serverInterface->sendTextMessage(lastMapDataSynchError,-1, true,"");
 								}
@@ -4074,8 +4074,8 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		//printf("#6.2\n");
 
 		listBoxMapFilter.setSelectedItemIndex(0);
-		lcomboBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
-		lcomboBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
+		comboBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+		comboBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
 	}
 	else {
 		//printf("gameSettings.getMapFilter()=%d \n",gameSettings.getMapFilter());
@@ -4085,7 +4085,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		else {
 			listBoxMapFilter.setSelectedItem(intToStr(gameSettings.getMapFilter()));
 		}
-		lcomboBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilter()]);
+		comboBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilter()]);
 	}
 
 	//printf("gameSettings.getMap() [%s] [%s]\n",gameSettings.getMap().c_str(),listBoxMap.getSelectedItem().c_str());
@@ -4093,7 +4093,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	string mapFile = gameSettings.getMap();
 	if(find(mapFiles.begin(),mapFiles.end(),mapFile) != mapFiles.end()) {
 		mapFile = formatString(mapFile);
-		lcomboBoxMap.setSelectedItem(mapFile);
+		comboBoxMap.setSelectedItem(mapFile);
 
 		loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true,true);
 		labelMapInfo.setText(mapInfo.desc);
@@ -4685,12 +4685,12 @@ void MenuStateCustomGame::switchToNextMapGroup(const int direction){
 		}
 	}
 	listBoxMapFilter.setSelectedItemIndex(i);
-	lcomboBoxMap.setItems(formattedPlayerSortedMaps[i]);
+	comboBoxMap.setItems(formattedPlayerSortedMaps[i]);
 }
 
 string MenuStateCustomGame::getCurrentMapFile(){
 	int i=listBoxMapFilter.getSelectedItemIndex();
-	int mapIndex=lcomboBoxMap.getPreselectedItemIndex();
+	int mapIndex=comboBoxMap.getPreselectedItemIndex();
 	if(playerSortedMaps[i].empty() == false) {
 		return playerSortedMaps[i].at(mapIndex);
 	}
@@ -4827,7 +4827,7 @@ void MenuStateCustomGame::processScenario() {
 			listBoxTileset.setSelectedItem(formatString(scenarioInfo.tilesetName));
 
 			setupMapList(scenarioInfo.name);
-			lcomboBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
+			comboBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
 			loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true,true);
 			labelMapInfo.setText(mapInfo.desc);
 
@@ -4956,7 +4956,7 @@ void MenuStateCustomGame::processScenario() {
 		}
 		else {
 			setupMapList("");
-			lcomboBoxMap.setSelectedItem(formatString(formattedPlayerSortedMaps[0][0]));
+			comboBoxMap.setSelectedItem(formatString(formattedPlayerSortedMaps[0][0]));
 			loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true,true);
 			labelMapInfo.setText(mapInfo.desc);
 
@@ -4999,7 +4999,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			checkBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
 			listBoxFallbackCpuMultiplier.setEditable(false);
-			lcomboBoxMap.setEditable(false);
+			comboBoxMap.setEditable(false);
 			listBoxTileset.setEditable(false);
 			listBoxMapFilter.setEditable(false);
 			listBoxTechTree.setEditable(false);
@@ -5021,7 +5021,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			checkBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
 			listBoxFallbackCpuMultiplier.setEditable(true);
-			lcomboBoxMap.setEditable(true);
+			comboBoxMap.setEditable(true);
 			listBoxTileset.setEditable(true);
 			listBoxMapFilter.setEditable(true);
 			listBoxTechTree.setEditable(true);
@@ -5097,11 +5097,11 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false,true);
 			//printf("#6.2\n");
 			listBoxMapFilter.setSelectedItem(intToStr(mapInfo.players));
-			lcomboBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+			comboBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
 		}
 		else {
 			listBoxMapFilter.setSelectedItemIndex(0);
-			lcomboBoxMap.setItems(formattedPlayerSortedMaps[0]);
+			comboBoxMap.setItems(formattedPlayerSortedMaps[0]);
 		}
 		//printf("#7\n");
 	}
