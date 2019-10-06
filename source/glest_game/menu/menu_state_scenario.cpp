@@ -69,7 +69,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	this->dirList = dirList;
 
 	int buttonStartY=50;
-	int buttonStartX=70;
+	int buttonStartX=50;
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(buttonStartX, buttonStartY, 125);
@@ -85,16 +85,17 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
 	labelScenario.init(startX, startY);
 
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(startX, startY-30, 290);
+	comboBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    comboBoxScenario.init(startX, startY-20, 290);
+    comboBoxScenario.setPopupLineCount(30);
 
 	labelScenarioName.registerGraphicComponent(containerName,"labelScenarioName");
-	labelScenarioName.init(startX, startY-80);
+	labelScenarioName.init(500, startY);
 	labelScenarioName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelScenarioName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-    labelInfo.init(startX, startY-110);
+    labelInfo.init(500, startY-30);
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
@@ -125,13 +126,13 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	for(int i= 0; i < (int)results.size(); ++i){
 			results[i] = formatString(results[i]);
 	}
-    listBoxScenario.setItems(results);
+    comboBoxScenario.setItems(results);
 
     try {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,comboBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
-    	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
-    		string scenarioPath = Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]);
+    	if(comboBoxScenario.getItemCount() > 0 && comboBoxScenario.getSelectedItemIndex() >= 0 && comboBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
+    		string scenarioPath = Scenario::getScenarioPath(dirList, scenarioFiles[comboBoxScenario.getSelectedItemIndex()]);
     		//printf("scenarioPath [%s]\n",scenarioPath.c_str());
 
     		loadScenarioInfo(scenarioPath, &scenarioInfo );
@@ -140,7 +141,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     			labelScenarioName.setText(scenarioInfo.namei18n);
     		}
     		else {
-    			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+    			labelScenarioName.setText(comboBoxScenario.getSelectedItem());
     		}
     	}
 
@@ -203,7 +204,6 @@ void MenuStateScenario::cleanupPreviewTexture() {
 void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	string advanceToItemStartingWith = "";
 
 	if(mainMessageBox.getEnabled()){
 		int button= 0;
@@ -220,15 +220,6 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		return;
 	}
-    else {
-    	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-    		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
-//        		xxx:
-//        		string hehe=lastKey;
-//        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
-    		advanceToItemStartingWith =  lastKey;
-    	}
-    }
 
 	if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
@@ -240,18 +231,18 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 		launchGame();
 		return;
 	}
-    else if(listBoxScenario.mouseClick(x, y,advanceToItemStartingWith)){
+    else if(comboBoxScenario.mouseClick(x, y)){
         try {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,comboBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
-        	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
-        		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+        	if(comboBoxScenario.getItemCount() > 0 && comboBoxScenario.getSelectedItemIndex() >= 0 && comboBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
+        		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[comboBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
         		labelInfo.setText(scenarioInfo.desc);
         		if(scenarioInfo.namei18n != "") {
         			labelScenarioName.setText(scenarioInfo.namei18n);
         		}
         		else {
-        			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+        			labelScenarioName.setText(comboBoxScenario.getSelectedItem());
         		}
         	}
         }
@@ -273,7 +264,21 @@ void MenuStateScenario::mouseMove(int x, int y, const MouseState *ms){
 		mainMessageBox.mouseMove(x, y);
 	}
 
-	listBoxScenario.mouseMove(x, y);
+	if (ms->get(mbLeft)) {
+		comboBoxScenario.mouseDown(x, y);
+	}
+	if (comboBoxScenario.isDropDownShowing()) {
+		comboBoxScenario.mouseMove(x, y);
+    	if(comboBoxScenario.getItemCount() > 0 && comboBoxScenario.getPreselectedItemIndex() >= 0 && comboBoxScenario.getPreselectedItemIndex() < (int)scenarioFiles.size()) {
+    		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[comboBoxScenario.getPreselectedItemIndex()]), &scenarioInfo);
+    		labelInfo.setText(scenarioInfo.desc);
+			if (scenarioInfo.namei18n != "") {
+				labelScenarioName.setText(scenarioInfo.namei18n);
+			} else {
+				labelScenarioName.setText(comboBoxScenario.getPreselectedItem());
+			}
+    	}
+	}
 
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
@@ -296,7 +301,7 @@ void MenuStateScenario::render(){
 		renderer.renderLabel(&labelScenarioName);
 
 		renderer.renderLabel(&labelScenario);
-		renderer.renderListBox(&listBoxScenario);
+		renderer.renderComboBox(&comboBoxScenario);
 
 		renderer.renderButton(&buttonReturn);
 		renderer.renderButton(&buttonPlayNow);
@@ -327,9 +332,9 @@ void MenuStateScenario::update() {
 		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str());
 		printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str(),scenarioInfo.file.c_str());
 
-		listBoxScenario.setSelectedItem(this->autoloadScenarioName,false);
+		comboBoxScenario.setSelectedItem(this->autoloadScenarioName,false);
 
-		if(listBoxScenario.getSelectedItem() != this->autoloadScenarioName) {
+		if(comboBoxScenario.getSelectedItem() != this->autoloadScenarioName) {
 			mainMessageBoxState=1;
 			showMessageBox( "Could not find scenario name: " + this->autoloadScenarioName, "Scenario Missing", false);
 			this->autoloadScenarioName = "";
@@ -337,12 +342,12 @@ void MenuStateScenario::update() {
 		else {
 			try {
 				this->autoloadScenarioName = "";
-				if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 &&
-					listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
+				if(comboBoxScenario.getItemCount() > 0 && comboBoxScenario.getSelectedItemIndex() >= 0 &&
+					comboBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
 
-					printf("[%s:%s] Line: %d scenarioFiles[listBoxScenario.getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioFiles[listBoxScenario.getSelectedItemIndex()].c_str());
+					printf("[%s:%s] Line: %d scenarioFiles[listBoxScenario.getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioFiles[comboBoxScenario.getSelectedItemIndex()].c_str());
 
-					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[comboBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
 
 					printf("[%s:%s] Line: %d scenarioInfo.file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioInfo.file.c_str());
 
@@ -351,7 +356,7 @@ void MenuStateScenario::update() {
 	        			labelScenarioName.setText(scenarioInfo.namei18n);
 	        		}
 	        		else {
-	        			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+	        			labelScenarioName.setText(comboBoxScenario.getSelectedItem());
 	        		}
 
 					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -409,13 +414,16 @@ void MenuStateScenario::launchGame() {
 }
 
 void MenuStateScenario::setScenario(int i) {
-	listBoxScenario.setSelectedItemIndex(i);
-	loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+	comboBoxScenario.setSelectedItemIndex(i);
+	loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[comboBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
 }
 
 void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	bool isTutorial = Scenario::isGameTutorial(file);
-
+	if( file==""){
+		scenarioInfo->desc="Error: scenario broken! Xml-File Not Found";
+		return;
+	}
 	//printf("[%s:%s] Line: %d file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 
 	Scenario::loadScenarioInfo(file, scenarioInfo, isTutorial);
@@ -428,7 +436,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
 		//if(listBoxScenario.getSelectedItemIndex() >= 0) {
-		if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
+		if(comboBoxScenario.getItemCount() > 0 && comboBoxScenario.getSelectedItemIndex() >= 0 && comboBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
 			GameSettings gameSettings;
 			loadGameSettings(&scenarioInfo, &gameSettings);
 
@@ -452,18 +460,18 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
-	if(listBoxScenario.getSelectedItemIndex() < 0) {
+	if(comboBoxScenario.getSelectedItemIndex() < 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
+		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",comboBoxScenario.getSelectedItemIndex());
 		throw megaglest_runtime_error(szBuf);
 	}
-	else if(listBoxScenario.getSelectedItemIndex() >= (int)scenarioFiles.size()) {
+	else if(comboBoxScenario.getSelectedItemIndex() >= (int)scenarioFiles.size()) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",comboBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	Scenario::loadGameSettings(dirList,scenarioInfo, gameSettings, formatString(scenarioFiles[listBoxScenario.getSelectedItemIndex()]));
+	Scenario::loadGameSettings(dirList,scenarioInfo, gameSettings, formatString(scenarioFiles[comboBoxScenario.getSelectedItemIndex()]));
 }
 
 void MenuStateScenario::showMessageBox(const string &text, const string &header, bool toggle){
