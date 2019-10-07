@@ -131,7 +131,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	currentFactionName="";
 	currentMap="";
-	currentMapFile="";
+	lastPreviewedMapFile="";
 	settingsReceivedFromServer=false;
 	initialSettingsReceivedFromServer=false;
 
@@ -2536,13 +2536,16 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 		ftpMessageBox.mouseMove(x, y);
 	}
 
-	if (ms->get(mbLeft)) {
-		comboBoxMap.mouseDown(x, y);
-	}
 	if (comboBoxMap.isDropDownShowing()) {
+			if (ms->get(mbLeft)) {
+				comboBoxMap.mouseDown(x, y);
+			}
 		    comboBoxMap.mouseMove(x, y);
-			loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
-			labelMapInfo.setText(mapInfo.desc);
+			if (lastPreviewedMapFile != getCurrentMapFile()) {
+				loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
+				labelMapInfo.setText(mapInfo.desc);
+				lastPreviewedMapFile = getCurrentMapFile();
+			}
 	}
 
 	buttonCancelDownloads.mouseMove(x, y);
@@ -2878,6 +2881,8 @@ void MenuStateConnectedGame::render() {
         }
         safeMutexFTPProgress.ReleaseLock();
 
+		renderer.renderComboBox(&comboBoxMap);
+
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
@@ -2906,8 +2911,6 @@ void MenuStateConnectedGame::render() {
 		}
 		renderer.renderChatManager(&chatManager);
 		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
-
-		renderer.renderComboBox(&comboBoxMap);
 
         if(difftime((long int)time(NULL),timerLabelFlash) > 2) {
             timerLabelFlash = time(NULL);
@@ -4176,8 +4179,7 @@ void MenuStateConnectedGame::loadFactionTexture(string filepath) {
 
 bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview, bool doPlayerSetup) {
 	bool mapLoaded = false;
-	if(currentMapFile!=file)
-		try {
+	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 
 		if(file != "") {
@@ -4245,7 +4247,6 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 		showMessageBox( "Error loading map file: "+file+'\n'+e.what(), "Error", false);
 	}
-	currentMapFile=file;
 	return mapLoaded;
 }
 

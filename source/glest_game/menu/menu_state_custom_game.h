@@ -126,6 +126,13 @@ private:
 
 	GraphicButton buttonShowLanInfo;
 
+	GraphicButton buttonSaveSetup;
+	GraphicButton buttonLoadSetup;
+	GraphicButton buttonDeleteSetup;
+    GraphicComboBox comboBoxLoadSetup;
+
+    string savedSetupsDir;
+
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;
 	GraphicListBox listBoxScenario;
@@ -225,7 +232,8 @@ private:
 
     int lastGameSettingsreceivedCount;
 
-    string currentMapFile;
+    string lastPreviewedMapFile;
+	vector<string> savedSetupFilenames;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
@@ -236,7 +244,6 @@ public:
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
-	void mouseUp(int x, int y, const MouseButton mouseButton);
 	void render();
 	void update();
 
@@ -272,7 +279,7 @@ private:
 	void returnToParentMenu();
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
-	void saveGameSettingsToFile(std::string fileName);
+	void saveGameSettingsToFile(std::string fileName, bool saveInSetupDir=false);
 	void switchToNextMapGroup(const int direction);
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
@@ -282,8 +289,8 @@ private:
 
 	void loadFactionTexture(string filepath);
 
-	GameSettings loadGameSettingsFromFile(std::string fileName);
-	void loadGameSettings(const std::string &fileName);
+	GameSettings loadGameSettingsFromFile(std::string fileName, bool inSetupDir=false);
+	void loadGameSettings(const std::string &fileName, bool inSetupDir=false);
 	void RestoreLastGameSettings();
 	void PlayNow(bool saveGame);
 
@@ -303,6 +310,7 @@ private:
 	void processScenario();
 	void SetupUIForScenarios();
 	int setupMapList(string scenario);
+	void loadSavedSetupNames();
 	int setupTechList(string scenario, bool forceLoad=false);
 	void reloadFactions(bool keepExistingSelectedItem, string scenario);
 	void setupTilesetList(string scenario);

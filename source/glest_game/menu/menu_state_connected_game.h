@@ -253,7 +253,7 @@ private:
 	GameSettings displayedGamesettings;
 	bool validDisplayedGamesettings;
 
-    string currentMapFile;
+    string lastPreviewedMapFile;
 
 public:
 
