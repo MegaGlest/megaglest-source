@@ -127,6 +127,7 @@ private:
 	GraphicButton buttonShowLanInfo;
 
 	GraphicButton buttonSaveSetup;
+	GraphicLabel labelSaveSetupName;
 	GraphicButton buttonLoadSetup;
 	GraphicButton buttonDeleteSetup;
     GraphicComboBox comboBoxLoadSetup;
