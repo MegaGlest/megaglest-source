@@ -386,22 +386,38 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
 
-	buttonSaveSetup.registerGraphicComponent(containerName,"buttonSaveSetup");
-	buttonSaveSetup.init(xoffset+380, mapHeadPos-154, 125);
-	buttonSaveSetup.setText(lang.getString("Save"));
-	buttonLoadSetup.registerGraphicComponent(containerName,"buttonLoadSetup");
-	buttonLoadSetup.init(xoffset+435, mapHeadPos-132, 110);
-	buttonLoadSetup.setText(lang.getString("Load"));
-	buttonDeleteSetup.registerGraphicComponent(containerName,"buttonDeleteSetup");
-	buttonDeleteSetup.init(xoffset+325, mapHeadPos-132, 110);
-	buttonDeleteSetup.setText(lang.getString("Delete"));
+	// Save Setup
+	currY=mapHeadPos-100;
+	currX=xoffset+325;
 
-	//handle setup save/load
-    comboBoxLoadSetup.registerGraphicComponent(containerName,"comboBoxLoadSetup");
-    comboBoxLoadSetup.init(xoffset+325, mapHeadPos-110, 220);
+	comboBoxLoadSetup.registerGraphicComponent(containerName,"comboBoxLoadSetup");
+    comboBoxLoadSetup.init(currX, currY, 220);
 	loadSavedSetupNames();
 	comboBoxLoadSetup.setItems(savedSetupFilenames);
-	//comboBoxLoadSetup.setSelectedItemIndex(initialMapSelection);
+
+	currY = currY - labelOffset;
+
+	buttonDeleteSetup.registerGraphicComponent(containerName,"buttonDeleteSetup");
+	buttonDeleteSetup.init(currX, currY, 110);
+	buttonDeleteSetup.setText(lang.getString("Delete"));
+	buttonLoadSetup.registerGraphicComponent(containerName,"buttonLoadSetup");
+	buttonLoadSetup.init(currX+110, currY, 110);
+	buttonLoadSetup.setText(lang.getString("Load"));
+
+	currY = currY - labelOffset;
+
+	labelSaveSetupName.registerGraphicComponent(containerName,"labelSaveSetupName");
+	labelSaveSetupName.init(currX,currY, 110);
+	labelSaveSetupName.setText("");
+	labelSaveSetupName.setEditable(true);
+	labelSaveSetupName.setMaxEditWidth(16);
+	labelSaveSetupName.setMaxEditRenderWidth(labelSaveSetupName.getW());
+	labelSaveSetupName.setBackgroundColor(Vec4f(230,230,230,0.4));
+	labelSaveSetupName.setRenderBackground(true);
+
+	buttonSaveSetup.registerGraphicComponent(containerName,"buttonSaveSetup");
+	buttonSaveSetup.init(currX+110, currY, 110);
+	buttonSaveSetup.setText(lang.getString("Save"));
 
 	// Toy Block
 	currY=mapHeadPos;
@@ -1234,6 +1250,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					lastSetChangedGameSettings   = time(NULL);
 				}
 			}
+			else if(labelSaveSetupName.mouseClick(x, y) ){
+				setActiveInputLabel(&labelSaveSetupName);
+			}
 			else if ( buttonSaveSetup.mouseClick(x, y)){
 				GameSettings gameSettings;
 				loadGameSettings(&gameSettings);
@@ -1251,6 +1270,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					}
 				}
 				string setupname=intToStr(humanSlots)+"_"+gameSettings.getMap();
+				if(labelSaveSetupName.getText()!=""){
+					setupname=labelSaveSetupName.getText();
+				}
 				string filename=setupname+".mgg";
 
 				saveGameSettingsToFile(filename,true);
@@ -2234,6 +2256,7 @@ void MenuStateCustomGame::render() {
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
 			renderer.renderButton(&buttonRestoreLastSettings);
+			renderer.renderLabel(&labelSaveSetupName);
 			renderer.renderButton(&buttonSaveSetup);
 			renderer.renderButton(&buttonLoadSetup);
 			renderer.renderButton(&buttonDeleteSetup);

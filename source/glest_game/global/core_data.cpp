@@ -1374,6 +1374,8 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
     else
     	saveSetupDir = userData;
 
+	createDirectoryPaths(saveSetupDir);
+
     if(saveSetupDir != "") {
         	endPathWithSlash(saveSetupDir);
         }
