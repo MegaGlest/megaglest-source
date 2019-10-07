@@ -233,8 +233,8 @@ public:
 
     string getBattleEndMusicFilename(bool won) const 			{ return won == true ? battleEndWinMusicFilename : battleEndLoseMusicFilename; }
 
-    void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
-    bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);
+    void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0, bool inSetupDir=false);
+    bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings, bool inSetupDir=false);
 
 	void registerFontChangedCallback(std::string entityName, FontChangedCallbackInterface *cb);
 	void unRegisterFontChangedCallback(std::string entityName);

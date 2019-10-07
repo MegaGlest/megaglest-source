@@ -1359,7 +1359,7 @@ int CoreData::computeFontSize(int size) {
 	return rs;
 }
 
-void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings, int advancedIndex) {
+void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings, int advancedIndex, bool inSetupDir) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     Config &config = Config::getInstance();
@@ -1367,8 +1367,17 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
     if(userData != "") {
     	endPathWithSlash(userData);
     }
-    fileName = userData + fileName;
 
+    string saveSetupDir ;
+    if( inSetupDir)
+    	saveSetupDir = userData +"setups";
+    else
+    	saveSetupDir = userData;
+
+    if(saveSetupDir != "") {
+        	endPathWithSlash(saveSetupDir);
+        }
+    fileName = saveSetupDir + fileName;
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -1423,7 +1432,7 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings) {
+bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings, bool inSetupDir) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool fileWasFound = false;
@@ -1432,8 +1441,19 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
     if(userData != "") {
     	endPathWithSlash(userData);
     }
-    if(fileExists(userData + fileName) == true) {
-    	fileName = userData + fileName;
+
+    string saveSetupDir ;
+    if( inSetupDir)
+    	saveSetupDir = userData +"setups";
+    else
+    	saveSetupDir = userData;
+
+    if(saveSetupDir != "") {
+        	endPathWithSlash(saveSetupDir);
+        }
+
+    if(fileExists(saveSetupDir + fileName) == true) {
+    	fileName = saveSetupDir + fileName;
     	fileWasFound = true;
     }
 
