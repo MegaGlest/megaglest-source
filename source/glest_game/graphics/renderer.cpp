@@ -3652,6 +3652,19 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
     int h= sb->getH();
     int w= sb->getW();
 
+    // calc real length
+    if(sb->getElementCount()<sb->getVisibleSize()){
+    	int realLength=sb->getElementCount()*sb->getLength()/ sb->getVisibleSize();
+    	printf("y=%d  h=%d  realH=%d    realY=%d\n",y,h,realLength,y+(h-realLength));
+    	if (sb->getHorizontal()) {
+    		x=x-(w-realLength);
+    	}
+    	else {
+    		y=y+(h-realLength);
+    		h=realLength;
+    	};
+    }
+    printf("y=%d h=%d\n",y,h);
 	//const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -3690,19 +3703,15 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
 	// selectBlock
 	////////////////////
 
-    x= sb->getX();
-    y= sb->getY();
-    h= sb->getH();
-    w= sb->getW();
-
-    if( sb->getHorizontal()) {
-    	x=x+sb->getVisibleCompPosStart();
-    	w=sb->getVisibleCompPosEnd()-sb->getVisibleCompPosStart();
-    }
-    else {
-    	y=y+sb->getVisibleCompPosStart();
-    	h=sb->getVisibleCompPosEnd()-sb->getVisibleCompPosStart();
-    }
+	if (sb->getElementCount() >= sb->getVisibleSize()) {
+		if (sb->getHorizontal()) {
+			x = x + sb->getVisibleCompPosStart();
+			w = sb->getVisibleCompPosEnd() - sb->getVisibleCompPosStart();
+		} else {
+			y = y + sb->getVisibleCompPosStart();
+			h = sb->getVisibleCompPosEnd() - sb->getVisibleCompPosStart();
+		}
+	}
 
 	Texture2D *selectTexture= coreData.getButtonBigTexture();
 	assert(selectTexture != NULL);
