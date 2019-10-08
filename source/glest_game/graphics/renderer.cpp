@@ -3655,7 +3655,6 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
     // calc real length
     if(sb->getElementCount()<sb->getVisibleSize()){
     	int realLength=sb->getElementCount()*sb->getLength()/ sb->getVisibleSize();
-    	printf("y=%d  h=%d  realH=%d    realY=%d\n",y,h,realLength,y+(h-realLength));
     	if (sb->getHorizontal()) {
     		x=x-(w-realLength);
     	}
@@ -3664,8 +3663,6 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
     		h=realLength;
     	};
     }
-    printf("y=%d h=%d\n",y,h);
-	//const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
 	/////////////////////
