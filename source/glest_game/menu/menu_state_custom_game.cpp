@@ -2427,10 +2427,16 @@ void MenuStateCustomGame::render() {
 		}
 
 		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
-		renderer.renderComboBox(&comboBoxMap);
-		renderer.renderComboBox(&comboBoxLoadSetup);
 
 		if(program != NULL) program->renderProgramMsgBox();
+
+		if(mainMessageBox.getEnabled() == false) {
+			if(hasNetworkGameSettings() == true) {
+				renderer.renderChatManager(&chatManager);
+			}
+		}
+		renderer.renderComboBox(&comboBoxMap);
+		renderer.renderComboBox(&comboBoxLoadSetup);
 
 		if( enableMapPreview == true &&
 			mapPreview.hasFileLoaded() == true) {
@@ -2449,11 +2455,6 @@ void MenuStateCustomGame::render() {
 		    }
 		}
 
-		if(mainMessageBox.getEnabled() == false) {
-			if(hasNetworkGameSettings() == true) {
-				renderer.renderChatManager(&chatManager);
-			}
-		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
