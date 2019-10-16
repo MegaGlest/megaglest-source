@@ -1359,27 +1359,17 @@ int CoreData::computeFontSize(int size) {
 	return rs;
 }
 
-void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings, int advancedIndex, bool inSetupDir) {
+void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings, int advancedIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
     Config &config = Config::getInstance();
-    string userData = config.getString("UserData_Root","");
-    if(userData != "") {
-    	endPathWithSlash(userData);
-    }
-
-    string saveSetupDir ;
-    if( inSetupDir)
-    	saveSetupDir = userData +"setups";
-    else
-    	saveSetupDir = userData;
-
-	createDirectoryPaths(saveSetupDir);
-
+    string saveSetupDir = config.getString("UserData_Root","");
     if(saveSetupDir != "") {
-        	endPathWithSlash(saveSetupDir);
-        }
+    	endPathWithSlash(saveSetupDir);
+    }
     fileName = saveSetupDir + fileName;
+    // create path if non existant
+	createDirectoryPaths(extractDirectoryPathFromFile(fileName));
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] fileName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,fileName.c_str());
 
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -1434,25 +1424,15 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings, bool inSetupDir) {
+bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool fileWasFound = false;
     Config &config = Config::getInstance();
-    string userData = config.getString("UserData_Root","");
-    if(userData != "") {
-    	endPathWithSlash(userData);
-    }
-
-    string saveSetupDir ;
-    if( inSetupDir)
-    	saveSetupDir = userData +"setups";
-    else
-    	saveSetupDir = userData;
-
+    string saveSetupDir = config.getString("UserData_Root","");
     if(saveSetupDir != "") {
-        	endPathWithSlash(saveSetupDir);
-        }
+    	endPathWithSlash(saveSetupDir);
+    }
 
     if(fileExists(saveSetupDir + fileName) == true) {
     	fileName = saveSetupDir + fileName;

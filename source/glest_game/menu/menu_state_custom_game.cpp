@@ -41,9 +41,11 @@ const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS  = 15;
 const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   			= 6;
 const int BROADCAST_MAP_DELAY_SECONDS 						= 5;
 const int BROADCAST_SETTINGS_SECONDS  						= 4;
-static const char *SAVED_GAME_FILENAME 				= "lastCustomGameSettings.mgg";
-static const char *DEFAULT_GAME_FILENAME 			= "data/defaultGameSetup.mgg";
-static const char *DEFAULT_NETWORKGAME_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
+static const char *SAVED_SETUP_FILENAME 				= "lastCustomGameSettings.mgg";
+static const char *DEFAULT_SETUP_FILENAME 			= "data/defaultGameSetup.mgg";
+static const char *DEFAULT_NETWORK_SETUP_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
+static const char *LAST_SETUP_STRING="LastSetup";
+static const char *SETUPS_DIR="setups/";
 
 const int mapPreviewTexture_X = 5;
 const int mapPreviewTexture_Y = 260;
@@ -152,7 +154,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	if(userData != "") {
 		endPathWithSlash(userData);
 	}
-	savedSetupsDir = userData +"setups/";
+	savedSetupsDir = userData +SETUPS_DIR;
 
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
@@ -213,7 +215,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int currXLabel=currX+20;
 	int lineHeightSmall=18;
 
-	int buttonx=165;
+	int buttonx=195;
 	int buttony=180;
 
     // player status
@@ -228,17 +230,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
 	listBoxPlayerStatus.setLighted(false);
 	listBoxPlayerStatus.setVisible(true);
-	buttonx+=180;
+	buttonx+=175;
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(buttonx, buttony, 125);
 	buttonReturn.setText(lang.getString("Return"));
-	buttonx+=132;
-
-	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(buttonx, buttony, 240);
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
-	buttonx+=247;
+	buttonx+=135;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
@@ -759,14 +756,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	if(openNetworkSlots == true) {
 		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 
-		if(fileExists(data_path + DEFAULT_NETWORKGAME_FILENAME) == true)
-			loadGameSettings(data_path + DEFAULT_NETWORKGAME_FILENAME);
+		if(fileExists(data_path + DEFAULT_NETWORK_SETUP_FILENAME) == true)
+			loadGameSettings(data_path + DEFAULT_NETWORK_SETUP_FILENAME);
 	}
 	else {
 		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 
-		if(fileExists(data_path + DEFAULT_GAME_FILENAME) == true)
-			loadGameSettings(data_path + DEFAULT_GAME_FILENAME);
+		if(fileExists(data_path + DEFAULT_SETUP_FILENAME) == true)
+			loadGameSettings(data_path + DEFAULT_SETUP_FILENAME);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -885,7 +882,6 @@ void MenuStateCustomGame::reloadUI() {
 	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
 	buttonReturn.setText(lang.getString("Return"));
 	buttonPlayNow.setText(lang.getString("PlayNow"));
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
 
 	vector<string> controlItems;
     controlItems.push_back(lang.getString("Closed"));
@@ -1230,12 +1226,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				PlayNow(true);
 				return;
 			}
-			else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
-				soundRenderer.playFx(coreData.getClickSoundB());
-
-				RestoreLastGameSettings();
-			}
-
 			else if (checkBoxAdvanced.getValue() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1269,31 +1259,41 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							break;
 					}
 				}
-				string setupname=intToStr(humanSlots)+"_"+gameSettings.getMap();
+				string setupName=intToStr(humanSlots)+"_"+gameSettings.getMap();
+				labelSaveSetupName.setText(trim(labelSaveSetupName.getText()));
 				if(labelSaveSetupName.getText()!=""){
-					setupname=labelSaveSetupName.getText();
+					setupName=labelSaveSetupName.getText();
+					setupName=replaceAll(setupName,"/","_");
+					setupName=replaceAll(setupName,"\\","_");
 				}
-				string filename=setupname+".mgg";
-
-				saveGameSettingsToFile(filename,true);
-				console.addLine("--> " +filename);
-				loadSavedSetupNames();
-				comboBoxLoadSetup.setItems(savedSetupFilenames);
-				comboBoxLoadSetup.setSelectedItem(setupname);
+				if( setupName!= lang.getString(LAST_SETUP_STRING)) {
+					string filename=setupName+".mgg";
+					saveGameSettingsToFile(SETUPS_DIR+filename);
+					console.addLine("--> " +filename);
+					loadSavedSetupNames();
+					comboBoxLoadSetup.setItems(savedSetupFilenames);
+					comboBoxLoadSetup.setSelectedItem(setupName);
+				}
 			}
 			else if ( buttonLoadSetup.mouseClick(x, y)){
 					string setupName=comboBoxLoadSetup.getSelectedItem();
-					loadGameSettings(setupName+".mgg",true);
-					console.addLine("<-- " +setupName+".mgg");
+					if( setupName!=""){
+						string fileNameToLoad=SETUPS_DIR+setupName+".mgg";
+						if( setupName== lang.getString(LAST_SETUP_STRING)){
+							fileNameToLoad=SAVED_SETUP_FILENAME;
+						}
+						if(loadGameSettings(fileNameToLoad))
+							console.addLine("<-- " +setupName+".mgg");
+					}
 			}
 			else if ( buttonDeleteSetup.mouseClick(x, y)){
 				string setupName=comboBoxLoadSetup.getSelectedItem();
-				if( setupName!=""){
-					removeFile(savedSetupsDir+setupName+".mgg");
-					loadSavedSetupNames();
-					comboBoxLoadSetup.setItems(savedSetupFilenames);
-					console.addLine("X " +setupName+".mgg");
-				}
+					if( setupName!=""&& setupName!= lang.getString(LAST_SETUP_STRING)) {
+						removeFile(savedSetupsDir+setupName+".mgg");
+						loadSavedSetupNames();
+						comboBoxLoadSetup.setItems(savedSetupFilenames);
+						console.addLine("X " +setupName+".mgg");
+					}
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && buttonShowLanInfo.mouseClick(x, y)) {
 				// show to console
@@ -1802,9 +1802,11 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 	//printf("Line: %d multiplier index: %d index: %d\n",__LINE__,listBoxRMultiplier[index].getSelectedItemIndex(),index);
 }
 
-void MenuStateCustomGame::loadGameSettings(const std::string &fileName,bool inSetupDir) {
+bool MenuStateCustomGame::loadGameSettings(const std::string &fileName) {
 	// Ensure we have set the gamesettings at least once
-	GameSettings gameSettings = loadGameSettingsFromFile(fileName,inSetupDir);
+	GameSettings gameSettings;
+	bool result=loadGameSettingsFromFile(&gameSettings,fileName);
+	if(result==false) return false;
 	if(gameSettings.getMap() == "") {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1825,10 +1827,11 @@ void MenuStateCustomGame::loadGameSettings(const std::string &fileName,bool inSe
 		needToSetChangedGameSettings = true;
 		lastSetChangedGameSettings   = time(NULL);
 	}
+	return true;
 }
 
 void MenuStateCustomGame::RestoreLastGameSettings() {
-	loadGameSettings(SAVED_GAME_FILENAME);
+	loadGameSettings(SAVED_SETUP_FILENAME);
 }
 
 bool MenuStateCustomGame::checkNetworkPlayerDataSynch(bool checkMapCRC,
@@ -1883,7 +1886,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	if(saveGame == true) {
-		saveGameSettingsToFile(SAVED_GAME_FILENAME);
+		saveGameSettingsToFile(SAVED_SETUP_FILENAME);
 	}
 
 	forceWaitForShutdown = false;
@@ -2136,7 +2139,6 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
-	buttonRestoreLastSettings.mouseMove(x, y);
 	buttonClearBlockedPlayers.mouseMove(x, y);
 	buttonSaveSetup.mouseMove(x, y);
 	buttonLoadSetup.mouseMove(x, y);
@@ -2255,7 +2257,6 @@ void MenuStateCustomGame::render() {
 
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
-			renderer.renderButton(&buttonRestoreLastSettings);
 			renderer.renderLabel(&labelSaveSetupName);
 			renderer.renderButton(&buttonSaveSetup);
 			renderer.renderButton(&buttonLoadSetup);
@@ -4104,37 +4105,40 @@ void MenuStateCustomGame::KeepCurrentHumanPlayerSlots(GameSettings &gameSettings
 	}
 }
 
-void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName, bool inSetupDir) {
+void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings);
-	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,checkBoxAdvanced.getValue(),inSetupDir);
+	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,checkBoxAdvanced.getValue());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName, bool inSetupDir) {
+bool MenuStateCustomGame::loadGameSettingsFromFile(GameSettings *gameSettings,std::string fileName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-    GameSettings gameSettings;
 
     GameSettings originalGameSettings;
 	loadGameSettings(&originalGameSettings);
 
     try {
-    	CoreData::getInstance().loadGameSettingsFromFile(fileName, &gameSettings,  inSetupDir);
-    	KeepCurrentHumanPlayerSlots(gameSettings);
+    	bool loadSuccessful= CoreData::getInstance().loadGameSettingsFromFile(fileName, gameSettings);
+    	if(!loadSuccessful){
+    		console.addLine("Cannot load '"+fileName+"'");
+   		    // do nothing on failure
+    		return false;
+    	}
+    	KeepCurrentHumanPlayerSlots(*gameSettings);
 
     	// correct game settings for headless:
     	if(this->headlessServerMode == true) {
     		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-    			if(gameSettings.getFactionControl(i)== ctHuman){
-    				gameSettings.setFactionControl(i,ctNetwork);
+    			if(gameSettings->getFactionControl(i)== ctHuman){
+    				gameSettings->setFactionControl(i,ctNetwork);
     			}
     		}
     	}
-		setupUIFromGameSettings(gameSettings);
+		setupUIFromGameSettings(*gameSettings);
 	}
     catch(const exception &ex) {
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
@@ -4143,12 +4147,12 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName,
     	showMessageBox( ex.what(), "Error", false);
 
     	setupUIFromGameSettings(originalGameSettings);
-    	gameSettings = originalGameSettings;
+    	*gameSettings = originalGameSettings;
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	return gameSettings;
+	return true;
 }
 
 void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettings) {
@@ -4377,8 +4381,8 @@ void MenuStateCustomGame::lastPlayerDisconnected() {
 	if(!foundConnectedPlayer && headlessHasConnectedPlayer==true ){
 		// load defaults
 		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-		if(fileExists(data_path + DEFAULT_NETWORKGAME_FILENAME) == true)
-			loadGameSettings(data_path + DEFAULT_NETWORKGAME_FILENAME);
+		if(fileExists(data_path + DEFAULT_NETWORK_SETUP_FILENAME) == true)
+			loadGameSettings(data_path + DEFAULT_NETWORK_SETUP_FILENAME);
 	}
 	headlessHasConnectedPlayer=foundConnectedPlayer;
 }
@@ -5152,6 +5156,7 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 
 void MenuStateCustomGame::loadSavedSetupNames() {
 	Config &config = Config::getInstance();
+	Lang &lang= Lang::getInstance();
     vector<string> paths;
 	string userData = config.getString("UserData_Root","");
 	if(userData != "") {
@@ -5163,6 +5168,7 @@ void MenuStateCustomGame::loadSavedSetupNames() {
     savedSetupFilenames.clear();
     findAll(paths, "*.mgg", savedSetupFilenames, true, false, true);
     sort(savedSetupFilenames.begin(),savedSetupFilenames.end());
+    savedSetupFilenames.insert(savedSetupFilenames.begin(),1,lang.getString(LAST_SETUP_STRING));
 }
 
 int MenuStateCustomGame::setupMapList(string scenario) {

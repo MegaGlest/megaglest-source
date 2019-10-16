@@ -45,7 +45,6 @@ class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface
 private:
 	GraphicButton buttonReturn;
 	GraphicButton buttonPlayNow;
-	GraphicButton buttonRestoreLastSettings;
 	GraphicLabel labelControl;
 	GraphicLabel labelRMultiplier;
 	GraphicLabel labelFaction;
@@ -280,7 +279,7 @@ private:
 	void returnToParentMenu();
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
-	void saveGameSettingsToFile(std::string fileName, bool saveInSetupDir=false);
+	void saveGameSettingsToFile(std::string fileName);
 	void switchToNextMapGroup(const int direction);
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
@@ -290,8 +289,8 @@ private:
 
 	void loadFactionTexture(string filepath);
 
-	GameSettings loadGameSettingsFromFile(std::string fileName, bool inSetupDir=false);
-	void loadGameSettings(const std::string &fileName, bool inSetupDir=false);
+	bool loadGameSettingsFromFile(GameSettings *gameSettings,std::string fileName);
+	bool loadGameSettings(const std::string &fileName);
 	void RestoreLastGameSettings();
 	void PlayNow(bool saveGame);
 
