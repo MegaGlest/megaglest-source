@@ -130,8 +130,8 @@ private:
 	GraphicButton buttonLoadSetup;
 	GraphicButton buttonDeleteSetup;
     GraphicComboBox comboBoxLoadSetup;
-
     string savedSetupsDir;
+	vector<string> savedSetupFilenames;
 
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;
@@ -233,7 +233,6 @@ private:
     int lastGameSettingsreceivedCount;
 
     string lastPreviewedMapFile;
-	vector<string> savedSetupFilenames;
 
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
@@ -268,7 +267,7 @@ private:
     void setSmallFont(GraphicLabel l);
     void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
-    void loadGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);
+    void copyToGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview, bool doPlayerSetup);
 	void cleanupMapPreviewTexture();
 
@@ -279,7 +278,6 @@ private:
 	void returnToParentMenu();
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
-	void saveGameSettingsToFile(std::string fileName);
 	void switchToNextMapGroup(const int direction);
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
@@ -289,6 +287,7 @@ private:
 
 	void loadFactionTexture(string filepath);
 
+	void saveGameSettings(std::string fileName);
 	bool loadGameSettingsFromFile(GameSettings *gameSettings,std::string fileName);
 	bool loadGameSettings(const std::string &fileName);
 	void RestoreLastGameSettings();

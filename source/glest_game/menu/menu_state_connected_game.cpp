@@ -45,7 +45,9 @@ static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
 //static const string ITEM_MISSING 					= "***missing***";
 // above replaced with Lang::getInstance().getString("DataMissing","",true)
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 2;
-static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
+static const char *HEADLESS_SAVED_SETUP_FILENAME 	= "lastHeadlessGameSettings.mgg";
+static const char *LAST_SETUP_STRING="LastSetup";
+static const char *SETUPS_DIR="setups/";
 
 const int mapPreviewTexture_X = 5;
 const int mapPreviewTexture_Y = 260;
@@ -300,6 +302,39 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	srand((unsigned int)seed.getCurTicks());
 
 	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
+
+	// Save Setup
+		currY=mapHeadPos-100;
+		currX=xoffset+325;
+
+		comboBoxLoadSetup.registerGraphicComponent(containerName,"comboBoxLoadSetup");
+	    comboBoxLoadSetup.init(currX, currY, 220);
+		loadSavedSetupNames();
+		comboBoxLoadSetup.setItems(savedSetupFilenames);
+
+		currY = currY - labelOffset;
+
+		buttonDeleteSetup.registerGraphicComponent(containerName,"buttonDeleteSetup");
+		buttonDeleteSetup.init(currX, currY, 110);
+		buttonDeleteSetup.setText(lang.getString("Delete"));
+		buttonLoadSetup.registerGraphicComponent(containerName,"buttonLoadSetup");
+		buttonLoadSetup.init(currX+110, currY, 110);
+		buttonLoadSetup.setText(lang.getString("Load"));
+
+		currY = currY - labelOffset;
+
+		labelSaveSetupName.registerGraphicComponent(containerName,"labelSaveSetupName");
+		labelSaveSetupName.init(currX,currY, 110);
+		labelSaveSetupName.setText("");
+		labelSaveSetupName.setEditable(true);
+		labelSaveSetupName.setMaxEditWidth(16);
+		labelSaveSetupName.setMaxEditRenderWidth(labelSaveSetupName.getW());
+		labelSaveSetupName.setBackgroundColor(Vec4f(230,230,230,0.4));
+		labelSaveSetupName.setRenderBackground(true);
+
+		buttonSaveSetup.registerGraphicComponent(containerName,"buttonSaveSetup");
+		buttonSaveSetup.init(currX+110, currY, 110);
+		buttonSaveSetup.setText(lang.getString("Save"));
 
 
 	// Toy Block
@@ -1787,7 +1822,7 @@ void MenuStateConnectedGame::broadCastGameSettingsToHeadlessServer(bool forceNow
 		}
 
 		if(validDisplayedGamesettings){
-			loadGameSettings(&displayedGamesettings);
+			copyToGameSettings(&displayedGamesettings);
 
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("broadcast settings:\n%s\n",displayedGamesettings.toString().c_str());
@@ -1833,6 +1868,8 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButton,string advanceToItemStartingWith) {
 
     try {
+    	Lang &lang= Lang::getInstance();
+
     	int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
         if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1869,11 +1906,74 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
+		else if(comboBoxMap.isDropDownShowing()){
+			//do nothing
+		}
+		else if(comboBoxLoadSetup.mouseClick(x,y)){
+		}
+		else if(comboBoxLoadSetup.isDropDownShowing()){
+					//do nothing
+		}
         else if(listBoxFogOfWar.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
+		else if(labelSaveSetupName.mouseClick(x, y) ){
+			setActiveInputLabel(&labelSaveSetupName);
+		}
+		else if ( buttonSaveSetup.mouseClick(x, y)){
+			GameSettings gameSettings;
+			copyToGameSettings(&gameSettings);
+			int humanSlots=0;
+			for( int i=0; i<gameSettings.getFactionCount();i++){
+				switch (gameSettings.getFactionControl(i)) {
+					case ctNetwork:
+					case ctHuman:
+					case ctNetworkUnassigned:
+						humanSlots++;
+						break;
+					default:
+						// do nothing
+						break;
+				}
+			}
+			string setupName=intToStr(humanSlots)+"_"+gameSettings.getMap();
+			labelSaveSetupName.setText(trim(labelSaveSetupName.getText()));
+			if(labelSaveSetupName.getText()!=""){
+				setupName=labelSaveSetupName.getText();
+				setupName=replaceAll(setupName,"/","_");
+				setupName=replaceAll(setupName,"\\","_");
+			}
+			if( setupName!= lang.getString(LAST_SETUP_STRING)) {
+				string filename=setupName+".mgg";
+				saveGameSettings(SETUPS_DIR+filename);
+				console.addLine("--> " +filename);
+				loadSavedSetupNames();
+				comboBoxLoadSetup.setItems(savedSetupFilenames);
+				comboBoxLoadSetup.setSelectedItem(setupName);
+			}
+		}
+		else if ( buttonLoadSetup.mouseClick(x, y)){
+				string setupName=comboBoxLoadSetup.getSelectedItem();
+				if( setupName!=""){
+					string fileNameToLoad=SETUPS_DIR+setupName+".mgg";
+					if( setupName== lang.getString(LAST_SETUP_STRING)){
+						fileNameToLoad=HEADLESS_SAVED_SETUP_FILENAME;
+					}
+					if(loadGameSettings(fileNameToLoad))
+						console.addLine("<-- " +setupName+".mgg");
+				}
+		}
+		else if ( buttonDeleteSetup.mouseClick(x, y)){
+			string setupName=comboBoxLoadSetup.getSelectedItem();
+				if( setupName!=""&& setupName!= lang.getString(LAST_SETUP_STRING)) {
+					removeFile(savedSetupsDir+setupName+".mgg");
+					loadSavedSetupNames();
+					comboBoxLoadSetup.setItems(savedSetupFilenames);
+					console.addLine("X " +setupName+".mgg");
+				}
+		}
         else if(checkBoxAllowObservers.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
@@ -2012,10 +2112,10 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 	ClientInterface *clientInterface = networkManager.getClientInterface();
 
 	GameSettings gameSettings = *clientInterface->getGameSettings();
-	loadGameSettings(&gameSettings);
+	copyToGameSettings(&gameSettings);
 
 	if(saveGame == true) {
-		CoreData::getInstance().saveGameSettingsToFile(HEADLESS_SAVED_GAME_FILENAME,&gameSettings,true);
+		CoreData::getInstance().saveGameSettingsToFile(HEADLESS_SAVED_SETUP_FILENAME,&gameSettings,true);
 	}
 
 	CoreData &coreData= CoreData::getInstance();
@@ -2162,7 +2262,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
     }
 }
 
-void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
+void MenuStateConnectedGame::copyToGameSettings(GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
@@ -2559,6 +2659,16 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
     }
 
 	comboBoxMap.mouseMove(x, y);
+	comboBoxLoadSetup.mouseMove(x, y);
+	if (comboBoxLoadSetup.isDropDownShowing()) {
+			if (ms->get(mbLeft)) {
+				comboBoxLoadSetup.mouseDown(x, y);
+			}
+	}
+	buttonSaveSetup.mouseMove(x, y);
+	buttonLoadSetup.mouseMove(x, y);
+	buttonDeleteSetup.mouseMove(x, y);
+
 	listBoxFogOfWar.mouseMove(x, y);
 	checkBoxAllowObservers.mouseMove(x, y);
 	listBoxTileset.mouseMove(x, y);
@@ -2826,6 +2936,11 @@ void MenuStateConnectedGame::render() {
 		renderer.renderButton(&buttonPlayNow);
 		renderer.renderButton(&buttonRestoreLastSettings);
 
+		renderer.renderLabel(&labelSaveSetupName);
+		renderer.renderButton(&buttonSaveSetup);
+		renderer.renderButton(&buttonLoadSetup);
+		renderer.renderButton(&buttonDeleteSetup);
+
 		renderer.renderCheckBox(&checkBoxScenario);
 		renderer.renderLabel(&labelScenario);
 		if(checkBoxScenario.getValue() == true) {
@@ -2882,6 +2997,7 @@ void MenuStateConnectedGame::render() {
         safeMutexFTPProgress.ReleaseLock();
 
 		renderer.renderComboBox(&comboBoxMap);
+		renderer.renderComboBox(&comboBoxLoadSetup);
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
@@ -2974,7 +3090,11 @@ void MenuStateConnectedGame::update() {
 
 		checkBoxAllowNativeLanguageTechtree.setEditable(isHeadlessAdmin());
 		checkBoxAllowNativeLanguageTechtree.setEnabled(isHeadlessAdmin());
-
+		buttonSaveSetup.setVisible(isHeadlessAdmin());
+		labelSaveSetupName.setVisible(isHeadlessAdmin());
+		buttonLoadSetup.setVisible(isHeadlessAdmin());
+		buttonDeleteSetup.setVisible(isHeadlessAdmin());
+	    comboBoxLoadSetup.setVisible(isHeadlessAdmin());
 		comboBoxMap.setEditable(isHeadlessAdmin());
 		listBoxMapFilter.setEditable(isHeadlessAdmin());
 		buttonPlayNow.setVisible(isHeadlessAdmin() ||
@@ -3576,7 +3696,7 @@ void MenuStateConnectedGame::update() {
 				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",displayedGamesettings.getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),displayedGamesettings.getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
 				if ( difftime((long int)time(NULL),noReceiveTimer) < 3 || difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) < HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS){
 					// copy my current settings in UI to displayedSettings;
-					loadGameSettings(&displayedGamesettings);
+					copyToGameSettings(&displayedGamesettings);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -3688,7 +3808,7 @@ void MenuStateConnectedGame::update() {
 					//printf("Loading saved game file [%s]\n",saveGameFile.c_str());
 
 					GameSettings gameSettings = *clientInterface->getGameSettings();
-					loadGameSettings(&gameSettings);
+					copyToGameSettings(&gameSettings);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -5312,15 +5432,22 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 }
 
 void MenuStateConnectedGame::RestoreLastGameSettings() {
+	loadGameSettings(HEADLESS_SAVED_SETUP_FILENAME);
+}
+
+
+bool  MenuStateConnectedGame::loadGameSettings(const std::string &fileName) {
 	// Ensure we have set the gamesettings at least once
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 	GameSettings gameSettings = *clientInterface->getGameSettings();
-	CoreData::getInstance().loadGameSettingsFromFile(HEADLESS_SAVED_GAME_FILENAME,&gameSettings);
+	bool result=CoreData::getInstance().loadGameSettingsFromFile(fileName,&gameSettings);
+	if(result==false)
+		return false;
 	if(gameSettings.getMap() == "") {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		loadGameSettings(&gameSettings);
+		copyToGameSettings(&gameSettings);
 	}
 
 	setupUIFromGameSettings(&gameSettings, false);
@@ -5328,7 +5455,34 @@ void MenuStateConnectedGame::RestoreLastGameSettings() {
 	needToBroadcastServerSettings=true;
 	broadcastServerSettingsDelayTimer=time(NULL);
 	noReceiveTimer=time(NULL);
+	return true;
+}
 
+void MenuStateConnectedGame::saveGameSettings(std::string fileName) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	GameSettings gameSettings;
+	copyToGameSettings(&gameSettings);
+	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,true);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void MenuStateConnectedGame::loadSavedSetupNames() {
+	Config &config = Config::getInstance();
+	Lang &lang= Lang::getInstance();
+    vector<string> paths;
+	string userData = config.getString("UserData_Root","");
+	if(userData != "") {
+		endPathWithSlash(userData);
+	}
+	string saveSetupDir ;
+	saveSetupDir = userData +"setups";
+    paths.push_back(saveSetupDir);
+    savedSetupFilenames.clear();
+    findAll(paths, "*.mgg", savedSetupFilenames, true, false, true);
+    sort(savedSetupFilenames.begin(),savedSetupFilenames.end());
+    savedSetupFilenames.insert(savedSetupFilenames.begin(),1,lang.getString(LAST_SETUP_STRING));
 }
 
 int MenuStateConnectedGame::setupMapList(string scenario) {
