@@ -156,7 +156,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 	savedSetupsDir = userData +SETUPS_DIR;
 
-
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.getString("Ok"),500,300);
 	mainMessageBox.setEnabled(false);
@@ -725,7 +724,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 		// Ensure we have set the gamesettings at least once
 		GameSettings gameSettings;
-		loadGameSettings(&gameSettings);
+		copyToGameSettings(&gameSettings);
 
 		serverInterface->setGameSettings(&gameSettings,false);
 	}
@@ -1143,8 +1142,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			//do nothing
 		}
 		else if(comboBoxLoadSetup.mouseClick(x,y)){
-//			string setupName=comboBoxLoadSetup.getSelectedItem();
-//			loadGameSettingsFromFile(setupName,true);
 		}
 		else if(comboBoxLoadSetup.isDropDownShowing()){
 					//do nothing
@@ -1245,7 +1242,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if ( buttonSaveSetup.mouseClick(x, y)){
 				GameSettings gameSettings;
-				loadGameSettings(&gameSettings);
+				copyToGameSettings(&gameSettings);
 				int humanSlots=0;
 				for( int i=0; i<gameSettings.getFactionCount();i++){
 					switch (gameSettings.getFactionControl(i)) {
@@ -1268,7 +1265,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				}
 				if( setupName!= lang.getString(LAST_SETUP_STRING)) {
 					string filename=setupName+".mgg";
-					saveGameSettingsToFile(SETUPS_DIR+filename);
+					saveGameSettings(SETUPS_DIR+filename);
 					console.addLine("--> " +filename);
 					loadSavedSetupNames();
 					comboBoxLoadSetup.setItems(savedSetupFilenames);
@@ -1810,7 +1807,7 @@ bool MenuStateCustomGame::loadGameSettings(const std::string &fileName) {
 	if(gameSettings.getMap() == "") {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		loadGameSettings(&gameSettings);
+		copyToGameSettings(&gameSettings);
 	}
 
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -1886,7 +1883,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	if(saveGame == true) {
-		saveGameSettingsToFile(SAVED_SETUP_FILENAME);
+		saveGameSettings(SAVED_SETUP_FILENAME);
 	}
 
 	forceWaitForShutdown = false;
@@ -1960,7 +1957,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	safeMutex.ReleaseLock(true);
 	safeMutexCLI.ReleaseLock(true);
 	GameSettings gameSettings;
-	loadGameSettings(&gameSettings, true);
+	copyToGameSettings(&gameSettings, true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
@@ -2136,13 +2133,13 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 				comboBoxLoadSetup.mouseDown(x, y);
 			}
 	}
+	buttonSaveSetup.mouseMove(x, y);
+	buttonLoadSetup.mouseMove(x, y);
+	buttonDeleteSetup.mouseMove(x, y);
 
 	buttonReturn.mouseMove(x, y);
 	buttonPlayNow.mouseMove(x, y);
 	buttonClearBlockedPlayers.mouseMove(x, y);
-	buttonSaveSetup.mouseMove(x, y);
-	buttonLoadSetup.mouseMove(x, y);
-	buttonDeleteSetup.mouseMove(x, y);
 
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		listBoxRMultiplier[i].mouseMove(x, y);
@@ -2257,6 +2254,7 @@ void MenuStateCustomGame::render() {
 
 			renderer.renderButton(&buttonReturn);
 			renderer.renderButton(&buttonPlayNow);
+
 			renderer.renderLabel(&labelSaveSetupName);
 			renderer.renderButton(&buttonSaveSetup);
 			renderer.renderButton(&buttonLoadSetup);
@@ -2706,7 +2704,7 @@ void MenuStateCustomGame::update() {
 			printf("received Settings map filter=%d\n",settings->getMapFilter());
 
             GameSettings gameSettings;
-            loadGameSettings(&gameSettings);
+            copyToGameSettings(&gameSettings);
 
             //printf("\n\n\n\n=====#1.1 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),gameSettings.toString().c_str());
 
@@ -2730,7 +2728,7 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		GameSettings gameSettings;
-		loadGameSettings(&gameSettings);
+		copyToGameSettings(&gameSettings);
 
 		listBoxAISwitchTeamAcceptPercent.setVisible(checkBoxEnableSwitchTeamMode.getValue());
 		labelAISwitchTeamAcceptPercent.setVisible(checkBoxEnableSwitchTeamMode.getValue());
@@ -3247,7 +3245,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 	int slotCountConnectedPlayers=0;
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	GameSettings gameSettings;
-	loadGameSettings(&gameSettings);
+	copyToGameSettings(&gameSettings);
 	Config &config= Config::getInstance();
 	//string serverinfo="";
 
@@ -3547,7 +3545,7 @@ void MenuStateCustomGame::simpleTaskForClients(BaseThread *callingThread) {
 				lastGameSettingsreceivedCount++;
             	if(this->headlessServerMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
                     GameSettings gameSettings;
-                    loadGameSettings(&gameSettings);
+                    copyToGameSettings(&gameSettings);
 
                     //printf("\n\n\n\n=====#2 got settings [%d] [%d]:\n%s\n",lastMasterServerSettingsUpdateCount,serverInterface->getGameSettingsUpdateCount(),gameSettings.toString().c_str());
 
@@ -3605,7 +3603,7 @@ void MenuStateCustomGame::simpleTaskForClients(BaseThread *callingThread) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool forceCloseUnusedSlots) {
+void MenuStateCustomGame::copyToGameSettings(GameSettings *gameSettings,bool forceCloseUnusedSlots) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	int factionCount= 0;
@@ -4105,11 +4103,11 @@ void MenuStateCustomGame::KeepCurrentHumanPlayerSlots(GameSettings &gameSettings
 	}
 }
 
-void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
+void MenuStateCustomGame::saveGameSettings(std::string fileName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	GameSettings gameSettings;
-	loadGameSettings(&gameSettings);
+	copyToGameSettings(&gameSettings);
 	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,checkBoxAdvanced.getValue());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -4119,7 +4117,7 @@ bool MenuStateCustomGame::loadGameSettingsFromFile(GameSettings *gameSettings,st
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     GameSettings originalGameSettings;
-	loadGameSettings(&originalGameSettings);
+    copyToGameSettings(&originalGameSettings);
 
     try {
     	bool loadSuccessful= CoreData::getInstance().loadGameSettingsFromFile(fileName, gameSettings);

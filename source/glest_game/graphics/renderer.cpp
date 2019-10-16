@@ -3149,6 +3149,10 @@ void Renderer::renderLabel(GraphicLabel *label) {
 		return;
 	}
 
+	if( label->getVisible()==false){
+		return;
+	}
+
 	if(label->getEditable() && label->getMaxEditRenderWidth()>0)
 	{
 	    int x= label->getX();

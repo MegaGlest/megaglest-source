@@ -98,6 +98,14 @@ private:
 	GraphicLabel labelAllowObservers;
 	GraphicCheckBox checkBoxAllowObservers;
 
+	GraphicButton buttonSaveSetup;
+	GraphicLabel labelSaveSetupName;
+	GraphicButton buttonLoadSetup;
+	GraphicButton buttonDeleteSetup;
+    GraphicComboBox comboBoxLoadSetup;
+    string savedSetupsDir;
+	vector<string> savedSetupFilenames;
+
 	GraphicLabel labelAllowNativeLanguageTechtree;
 	GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
 
@@ -180,8 +188,6 @@ private:
 
 	std::map<string,uint32> mapCRCUpdateList;
 
-
-
     string getMissingMapFromFTPServer;
     bool getMissingMapFromFTPServerInProgress;
     time_t getMissingMapFromFTPServerLastPrompted;
@@ -222,7 +228,6 @@ private:
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;
 	GraphicLabel labelFallbackCpuMultiplier;
 	GraphicListBox listBoxFallbackCpuMultiplier;
-
 
 	GraphicButton buttonPlayNow;
 
@@ -300,17 +305,20 @@ private:
     void switchToNextMapGroup(const int direction);
     void switchToMapGroup(int filterIndex);
     string getCurrentMapFile();
-    void loadGameSettings(GameSettings *gameSettings);
+    void copyToGameSettings(GameSettings *gameSettings);
     void reloadFactions(bool keepExistingSelectedItem,string scenario);
     void PlayNow(bool saveGame);
     bool isHeadlessAdmin();
     void broadCastGameSettingsToHeadlessServer(bool forceNow);
     void updateResourceMultiplier(const int index);
 
+	void saveGameSettings(std::string fileName);
+	bool loadGameSettings(const std::string &fileName);
     void RestoreLastGameSettings();
     void setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData);
 
 	int setupMapList(string scenario);
+	void loadSavedSetupNames();
 	int setupTechList(string scenario, bool forceLoad=false);
 	void setupTilesetList(string scenario);
 
