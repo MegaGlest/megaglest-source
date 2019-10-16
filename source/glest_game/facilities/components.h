@@ -380,7 +380,12 @@ public:
 	int getItemCount() const				{return (int)items.size();}
 	string getItem(int index) const			{return items[index];}
 	int getSelectedItemIndex() const		{return selectedItemIndex;}
-	string getSelectedItem() const			{return items[selectedItemIndex];}
+	string getSelectedItem() const {
+		if (selectedItemIndex < 0)
+			return "";
+		else
+			return items[selectedItemIndex];
+	}
 	GraphicButton *getButton() 			{return &dropDownButton;}
 	GraphicScrollBar *getScrollbar() 			{return &scrollBar;}
 	GraphicButtons *getPopupButtons() {return &popupButtons;}
