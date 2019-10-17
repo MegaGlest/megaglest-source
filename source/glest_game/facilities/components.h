@@ -334,6 +334,7 @@ public:
 
     void pushBackItem(string item, string translated_item="");
     void clearItems();
+	vector<string> & getItems() {return items;}
     void setItems(const vector<string> &items, const vector<string> translated_items=vector<string>());
 	void setSelectedItemIndex(int index, bool errorOnMissing=true);
     void setSelectedItem(string item, bool errorOnMissing=true);
@@ -399,6 +400,7 @@ public:
     void clearItems();
 
     GraphicButton* createButton(string item);
+	vector<string> & getItems() {return items;}
     void setItems(const vector<string> &items, const vector<string> translated_items=vector<string>());
 	void setSelectedItemIndex(int index, bool errorOnMissing=true);
     void setSelectedItem(string item, bool errorOnMissing=true);

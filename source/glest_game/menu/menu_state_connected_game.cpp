@@ -475,7 +475,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	labelWaitingForPlayers.registerGraphicComponent(containerName,"labelInfo");
-	labelWaitingForPlayers.init(30, 100);
+	labelWaitingForPlayers.init(0, networkHeadPos-25);
 	labelWaitingForPlayers.setText("");
 	labelWaitingForPlayers.setFont(CoreData::getInstance().getMenuFontBig());
 	labelWaitingForPlayers.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -1946,8 +1946,8 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 				setupName=replaceAll(setupName,"\\","_");
 			}
 			if( setupName!= lang.getString(LAST_SETUP_STRING)) {
-				string filename=setupName+".mgg";
-				saveGameSettings(SETUPS_DIR+filename);
+				string filename=SETUPS_DIR+setupName+".mgg";
+				saveGameSettings(filename);
 				console.addLine("--> " +filename);
 				loadSavedSetupNames();
 				comboBoxLoadSetup.setItems(savedSetupFilenames);
@@ -1961,8 +1961,11 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 					if( setupName== lang.getString(LAST_SETUP_STRING)){
 						fileNameToLoad=HEADLESS_SAVED_SETUP_FILENAME;
 					}
-					if(loadGameSettings(fileNameToLoad))
-						console.addLine("<-- " +setupName+".mgg");
+					if(loadGameSettings(fileNameToLoad)){
+						console.addLine("<-- " +fileNameToLoad);
+			        	needToBroadcastServerSettings=true;
+			        	broadcastServerSettingsDelayTimer=time(NULL);
+					}
 				}
 		}
 		else if ( buttonDeleteSetup.mouseClick(x, y)){
@@ -5442,12 +5445,28 @@ bool  MenuStateConnectedGame::loadGameSettings(const std::string &fileName) {
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 	GameSettings gameSettings = *clientInterface->getGameSettings();
 	bool result=CoreData::getInstance().loadGameSettingsFromFile(fileName,&gameSettings);
-	if(result==false)
+	if(result==false){
+		console.addLine("Cannot load '"+fileName+"'");
 		return false;
+	}
 	if(gameSettings.getMap() == "") {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		copyToGameSettings(&gameSettings);
+	}
+
+	vector<string> mapsV=formattedPlayerSortedMaps[0];
+	if(std::find(mapsV.begin(), mapsV.end(), gameSettings.getMap()) == mapsV.end()) {
+		console.addLine("Cannot load '"+fileName+"', map unknown ("+gameSettings.getMap()+")");
+		return false;// map unknown
+	}
+	if(std::find(tilesetFiles.begin(), tilesetFiles.end(), gameSettings.getTileset()) == tilesetFiles.end()) {
+		console.addLine("Cannot load '"+fileName+"', tileset unknown ("+gameSettings.getTileset()+")");
+		return false;// tileset unknown
+	}
+	if(std::find(techTreeFiles.begin(), techTreeFiles.end(), gameSettings.getTech()) == techTreeFiles.end()) {
+		console.addLine("Cannot load '"+fileName+"', techtree unknown ("+gameSettings.getTech()+")");
+		return false;// techtree unknown
 	}
 
 	setupUIFromGameSettings(&gameSettings, false);

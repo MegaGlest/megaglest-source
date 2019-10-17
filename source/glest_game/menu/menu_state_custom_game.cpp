@@ -1264,8 +1264,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					setupName=replaceAll(setupName,"\\","_");
 				}
 				if( setupName!= lang.getString(LAST_SETUP_STRING)) {
-					string filename=setupName+".mgg";
-					saveGameSettings(SETUPS_DIR+filename);
+					string filename=SETUPS_DIR+setupName+".mgg";
+					saveGameSettings(filename);
 					console.addLine("--> " +filename);
 					loadSavedSetupNames();
 					comboBoxLoadSetup.setItems(savedSetupFilenames);
@@ -1280,7 +1280,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							fileNameToLoad=SAVED_SETUP_FILENAME;
 						}
 						if(loadGameSettings(fileNameToLoad))
-							console.addLine("<-- " +setupName+".mgg");
+							console.addLine("<-- " +fileNameToLoad);
 					}
 			}
 			else if ( buttonDeleteSetup.mouseClick(x, y)){
@@ -4136,6 +4136,21 @@ bool MenuStateCustomGame::loadGameSettingsFromFile(GameSettings *gameSettings,st
     			}
     		}
     	}
+
+		vector<string> mapsV=formattedPlayerSortedMaps[0];
+		if(std::find(mapsV.begin(), mapsV.end(), gameSettings->getMap()) == mapsV.end()) {
+			console.addLine("Cannot load '"+fileName+"', map unknown ("+gameSettings->getMap()+")");
+			return false;// map unknown
+		}
+		if(std::find(tilesetFiles.begin(), tilesetFiles.end(), gameSettings->getTileset()) == tilesetFiles.end()) {
+			console.addLine("Cannot load '"+fileName+"', tileset unknown ("+gameSettings->getTileset()+")");
+			return false;// tileset unknown
+		}
+		if(std::find(techTreeFiles.begin(), techTreeFiles.end(), gameSettings->getTech()) == techTreeFiles.end()) {
+			console.addLine("Cannot load '"+fileName+"', techtree unknown ("+gameSettings->getTech()+")");
+			return false;// techtree unknown
+		}
+
 		setupUIFromGameSettings(*gameSettings);
 	}
     catch(const exception &ex) {
