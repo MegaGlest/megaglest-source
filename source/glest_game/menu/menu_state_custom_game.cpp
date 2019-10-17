@@ -4137,17 +4137,17 @@ bool MenuStateCustomGame::loadGameSettingsFromFile(GameSettings *gameSettings,st
     		}
     	}
 
-		vector<string> mapsV=formattedPlayerSortedMaps[0];
+		vector<string> mapsV=playerSortedMaps[0];
 		if(std::find(mapsV.begin(), mapsV.end(), gameSettings->getMap()) == mapsV.end()) {
-			console.addLine("Cannot load '"+fileName+"', map unknown ("+gameSettings->getMap()+")");
+			console.addLine("Cannot load '"+fileName+"', map unknown ('"+gameSettings->getMap()+"')");
 			return false;// map unknown
 		}
 		if(std::find(tilesetFiles.begin(), tilesetFiles.end(), gameSettings->getTileset()) == tilesetFiles.end()) {
-			console.addLine("Cannot load '"+fileName+"', tileset unknown ("+gameSettings->getTileset()+")");
+			console.addLine("Cannot load '"+fileName+"', tileset unknown ('"+gameSettings->getTileset()+"')");
 			return false;// tileset unknown
 		}
 		if(std::find(techTreeFiles.begin(), techTreeFiles.end(), gameSettings->getTech()) == techTreeFiles.end()) {
-			console.addLine("Cannot load '"+fileName+"', techtree unknown ("+gameSettings->getTech()+")");
+			console.addLine("Cannot load '"+fileName+"', techtree unknown ('"+gameSettings->getTech()+"')");
 			return false;// techtree unknown
 		}
 
