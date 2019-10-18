@@ -332,6 +332,9 @@ void GraphicComponent::init(int x, int y, int w, int h) {
     reloadFonts();
 	enabled= true;
 }
+bool GraphicComponent::eventMouseWheel(int x, int y,int zDelta){
+	return false;
+}
 
 bool GraphicComponent::mouseMove(int x, int y) {
 	if(this->getVisible() == false) {
@@ -913,14 +916,24 @@ void GraphicComboBox::togglePopupVisibility(){
 	}
 }
 
-bool GraphicComboBox::mouseMove(int x, int y){
-	if(this->getVisible() == false) {
+bool GraphicComboBox::eventMouseWheel(int x, int y, int zDelta) {
+	if (popupShowing == true) {
+		int newVisibleStart = scrollBar.getVisibleStart() -  zDelta/60;
+		if (newVisibleStart < 0)
+			newVisibleStart = 0;
+		if (newVisibleStart > scrollBar.getLength() - scrollBar.getVisibleSize())
+			newVisibleStart = scrollBar.getLength() - scrollBar.getVisibleSize();
+
+		scrollBar.setVisibleStart(newVisibleStart);
+		layoutButtons();
+		mouseMoveOverButtons(x,y);
+		return true;
+	} else
 		return false;
-	}
+}
+
+bool GraphicComboBox::mouseMoveOverButtons(int x, int y){
 	bool result=false;
-	bool scrollbarResult=scrollBar.mouseMove(x,y);
-	bool buttonResult=dropDownButton.mouseMove(x, y);
-	result=scrollbarResult||buttonResult;
 	if (popupShowing) {
 		bool foundMouseOver=false;
 		for (int i = scrollBar.getVisibleStart(); i <= scrollBar.getVisibleEnd(); ++i) {
@@ -935,7 +948,16 @@ bool GraphicComboBox::mouseMove(int x, int y){
 			}
 		}
 	}
-	 return result;
+	return result;
+}
+
+bool GraphicComboBox::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+	bool scrollbarResult=scrollBar.mouseMove(x,y);
+	bool buttonResult=dropDownButton.mouseMove(x, y);
+	 return scrollbarResult||buttonResult||mouseMoveOverButtons(x,y);;
 }
 
 bool GraphicComboBox::mouseClick(int x, int y) {

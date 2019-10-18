@@ -217,6 +217,10 @@ void MainMenu::mouseMove(int x, int y, const MouseState *ms){
 	state->mouseMove(x, y, ms);
 }
 
+void MainMenu::eventMouseWheel(int x, int y,int zDelta){
+	state->eventMouseWheel(x, y, zDelta);
+}
+
 //returns if exiting
 void MainMenu::mouseDownLeft(int x, int y){
 	if(GraphicComponent::getFade()<0.2f) return;
