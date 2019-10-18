@@ -190,6 +190,7 @@ public:
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseUp(int x, int y, const MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
+	void eventMouseWheel(int x, int y,int zDelta);
 	void render();
 	void update();
 
@@ -203,6 +204,8 @@ public:
 
 private:
 
+	bool eventMouseWheel(GraphicScrollBar* scrollBar, UserButtons* buttons,int x, int y,int zDelta);
+	void layoutButtons(GraphicScrollBar * scrollBar,UserButtons* buttons, GraphicLabels* labels);
     void cleanUp();
     MapInfo loadMapInfo(string file);
     void showMessageBox(const string &text, const string &header, bool toggle);
