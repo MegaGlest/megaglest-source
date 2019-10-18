@@ -72,6 +72,7 @@ public:
     virtual void update();
 	virtual void init();
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
+    virtual void eventMouseWheel(int x, int y,int zDelta);
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
 	virtual void mouseUpLeft(int x, int y);
@@ -120,6 +121,7 @@ public:
 	virtual void mouseClick(int x, int y, MouseButton mouseButton)=0;
 	virtual void mouseUp(int x, int y, const MouseButton mouseButton){};
 	virtual void mouseMove(int x, int y, const MouseState *mouseState)=0;
+	virtual void eventMouseWheel(int x, int y, int zDelta){};
 	virtual void render()=0;
 	virtual void update(){};
 

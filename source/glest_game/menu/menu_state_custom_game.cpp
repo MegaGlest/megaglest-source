@@ -2105,6 +2105,15 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	}
 }
 
+
+void MenuStateCustomGame::eventMouseWheel(int x, int y,int zDelta) {
+	if(isMasterserverMode() == true) {
+		return;
+	}
+	comboBoxMap.eventMouseWheel(x,y,zDelta);
+	comboBoxLoadSetup.eventMouseWheel(x,y,zDelta);
+}
+
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	if(isMasterserverMode() == true) {
 		return;

@@ -127,6 +127,7 @@ public:
 	virtual void reloadFonts();
 	static void reloadFontsForRegisterGraphicComponents(std::string containerName);
 
+	virtual bool eventMouseWheel(int x, int y,int zDelta);
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y);
 
@@ -411,6 +412,7 @@ public:
     virtual void setX(int x);
     virtual void setY(int y);
 
+	virtual bool eventMouseWheel(int x, int y,int zDelta);
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y);
 	virtual bool mouseDown(int x, int y);
@@ -436,6 +438,7 @@ public:
 	}
 
 private:
+    bool  mouseMoveOverButtons(int x, int y);
 	void setPreselectedItemIndex(int index) {
 		this->preselectedItemIndex = index;
 	}
