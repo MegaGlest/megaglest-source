@@ -2105,6 +2105,38 @@ void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
     }
 }
 
+bool MenuStateMods::eventMouseWheel( GraphicScrollBar* scrollBar, UserButtons* buttons, int x, int y, int zDelta) {
+	int result=false;
+	int overButton=false;
+    if(scrollBar->getElementCount() !=0) {
+    	for(int i = scrollBar->getVisibleStart(); i <= scrollBar->getVisibleEnd(); ++i) {
+    		if((*buttons)[i]->mouseMove(x, y)) {
+    			overButton=true;
+    			break;
+    		}
+    	}
+    }
+    result= scrollBar->eventMouseWheel(x, y, zDelta,overButton);
+    if(result) layoutButtons(scrollBar,buttons,NULL);
+
+    if(scrollBar->getElementCount() !=0) {
+        	for(int i = scrollBar->getVisibleStart(); i <= scrollBar->getVisibleEnd(); ++i) {
+        		(*buttons)[i]->mouseMove(x, y);
+        	}
+        }
+    return result;
+}
+
+void MenuStateMods::eventMouseWheel(int x, int y, int zDelta) {
+	bool result = eventMouseWheel(&keyMapScrollBar, &keyMapButtons, x, y, zDelta);
+	if (!result)
+		result = eventMouseWheel(&keyTechScrollBar, &keyTechButtons, x, y, zDelta);
+	if (!result)
+		result = eventMouseWheel(&keyScenarioScrollBar, &keyScenarioButtons, x, y, zDelta);
+	if (!result)
+		result = eventMouseWheel(&keyTilesetScrollBar, &keyTilesetButtons, x, y, zDelta);
+}
+
 void MenuStateMods::cleanupPreviewTexture() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogoTexture [%p]\n",__FILE__,__FUNCTION__,__LINE__,modPreviewImage);
 
@@ -2441,77 +2473,31 @@ void MenuStateMods::render() {
 	}
 }
 
+void MenuStateMods::layoutButtons(GraphicScrollBar * scrollBar,UserButtons* buttons, GraphicLabels* labels){
+	if (scrollBar->getElementCount() != 0) {
+		for (int i = scrollBar->getVisibleStart();
+				i <= scrollBar->getVisibleEnd(); ++i) {
+			if(i >= (int)buttons->size()) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"i >= buttons->size(), i = %d, buttons->size() = %d",i,(int)buttons->size());
+				throw megaglest_runtime_error(szBuf);
+			}
+			(*buttons)[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i - scrollBar->getVisibleStart()));
+			if (labels != NULL) {
+				(*labels)[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i - scrollBar->getVisibleStart()));
+			}
+		}
+	}
+}
+
 void MenuStateMods::update() {
 	Chrono chrono;
 	chrono.start();
 
-	//Lang &lang= Lang::getInstance();
-
-	// Tech List
-	if (keyTechScrollBar.getElementCount() != 0) {
-		for (int i = keyTechScrollBar.getVisibleStart();
-				i <= keyTechScrollBar.getVisibleEnd(); ++i) {
-			if(i >= (int)keyTechButtons.size()) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"i >= keyTechButtons.size(), i = %d, keyTechButtons.size() = %d",i,(int)keyTechButtons.size());
-				throw megaglest_runtime_error(szBuf);
-			}
-
-			keyTechButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyTechScrollBar.getVisibleStart()));
-			labelsTech[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyTechScrollBar.getVisibleStart()));
-		}
-	}
-
-	// Tileset List
-	if (keyTilesetScrollBar.getElementCount() != 0) {
-		for (int i = keyTilesetScrollBar.getVisibleStart();
-				i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
-			if(i >= (int)keyTilesetButtons.size()) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"i >= keyTilesetButtons.size(), i = %d, keyTilesetButtons.size() = %d",i,(int)keyTilesetButtons.size());
-				throw megaglest_runtime_error(szBuf);
-			}
-
-			int yPos = keyButtonsYBase - keyButtonsLineHeight *
-						(i - keyTilesetScrollBar.getVisibleStart());
-			keyTilesetButtons[i]->setY(yPos);
-		}
-	}
-
-	// Map List
-	if (keyMapScrollBar.getElementCount() != 0) {
-		for (int i = keyMapScrollBar.getVisibleStart();
-				i <= keyMapScrollBar.getVisibleEnd(); ++i) {
-			if(i >= (int)keyMapButtons.size()) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"i >= keyMapButtons.size(), i = %d, keyMapButtons.size() = %d",i,(int)keyMapButtons.size());
-				throw megaglest_runtime_error(szBuf);
-			}
-
-			keyMapButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyMapScrollBar.getVisibleStart()));
-			labelsMap[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyMapScrollBar.getVisibleStart()));
-		}
-	}
-
-	// Scenario List
-	if (keyScenarioScrollBar.getElementCount() != 0) {
-		for (int i = keyScenarioScrollBar.getVisibleStart();
-				i <= keyScenarioScrollBar.getVisibleEnd(); ++i) {
-			if(i >= (int)keyScenarioButtons.size()) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"i >= keyScenarioButtons.size(), i = %d, keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
-				throw megaglest_runtime_error(szBuf);
-			}
-
-			int yPos = keyButtonsYBase - keyButtonsLineHeight *
-						(i - keyScenarioScrollBar.getVisibleStart());
-			keyScenarioButtons[i]->setY(yPos);
-		}
-	}
+	layoutButtons(&keyMapScrollBar, &keyMapButtons, &labelsMap);
+	layoutButtons(&keyTechScrollBar, &keyTechButtons, &labelsTech);
+	layoutButtons(&keyTilesetScrollBar, &keyTilesetButtons, NULL);
+	layoutButtons(&keyScenarioScrollBar, &keyScenarioButtons, NULL);
 
 	console.update();
 }

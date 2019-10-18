@@ -333,7 +333,7 @@ void GraphicComponent::init(int x, int y, int w, int h) {
 	enabled= true;
 }
 bool GraphicComponent::eventMouseWheel(int x, int y,int zDelta){
-	return false;
+	return mouseMove(x,y);
 }
 
 bool GraphicComponent::mouseMove(int x, int y) {
@@ -918,13 +918,7 @@ void GraphicComboBox::togglePopupVisibility(){
 
 bool GraphicComboBox::eventMouseWheel(int x, int y, int zDelta) {
 	if (popupShowing == true) {
-		int newVisibleStart = scrollBar.getVisibleStart() -  zDelta/60;
-		if (newVisibleStart < 0)
-			newVisibleStart = 0;
-		if (newVisibleStart > scrollBar.getLength() - scrollBar.getVisibleSize())
-			newVisibleStart = scrollBar.getLength() - scrollBar.getVisibleSize();
-
-		scrollBar.setVisibleStart(newVisibleStart);
+		scrollBar.eventMouseWheel(x,y,zDelta,true);
 		layoutButtons();
 		mouseMoveOverButtons(x,y);
 		return true;
@@ -1316,6 +1310,23 @@ bool GraphicScrollBar::mouseClick(int x, int y){
 	return result;
 }
 
+bool GraphicScrollBar::eventMouseWheel(int x, int y, int zDelta) {
+	return eventMouseWheel(x,y,zDelta,false);
+}
+
+bool GraphicScrollBar::eventMouseWheel(int x, int y, int zDelta,bool ignorePos) {
+	if(ignorePos|| GraphicComponent::mouseMove(x, y)){
+		int newVisibleStart = this->getVisibleStart() -  zDelta/60;
+		if (newVisibleStart < 0)
+			newVisibleStart = 0;
+		if (newVisibleStart > this->getLength() - this->getVisibleSize())
+			newVisibleStart = this->getLength() - this->getVisibleSize();
+
+		this->setVisibleStart(newVisibleStart);
+		return true;
+	}
+	return false;
+}
 
 bool GraphicScrollBar::mouseMove(int x, int y){
 	if(this->getVisible() == false) {
