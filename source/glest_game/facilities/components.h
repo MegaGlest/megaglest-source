@@ -270,6 +270,8 @@ public:
 	GraphicScrollBar(const std::string &containerName="", const std::string &objName="");
 	void init(int x, int y, bool horizontal,int length=defLength, int thickness=defThickness);
 	virtual bool mouseDown(int x, int y);
+	virtual bool eventMouseWheel(int x, int y,int zDelta);
+	virtual bool eventMouseWheel(int x, int y,int zDelta,bool ignorePos);
 	virtual bool mouseMove(int x, int y);
 	virtual void mouseUp(int x, int y);
 	virtual bool mouseClick(int x, int y);

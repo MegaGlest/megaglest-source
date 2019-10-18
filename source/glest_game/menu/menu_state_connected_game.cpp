@@ -2630,6 +2630,11 @@ void MenuStateConnectedGame::returnToJoinMenu() {
 	}
 }
 
+void MenuStateConnectedGame::eventMouseWheel(int x, int y,int zDelta) {
+	comboBoxMap.eventMouseWheel(x,y,zDelta);
+	comboBoxLoadSetup.eventMouseWheel(x,y,zDelta);
+}
+
 void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	if (mainMessageBox.getEnabled()) {
 		mainMessageBox.mouseMove(x, y);
