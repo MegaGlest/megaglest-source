@@ -1249,7 +1249,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 	}
 }
 
-bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
+int Faction::getAmountOfProducable(const ProducibleType *pt,const CommandType *ct) {
 	assert(pt != NULL);
 
 	bool ignoreResourceCosts = false;
@@ -1261,6 +1261,7 @@ bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
 		//printf("Checking costs = %d for commandtype:\n%s\n",ignoreResourceCosts,mct->getDesc(NULL).c_str());
 	}
 
+	int maxAmount=INT_MAX;
 	if(ignoreResourceCosts == false) {
 		//for each unit cost check if enough resources
 		for(int i = 0; i < pt->getCostCount(); ++i) {
@@ -1268,14 +1269,22 @@ bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
 			int cost= pt->getCost(i)->getAmount();
 			if(cost > 0) {
 				int available= getResource(rt)->getAmount();
-				if(cost > available){
-					return false;
+				int possibleCount=available/cost;
+				if( maxAmount>possibleCount)
+					maxAmount=possibleCount;
+				if(maxAmount==0){
+					break;
 				}
 			}
 		}
 	}
 
-	return true;
+	return maxAmount;
+}
+
+
+bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
+	return getAmountOfProducable(pt,ct)>0;
 }
 
 // ================== diplomacy ==================
