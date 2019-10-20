@@ -284,6 +284,10 @@ void MenuStateScenario::mouseMove(int x, int y, const MouseState *ms){
 	buttonPlayNow.mouseMove(x, y);
 }
 
+void MenuStateScenario::eventMouseWheel(int x, int y,int zDelta) {
+	comboBoxScenario.eventMouseWheel(x,y,zDelta);
+}
+
 void MenuStateScenario::render(){
 
 	Renderer &renderer= Renderer::getInstance();
