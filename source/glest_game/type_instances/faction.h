@@ -316,6 +316,7 @@ public:
 	void deApplyStaticConsumption(const ProducibleType *p,const CommandType *ct);
 	void applyCostsOnInterval(const ResourceType *rtApply);
 	bool checkCosts(const ProducibleType *pt,const CommandType *ct);
+	int getAmountOfProducable(const ProducibleType *pt,const CommandType *ct);
 
 	//reqs
 	bool reqsOk(const RequirableType *rt) const;

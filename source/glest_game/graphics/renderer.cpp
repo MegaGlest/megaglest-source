@@ -6811,12 +6811,8 @@ void Renderer::renderDisplay() {
  	//down images
 	for(int i=0; i<Display::downCellCount; ++i){
 		if(display->getDownImage(i)!=NULL){
-			if(display->getDownLighted(i)){
-                glColor3f(1.f, 1.f, 1.f);
-			}
-			else{
-                glColor3f(0.3f, 0.3f, 0.3f);
-			}
+			Vec3f c=display->getDownImageColor(i);
+			glColor3f(c.x,c.y,c.z );
 
 			int x= metrics.getDisplayX()+display->computeDownX(i);
 			int y= metrics.getDisplayY()+display->computeDownY(i);

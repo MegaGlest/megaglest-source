@@ -28,6 +28,7 @@ using std::string;
 
 using Shared::Graphics::Texture2D;
 using Shared::Graphics::Vec4f;
+using Shared::Graphics::Vec3f;
 using Shared::Util::replaceBy;
 
 namespace Glest{ namespace Game{
@@ -55,7 +56,7 @@ private:
 	string infoText;
 	const Texture2D *upImages[upCellCount];
 	const Texture2D *downImages[downCellCount];
-	bool downLighted[downCellCount];
+	Vec3f  downImageColor[downCellCount];
 	const CommandType *commandTypes[downCellCount];
 	CommandClass commandClasses[downCellCount];
 	int progressBar;
@@ -77,7 +78,7 @@ public:
 	string getInfoText() const						{return infoText;}
 	const Texture2D *getUpImage(int index) const	{return upImages[index];}
 	const Texture2D *getDownImage(int index) const	{return downImages[index];}
-	bool getDownLighted(int index) const			{return downLighted[index];}
+	Vec3f getDownImageColor(int index)  const			{return downImageColor[index];}
 	const CommandType *getCommandType(int i) const	{return commandTypes[i];}
 	CommandClass getCommandClass(int i)	const		{return commandClasses[i];}
 	Vec4f getColor() const;
@@ -94,7 +95,9 @@ public:
 	void setDownImage(int i, const Texture2D *image)	{downImages[i]= image;}
 	void setCommandType(int i, const CommandType *ct)	{commandTypes[i]= ct;}
 	void setCommandClass(int i, const CommandClass cc)	{commandClasses[i]= cc;}
-	void setDownLighted(int i, bool lighted)			{downLighted[i]= lighted;}
+	void setDownLighted(int i, bool lighted)			{downImageColor[i]=lighted?Vec3f(1.f, 1.f, 1.f):Vec3f(0.3f, 0.3f, 0.3);}
+	void setDownRedLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.0f, 0.0);}
+	void setDownOrangeLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.8f, 0.3);}
 	void setProgressBar(int i)							{progressBar= i;}
 	void setDownSelectedPos(int i)						{downSelectedPos= i;}
 	

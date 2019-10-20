@@ -939,9 +939,7 @@ void Gui::computeDisplay(){
 					display.setDownLighted(meetingPointPos, true);
 				}
 
-
 				//printf("computeDisplay selection.isUniform() = %d\n",selection.isUniform());
-
 				if(selection.isUniform()) {
 					//printf("selection.isUniform()\n");
 
@@ -958,17 +956,48 @@ void Gui::computeDisplay(){
 							}
 
 							//printf("computeDisplay i = %d displayPos = %d morphPos = %d ct->getClass() = %d [%s]\n",i,displayPos,morphPos,ct->getClass(),ct->getName().c_str());
+							const ProducibleType *produced= ct->getProduced();
+							int  possibleAmount=1;
+							if(produced != NULL) {
+								possibleAmount= u->getFaction()->getAmountOfProducable(produced,ct);
+							}
 
 							display.setDownImage(displayPos, ct->getImage());
 							display.setCommandType(displayPos, ct);
 							display.setCommandClass(displayPos, ct->getClass());
-							display.setDownLighted(displayPos, u->getFaction()->reqsOk(ct));
+							bool reqOk=u->getFaction()->reqsOk(ct);
+							display.setDownLighted(displayPos,reqOk);
+
+							if (reqOk && produced != NULL) {
+								if (possibleAmount == 0) {
+									display.setDownRedLighted(displayPos);
+								} else if (selection.getCount() > possibleAmount) {
+									// orange colors just for command types that produce or morph units!!
+									const UnitType *unitType=NULL;
+									if (dynamic_cast<const MorphCommandType *>(ct) != NULL) {
+										unitType = dynamic_cast<const MorphCommandType *>(ct)->getMorphUnit();
+									} else if (dynamic_cast<const ProduceCommandType *>(ct) != NULL) {
+										unitType = dynamic_cast<const ProduceCommandType *>(ct)->getProducedUnit();
+									}
+									if (unitType != NULL) {
+										if (unitType->getMaxUnitCount() > 0) {
+											// check for maxUnitCount
+											int stillAllowed = unitType->getMaxUnitCount() - u->getFaction()->getCountForMaxUnitCount(unitType);
+											if (stillAllowed > possibleAmount) {
+												// enough resources to let morph/produce everything possible
+												display.setDownOrangeLighted(displayPos);
+											}
+										} else
+											// not enough resources to let all morph/produce
+											display.setDownOrangeLighted(displayPos);
+									}
+								}
+							}
 						}
 					}
 				}
 				else{
 					//printf("selection.isUniform() == FALSE\n");
-
 					//non uniform selection
 					int lastCommand= 0;
 					for(int i= 0; i < ccCount; ++i){

@@ -77,7 +77,7 @@ void Display::clear(){
 
 	for(int i=0; i<downCellCount; ++i){
 		downImages[i]= NULL;
-		downLighted[i]= true;
+		downImageColor[i]= Vec3f(1.0f,1.0f,1.0f);
 		commandTypes[i]= NULL;
 		commandClasses[i]= ccNull;
 	}
