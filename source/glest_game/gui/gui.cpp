@@ -1014,19 +1014,29 @@ void Gui::computeDisplay(){
 					}
 				}
 			}
-			else{
+			else if (activeCommandType != NULL && activeCommandType->getClass() == ccBuild) {
+				const Unit *u = selection.getFrontUnit();
+				const BuildCommandType* bct = static_cast<const BuildCommandType*>(activeCommandType);
+				for (int i = 0; i < bct->getBuildingCount(); ++i) {
+					display.setDownImage(i, bct->getBuilding(i)->getImage());
 
-				//selecting building
-				const Unit *unit= selection.getFrontUnit();
-				if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild){
-					const BuildCommandType* bct= static_cast<const BuildCommandType*> (activeCommandType);
-					for(int i= 0; i < bct->getBuildingCount(); ++i){
-						display.setDownImage(i, bct->getBuilding(i)->getImage());
-						display.setDownLighted(i, unit->getFaction()->reqsOk(bct->getBuilding(i)));
+					const UnitType *produced = bct->getBuilding(i);
+					int possibleAmount = 1;
+					if (produced != NULL) {
+						possibleAmount = u->getFaction()->getAmountOfProducable(produced, bct);
 					}
-					display.setDownImage(cancelPos, selection.getFrontUnit()->getType()->getCancelImage());
-					display.setDownLighted(cancelPos, true);
+					bool reqOk = u->getFaction()->reqsOk(produced);
+					display.setDownLighted(i, reqOk);
+
+					if (reqOk && produced != NULL) {
+						if (possibleAmount == 0) {
+							display.setDownRedLighted(i);
+						}
+					}
 				}
+
+				display.setDownImage(cancelPos, selection.getFrontUnit()->getType()->getCancelImage());
+				display.setDownLighted(cancelPos, true);
 			}
 		}
 	}

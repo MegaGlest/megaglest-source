@@ -97,7 +97,7 @@ public:
 	void setCommandClass(int i, const CommandClass cc)	{commandClasses[i]= cc;}
 	void setDownLighted(int i, bool lighted)			{downImageColor[i]=lighted?Vec3f(1.f, 1.f, 1.f):Vec3f(0.3f, 0.3f, 0.3);}
 	void setDownRedLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.0f, 0.0);}
-	void setDownOrangeLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.8f, 0.3);}
+	void setDownOrangeLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.7f, 0.2);}
 	void setProgressBar(int i)							{progressBar= i;}
 	void setDownSelectedPos(int i)						{downSelectedPos= i;}
 	
