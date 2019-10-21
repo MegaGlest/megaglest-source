@@ -245,7 +245,7 @@ case $distribution in
 		esac
 		;;
 
-	SuSE|SUSE?LINUX|Opensuse|Fedora|Mageia)
+	SuSE|SUSE?LINUX|Opensuse|Fedora|Mageia|ManjaroLinux)
 		case $release in
 			*)
 				if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
