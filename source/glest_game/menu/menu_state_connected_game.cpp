@@ -501,7 +501,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	xoffset=5;
-	int rowHeight=27;
+	int rowHeight=22;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
 		labelPlayers[i].init(xoffset-1, setupPos-30-i*rowHeight+2);
@@ -523,22 +523,22 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         listBoxRMultiplier[i].setEditable(false);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 247);
+        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 147);
         listBoxFactions[i].setLeftControlled(true);
         listBoxFactions[i].setEditable(false);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+660, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+560, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
 		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+723, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+623, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+726, setupPos-30-i*rowHeight, 35, rowHeight-5);
+		grabSlotButton[i].init(xoffset+626, setupPos-30-i*rowHeight, 35, rowHeight-5);
 		grabSlotButton[i].setText(">");
     }
 
@@ -554,7 +554,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     labelFaction.setText(lang.getString("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+660, setupPos, 50, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+560, setupPos, 50, GraphicListBox::defH, true);
 	labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
