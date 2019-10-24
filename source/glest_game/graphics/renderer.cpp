@@ -2787,21 +2787,36 @@ void Renderer::renderTextSurroundingBox(int x, int y, int w, int h,
 	glEnd();
 }
 
-void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
-		float alpha, int x, int y, int w, int h, bool centeredW, bool centeredH,
-		bool editModeEnabled,int maxEditWidth, int maxEditRenderWidth) {
+//
+// renderTextBoundingBox3D
+//
+
+void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, float alpha, int x, int y, int w, int h, bool centeredW, bool centeredH,
+		bool editModeEnabled, int maxEditWidth, int maxEditRenderWidth) {
+	renderTextBoundingBox3D(text, font, Vec4f(1.f, 1.f, 1.f, alpha), x, y, w, h, centeredW, centeredH, editModeEnabled, maxEditRenderWidth, maxEditRenderWidth);
+}
+
+void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, int w, int h, bool centeredW, bool centeredH,
+		bool editModeEnabled, int maxEditWidth, int maxEditRenderWidth) {
+	renderTextBoundingBox3D(text, font, Vec4f(color.x, color.y, color.z, 1.f), x, y, w, h, centeredW, centeredH, editModeEnabled, maxEditRenderWidth,
+			maxEditRenderWidth);
+}
+
+void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, int w, int h, bool centeredW, bool centeredH,
+		bool editModeEnabled, int maxEditWidth, int maxEditRenderWidth) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
-	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
+	glColor4fv(color.ptr());
 
 	Vec2f pos= Vec2f(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
+
 	if(centeredW == true || centeredH == true) {
-		getCentered3DPos(text, font, pos, w, h, centeredW, centeredH);
+		getCentered3DPos(text, font, pos, w, h,centeredW,centeredH);
 	}
 
 	if(editModeEnabled) {
@@ -2819,7 +2834,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 
 		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
 	}
-	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
+	glColor4fv(color.ptr());
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y);
 	safeTextRender.end();
@@ -2828,35 +2843,58 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 	glPopAttrib();
 }
 
+
+//
+// renderText3D
+//
+
 void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x, int y, bool centered) {
+	renderText3D(text,font,Vec4f(1.f, 1.f, 1.f, alpha),x,y,centered);
+}
+
+void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered) {
+	renderText3D(text,font,Vec4f(color.x, color.y, color.z, 1.f),x,y,centered);
+}
+
+void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
-	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
+	glColor4fv(color.ptr());
 
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
-	//textRenderer3D->end();
 	safeTextRender.end();
 
 	glDisable(GL_BLEND);
 	glPopAttrib();
 }
 
+//
+// renderText
+//
 void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered) {
+	renderText(text,font,Vec4f(1.f, 1.f, 1.f, alpha),x,y,centered);
+}
+
+void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered){
+	renderText(text,font,Vec4f(color.x, color.y, color.z, 1.f),x,y,centered);
+}
+
+void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, int x, int y, bool centered){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glEnable(GL_BLEND);
-	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
+	glColor4fv(color.ptr());
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
@@ -2929,161 +2967,6 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 		}
 	}
 	return pos;
-}
-
-void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
-		const Vec3f &color, int x, int y, int w, int h, bool centeredW,
-		bool centeredH, bool editModeEnabled,int maxEditWidth, int maxEditRenderWidth) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	glPushAttrib(GL_CURRENT_BIT);
-	glColor3fv(color.ptr());
-
-	Vec2f pos= Vec2f(x, y);
-	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
-
-	if(centeredW == true || centeredH == true) {
-		getCentered3DPos(text, font, pos, w, h,centeredW,centeredH);
-	}
-
-	if(editModeEnabled) {
-		if(maxEditWidth >= 0 || maxEditRenderWidth >= 0) {
-			int useWidth = maxEditWidth;
-			string temp = "";
-			for(int i = 0; i < useWidth; ++i) {
-				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
-			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
-			useWidth = (int)lineWidth;
-
-			maxEditWidth = useWidth;
-		}
-
-		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
-	}
-	glColor3fv(color.ptr());
-	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
-	textRenderer3D->render(text, pos.x, pos.y);
-	safeTextRender.end();
-
-	glPopAttrib();
-}
-
-void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color, int x, int y, bool centered) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	glPushAttrib(GL_CURRENT_BIT);
-	glColor3fv(color.ptr());
-
-	Vec2i pos= Vec2i(x, y);
-	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
-
-	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
-	textRenderer3D->render(text, pos.x, pos.y, centered);
-	safeTextRender.end();
-
-	glPopAttrib();
-}
-
-void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, int x, int y, bool centered){
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	glPushAttrib(GL_CURRENT_BIT);
-	glColor3fv(color.ptr());
-
-	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
-
-	TextRendererSafeWrapper safeTextRender(textRenderer,font);
-	textRenderer->render(text, pos.x, pos.y);
-	safeTextRender.end();
-
-	glPopAttrib();
-}
-
-void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
-		const Vec4f &color, int x, int y, int w, int h, bool centeredW,
-		bool centeredH, bool editModeEnabled,int maxEditWidth, int maxEditRenderWidth) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
-	glEnable(GL_BLEND);
-	glColor4fv(color.ptr());
-
-	Vec2f pos= Vec2f(x, y);
-	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
-
-	if(centeredW == true || centeredH == true) {
-		getCentered3DPos(text, font, pos, w, h,centeredW,centeredH);
-	}
-
-	if(editModeEnabled) {
-		if(maxEditWidth >= 0 || maxEditRenderWidth >= 0) {
-			int useWidth = maxEditWidth;
-			string temp = "";
-			for(int i = 0; i < useWidth; ++i) {
-				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
-			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
-			useWidth = (int)lineWidth;
-
-			maxEditWidth = useWidth;
-		}
-
-		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
-	}
-	glColor4fv(color.ptr());
-	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
-	textRenderer3D->render(text, pos.x, pos.y);
-	safeTextRender.end();
-
-	glDisable(GL_BLEND);
-	glPopAttrib();
-}
-
-void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color, int x, int y, bool centered) {
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
-	glEnable(GL_BLEND);
-	glColor4fv(color.ptr());
-
-	Vec2i pos= Vec2i(x, y);
-	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
-
-	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
-	textRenderer3D->render(text, pos.x, pos.y, centered);
-	safeTextRender.end();
-
-	glDisable(GL_BLEND);
-	glPopAttrib();
-}
-
-void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, int x, int y, bool centered){
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-
-	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
-	glEnable(GL_BLEND);
-	glColor4fv(color.ptr());
-
-	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
-
-	TextRendererSafeWrapper safeTextRender(textRenderer,font);
-	textRenderer->render(text, pos.x, pos.y);
-	safeTextRender.end();
-
-	glPopAttrib();
 }
 
 void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &color, int x, int y, bool centered) {
