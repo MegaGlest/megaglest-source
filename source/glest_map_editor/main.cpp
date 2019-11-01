@@ -226,7 +226,7 @@ void MainWindow::init(string fname) {
 	menuBrushObject->AppendSeparator();
 	menuBrushObject->AppendCheckItem(miBrushObject+2, wxT("&Tree (harvestable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+3, wxT("&Dead tree/Cactuses/Thornbush"));
-	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("&Stone"));
+	menuBrushObject->AppendCheckItem(miBrushObject+4, wxT("&Stone (unharvestable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+5, wxT("&Bush/Grass/Fern (walkable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+6, wxT("&Water object/Reed/Papyrus (walkable)"));
 	menuBrushObject->AppendCheckItem(miBrushObject+7, wxT("Big tree/&Old palm"));
