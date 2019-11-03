@@ -5056,7 +5056,7 @@ void Renderer::renderWater() {
 	WaterWaves waterWaves = world->getTileset()->getWaterWaves();
 	if (world->getTileset()->getWaterWavesEnabled()) {
 		int waveProgress = world->getFrameCount() % waterWaves.speed;
-		float waterWavesAnim = pi * 2 / waterWaves.speed * waveProgress;
+		waterWavesAnim = pi * 2 / waterWaves.speed * waveProgress;
 		if (waterWavesAnim >= pi * 2) {
 			waterWavesAnim = 0.0f;
 		}
