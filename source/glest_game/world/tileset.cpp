@@ -404,7 +404,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			if(waterWavesConfig.enabled) {
 				waterWavesConfig.frequency = waterNode->getAttribute("waveFrequency")->getFloatValue();
 				waterWavesConfig.amplitude = waterNode->getAttribute("waveAmplitude")->getFloatValue();
-				waterWavesConfig.speed = waterNode->getAttribute("waveSpeed")->getFloatValue();
+				waterWavesConfig.speed = waterNode->getAttribute("waveSpeed")->getIntValue();
 			}
 		}
 

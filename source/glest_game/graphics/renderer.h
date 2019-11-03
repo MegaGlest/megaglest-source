@@ -308,10 +308,6 @@ private:
 	Matrix4f shadowMapMatrix;
 	int shadowMapFrame;
 
-	//water
-	float waterAnim;
-	float waterWavesAnim;
-
 	bool allowRenderUnitTitles;
 	//std::vector<std::pair<Unit *,Vec3f> > renderUnitTitleList;
 	std::vector<Unit *> visibleFrameUnitList;

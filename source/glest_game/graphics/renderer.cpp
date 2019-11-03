@@ -180,8 +180,6 @@ Renderer::Renderer() : BaseRenderer(), saveScreenShotThreadAccessor(new Mutex(CO
 	focusArrows = false;
 	pointCount = 0;
 	maxLights = 0;
-	waterAnim = 0;
-	waterWavesAnim = 0;
 
 	this->allowRenderUnitTitles = false;
 	this->menu = NULL;
@@ -493,7 +491,6 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 
 	//vars
 	shadowMapFrame= 0;
-	waterAnim= 0;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -5053,10 +5050,16 @@ void Renderer::renderWater() {
 	scaledRect.clamp(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 
 	float waterLevel= world->getMap()->getWaterLevel();
-	waterWaves waterWaves = world->getTileset()->getWaterWaves();
-	waterWavesAnim += waterWaves.speed;
-	if(waterWavesAnim >= pi*2){
-		waterWavesAnim = 0.0f;
+
+	float waterWavesAnim =0.0f;
+	float wave = 0.0f;
+	WaterWaves waterWaves = world->getTileset()->getWaterWaves();
+	if (world->getTileset()->getWaterWavesEnabled()) {
+		int waveProgress = world->getFrameCount() % waterWaves.speed;
+		float waterWavesAnim = pi * 2 / waterWaves.speed * waveProgress;
+		if (waterWavesAnim >= pi * 2) {
+			waterWavesAnim = 0.0f;
+		}
 	}
 
 	for(int j=scaledRect.p[0].y; j<scaledRect.p[1].y; ++j){
@@ -5076,7 +5079,9 @@ void Renderer::renderWater() {
                 cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
             }
 
-            float wave = std::sin(static_cast<float>(i)*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude;
+        	if(world->getTileset()->getWaterWavesEnabled()){
+        		wave = std::sin(static_cast<float>(i)*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude;
+        	}
 
 			if(cellExplored == true && tc0->getNearSubmerged()) {
 				glNormal3f(0.f, 1.f, 0.f);
