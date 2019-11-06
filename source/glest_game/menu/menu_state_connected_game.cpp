@@ -2190,6 +2190,15 @@ string MenuStateConnectedGame::getCurrentMapFile(){
 	return "";
 }
 
+string MenuStateConnectedGame::getPreselectedMapFile(){
+	int i=listBoxMapFilter.getSelectedItemIndex();
+	int mapIndex=comboBoxMap.getPreselectedItemIndex();
+	if(playerSortedMaps[i].empty() == false) {
+		return playerSortedMaps[i].at(mapIndex);
+	}
+	return "";
+}
+
 void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, string scenario) {
 	vector<string> results;
     Config &config = Config::getInstance();
@@ -2649,10 +2658,10 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 				comboBoxMap.mouseDown(x, y);
 			}
 		    comboBoxMap.mouseMove(x, y);
-			if (lastPreviewedMapFile != getCurrentMapFile()) {
-				loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
+			if (lastPreviewedMapFile != getPreselectedMapFile()) {
+				loadMapInfo(Config::getMapPath(getPreselectedMapFile(), "", false), &mapInfo, true, false);
 				labelMapInfo.setText(mapInfo.desc);
-				lastPreviewedMapFile = getCurrentMapFile();
+				lastPreviewedMapFile = getPreselectedMapFile();
 			}
 	}
 

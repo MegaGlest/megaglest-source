@@ -283,6 +283,8 @@ private:
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
 	string getCurrentMapFile();
+	string getPreselectedMapFile();
+
 	void setActiveInputLabel(GraphicLabel *newLable);
 	string getHumanPlayerName(int index=-1);
 
