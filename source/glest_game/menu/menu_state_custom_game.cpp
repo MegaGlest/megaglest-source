@@ -2129,10 +2129,10 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 			if (ms->get(mbLeft)) {
 				comboBoxMap.mouseDown(x, y);
 			}
-			if(lastPreviewedMapFile!=getCurrentMapFile()){
-				loadMapInfo(Config::getMapPath(getCurrentMapFile(), "", false), &mapInfo, true, false);
+			if(lastPreviewedMapFile!=getPreselectedMapFile()){
+				loadMapInfo(Config::getMapPath(getPreselectedMapFile(), "", false), &mapInfo, true, false);
 				labelMapInfo.setText(mapInfo.desc);
-				lastPreviewedMapFile=getCurrentMapFile();
+				lastPreviewedMapFile=getPreselectedMapFile();
 			}
 	}
 
@@ -4826,6 +4826,15 @@ void MenuStateCustomGame::switchToNextMapGroup(const int direction){
 }
 
 string MenuStateCustomGame::getCurrentMapFile(){
+	int i=listBoxMapFilter.getSelectedItemIndex();
+	int mapIndex=comboBoxMap.getSelectedItemIndex();
+	if(playerSortedMaps[i].empty() == false) {
+		return playerSortedMaps[i].at(mapIndex);
+	}
+	return "";
+}
+
+string MenuStateCustomGame::getPreselectedMapFile(){
 	int i=listBoxMapFilter.getSelectedItemIndex();
 	int mapIndex=comboBoxMap.getPreselectedItemIndex();
 	if(playerSortedMaps[i].empty() == false) {

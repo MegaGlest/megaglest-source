@@ -306,6 +306,8 @@ private:
     void switchToNextMapGroup(const int direction);
     void switchToMapGroup(int filterIndex);
     string getCurrentMapFile();
+	string getPreselectedMapFile();
+
     void copyToGameSettings(GameSettings *gameSettings);
     void reloadFactions(bool keepExistingSelectedItem,string scenario);
     void PlayNow(bool saveGame);
