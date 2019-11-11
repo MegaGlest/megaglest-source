@@ -1286,9 +1286,16 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			else if ( buttonDeleteSetup.mouseClick(x, y)){
 				string setupName=comboBoxLoadSetup.getSelectedItem();
 					if( setupName!=""&& setupName!= lang.getString(LAST_SETUP_STRING)) {
+						int index=comboBoxLoadSetup.getSelectedItemIndex();
 						removeFile(savedSetupsDir+setupName+".mgg");
 						loadSavedSetupNames();
 						comboBoxLoadSetup.setItems(savedSetupFilenames);
+						if(comboBoxLoadSetup.getItemCount()>index){
+							comboBoxLoadSetup.setSelectedItemIndex(index,false);
+						}
+						else{
+							comboBoxLoadSetup.setSelectedItem( lang.getString(LAST_SETUP_STRING),false);
+						}
 						console.addLine("X " +setupName+".mgg");
 					}
 			}
