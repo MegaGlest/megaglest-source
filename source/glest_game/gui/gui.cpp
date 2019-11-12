@@ -408,8 +408,10 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	}
 	//else if(key == configKeys.getCharKey("HotKeyDumpWorldToLog")) {
 	else if(isKeyPressed(configKeys.getSDLKey("HotKeyDumpWorldToLog"),key) == true) {
-		std::string worldLog = world->DumpWorldToLog();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
+		 if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
+			 std::string worldLog = world->DumpWorldToLog();
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
+		}
 	}
 	//else if(key == configKeys.getCharKey("HotKeyRotateUnitDuringPlacement")){
 	else if(isKeyPressed(configKeys.getSDLKey("HotKeyRotateUnitDuringPlacement"),key) == true) {
