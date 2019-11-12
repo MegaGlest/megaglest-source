@@ -158,6 +158,10 @@ GraphicComponent * GraphicComponent::findRegisteredComponent(std::string contain
 }
 
 void GraphicComponent::applyAllCustomProperties(std::string containerName) {
+	Config &config = Config::getInstance();
+	if( config.getBool("CustomPropertiesUsageAllowed","false")==false){
+		return;
+	}
 	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
 	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
 		for(std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.begin();
@@ -169,11 +173,14 @@ void GraphicComponent::applyAllCustomProperties(std::string containerName) {
 
 void GraphicComponent::applyCustomProperties(std::string containerName) {
 	if(instanceName != "") {
+		Config &config = Config::getInstance();
+		if( config.getBool("CustomPropertiesUsageAllowed","false")==false){
+			return;
+		}
 		std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
 		if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
 			std::map<std::string, GraphicComponent *>::iterator iterFind2 = iterFind1->second.find(instanceName);
 			if(iterFind2 != iterFind1->second.end()) {
-				Config &config = Config::getInstance();
 
 				//string languageToken = config.getString("Lang");
 				string languageToken = Lang::getInstance().getLanguage();
@@ -201,7 +208,10 @@ void GraphicComponent::applyCustomProperties(std::string containerName) {
 
 bool GraphicComponent::saveAllCustomProperties(std::string containerName) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] registered [%s] count = %d\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),registeredGraphicComponentList[containerName].size());
-
+	Config &config = Config::getInstance();
+	if( config.getBool("CustomPropertiesSaveAllowed","false")==false){
+		return false;
+	}
 	bool foundPropertiesToSave = false;
 	std::map<std::string, std::map<std::string, GraphicComponent *> >::iterator iterFind1 = GraphicComponent::registeredGraphicComponentList.find(containerName);
 	if(iterFind1 != GraphicComponent::registeredGraphicComponentList.end()) {
@@ -223,6 +233,10 @@ bool GraphicComponent::saveAllCustomProperties(std::string containerName) {
 bool GraphicComponent::saveCustomProperties(std::string containerName) {
 	bool savedChange = false;
 	if(instanceName != "") {
+		Config &config = Config::getInstance();
+		if( config.getBool("CustomPropertiesSaveAllowed","false")==false){
+			return false;
+		}
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,containerName.c_str(),instanceName.c_str());
 
@@ -235,8 +249,6 @@ bool GraphicComponent::saveCustomProperties(std::string containerName) {
 			if(iterFind2 != iterFind1->second.end()) {
 
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] FOUND [%s]\n",__FILE__,__FUNCTION__,__LINE__,instanceName.c_str());
-
-				Config &config = Config::getInstance();
 
 				//string languageToken = config.getString("Lang");
 
