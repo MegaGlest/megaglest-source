@@ -45,7 +45,7 @@ static const char *SAVED_SETUP_FILENAME 				= "lastCustomGameSettings.mgg";
 static const char *DEFAULT_SETUP_FILENAME 			= "data/defaultGameSetup.mgg";
 static const char *DEFAULT_NETWORK_SETUP_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
 static const char *LAST_SETUP_STRING="LastSetup";
-static const char *SETUPS_DIR="setups/";
+static const char *SETUPS_DIR=GameConstants::folder_path_setups;
 
 const int mapPreviewTexture_X = 5;
 const int mapPreviewTexture_Y = 260;
@@ -546,7 +546,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	currY = currY - lineHeightSmall;
 	buttonShowLanInfo .registerGraphicComponent(containerName,"buttonShowLanInfo");
 	buttonShowLanInfo.init(currX, currY, 200,16);
-	buttonShowLanInfo.setText(lang.getString("showIP"));
+	buttonShowLanInfo.setText(lang.getString("ShowIP"));
 	currY = currY - lineHeightSmall;
 
 	// Advanced Options
@@ -1262,6 +1262,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					setupName=labelSaveSetupName.getText();
 					setupName=replaceAll(setupName,"/","_");
 					setupName=replaceAll(setupName,"\\","_");
+					if (StartsWith(setupName,".")){
+						setupName[0]='_';
+					}
 				}
 				if( setupName!= lang.getString(LAST_SETUP_STRING)) {
 					string filename=SETUPS_DIR+setupName+".mgg";

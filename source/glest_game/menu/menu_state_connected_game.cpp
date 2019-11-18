@@ -47,7 +47,7 @@ static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 2;
 static const char *HEADLESS_SAVED_SETUP_FILENAME 	= "lastHeadlessGameSettings.mgg";
 static const char *LAST_SETUP_STRING="LastSetup";
-static const char *SETUPS_DIR="setups/";
+static const char *SETUPS_DIR=GameConstants::folder_path_setups;
 
 const int mapPreviewTexture_X = 5;
 const int mapPreviewTexture_Y = 260;
@@ -180,7 +180,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int currXLabel=currX+20;
 	int lineHeightSmall=18;
 
-	int buttonx=165;
+	int buttonx=195;
 	int buttony=180;
 
     // player status
@@ -195,17 +195,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
 	listBoxPlayerStatus.setLighted(false);
 	listBoxPlayerStatus.setVisible(true);
-	buttonx+=180;
+	buttonx+=175;
 
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(buttonx, buttony, 125);
 	buttonDisconnect.setText(lang.getString("Return"));
-	buttonx+=132;
-
-	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(buttonx, buttony, 240);
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
-	buttonx+=247;
+	buttonx+=135;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
@@ -830,7 +825,6 @@ void MenuStateConnectedGame::reloadUI() {
 	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
 
 	buttonPlayNow.setText(lang.getString("PlayNow"));
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
 
 	chatManager.init(&console, -1,true);
 
@@ -1878,15 +1872,6 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
             PlayNow(true);
             return;
         }
-        else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-        	CoreData &coreData= CoreData::getInstance();
-        	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-        	soundRenderer.playFx(coreData.getClickSoundB());
-
-        	RestoreLastGameSettings();
-        }
         else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
@@ -1944,6 +1929,9 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 				setupName=labelSaveSetupName.getText();
 				setupName=replaceAll(setupName,"/","_");
 				setupName=replaceAll(setupName,"\\","_");
+				if (StartsWith(setupName,".")){
+					setupName[0]='_';
+				}
 			}
 			if( setupName!= lang.getString(LAST_SETUP_STRING)) {
 				string filename=SETUPS_DIR+setupName+".mgg";
@@ -2708,7 +2696,6 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	checkBoxAllowNativeLanguageTechtree.mouseMove(x, y);
 
 	buttonPlayNow.mouseMove(x, y);
-	buttonRestoreLastSettings.mouseMove(x, y);
 }
 
 bool MenuStateConnectedGame::isVideoPlaying() {
@@ -2958,7 +2945,6 @@ void MenuStateConnectedGame::render() {
 		renderer.renderCheckBox(&checkBoxAllowTeamResourceSharing);
 
 		renderer.renderButton(&buttonPlayNow);
-		renderer.renderButton(&buttonRestoreLastSettings);
 
 		renderer.renderLabel(&labelSaveSetupName);
 		renderer.renderButton(&buttonSaveSetup);
@@ -3123,7 +3109,6 @@ void MenuStateConnectedGame::update() {
 		listBoxMapFilter.setEditable(isHeadlessAdmin());
 		buttonPlayNow.setVisible(isHeadlessAdmin() ||
 				clientInterface->getJoinGameInProgress() == true);
-		buttonRestoreLastSettings.setVisible(isHeadlessAdmin());
 		listBoxTechTree.setEditable(isHeadlessAdmin());
 		listBoxTileset.setEditable(isHeadlessAdmin());
 		checkBoxEnableSwitchTeamMode.setEditable(isHeadlessAdmin());

@@ -65,7 +65,7 @@ private:
 	GraphicLabel labelStatus;
 	GraphicLabel labelInfo;
 	GraphicLabel labelWaitingForPlayers;
-	GraphicButton buttonRestoreLastSettings;
+
 
 	//GraphicLabel labelPathFinderType;
 	//GraphicListBox listBoxPathFinderType;
