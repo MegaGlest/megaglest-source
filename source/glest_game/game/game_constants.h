@@ -151,6 +151,7 @@ public:
 	static const char *NETWORK_SLOT_CLOSED_SLOTNAME;
 
 	static const char *folder_path_screenshots;
+	static const char *folder_path_setups;
 
 	static const char *OBSERVER_SLOTNAME;
 	static const char *RANDOMFACTION_SLOTNAME;

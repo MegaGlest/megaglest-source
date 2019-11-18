@@ -47,6 +47,7 @@ const char *GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME = "???";
 const char *GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME = "Closed";
 
 const char *GameConstants::folder_path_screenshots	= "screens/";
+const char *GameConstants::folder_path_setups	= "setups/";
 
 const char *GameConstants::OBSERVER_SLOTNAME		= "*Observer*";
 const char *GameConstants::RANDOMFACTION_SLOTNAME	= "*Random*";
