@@ -30,6 +30,13 @@
 #include "ftp.h"
 #include "ftpMessages.h"
 
+int VERBOSE_MODE_ENABLED;
+
+ftpFindExternalFTPServerIpType ftpFindExternalFTPServerIp;
+ftpAddUPNPPortForwardType              ftpAddUPNPPortForward;
+ftpRemoveUPNPPortForwardType   ftpRemoveUPNPPortForward;
+ftpIsValidClientType            ftpIsValidClient;
+ftpIsClientAllowedToGetFileType ftpIsClientAllowedToGetFile;
 
 /**
  * @brief server-sockets that listens for incoming connections
