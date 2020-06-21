@@ -21,14 +21,9 @@ matrix:
             - g++-6
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
-      dist: xenial
+      dist: bionic
+      # Default gcc version is 7 on bionic; no need to use the ubuntu toolchain source addon
       compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
       env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - os: linux
       dist: xenial
