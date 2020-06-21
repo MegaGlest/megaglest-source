@@ -1,14 +1,7 @@
 # https://docs.travis-ci.com/user/customizing-the-build/
 language: cpp
-cache: ccache
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      compiler: gcc
-      env: MATRIX_EVAL="CC=gcc-4.8 && CXX=g++-4.8"
-# use xenial for new versions of gcc and because libsdl2-dev isn't available
-# on trusty
     - os: linux
       dist: xenial
       compiler: gcc
@@ -65,7 +58,7 @@ matrix:
     - os: osx
       osx_image: xcode10.1
       env: XCODE="true"
-  
+
   fast_finish: true
   allow_failures:
     - os: osx
@@ -78,16 +71,6 @@ install:
       eval "${MATRIX_EVAL}";
       sudo apt-get update -qq &&
       sudo $TRAVIS_BUILD_DIR/mk/linux/setupBuildDeps.sh --quiet;
-      if [ "$TRAVIS_DIST" = "trusty" ]; then
-        SDL2_version="2.0.5";
-        wget https://www.libsdl.org/release/SDL2-${SDL2_version}.tar.gz &&
-        tar xf SDL2-${SDL2_version}.tar.gz                              &&
-        cd SDL2-${SDL2_version}                                         &&
-        ./configure --enable-static --disable-shared                    &&
-        make                                                            &&
-        sudo make install;
-        cd $TRAVIS_BUILD_DIR;
-      fi;
     else
       brew update &&
       brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac &&
