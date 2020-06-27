@@ -4,6 +4,7 @@ matrix:
   include:
     - os: linux
       dist: xenial
+      # Default gcc version is 5 on xenial
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
     - os: linux
@@ -13,38 +14,24 @@ matrix:
     - os: linux
       dist: xenial
       compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       dist: bionic
-      # Default gcc version is 7 on bionic; no need to use the ubuntu toolchain source addon
+      # Default gcc version is 7 on bionic
       compiler: gcc
       env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - os: linux
       dist: xenial
       compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-8
       env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     - os: linux
-      dist: xenial
+      dist: bionic
       compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-9
       env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
 # clang
     - os: linux
       dist: xenial
@@ -74,7 +61,14 @@ git:
 install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       eval "${MATRIX_EVAL}";
-      sudo apt-get update -qq &&
+      if [ "$CXX" != "g++-5" ] && [ "$CXX" != "g++-7" ]; then
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157 &&
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+      fi;
+      sudo apt-get update -qq;
+      if [ "$CXX" != "g++-5" ] && [ "$CXX" != "g++-7" ]; then
+        sudo apt-get install -y $CXX;
+      fi;
       sudo $TRAVIS_BUILD_DIR/mk/linux/setupBuildDeps.sh --quiet;
     else
       brew update &&
