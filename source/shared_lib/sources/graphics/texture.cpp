@@ -11,7 +11,11 @@
 
 #include "texture.h"
 #include "util.h"
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "platform_util.h"
 #include "leak_dumper.h"
 

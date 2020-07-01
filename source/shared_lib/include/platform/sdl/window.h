@@ -15,7 +15,11 @@
 
 #include <map>
 #include <string>
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include <cassert>
 #include "data_types.h"
 #include "vec.h"

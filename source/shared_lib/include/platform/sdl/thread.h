@@ -15,8 +15,13 @@
 //#define DEBUG_MUTEXES
 //#define DEBUG_PERFORMANCE_MUTEXES
 
+#ifdef _WIN32
+#include <SDL2/SDL_thread.h>
+#include <SDL2/SDL_mutex.h>
+#else
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
+#endif
 #include <string>
 #include <memory>
 #include "common_scoped_ptr.h"

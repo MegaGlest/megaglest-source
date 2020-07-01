@@ -20,7 +20,11 @@
 #include "properties.h"
 #include <vector>
 #include "game_constants.h"
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{

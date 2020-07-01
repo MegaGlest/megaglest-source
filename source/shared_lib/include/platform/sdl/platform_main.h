@@ -11,7 +11,11 @@
 #ifndef _SHARED_PLATFORM_MAIN_H_
 #define _SHARED_PLATFORM_MAIN_H_
 
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include <iostream>
 #include <GL/glew.h>
 #include "leak_dumper.h"

@@ -53,7 +53,11 @@
 #include <errno.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 
 #include "util.h"
 #include "conversion.h"

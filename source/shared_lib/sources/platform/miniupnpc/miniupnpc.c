@@ -71,6 +71,11 @@
 #define SERVICEPREFIX "u"
 #define SERVICEPREFIX2 'u'
 
+#ifdef _WIN32
+#undef MINIUPNP_LIBSPEC
+#define MINIUPNP_LIBSPEC __declspec(dllexport)
+#endif
+
 /* root description parsing */
 MINIUPNP_LIBSPEC void parserootdesc(const char * buffer, int bufsize, struct IGDdatas * data)
 {

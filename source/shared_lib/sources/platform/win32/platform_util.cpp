@@ -18,7 +18,11 @@
 #include <cassert>
 #include <algorithm>
 #include <string.h>
+#ifdef _WIN32
+#include <SDL2/SDL_syswm.h>
+#else
 #include "SDL_syswm.h"
+#endif
 #include <iostream>
 #include <stdexcept>
 #include "leak_dumper.h"

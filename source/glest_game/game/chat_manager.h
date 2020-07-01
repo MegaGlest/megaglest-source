@@ -19,7 +19,11 @@
 
 #include <string>
 #include "font.h"
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include <vector>
 #include "leak_dumper.h"
 

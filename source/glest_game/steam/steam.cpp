@@ -1,7 +1,11 @@
 #include "steam.h"
 
 #include <map>
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "steamshim_child.h"
 #include "platform_common.h"
 #include "properties.h"

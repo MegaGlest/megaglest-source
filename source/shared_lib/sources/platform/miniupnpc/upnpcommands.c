@@ -8,9 +8,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
+#include <miniupnpc/upnpcommands.h>
+#include <miniupnpc/miniupnpc.h>
+#include <miniupnpc/portlistingparse.h>
+#else
 #include "upnpcommands.h"
 #include "miniupnpc.h"
 #include "portlistingparse.h"
+#endif
 
 static UNSIGNED_INTEGER
 my_atoui(const char * s)
@@ -20,6 +26,7 @@ my_atoui(const char * s)
 
 /*
  * */
+
 MINIUPNP_LIBSPEC UNSIGNED_INTEGER
 UPNP_GetTotalBytesSent(const char * controlURL,
 					const char * servicetype)

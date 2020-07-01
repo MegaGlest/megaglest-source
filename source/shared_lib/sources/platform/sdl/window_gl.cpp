@@ -18,7 +18,7 @@
 #include "opengl.h"
 
 #ifdef WIN32
-#include "SDL_syswm.h"
+#include "SDL2/SDL_syswm.h"
 #endif
 #include "leak_dumper.h"
 

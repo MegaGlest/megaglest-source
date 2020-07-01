@@ -11,8 +11,13 @@
 
 #include <GL/glew.h>
 #include "video_player.h"
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mutex.h>
+#else
 #include <SDL.h>
 #include <SDL_mutex.h>
+#endif
 #include <vector>
 #include <time.h>
 

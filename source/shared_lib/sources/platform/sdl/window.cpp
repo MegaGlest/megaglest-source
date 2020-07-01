@@ -22,7 +22,7 @@
 
 #ifdef WIN32
 
-#include "SDL_syswm.h"
+#include "SDL2/SDL_syswm.h"
 
 #endif
 

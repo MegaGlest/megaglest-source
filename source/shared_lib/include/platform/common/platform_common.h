@@ -23,7 +23,11 @@
 #include "data_types.h"
 #include "checksum.h"
 #include <utility>
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include <map>
 //#include <chrono>
 #include "leak_dumper.h"

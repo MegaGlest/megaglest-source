@@ -29,7 +29,11 @@
 #include <string>
 #include "font.h"
 #include "data_types.h"
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "leak_dumper.h"
 
 using std::string;

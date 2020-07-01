@@ -17,7 +17,7 @@
 #include <algorithm>
 #include "util.h"
 #ifdef WIN32
-#include "glext.h"
+//#include "glext.h"
 #endif
 
 #include "leak_dumper.h"

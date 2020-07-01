@@ -1,0 +1,26 @@
+Steps to building megaglest:
+
+1. Open VS2015 solution (I opened it in vs2019).
+2. Retarget.
+3. Add preprocessor flag (properties) to glest_game + libglest: _ALLOW_RTCc_IN_STL, remove
+4. vcpkg:
+    * sdl2pp:x64-windows-static
+    * ftgl:x64-windows-static
+    * libjpeg-turbo:x64-windows-static
+    * curl:x64-windows-static
+    * openal-soft:x64-windows-static
+    * libvorbis:x64-windows-static
+    * lua:x64-windows-static
+    * miniupnpc:x64-windows-static
+    * glew:x64-windows-static
+	* xerces-c:x64-windows-static
+	* openssl:x64-windows-static
+5. Set 
+6. edit a lot of files...
+7. remove "additional dependencies" (properties) from glest_game + libglest
+8. Solution properties -> make build target x64.
+9. Make the subsystem CONSOLE in glest_game.
+10. Download libircclient, extract .lib and .dll files to source/windows_deps_2015/lib.
+11. Lots of fiddling, adding extra input libs, retargeting to multithread, not debug, changing flags...
+12. buildm glest_game.
+13. Congratulations! Megaglest has failed to build!

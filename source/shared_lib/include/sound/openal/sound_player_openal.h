@@ -11,7 +11,11 @@
 #include "sound_player.h"
 #include "platform_util.h"
 #include "platform_common.h"
+#ifdef _WIN32
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #ifdef __APPLE__
 #include <OpenAL/alc.h>
 #include <OpenAL/al.h>

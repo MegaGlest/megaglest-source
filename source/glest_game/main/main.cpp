@@ -549,7 +549,9 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
 
+#if !defined(_DEBUG)
 		stackdumper(0, pointers, false);
+#endif
 
         if(mainProgram && gameInitialized == true) {
         	mainProgram->showMessage(msg.c_str());
@@ -6035,7 +6037,7 @@ __try {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	
-#ifdef WIN32_STACK_TRACE
+#ifdef WIN32_STACK_TRACE && !defined(_DEBUG)
 }
 __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) {
 	return 0;
