@@ -224,14 +224,14 @@
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
       <WarningLevel>Level2</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4018;4244;4250;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>dsound.lib;dxguid.lib;glew32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;OpenGL32.lib;GLU32.lib;wsock32.lib;libglest.lib;mmc.lib;lua.lib;xerces-c_3.lib;Dbghelp.lib;libpng16.lib;jpeg.lib;zlib.lib;SDL2.lib;SDL2main.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;freetype.lib;ftgl.lib;msvcrt.lib;msimg32.lib;version.lib;imm32.lib;libcrypto.lib;libssl.lib;crypt32.lib;Wldap32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dsound.lib;dxguid.lib;glew32.lib;ogg.lib;vorbis.lib;vorbisfile.lib;OpenGL32.lib;GLU32.lib;wsock32.lib;libglest.lib;mmc.lib;lua.lib;xerces-c_3.lib;Dbghelp.lib;libpng16.lib;jpeg.lib;zlib.lib;SDL2.lib;SDL2main.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;freetype.lib;msvcrt.lib;msimg32.lib;version.lib;imm32.lib;libcrypto.lib;libssl.lib;crypt32.lib;Wldap32.lib;Ws2_32.lib;Setupapi.lib;ftgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows-static\lib\manual-link;$(VCPKG_ROOT)\installed\x64-windows-static\lib;..\x64\Debug;../../../source/windows_deps_2015/lib;../../../build/$(Configuration)/libglest;../../../source/shared_lib/sources/streflop/libstreflop;$(DXSDK_DIR)/lib/x86;../../../source/windows_deps_2015/Microsoft DirectX SDK %28November 2007%29/Lib/x86</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -244,7 +244,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>false</DataExecutionPrevention>
       <ProgramDatabaseFile>$(OutDir)\megaglest.pdb</ProgramDatabaseFile>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -13,8 +13,8 @@ Steps to building megaglest:
     * lua:x64-windows-static
     * miniupnpc:x64-windows-static
     * glew:x64-windows-static
-	* xerces-c:x64-windows-static
-	* openssl:x64-windows-static
+    * xerces-c:x64-windows-static
+    * openssl:x64-windows-static
 5. Set VCPKG_ROOT to the path to vcpkg (I just set it to my local clone of vcpkg).
 6. edit a lot of files...
 7. remove "additional dependencies" (properties) from glest_game + libglest
