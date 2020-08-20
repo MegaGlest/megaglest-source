@@ -111,7 +111,7 @@ if [ "$quiet" -eq "1" ]; then
 	ZYPPER_OPTIONS="$ZYPPER_OPTIONS -y"
 fi
 
-packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 
 case $distribution in
 	Debian|Raspbian)
