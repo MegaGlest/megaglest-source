@@ -12,6 +12,8 @@
 #
 # extended by Yggdrasil
 #
+# modified by James Sherratt for Blender 2.90
+#
 # Started Date: 07 June 2005  Put Public 20 June 2005
 #  Distributed under the GNU PUBLIC LICENSE
 # """
@@ -415,6 +417,8 @@ def createMesh(filename, header, data, toblender, operator):
     # mesh.tessfaces.add(len(faces) // 4)
     # mesh.tessfaces.foreach_set("vertices_raw", faces)
     # mesh.tessfaces.foreach_set("use_smooth", [True] * len(mesh.tessfaces))
+    mesh.polygons.foreach_set(
+        "use_smooth", (True,)*len(mesh.polygons.data.polygons))
     mesh.g3d_customColor = header.customalpha
     # mesh.show_double_sided = header.istwosided
     if header.isv4:
@@ -436,41 +440,40 @@ def createMesh(filename, header, data, toblender, operator):
         slot.texture = texture
         slot.texture_coords = 'UV'
 
-
     if header.hastexture:
         materialname = "pskmat"
         materials = []
         matdata = bpy.data.materials.new(materialname + '1')
-        matdata.use_backface_culling = header.istwosided
+        matdata.use_backface_culling = not header.istwosided
         # Shader node tree.
         matdata.use_nodes = True
         node_tree = matdata.node_tree
         shader_node = node_tree.nodes['Principled BSDF']
         # Diffuse image
         diff_img_node = node_tree.nodes.new('ShaderNodeTexImage')
-        node_tree.links.new(diff_img_node.outputs['Color'], shader_node.inputs['Base Color'])
+        node_tree.links.new(
+            diff_img_node.outputs['Color'], shader_node.inputs['Base Color'])
         diff_img_node.image = img_diffuse
 
         # addtexslot(matdata, 0, 'diffusetexture', img_diffuse)
         if img_specular:
             spec_img_node = node_tree.nodes.new('ShaderNodeTexImage')
-            node_tree.links.new(spec_img_node.outputs['Alpha'], diff_node.inputs['Specular'])
+            node_tree.links.new(
+                spec_img_node.outputs['Alpha'], diff_node.inputs['Specular'])
             spec_img_node.image = img_specular
         if img_normal:
             norm_node = node_tree.nodes.new('ShaderNodeNormalMap')
-            node_tree.links.new(norm_node.outputs['Normal'], diff_node.inputs['Normal'])
+            node_tree.links.new(
+                norm_node.outputs['Normal'], diff_node.inputs['Normal'])
             norm_img_node = node_tree.nodes.new('ShaderNodeTexImage')
-            node_tree.links.new(norm_img_node.outputs['Color'], norm_node.inputs['Color'])
+            node_tree.links.new(
+                norm_img_node.outputs['Color'], norm_node.inputs['Color'])
             norm_img_node.image = img_normal
 
         if header.isv4:
-        #     matdata.diffuse_color = (header.diffusecolor[0],
-        #                              header.diffusecolor[1],
-        #                              header.diffusecolor[2])
+            shader_node.inputs['Subsurface Color'].default_value = header.diffusecolor + (1,)
+            shader_node.inputs['Emission'].default_value = header.specularcolor + (1,)
             shader_node.inputs['Alpha'].default_value = header.opacity
-        #     matdata.specular_color = (header.specularcolor[0],
-        #                               header.specularcolor[1],
-        #                               header.specularcolor[2])
         materials.append(matdata)
 
         for material in materials:
@@ -481,7 +484,6 @@ def createMesh(filename, header, data, toblender, operator):
         psktexname = "psk" + str(countm)
         mesh.uv_layers.new(name=psktexname)
         # mesh.tessface_uv_textures.new(name=psktexname)
-        print(faceuv)
         if (len(faceuv) > 0):
             uv_dat = mesh.uv_layers[psktexname].data
             for i in range(len(faceuv)):
@@ -608,14 +610,18 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
         bpy.context.scene.frame_start = 1
         bpy.context.scene.frame_end = maxframe
         bpy.context.scene.frame_current = 1
+
         anchor = bpy.data.objects.new('Empty', None)
-        anchor.select = True
         col = bpy.data.collections.get("Collection")
-        col.objects.link(meshobj)
+        col.objects.link(anchor)
+        anchor.select_set(True)
+
         for ob in imported:
             ob.parent = anchor
-        bpy.context.scene.update()
+        bpy.context.view_layer.update()
+
         return
+
     if header.version == 4:
         modelheader = G3DModelHeaderv4(fileID)
         print("Number of Meshes  : " + str(modelheader.meshcount))
@@ -650,12 +656,12 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
         bpy.context.scene.frame_end = maxframe
         bpy.context.scene.frame_current = 1
         anchor = bpy.data.objects.new('Empty', None)
-        anchor.select = True
         col = bpy.data.collections.get("Collection")
-        col.objects.link(meshobj)
+        col.objects.link(anchor)
+        anchor.select_set(True)
         for ob in imported:
             ob.parent = anchor
-        bpy.context.scene.update()
+        bpy.context.view_layer.update()
         print(
             "Created a empty Object as 'Grip' where all imported Objects are parented to"
         )
@@ -731,7 +737,7 @@ def G3DSaver(filepath, context, toglest, operator):
                 operator.report({
                     'WARNING'
                 }, "first texture slot in first material isn't of type IMAGE or it's not unwrapped, texture ignored"
-                                )
+                )
                 # continue without texture
 
         meshname = mesh.name
@@ -741,7 +747,8 @@ def G3DSaver(filepath, context, toglest, operator):
         newverts = []  # list of vertex indices which need to be duplicated
         uvlist = []  # list of texcoords
         # tesselate n-polygons to triangles & quads
-        mesh.update(calc_tessface=True)
+        bpy.ops.mesh.quads_convert_to_tris()
+        # mesh.update(calc_tessface=True)
         if textures:
             uvtex = mesh.tessface_uv_textures[0]
             uvlist[:] = [[0] * 2 for i in range(len(mesh.vertices))]
