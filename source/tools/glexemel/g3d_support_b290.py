@@ -643,8 +643,7 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
             print("textures        : " + str(meshheader.textures))
             print("texturename     : " + str(meshheader.diffusetexture))
             print("istwosided      : " + str(meshheader.istwosided))
-            if len(meshheader.meshname
-                   ) == 0:  # When no Meshname in File Generate one
+            if len(meshheader.meshname) == 0:  # When no Meshname in File Generate one
                 meshheader.meshname = basename + str(x + 1)
             if meshheader.framecount > maxframe:
                 maxframe = meshheader.framecount  # Evaluate the maximal animationsteps
@@ -702,42 +701,48 @@ def G3DSaver(filepath, context, toglest, operator):
     # meshes
     # for mesh in bpy.data.meshes:
     for obj in objs:
+        context.view_layer.objects.active = obj
         if obj.type != 'MESH':
             continue
-        mesh = obj.data.copy()
+        mesh = obj.data
         diffuseColor = [1.0, 1.0, 1.0]
         specularColor = [0.9, 0.9, 0.9]
         opacity = 1.0
         textures = 0
         if len(mesh.materials) > 0:
             # we have a texture, hopefully
-            material = mesh.materials[0]
-            slot = material.texture_slots[0]
+            material = mesh.materials[0].node_tree.nodes['Principled BSDF']
+            diff_tex = material.inputs['Base Color'].links[0].from_node
             # only look for other textures when we have diffuse
-            if slot and slot.texture.type == 'IMAGE' and len(
-                    mesh.uv_textures) > 0:
-                diffuseColor = material.diffuse_color
-                specularColor = material.specular_color
-                opacity = material.alpha
-                textures = 1
-                texnames = []
-                texnames.append(bpy.path.basename(slot.texture.image.filepath))
-                # specular and normal
-                for i in range(1, 3):
-                    slot = material.texture_slots[i]
-                    if slot and slot.texture.type == 'IMAGE':
-                        texnames.append(
-                            bpy.path.basename(slot.texture.image.filepath))
-                        textures |= 1 << i
+            # if slot and slot.texture.type == 'IMAGE' and len(mesh.uv_textures) > 0:
+            diffuseColor = material.inputs['Subsurface Color'].default_value[:3]
+            specularColor = material.inputs['Emission'].default_value[:3]
+            opacity = material.inputs['Alpha'].default_value
+            textures = 1
+            texnames = []
+            texnames.append(bpy.path.basename(diff_tex.image.filepath))
+            # specular and normal
+            try:
+                spec_tex = material.inputs['Specular'].links[0].from_node
+                texnames.append(bpy.path.basename(spec_tex.image.filepath))
+                textures |= 1 << 1
+            except IndexError:
+                print("No specular texture found.")
+            try:
+                norm_tex = material.inputs['Normal'].links[0].from_node.inputs['Color'].links[0].from_node
+                texnames.append(bpy.path.basename(norm_tex.image.filepath))
+                textures |= 1 << 2
+            except IndexError:
+                print("No normal texture found.")
 
-            else:
-                print(
-                    "WARNING: first texture slot in first material isn't of type IMAGE or it's not unwrapped, texture ignored"
-                )
-                operator.report({
-                    'WARNING'
-                }, "first texture slot in first material isn't of type IMAGE or it's not unwrapped, texture ignored"
-                )
+            # else:
+            #     print(
+            #         "WARNING: first texture slot in first material isn't of type IMAGE or it's not unwrapped, texture ignored"
+            #     )
+            #     operator.report({
+            #         'WARNING'
+            #     }, "first texture slot in first material isn't of type IMAGE or it's not unwrapped, texture ignored"
+            #     )
                 # continue without texture
 
         meshname = mesh.name
@@ -747,10 +752,12 @@ def G3DSaver(filepath, context, toglest, operator):
         newverts = []  # list of vertex indices which need to be duplicated
         uvlist = []  # list of texcoords
         # tesselate n-polygons to triangles & quads
+        bpy.ops.object.editmode_toggle()
         bpy.ops.mesh.quads_convert_to_tris()
+        bpy.ops.object.editmode_toggle()
         # mesh.update(calc_tessface=True)
         if textures:
-            uvtex = mesh.tessface_uv_textures[0]
+            # uvtex = mesh.tessface_uv_textures[0]
             uvlist[:] = [[0] * 2 for i in range(len(mesh.vertices))]
             # blender allows to have multiple texcoords per vertex,
             # in g3d format every vertex can only have one texcoord
@@ -760,27 +767,31 @@ def G3DSaver(filepath, context, toglest, operator):
             #   -> tuple( list of texcoords, list of indices to the duplicated vertex )
             vdict = dict()
             nextIndex = len(mesh.vertices)
-            for face in mesh.tessfaces:
+            uvdata = mesh.uv_layers[0].data
+            uvindex = 0
+
+            # for face in mesh.tessfaces:
+            for face in mesh.polygons:  
                 # when a vertex is duplicated it gets a new index, so the
                 # triple of indices describing the face is different too
                 faceindices = []
                 realFaceCount += 1
-                uvdata = uvtex.data[face.index]
-                for i in range(3):
+                # uvdata = uvtex.data[face.index]
+                # for i in range(3):
+                for vindex in face.vertices:
                     # closure, got rid of copy&paste, still looking weird
                     def getTexCoords():
-                        nonlocal nextIndex, vdict, uvlist, newverts
-                        vindex = face.vertices[i]
+                        nonlocal nextIndex, vdict, uvlist, newverts, vindex
+                        # vindex = face.vertices[i]
                         if vindex not in vdict:  # new vertex -> add it
-                            vdict[vindex] = [uvdata.uv[i]], [vindex]
+                            vdict[vindex] = [uvdata[uvindex].uv], [vindex]
                             # that's a (s,t)-pair
-                            uvlist[vindex] = uvdata.uv[i]
+                            uvlist[vindex] = uvdata[uvindex].uv
                         else:
                             found = False
                             idx = 0
                             for ele in vdict[vindex][0]:
-                                if uvdata.uv[i][0] == ele[0] and uvdata.uv[i][
-                                        1] == ele[1]:
+                                if uvdata[uvindex].uv[0] == ele[0] and uvdata[uvindex].uv[1] == ele[1]:
                                     found = True
                                     break
                                 idx += 1
@@ -790,13 +801,13 @@ def G3DSaver(filepath, context, toglest, operator):
                                 # vindex = vdict[vindex][1][ vdict[vindex][0].index(uvdata.uv[i]) ]
                                 vindex = vdict[vindex][1][idx]
                             else:  # same vertex as before but with different texcoord -> duplicate
-                                vdict[vindex][0].append(uvdata.uv[i])
+                                vdict[vindex][0].append(uvdata[uvindex].uv)
                                 vdict[vindex][1].append(nextIndex)
 
                                 # duplicate vertex because it takes part in different faces
                                 # with different texcoords
                                 newverts.append(vindex)
-                                uvlist.append(uvdata.uv[i])
+                                uvlist.append(uvdata[uvindex].uv)
                                 # new index for the duplicated vertex
                                 vindex = nextIndex
                                 nextIndex += 1
@@ -804,6 +815,7 @@ def G3DSaver(filepath, context, toglest, operator):
                         faceindices.append(vindex)
 
                     getTexCoords()
+                    uvindex += 1
                 indices.extend(faceindices)
 
                 if len(face.vertices) == 4:
@@ -835,8 +847,12 @@ def G3DSaver(filepath, context, toglest, operator):
         properties = 0
         if mesh.g3d_customColor:
             properties |= 1
-        if mesh.show_double_sided:
-            properties |= 2
+        try:
+            if mesh.materials[0].use_backface_culling:
+                properties |= 2
+        except Exception as e:
+            print("No material, backface culling not set: ", e)
+        
         if mesh.g3d_noSelect:
             properties |= 4
         if mesh.g3d_glow:
@@ -849,7 +865,8 @@ def G3DSaver(filepath, context, toglest, operator):
         for i in range(context.scene.frame_start, context.scene.frame_end + 1):
             context.scene.frame_set(i)
             # FIXME: not sure what's better: PREVIEW or RENDER settings
-            m = obj.to_mesh(context.scene, True, 'RENDER')
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            m = obj.to_mesh(preserve_all_data_layers=False, depsgraph=depsgraph)
             m.transform(obj.matrix_world)  # apply object-mode transformations
 
             if toglest:
