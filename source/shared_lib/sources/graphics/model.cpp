@@ -818,15 +818,24 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			char mapPathString[mapPathSize+1]="";
 			memset(&mapPathString[0],0,mapPathSize+1);
 			memcpy(&mapPathString[0],reinterpret_cast<char*>(cMapPath),mapPathSize);
-			string mapPath= mapPathString;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapPath [%s] meshHeader.textures = %d flag = %d (meshHeader.textures & flag) = %d meshIndex = %d i = %d\n",mapPath.c_str(),meshHeader.textures,flag,(meshHeader.textures & flag),meshIndex,i);
 
 			string mapFullPath= dir;
 			if(mapFullPath != "") {
 				endPathWithSlash(mapFullPath);
 			}
+
+			string mapPath= mapPathString;
+			// if the file does not exists we try it with filename to lower case.
+			// its a workaround for broken mods made by windows users ( filenames  are  not case sensitive in windows  )
+			// This allows us to fix mods with bad cases by renaming all texture filesnames to lower case. By this mods work in linux too.
+			if(fileExists(mapFullPath+mapPath) == false) {
+				mapPath= toLower(mapPathString);
+			}
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapPath [%s] meshHeader.textures = %d flag = %d (meshHeader.textures & flag) = %d meshIndex = %d i = %d\n",mapPath.c_str(),meshHeader.textures,flag,(meshHeader.textures & flag),meshIndex,i);
+
 			mapFullPath += mapPath;
+
 			if(textureManager) {
 				textures[i] = loadMeshTexture(meshIndex, i, textureManager, mapFullPath,
 						meshTextureChannelCount[i],texturesOwned[i],
