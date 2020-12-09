@@ -952,7 +952,7 @@ int Faction::getCountForMaxUnitCount(const UnitType *unitType) const{
    	for(int j=0; j<getUnitCount(); ++j){
 		Unit *unit= getUnit(j);
         const UnitType *currentUt= unit->getType();
-        if(unitType==currentUt && unit->isOperative()){
+        if(unitType==currentUt && ( unit->isAlive())){
             count++;
         }
         //check if there is any command active which already produces this unit
