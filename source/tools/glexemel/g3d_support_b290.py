@@ -82,18 +82,18 @@
 # properties: property flags
 # Code:
 # enum MeshPropertyFlag{
-#		mpfCustomColor= 1,
-#		mpfTwoSided= 2,
-#		mpfNoSelect= 4
+#        mpfCustomColor= 1,
+#        mpfTwoSided= 2,
+#        mpfNoSelect= 4
 # };
 # mpfTwoSided: meshes in this mesh are rendered by both sides, if this flag is not present only "counter clockwise" faces are rendered
 # mpfCustomColor: alpha in this model is replaced by a custom color, usually the player color
 # textures: texture flags
 # Code:
 # enum MeshTexture{
-#		diffuse = 1,
-#		specular = 2,
-#		normal = 4
+#        diffuse = 1,
+#        specular = 2,
+#        normal = 4
 # };
 # ================================
 # 4. TEXTURE NAMES
@@ -573,10 +573,10 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
                         "The Version of this G3D File is not Supported")
         fileID.close
         return
-    # in_editmode = Blender.Window.EditMode()			 #Must leave Editmode when active
+    # in_editmode = Blender.Window.EditMode()             #Must leave Editmode when active
     # if in_editmode: Blender.Window.EditMode(0)
     sceneID = bpy.context.scene  # Get active Scene
-    # scenecontext=sceneID.getRenderingContext()		  #To Access the Start/Endframe its so hidden i searched till i got angry :-)
+    # scenecontext=sceneID.getRenderingContext()          #To Access the Start/Endframe its so hidden i searched till i got angry :-)
     # Generate the Base Filename without Path + extension
     basename = os.path.basename(filepath).split('.')[0]
     imported = []
@@ -661,6 +661,24 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
         for ob in imported:
             ob.parent = anchor
         bpy.context.view_layer.update()
+
+        def get_view3d_area():
+            '''Gets the 3d viewport. It is relative to whatever area the python script runs in.
+            Returns None if there's no area.'''
+            for ar in bpy.context.screen.areas.values():
+                if ar.type == 'VIEW_3D':
+                    return ar
+        
+        
+        def tex_view3d():
+            '''Sets the viewport colour to '(unshaded) texture'.'''
+            area = get_view3d_area()
+            # Check there is a 3d view.
+            if area is not None:
+                area.spaces[0].shading.type = 'SOLID'
+                area.spaces[0].shading.color_type = 'TEXTURE'
+
+        tex_view3d()
         print(
             "Created a empty Object as 'Grip' where all imported Objects are parented to"
         )
@@ -858,33 +876,34 @@ def G3DSaver(filepath, context, toglest, operator):
         if mesh.g3d_glow:
             properties |= 8
 
-        # MeshData
+        #MeshData
         vertices = []
         normals = []
         fcurrent = context.scene.frame_current
-        for i in range(context.scene.frame_start, context.scene.frame_end + 1):
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+
+        for i in range(context.scene.frame_start, context.scene.frame_end+1):
             context.scene.frame_set(i)
-            # FIXME: not sure what's better: PREVIEW or RENDER settings
-            depsgraph = bpy.context.evaluated_depsgraph_get()
-            m = obj.to_mesh(preserve_all_data_layers=False, depsgraph=depsgraph)
-            m.transform(obj.matrix_world)  # apply object-mode transformations
+            #FIXME: not sure what's better: PREVIEW or RENDER settings
+            bm = bmesh.new()
+            bm.from_object(obj, depsgraph=depsgraph)
+            bm.transform(obj.matrix_world)  # apply object-mode transformations
 
             if toglest:
                 # rotate from blender to glest orientation
-                m.transform(
-                    Matrix(((1, 0, 0, 0), (0, 0, 1, 0), (0, -1, 0, 0),
-                            (0, 0, 0, 1))))
+                bm.transform( Matrix( ((1,0,0,0),(0,0,1,0),(0,-1,0,0),(0,0,0,1)) ) )
                 # transform normals too
-                m.calc_normals()
+                bm.normal_update()
 
-            for vertex in m.vertices:
+            for vertex in bm.verts:
                 vertices.extend(vertex.co)
                 normals.extend(vertex.normal)
 
             # duplicate vertices and corresponding normals, for every frame
             for nv in newverts:
-                vertices.extend(m.vertices[nv].co)
-                normals.extend(m.vertices[nv].normal)
+                verts = [v for v in bm.verts]
+                vertices.extend(verts[nv].co)
+                normals.extend(verts[nv].normal)
 
         context.scene.frame_set(fcurrent)
 
@@ -1073,14 +1092,14 @@ def unregister():
 
 if __name__ == '__main__':
     register()
-#	main()
+#    main()
 
 # for obj in bpy.data.objects:
-#	if obj.type == 'MESH':
-#		obj.select = True
-#		bpy.ops.object.delete()
+#    if obj.type == 'MESH':
+#        obj.select = True
+#        bpy.ops.object.delete()
 # G3DLoader("import.g3d", True, None)
 
 # for obj in bpy.context.selected_objects:
-#	obj.select = False  # deselect everything, so we get it all
+#    obj.select = False  # deselect everything, so we get it all
 # G3DSaver("test.g3d", bpy.context)
