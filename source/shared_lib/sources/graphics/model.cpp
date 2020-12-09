@@ -818,7 +818,8 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			char mapPathString[mapPathSize+1]="";
 			memset(&mapPathString[0],0,mapPathSize+1);
 			memcpy(&mapPathString[0],reinterpret_cast<char*>(cMapPath),mapPathSize);
-			string mapPath= toLower(mapPathString);
+			//string mapPath= toLower(mapPathString);
+			string mapPath=mapPathString;
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapPath [%s] meshHeader.textures = %d flag = %d (meshHeader.textures & flag) = %d meshIndex = %d i = %d\n",mapPath.c_str(),meshHeader.textures,flag,(meshHeader.textures & flag),meshIndex,i);
 
