@@ -445,6 +445,8 @@ def createMesh(filename, header, data, toblender, operator):
         materials = []
         matdata = bpy.data.materials.new(materialname + '1')
         matdata.use_backface_culling = not header.istwosided
+        # Show alpha.
+        matdata.blend_method = 'BLEND'
         # Shader node tree.
         matdata.use_nodes = True
         node_tree = matdata.node_tree
@@ -453,6 +455,8 @@ def createMesh(filename, header, data, toblender, operator):
         diff_img_node = node_tree.nodes.new('ShaderNodeTexImage')
         node_tree.links.new(
             diff_img_node.outputs['Color'], shader_node.inputs['Base Color'])
+        node_tree.links.new(
+            diff_img_node.outputs['Alpha'], shader_node.inputs['Alpha'])
         diff_img_node.image = img_diffuse
 
         # addtexslot(matdata, 0, 'diffusetexture', img_diffuse)
@@ -662,23 +666,23 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
             ob.parent = anchor
         bpy.context.view_layer.update()
 
-        def get_view3d_area():
+        def tex_all_view3d_area():
             '''Gets the 3d viewport. It is relative to whatever area the python script runs in.
             Returns None if there's no area.'''
-            for ar in bpy.context.screen.areas.values():
-                if ar.type == 'VIEW_3D':
-                    return ar
+            for screen in bpy.data.screens:
+                for ar in screen.areas.values():
+                    if ar.type == 'VIEW_3D':
+                        tex_view3d(ar)
         
         
-        def tex_view3d():
+        def tex_view3d(area):
             '''Sets the viewport colour to '(unshaded) texture'.'''
-            area = get_view3d_area()
             # Check there is a 3d view.
             if area is not None:
                 area.spaces[0].shading.type = 'SOLID'
                 area.spaces[0].shading.color_type = 'TEXTURE'
 
-        tex_view3d()
+        tex_all_view3d_area()
         print(
             "Created a empty Object as 'Grip' where all imported Objects are parented to"
         )
@@ -727,31 +731,35 @@ def G3DSaver(filepath, context, toglest, operator):
         specularColor = [0.9, 0.9, 0.9]
         opacity = 1.0
         textures = 0
+        texnames = []
         if len(mesh.materials) > 0:
-            # we have a texture, hopefully
-            material = mesh.materials[0].node_tree.nodes['Principled BSDF']
-            diff_tex = material.inputs['Base Color'].links[0].from_node
-            # only look for other textures when we have diffuse
-            # if slot and slot.texture.type == 'IMAGE' and len(mesh.uv_textures) > 0:
-            diffuseColor = material.inputs['Subsurface Color'].default_value[:3]
-            specularColor = material.inputs['Emission'].default_value[:3]
-            opacity = material.inputs['Alpha'].default_value
-            textures = 1
-            texnames = []
-            texnames.append(bpy.path.basename(diff_tex.image.filepath))
-            # specular and normal
             try:
-                spec_tex = material.inputs['Specular'].links[0].from_node
-                texnames.append(bpy.path.basename(spec_tex.image.filepath))
-                textures |= 1 << 1
+                # we have a texture, hopefully
+                material = mesh.materials[0].node_tree.nodes['Principled BSDF']
+                diff_tex = material.inputs['Base Color'].links[0].from_node
+                # only look for other textures when we have diffuse
+                # if slot and slot.texture.type == 'IMAGE' and len(mesh.uv_textures) > 0:
+                diffuseColor = material.inputs['Subsurface Color'].default_value[:3]
+                specularColor = material.inputs['Emission'].default_value[:3]
+                opacity = material.inputs['Alpha'].default_value
+                textures = 1
+                texnames.append(bpy.path.basename(diff_tex.image.filepath))
+                # specular and normal
             except IndexError:
-                print("No specular texture found.")
-            try:
-                norm_tex = material.inputs['Normal'].links[0].from_node.inputs['Color'].links[0].from_node
-                texnames.append(bpy.path.basename(norm_tex.image.filepath))
-                textures |= 1 << 2
-            except IndexError:
-                print("No normal texture found.")
+                print("Could not find diffuse texture.")
+            else:
+                try:
+                    spec_tex = material.inputs['Specular'].links[0].from_node
+                    texnames.append(bpy.path.basename(spec_tex.image.filepath))
+                    textures |= 1 << 1
+                except IndexError:
+                    print("No specular texture found.")
+                try:
+                    norm_tex = material.inputs['Normal'].links[0].from_node.inputs['Color'].links[0].from_node
+                    texnames.append(bpy.path.basename(norm_tex.image.filepath))
+                    textures |= 1 << 2
+                except IndexError:
+                    print("No normal texture found.")
 
             # else:
             #     print(
@@ -843,7 +851,7 @@ def G3DSaver(filepath, context, toglest, operator):
                         getTexCoords()
                     indices.extend(faceindices)
         else:
-            for face in mesh.tessfaces:
+            for face in mesh.polygons:
                 realFaceCount += 1
                 indices.extend(face.vertices[0:3])
                 if len(face.vertices) == 4:
