@@ -338,6 +338,21 @@ class G3DMeshdataV4:  # Calculate and read the Mesh Datapack
 
 
 def createMesh(filename, header, data, toblender, operator):
+    def tex_path(tex_filename):
+        tex_file = os.path.join(dirname(abspath(filename)), tex_filename).replace('\00', '')
+        if os.path.exists(tex_file):
+            return tex_file
+        else:
+            operator.report({'WARNING'},
+                "Bad texture filename found in g3d: {}".format(tex_file))
+            tex_file = tex_file[:tex_file.rfind(".")]
+            for fmt in ('png', 'jpeg', 'tga', 'bmp'):
+                new_filename = "{}.{}".format(tex_file, fmt)
+                print(new_filename)
+                if os.path.exists(new_filename):
+                    return new_filename
+        raise IOError("Could not find image texture file.")
+
     mesh = bpy.data.meshes.new(header.meshname)  # New Mesh
     # New Object for the new Mesh
     meshobj = bpy.data.objects.new(header.meshname + 'Object', mesh)
@@ -352,8 +367,7 @@ def createMesh(filename, header, data, toblender, operator):
     img_normal = None
     if header.hastexture:  # Load Texture when assigned
         try:
-            texturefile = dirname(abspath(filename)) + \
-                os.sep + header.diffusetexture
+            texturefile = tex_path(header.diffusetexture)
             img_diffuse = bpy.data.images.load(texturefile)
             for x in range(0, len(data.texturecoords), 2):  # Prepare the UV
                 uvcoords.append(
@@ -361,12 +375,10 @@ def createMesh(filename, header, data, toblender, operator):
 
             if header.isv4:
                 if header.speculartexture:
-                    texturefile = dirname(
-                        abspath(filename)) + os.sep + header.speculartexture
+                    texturefile = tex_path(header.speculartexture)
                     img_specular = bpy.data.images.load(texturefile)
                 if header.normaltexture:
-                    texturefile = dirname(
-                        abspath(filename)) + os.sep + header.normaltexture
+                    texturefile = tex_path(header.normaltexture)
                     img_normal = bpy.data.images.load(texturefile)
         except:
             import traceback
@@ -681,6 +693,7 @@ def G3DLoader(filepath, toblender, operator):  # Main Import Routine
             if area is not None:
                 area.spaces[0].shading.type = 'SOLID'
                 area.spaces[0].shading.color_type = 'TEXTURE'
+                area.spaces[0].shading.show_specular_highlight = False
 
         tex_all_view3d_area()
         print(
