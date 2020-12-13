@@ -78,7 +78,7 @@ protected:
 				}
 
 			}
-			if(value != NULL) {
+			else {
 				try {
 					Mutex &mutexCache = manageCachedItemMutex<T>(cacheKey);
 					MutexSafeWrapper safeMutex(&mutexCache);
@@ -124,7 +124,7 @@ public:
 	}
 	template <typename T>
 	static void clearCachedItem(string cacheKey) {
-		return manageCachedItem<T>(cacheKey,NULL,cacheItemSet);
+		 manageCachedItem<T>(cacheKey,NULL,cacheItemSet);
 	}
 
 	template <typename T>
