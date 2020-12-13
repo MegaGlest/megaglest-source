@@ -956,7 +956,7 @@ int Faction::getCountForMaxUnitCount(const UnitType *unitType) const{
             count++;
         }
         //check if there is any command active which already produces this unit
-        count=count+unit->getCountOfProducedUnits(unitType);
+        count=count+unit->getCountOfProducedUnitsPreExistence(unitType);
     }
 	return count;
 }

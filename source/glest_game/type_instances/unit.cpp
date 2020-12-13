@@ -1784,8 +1784,10 @@ unsigned int Unit::getCommandSize() const {
 	return (unsigned int)commands.size();
 }
 
-//return current command, assert that there is always one command
-int Unit::getCountOfProducedUnits(const UnitType *ut) const{
+/*
+ * (this is meant for MaxUnitCount)
+ */
+int Unit::getCountOfProducedUnitsPreExistence(const UnitType *ut) const{
 	int count=0;
 	for(Commands::const_iterator it= commands.begin(); it!=commands.end(); ++it){
 			const CommandType* ct=(*it)->getCommandType();
@@ -1798,7 +1800,9 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
         	}
         	if(ct->getClass()==ccBuild){
         		const UnitType *builtUnitType= (*it)->getUnitType();
-        		if(builtUnitType==ut)
+        		// we dont count builded units if they are already exist. So we just count the units that will be build.
+        		// otherwise we will get double counts of alive units and units beeing build.
+        		if(builtUnitType==ut && (*it)->getUnit()==NULL)
         		{
         			count++;
         		}
