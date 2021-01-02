@@ -3578,7 +3578,7 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 
 		checkItemInVault(&this->hp,this->hp);
 		int original_hp = this->hp;
-		this->hp += upgradeType->getMaxHp();
+		this->hp += totalUpgrade.getMaxHp();
 		this->hp = max(0,this->hp);
 		if(original_hp != this->hp) {
 			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
