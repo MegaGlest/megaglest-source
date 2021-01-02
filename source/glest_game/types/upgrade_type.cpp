@@ -1166,121 +1166,70 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMo
 	prodSpeedIsMultiplier		= ut->getProdSpeedIsMultiplier();
 	attackSpeedIsMultiplier		= ut->getAttackSpeedIsMultiplier();
 
-	if(ut->getMaxHpIsMultiplier() == true) {
-		//printf("#1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
-		int newValue = ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
-		if(boostMode) {
-			maxHp = newValue;
-		}
-		else {
-			maxHp += newValue;
-		}
-		if(ut->getMaxHpRegeneration() != 0) {
-			newValue = ((double)unit->getType()->getHpRegeneration() + ((double)max(maxHp,unit->getHp()) * ((double)ut->getMaxHpRegeneration() / (double)100)));
-			if(boostMode) {
-				maxHpRegeneration = newValue;
-			}
-			else {
-				maxHpRegeneration += newValue;
-			}
-		}
-		//printf("#1.1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
-	}
-	else {
-		//printf("#2 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
-		int newValue = ut->getMaxHp();
-		if(boostMode) {
-			maxHp = newValue;
-		}
-		else {
-			maxHp += newValue;
-		}
 
-		if(ut->getMaxHpRegeneration() != 0) {
-			newValue = ut->getMaxHpRegeneration();
-			if(boostMode) {
-				maxHpRegeneration = newValue;
-			}
-			else {
-				maxHpRegeneration += newValue;
-			}
+	{
+		int upgradeValue;
+		if (ut->getMaxHpIsMultiplier() == true) {
+			upgradeValue = ((double) unit->getType()->getMaxHp() * ((double) ut->getMaxHp() / (double) 100));
+		} else {
+			upgradeValue = ut->getMaxHp();
+		}
+		if (boostMode) {
+			//no boost for MaxHP. This makes no sense. Just upgrades allowed.
+			maxHp=0;
+		} else {
+			maxHp += upgradeValue;
 		}
 	}
 
-	if(ut->getMaxEpIsMultiplier() == true) {
-		int newValue = ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
-		if(boostMode) {
-			maxEp = newValue;
-		}
-		else {
-			maxEp += newValue;
-		}
-
-		if(ut->getMaxEpRegeneration() != 0) {
-			newValue = ((double)unit->getType()->getEpRegeneration() + ((double)max(maxEp,unit->getEp()) * ((double)ut->getMaxEpRegeneration() / (double)100)));
-			if(boostMode) {
-				maxEpRegeneration = newValue;
-			}
-			else {
-				maxEpRegeneration += newValue;
-			}
-		}
+	if (ut->getMaxHpRegeneration() != 0) {
+		// ut->getMaxHpIsMultiplier() is ignored atm! makes no sense to have one switch for 2 values. It's called value-percent-multiplier anyway. If we need it one day the following commented will  be handy:
+		//			int newValue = ((double) unit->getType()->getHpRegeneration()
+		//								+ ((double) max(maxHp, unit->getHp()) * ((double) ut->getMaxHpRegeneration() / (double) 100)));
+		maxHpRegeneration+= ut->getMaxHpRegeneration();
 	}
-	else {
-		int newValue = ut->getMaxEp();
-		if(boostMode) {
-			maxEp = newValue;
-		}
-		else {
-			maxEp += newValue;
-		}
 
-		if(ut->getMaxEpRegeneration() != 0) {
-			newValue = ut->getMaxEpRegeneration();
-			if(boostMode) {
-				maxEpRegeneration = newValue;
-			}
-			else {
-				maxEpRegeneration += newValue;
-			}
+	 {
+		int upgradeValue;
+		if (ut->getMaxEpIsMultiplier() == true) {
+			upgradeValue = ((double) unit->getType()->getMaxEp() * ((double) ut->getMaxEp() / (double) 100));
+		} else {
+			upgradeValue = ut->getMaxEp();
+		}
+		if (boostMode) {
+			//ignore! no boost for MaxEP. This makes no sense. Just upgrades allowed
+			maxEp=0;
+		} else {
+			maxEp += upgradeValue;
 		}
 	}
 
-	if(ut->getSightIsMultiplier() == true) {
-		int newValue = ((double)unit->getType()->getSight() * ((double)ut->getSight() / (double)100));
-		if(boostMode) {
-			sight = newValue;
+
+	{
+		int upgradeValue;
+		if (ut->getSightIsMultiplier() == true) {
+			upgradeValue = ((double) unit->getType()->getSight() * ((double) ut->getSight() / (double) 100));
+		} else {
+			upgradeValue = ut->getSight();
 		}
-		else {
-			sight += newValue;
-		}
-	}
-	else {
-		int newValue = ut->getSight();
-		if(boostMode) {
-			sight = newValue;
-		}
-		else {
-			sight += newValue;
+		if (boostMode) {
+			sight = upgradeValue;
+		} else {
+			sight += upgradeValue;
 		}
 	}
 
-	if(ut->getArmorIsMultiplier() == true) {
-		int newValue = ((double)unit->getType()->getArmor() * ((double)ut->getArmor() / (double)100));
-		if(boostMode) {
-			armor = newValue;
+	{
+		int upgradeValue;
+		if (ut->getArmorIsMultiplier() == true) {
+			upgradeValue = ((double) unit->getType()->getArmor() * ((double) ut->getArmor() / (double) 100));
+		} else {
+			upgradeValue = ut->getArmor();
 		}
-		else {
-			armor += newValue;
-		}
-	}
-	else {
-		int newValue = ut->getArmor();
-		if(boostMode) {
-			armor = newValue;
-		}
-		else {
-			armor += newValue;
+		if (boostMode) {
+			armor = upgradeValue;
+		} else {
+			armor += upgradeValue;
 		}
 	}
 
