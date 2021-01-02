@@ -1182,12 +1182,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMo
 		}
 	}
 
-	if (ut->getMaxHpRegeneration() != 0) {
-		// ut->getMaxHpIsMultiplier() is ignored atm! makes no sense to have one switch for 2 values. It's called value-percent-multiplier anyway. If we need it one day the following commented will  be handy:
-		//			int newValue = ((double) unit->getType()->getHpRegeneration()
-		//								+ ((double) max(maxHp, unit->getHp()) * ((double) ut->getMaxHpRegeneration() / (double) 100)));
-		maxHpRegeneration+= ut->getMaxHpRegeneration();
-	}
+	maxHpRegeneration+= ut->getMaxHpRegeneration();
 
 	 {
 		int upgradeValue;
@@ -1204,6 +1199,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMo
 		}
 	}
 
+	maxEpRegeneration+= ut->getMaxEpRegeneration();
 
 	{
 		int upgradeValue;
