@@ -212,9 +212,7 @@ private:
     string lastCheckedCRCTechtreeName;
     string lastCheckedCRCMapName;
 
-    string last_Forced_CheckedCRCTilesetName;
-    string last_Forced_CheckedCRCTechtreeName;
-    string last_Forced_CheckedCRCMapName;
+    time_t initTime;
 
     uint32 lastCheckedCRCTilesetValue;
     uint32 lastCheckedCRCTechtreeValue;
