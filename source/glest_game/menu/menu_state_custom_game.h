@@ -266,7 +266,7 @@ public:
     virtual bool isVideoPlaying();
 private:
 
-    void setCRCsToGameSettings(GameSettings *gameSettings);
+    void setCRCsToGameSettings(GameSettings *gameSettings, bool forceRefresh=false);
     void refreshCRCCache(GameSettings *gameSettings);
     void setSmallFont(GraphicLabel l);
     void lastPlayerDisconnected();
