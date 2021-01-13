@@ -212,6 +212,9 @@ private:
     string lastCheckedCRCTechtreeName;
     string lastCheckedCRCMapName;
 
+    string lastRecalculatedCRCTilesetName;
+    string lastRecalculatedCRCTechtreeName;
+
     time_t initTime;
 
     uint32 lastCheckedCRCTilesetValue;
@@ -263,6 +266,8 @@ public:
     virtual bool isVideoPlaying();
 private:
 
+    void setCRCsToGameSettings(GameSettings *gameSettings);
+    void refreshCRCCache(GameSettings *gameSettings);
     void setSmallFont(GraphicLabel l);
     void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
