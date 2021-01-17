@@ -3773,6 +3773,10 @@ float Unit::computeHeight(const Vec2i &pos) const {
 				}
 			}
 		}
+		// for flying above water  we use the water height + airHeight  if it is higher than the normal height..
+		if( map->getWaterLevel()+airHeight>height)	{
+				height=map->getWaterLevel()+airHeight;
+			}
 	}
 
 	return height;
