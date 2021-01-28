@@ -123,6 +123,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	lastRecalculatedCRCTechtreeName = "";
 
     initTime= time(NULL); // now
+    lastTechtreeChange= time(NULL); // now
 
     lastCheckedCRCTilesetValue					= 0;
     lastCheckedCRCTechtreeValue					= 0;
@@ -2874,7 +2875,7 @@ void MenuStateCustomGame::update() {
                                serverInterface->getSlot(i,true)->getNetworkGameDataSynchCheckOkTech() == false) {
 								{
 									// Ensure local CRC cache is correct
-									refreshCRCCache(serverInterface->getGameSettingsPtr());
+									setRefreshedCrcToGameSettings(serverInterface->getGameSettingsPtr());
 								}
 								label = label + " techtree";
 
@@ -4310,9 +4311,10 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 }
 // ============ PRIVATE ===========================
 
-void MenuStateCustomGame::refreshCRCCache(GameSettings *gameSettings){
+void MenuStateCustomGame::setRefreshedCrcToGameSettings(GameSettings *gameSettings){
 	Config &config = Config::getInstance();
 	bool forceRefresh=false;
+
 	if( gameSettings->getTileset() != "" && lastRecalculatedCRCTilesetName != gameSettings->getTileset() ) {
 		   lastRecalculatedCRCTilesetName=gameSettings->getTileset() ;
 		   // Check if we have calculated the crc since menu_state started
@@ -4331,10 +4333,29 @@ void MenuStateCustomGame::refreshCRCCache(GameSettings *gameSettings){
 			}
 		}
 	// no need to deal with map CRC this is always calculated
-	setCRCsToGameSettings( gameSettings,forceRefresh);
+
+	//if( forceRefresh) console.addLine("forced refresh CRCCache");
+	setCRCsToSettingsInternal( gameSettings,forceRefresh);
 }
 
-void MenuStateCustomGame::setCRCsToGameSettings(GameSettings *gameSettings, bool forceRefresh){
+void MenuStateCustomGame::setCRCsToGameSettings(GameSettings *gameSettings)
+{
+	//printf("lastTechtreeChange=%f\n",difftime(time(NULL),lastTechtreeChange) );
+	if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
+		lastTechtreeChange= time(NULL); // now
+	}
+
+	if(this->headlessServerMode == false && difftime(time(NULL),lastTechtreeChange) >5 ) {
+		// try a forced CRC recalculation if game settings stay the same for 5 seconds.
+		// it will only recalculted CRC if it was not already done since program start.
+		setRefreshedCrcToGameSettings(gameSettings);
+	}
+	else {
+		setCRCsToSettingsInternal(gameSettings,false);
+	}
+}
+
+void MenuStateCustomGame::setCRCsToSettingsInternal(GameSettings *gameSettings, bool forceRefresh){
 	Config &config = Config::getInstance();
 	if( forceRefresh ==true ){
 		lastCheckedCRCTilesetName="";
@@ -4354,8 +4375,15 @@ void MenuStateCustomGame::setCRCsToGameSettings(GameSettings *gameSettings, bool
 		if(gameSettings->getTech() != "") {
 			if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
 				//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
+				uint32 oldCRC=0;
+				if( forceRefresh){
+					oldCRC=getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL,false);
+				}
 				lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL,forceRefresh);
-
+				if( forceRefresh &&  lastCheckedCRCTechtreeValue!=oldCRC){
+					// we really had a bad CRC before!
+					console.addLine("techtree CRC  fixed!");
+				}
 				reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 				factionCRCList.clear();
 				for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {

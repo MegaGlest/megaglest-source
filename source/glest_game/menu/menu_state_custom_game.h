@@ -151,6 +151,8 @@ private:
 	time_t lastMasterserverPublishing;
 	time_t lastNetworkPing;
 	time_t mapPublishingDelayTimer;
+	time_t lastTechtreeChange;
+
 	bool needToPublishDelayed;
 
 	bool headlessHasConnectedPlayer;
@@ -266,8 +268,9 @@ public:
     virtual bool isVideoPlaying();
 private:
 
-    void setCRCsToGameSettings(GameSettings *gameSettings, bool forceRefresh=false);
-    void refreshCRCCache(GameSettings *gameSettings);
+    void setCRCsToSettingsInternal(GameSettings *gameSettings, bool forceRefresh);
+    void setCRCsToGameSettings(GameSettings *gameSettings);
+    void setRefreshedCrcToGameSettings(GameSettings *gameSettings);
     void setSmallFont(GraphicLabel l);
     void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
