@@ -4345,7 +4345,7 @@ void MenuStateCustomGame::setCRCsToGameSettings(GameSettings *gameSettings)
 		lastTechtreeChange= time(NULL); // now
 	}
 
-	if(this->headlessServerMode == false && difftime(time(NULL),lastTechtreeChange) >5 ) {
+	if(this->headlessServerMode == false && difftime(time(NULL),lastTechtreeChange) >5 &&  hasNetworkGameSettings()) {
 		// try a forced CRC recalculation if game settings stay the same for 5 seconds.
 		// it will only recalculted CRC if it was not already done since program start.
 		setRefreshedCrcToGameSettings(gameSettings);
