@@ -290,19 +290,10 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 			// !!! Is this causing choppy network play somehow?
 			//unit->computeHp();
 		}
-		else if(unit->getCommandSize() > 0) {
-			Command *command= unit->getCurrCommand();
-			if(command != NULL) {
-
-				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
-				if (act != NULL && act->getAttackSkillType() != NULL
-						&& act->getAttackSkillType()->getSpawnUnit() != ""
-						&& act->getAttackSkillType()->getSpawnUnitCount() > 0) {
-					spawnAttack(unit, act->getAttackSkillType()->getSpawnUnit(),
-							act->getAttackSkillType()->getSpawnUnitCount(), 100,
-							100, 100,
-							act->getAttackSkillType()->getSpawnUnitAtTarget());
-				}
+		else if (unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() == scAttack) {
+			const AttackSkillType *attackSkill = dynamic_cast<const AttackSkillType*>(unit->getCurrSkill());
+			if (attackSkill != NULL && attackSkill->getSpawnUnit() != "" && attackSkill->getSpawnUnitCount() > 0) {
+				spawnAttack(unit, attackSkill->getSpawnUnit(), attackSkill->getSpawnUnitCount(), 100, 100, 100, attackSkill->getSpawnUnitAtTarget());
 			}
 		}
 		
