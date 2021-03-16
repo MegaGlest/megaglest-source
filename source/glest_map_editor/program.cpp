@@ -565,6 +565,10 @@ void Program::randomizeMapHeights(bool withReset,int minimumHeight, int maximumH
 	if(map) map->randomizeHeights(withReset, minimumHeight,  maximumHeight,  chanceDivider,  smoothRecursions);
 }
 
+void Program::importMapHeights(unsigned char* data) {
+    if(map) map->importMapHeights(data);
+}
+
 void Program::randomizeFactions() {
 	if(map) map->randomizeFactions();
 }

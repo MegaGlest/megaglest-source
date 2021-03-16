@@ -208,6 +208,7 @@ public:
 	void resize(int w, int h, float alt, MapSurfaceType surf);
 	void resetFactions(int maxFactions);
 	void randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions);
+    void importMapHeights(unsigned char* data);
 	void randomizeFactions();
 	void smoothSurface(bool limitHeights);
 	void switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2);

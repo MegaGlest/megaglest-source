@@ -710,6 +710,14 @@ void MapPreview::randomizeHeights(bool withReset,int minimumHeight, int maximumH
 	hasChanged = true;
 }
 
+void MapPreview::importMapHeights(unsigned char* data) {
+    for (int i = 0; i < w; ++i) {
+        for (int j = 0; j < h; ++j) {
+            cells[i][j].height=(data[(i+j*w)*3]*MAX_MAP_CELL_HEIGHT/255)+MIN_MAP_CELL_HEIGHT;
+        }
+    }
+}
+
 void MapPreview::randomizeFactions() {
 	int slPlaceFactorX = random.randRange(0, 1);
 	int slPlaceFactorY = random.randRange(0, 1) * 2;
