@@ -18,6 +18,7 @@
 #include <iostream>
 #include"platform_util.h"
 #include <wx/stdpaths.h>
+#include "wx/image.h"
 #ifndef WIN32
 #include <errno.h>
 #endif
@@ -181,6 +182,7 @@ void MainWindow::init(string fname) {
     // ---------------------------------------------------------
 
 	menuEdit->Append(miEditRandomizeHeights, wxT("Randomize &Heights"));
+    menuEdit->Append(miEditImportHeights, wxT("Import Heights from Image"));
 	menuEdit->Append(miEditRandomize, wxT("Randomi&ze Players"));
 	menuEdit->Append(miEditSwitchSurfaces, wxT("Switch Sur&faces..."));
 	menuEdit->Append(miEditInfo, wxT("&Info..."));
@@ -1067,6 +1069,52 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 	}
 }
 
+void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
+    if(program == NULL) {
+        return;
+    }
+    try {
+        fileDialog->SetMessage(wxT("Select heigthmap image to load"));
+        fileDialog->SetWildcard(wxT("All Images|*.bmp;*.png;*.jpg;*.jpeg;*.gif;.*.tga;*.tiff;*.tif|PNG-Image (*.png)|*.png|JPEG-Image (*.jpg, *.jpeg)|*.jpg;*.jpeg|BMP-Image (*.bmp)|*.bmp|GIF-Image (*.gif)|*.gif|TIFF-Image (*.tif, *.tiff)|*.tiff;*.tif"));
+        if (fileDialog->ShowModal() == wxID_OK) {
+#ifdef WIN32
+            const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
+            currentFile = tmp_buf;
+
+            auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+            currentFile = utf8_encode(wstr.get());
+#elif wxCHECK_VERSION(2, 9, 1)
+            currentFile = fileDialog->GetPath().ToStdString();
+#else
+            const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
+            currentFile = tmp_buf;
+#endif
+
+            wxImage* img=new wxImage(currentFile);
+            if(img != NULL) {
+                wxImage grey_img = img->ConvertToGreyscale();
+                delete img;
+                int w =grey_img.GetWidth();
+                int h =grey_img.GetHeight();
+                int map_w = program->getMap()->getW();
+                int map_h = program->getMap()->getH();
+                program->setUndoPoint(ctAll);
+                if(w != map_w && h != map_h) {
+                        grey_img.Rescale(map_w,map_h,wxIMAGE_QUALITY_HIGH);
+                }
+                program->importMapHeights(grey_img.GetData());
+                setDirty();
+            }
+        }
+    }
+    catch (const string &e) {
+        MsgDialog(this, ToUnicode(e), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+    }
+    catch (const exception &e) {
+        MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+    }
+}
+
 void MainWindow::onMenuEditRandomize(wxCommandEvent &event) {
 	if(program == NULL) {
 		return;
@@ -1464,6 +1512,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(miEditRotatecopyCorner, MainWindow::onMenuEditRotatecopyCorner)
 
 	EVT_MENU(miEditRandomizeHeights, MainWindow::onMenuEditRandomizeHeights)
+    EVT_MENU(miEditImportHeights, MainWindow::onMenuEditImportHeights)
 	EVT_MENU(miEditRandomize, MainWindow::onMenuEditRandomize)
 	EVT_MENU(miEditSwitchSurfaces, MainWindow::onMenuEditSwitchSurfaces)
 	EVT_MENU(miEditInfo, MainWindow::onMenuEditInfo)

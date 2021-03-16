@@ -137,6 +137,7 @@ private:
 		miEditMirror,
 
 		miEditRandomizeHeights,
+        miEditImportHeights,
 		miEditRandomize,
 		miEditSwitchSurfaces,
 		miEditInfo,
@@ -254,6 +255,7 @@ public:
 	void onMenuEditRotatecopyCorner(wxCommandEvent &event); // copy top left 1/4 to top right 1/4, rotated
 
 	void onMenuEditRandomizeHeights(wxCommandEvent &event);
+    void onMenuEditImportHeights(wxCommandEvent &event);
 	void onMenuEditRandomize(wxCommandEvent &event);
 	void onMenuEditSwitchSurfaces(wxCommandEvent &event);
 	void onMenuEditInfo(wxCommandEvent &event);
