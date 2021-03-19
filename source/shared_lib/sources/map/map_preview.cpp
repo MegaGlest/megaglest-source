@@ -112,8 +112,8 @@ int MapPreview::getStartLocationY(int index) const {
 	return startLocations[index].y;
 }
 
-static int get_dist(int delta_x, int delta_y) {
-	float dx = (float)delta_x;
+int MapPreview::get_dist(int delta_x, int delta_y) {
+    float dx = (float)delta_x;
 	float dy = (float)delta_y;
 #ifdef USE_STREFLOP
 	return static_cast<int>(streflop::sqrtf(static_cast<streflop::Simple>(dx * dx + dy * dy))+0.5); // round correctly
@@ -462,7 +462,7 @@ void MapPreview::setSurface(int x, int y, MapSurfaceType surface) {
 	hasChanged = true;
 }
 
-void MapPreview::changeObject(int x, int y, int object, int radius) {
+void MapPreview::changeObject(int x, int y, int object, int radius, bool overwrite) {
 	int i = 0, j = 0;
 	int dist = 0;
 
@@ -470,7 +470,7 @@ void MapPreview::changeObject(int x, int y, int object, int radius) {
 		for (j = y - radius + 1; j < y + radius; j++) {
 			if (inside(i, j)) {
 				dist = get_dist(i - x, j - y);
-				if (radius > dist) {  // was >=
+                if (radius > dist && (overwrite || (cells[i][j].resource==0 && cells[i][j].object == 0 && !isCliff(i,j) && cells[i][j].height >= waterLevel-1.5f))) {  // was >=
 					cells[i][j].object = object;
 					cells[i][j].resource = 0;
 					hasChanged = true;
@@ -488,7 +488,7 @@ void MapPreview::setObject(int x, int y, int object) {
 	hasChanged = true;
 }
 
-void MapPreview::changeResource(int x, int y, int resource, int radius) {
+void MapPreview::changeResource(int x, int y, int resource, int radius, bool overwrite) {
 	int i = 0, j = 0;
 	int dist = 0;
 
@@ -496,7 +496,7 @@ void MapPreview::changeResource(int x, int y, int resource, int radius) {
 		for (j = y - radius + 1; j < y + radius; j++) {
 			if (inside(i, j)) {
 				dist = get_dist(i - x, j - y);
-				if (radius > dist) {  // was >=
+                if (radius > dist && (overwrite || (cells[i][j].resource==0 && cells[i][j].object == 0 && !isCliff(i,j) && cells[i][j].height >= waterLevel-1.5f))) {  // was >=
 					cells[i][j].resource = resource;
 					cells[i][j].object = 0;
 					hasChanged = true;

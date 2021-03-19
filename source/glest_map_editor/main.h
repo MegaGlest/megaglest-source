@@ -51,6 +51,7 @@ enum StatusItems {
 	siFILE_TYPE,
 	siCURR_OBJECT,
 	siBRUSH_TYPE,
+    siBRUSH_OVERWRITE,
 	siBRUSH_VALUE,
 	siBRUSH_RADIUS,
 	siPOS_VALUE,
@@ -197,6 +198,9 @@ private:
 	int startLocation;
 	int resourceUnderMouse;
 	int objectUnderMouse;
+    pair<int,int> mouse_pos;
+
+    bool shiftModifierKey;
 
 	bool randomWithReset;
 	int randomMinimumHeight;
@@ -231,6 +235,7 @@ public:
 
 	void onPaint(wxPaintEvent &event);
 	void onKeyDown(wxKeyEvent &e);
+    void onKeyUp(wxKeyEvent &e);
 
 	void onMenuFileLoad(wxCommandEvent &event);
 	void onMenuFileSave(wxCommandEvent &event);
@@ -308,6 +313,7 @@ public:
 	void onMouseMove(wxMouseEvent &event);
 	void onMouseWheel(wxMouseEvent &event);
 	void onKeyDown(wxKeyEvent &event);
+    void onKeyUp(wxKeyEvent &event);
     void onPaint(wxPaintEvent &event);
 
     void setCurrentGLContext();

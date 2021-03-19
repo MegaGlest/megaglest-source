@@ -36,7 +36,7 @@ void BaseRenderer::initMapSurface(int clientW, int clientH) {
 }
 
 void BaseRenderer::renderMap(MapPreview *map, int x, int y,
-							 int clientW, int clientH, int cellSize, bool grid, bool heightMap, bool hideWater) {
+                             int clientW, int clientH, int cellSize, bool grid, bool heightMap, bool hideWater, pair<int,int>* mouse_pos, int* radius) {
 	float alt=0;
 	float showWater=0;
 
@@ -78,7 +78,7 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 					case st_Ground: surfColor = Vec3f(0.7f * alt, 0.5f * alt, 0.3f * alt + showWater); break;
 				}
 				if(heightMap){
-					surfColor = Vec3f(1.f * alt, 1.f * alt, 1.f * alt + showWater);
+                    surfColor = Vec3f(1.f * alt, 1.f * alt, 1.f * alt + showWater);
 				}
 				if(map->getCliffLevel()>0)
 				{// we maybe need to render cliff surfColor
@@ -87,6 +87,13 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 						isCliff=true;
 					}
 				}
+                //highlight under cusor
+                if(mouse_pos != NULL && radius != NULL) {
+                    int dist = map->get_dist(i - mouse_pos->first, j - mouse_pos->second);
+                    if (*radius > dist) {
+                        surfColor += Vec3f(0.15f,0.15f,0.15f);
+                    }
+                }
 				glColor3fv(surfColor.ptr());
 
 				glBegin(GL_TRIANGLE_STRIP);
