@@ -1239,7 +1239,7 @@ void MainWindow::onMenuHideWater(wxCommandEvent &event) {
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
-		wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2017 The MegaGlest Team    \n"),
+        wxT("\n    Glest Map Editor\n    Copyright 2004-2010 The Glest Team\n    Copyright 2010-2021 The MegaGlest Team    \n"),
 		wxT("About")).ShowModal();
 }
 
