@@ -102,6 +102,7 @@ private:
 	bool hideWater;
 	//static Map *map;
 	static MapPreview *map;
+
 	friend class UndoPoint;
 	ChangeStack undoStack, redoStack;
 
@@ -123,8 +124,8 @@ public:
 	void glestChangeMapHeight(int x, int y, int Height, int radius);
 	void pirateChangeMapHeight(int x, int y, int Height, int radius);
 	void changeMapSurface(int x, int y, int surface, int radius);
-	void changeMapObject(int x, int y, int object, int radius);
-	void changeMapResource(int x, int y, int resource, int radius);
+    void changeMapObject(int x, int y, int object, int radius, bool overwrite);
+    void changeMapResource(int x, int y, int resource, int radius, bool overwrite);
 	void changeStartLocation(int x, int y, int player);
 
 	void setUndoPoint(ChangeType change);
@@ -165,7 +166,7 @@ public:
 	void setMapAdvanced(int altFactor, int waterLevel, int minimumCliffHeight, int cameraHeight);
 
 	//misc
-	void renderMap(int w, int h);
+    void renderMap(int w, int h, pair<int,int>* mouse_pos=NULL, int* radius=NULL);
 	void setOfset(int x, int y);
 	void incCellSize(int i);
 	void resetOfset();

@@ -174,6 +174,7 @@ public:
 	int getCameraHeight() const{return cameraHeight;}
 
 	bool inside(int x, int y);
+    static int get_dist(int delta_x, int delta_y);
 
 	void setRefAlt(int x, int y);
 	void setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight);
@@ -191,8 +192,8 @@ public:
 	void glestChangeHeight(int x, int y, int height, int radius);
 	void pirateChangeHeight(int x, int y, int height, int radius);
 	void changeSurface(int x, int y, MapSurfaceType surface, int radius);
-	void changeObject(int x, int y, int object, int radius);
-	void changeResource(int x, int y, int resource, int radius);
+    void changeObject(int x, int y, int object, int radius, bool overwrite);
+    void changeResource(int x, int y, int resource, int radius, bool overwrite);
 	void changeStartLocation(int x, int y, int player);
 
 	void setHeight(int x, int y, float height);

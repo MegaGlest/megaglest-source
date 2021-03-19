@@ -105,6 +105,8 @@ MainWindow::MainWindow(string appPath)
 	resourceUnderMouse=0;
 	objectUnderMouse=0;
 
+    shiftModifierKey = false;
+
 	// default values for random height calculation that turned out to be quite useful
 	randomWithReset=true;
 	randomMinimumHeight=-300;
@@ -157,8 +159,8 @@ void MainWindow::init(string fname) {
 	menuBar->Append(menuFile, wxT("&File"));
 
 	//edit
-	menuEdit = new wxMenu();
-	menuEdit->Append(miEditUndo, wxT("&Undo\tCTRL+Z"));
+    menuEdit = new wxMenu();
+    menuEdit->Append(miEditUndo, wxT("&Undo\tCTRL+Z"));
 	menuEdit->Append(miEditRedo, wxT("&Redo\tCTRL+Y"));
 	menuEdit->AppendSeparator();
 //	menuEdit->Append(miEditReset, wxT("Rese&t..."));
@@ -313,6 +315,7 @@ void MainWindow::init(string fname) {
 	SetStatusText(wxT(".mgm"), siFILE_TYPE);
 	SetStatusText(wxT("Object: None (Erase)"), siCURR_OBJECT);
 	SetStatusText(wxT("Brush: Height"), siBRUSH_TYPE);
+    SetStatusText(wxT("Type: Overwrite"), siBRUSH_OVERWRITE);
 	SetStatusText(wxT("Value: 0"), siBRUSH_VALUE);
 	SetStatusText(wxT("Radius: 1"), siBRUSH_RADIUS);
 	SetStatusText(wxT("Pos (Ingame): 0"), siPOS_VALUE);
@@ -606,20 +609,18 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 	if(program == NULL) {
 		return;
 	}
-	bool repaint = false;
+    mouse_pos.first = program->getCellX(x);
+    mouse_pos.second = program->getCellY(y);
 	if (event.LeftIsDown()) {
 		change(x, y);
-		repaint = true;
 	} else if (event.MiddleIsDown()) {
 		int dif = (y - lastY);
 		if (dif != 0) {
 			program->incCellSize(dif / abs(dif));
-			repaint = true;
 		}
 	} else if (event.RightIsDown()) {
 		program->setOfset(x - lastX, y - lastY);
-		repaint = true;
-	} else {
+    } else {
 		int currResource = program->getResource(x, y);
 		if (currResource > 0) {
 			SetStatusText(wxT("Resource: ") + ToUnicode(resource_descs[currResource]), siCURR_OBJECT);
@@ -648,10 +649,9 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 	lastX = x;
 	lastY = y;
 
-	if (repaint) {
-		wxPaintEvent ev;
-		onPaint(ev);
-	}
+    wxPaintEvent ev;
+    onPaint(ev);
+
 	event.Skip();
 }
 
@@ -701,8 +701,12 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 void MainWindow::refreshMapRender() {
 	//printf("refreshMapRender map\n");
 
-	if(program && glCanvas) {
-		program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
+    if(program && glCanvas) {
+        if(enabledGroup == ctLocation) {
+            program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
+        } else {
+            program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y, &mouse_pos, &radius);
+        }
 		glCanvas->SwapBuffers();
 	}
 }
@@ -1245,6 +1249,7 @@ void MainWindow::onMenuViewHelp(wxCommandEvent &event) {
 You can change brush in the same category with key 1-9\n\
 and change category with their first letter (keys S, R, O, G, H)\n\
 Press Space to set brush to the resource or object under the mouse cursor\n\
+Hold Shift to fill only empty spaces with the current object or resource\ninstead of replacing everything under the brush.\n\
 To center things in the map shift it with Shift-Up/Down/Left/Right keys\n\
 Height tool (blue) builds with integer height steps 0-20, \nwhile Gradient tool (red) uses any real number \n\
 Units can go over water as long as it is less than 1.5 deep\n\n\
@@ -1341,10 +1346,10 @@ void MainWindow::change(int x, int y) {
 		program->changeMapSurface(x, y, surface, radius);
 		break;
 	case ctObject:
-		program->changeMapObject(x, y, object, radius);
+        program->changeMapObject(x, y, object, radius, !shiftModifierKey);
 		break;
 	case ctResource:
-		program->changeMapResource(x, y, resource, radius);
+        program->changeMapResource(x, y, resource, radius, !shiftModifierKey);
 		break;
 	case ctLocation:
 		program->changeStartLocation(x, y, startLocation - 1);
@@ -1382,7 +1387,7 @@ void MainWindow::uncheckRadius() {
 	}
 }
 
- void MainWindow::onKeyDown(wxKeyEvent &e) {
+void MainWindow::onKeyDown(wxKeyEvent &e) {
 	if(program == NULL) {
 		return;
 	}
@@ -1475,9 +1480,27 @@ void MainWindow::uncheckRadius() {
  	    program->setUndoPoint(ctAll);
  	    program->shiftDown();
  		setDirty();
- 	} else {
+    } else if (e.GetModifiers() == wxMOD_SHIFT) {
+        shiftModifierKey = true;
+        SetStatusText(wxT("Type: Fill"), siBRUSH_OVERWRITE);
+    } else {
  		e.Skip();
 	}
+}
+
+void MainWindow::onKeyUp(wxKeyEvent &e) {
+    if(program == NULL) {
+        return;
+    }
+
+    if(e.GetModifiers() == wxMOD_CONTROL || e.GetModifiers() == wxMOD_ALT){
+        e.Skip();
+    }
+    // WARNING: don't add any Ctrl or ALt key shortcuts below those are reserved for internal menu use.
+    if (e.GetModifiers() != wxMOD_SHIFT) {
+            shiftModifierKey = false;
+            SetStatusText(wxT("Type: Overwrite"), siBRUSH_OVERWRITE);
+    }
 }
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
@@ -1614,6 +1637,11 @@ void GlCanvas::onKeyDown(wxKeyEvent &event) {
 	mainWindow->onKeyDown(event);
 }
 
+void GlCanvas::onKeyUp(wxKeyEvent &event) {
+    mainWindow->onKeyUp(event);
+}
+
+
 void GlCanvas::onPaint(wxPaintEvent &event) {
 //	wxPaintDC dc(this); //N "In a paint event handler must always create a wxPaintDC object even if you do not use it.  (?)
 //    mainWindow->program->renderMap(GetClientSize().x, GetClientSize().y);
@@ -1625,6 +1653,7 @@ void GlCanvas::onPaint(wxPaintEvent &event) {
 
 BEGIN_EVENT_TABLE(GlCanvas, wxGLCanvas)
 	EVT_KEY_DOWN(GlCanvas::onKeyDown)
+    EVT_KEY_UP(GlCanvas::onKeyUp)
     EVT_MOUSEWHEEL(GlCanvas::onMouseWheel)
 	EVT_LEFT_DOWN(GlCanvas::onMouseDown)
 	EVT_MOTION(GlCanvas::onMouseMove)
