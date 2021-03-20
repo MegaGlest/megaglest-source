@@ -188,6 +188,7 @@ private:
 	wxFileDialog *fileDialog;
 
 	string currentFile;
+	wxString heightMapDirectory;
 
 	BrushType currentBrush;
 	int height;

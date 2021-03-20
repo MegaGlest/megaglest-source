@@ -184,7 +184,7 @@ void MainWindow::init(string fname) {
     // ---------------------------------------------------------
 
 	menuEdit->Append(miEditRandomizeHeights, wxT("Randomize &Heights"));
-    menuEdit->Append(miEditImportHeights, wxT("Import Heights from Image"));
+    menuEdit->Append(miEditImportHeights, wxT("Import Heightsmap"));
 	menuEdit->Append(miEditRandomize, wxT("Randomi&ze Players"));
 	menuEdit->Append(miEditSwitchSurfaces, wxT("Switch Sur&faces..."));
 	menuEdit->Append(miEditInfo, wxT("&Info..."));
@@ -423,6 +423,7 @@ void MainWindow::init(string fname) {
 	fileDialog = new wxFileDialog(this);
     string defaultPath = userData + "maps/";
     fileDialog->SetDirectory(ToUnicode(defaultPath));
+    heightMapDirectory=fileDialog->GetDirectory();
 
 	//printf("Default Path [%s]\n",defaultPath.c_str());
 
@@ -1080,6 +1081,8 @@ void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
     try {
         fileDialog->SetMessage(wxT("Select heigthmap image to load"));
         fileDialog->SetWildcard(wxT("All Images|*.bmp;*.png;*.jpg;*.jpeg;*.gif;.*.tga;*.tiff;*.tif|PNG-Image (*.png)|*.png|JPEG-Image (*.jpg, *.jpeg)|*.jpg;*.jpeg|BMP-Image (*.bmp)|*.bmp|GIF-Image (*.gif)|*.gif|TIFF-Image (*.tif, *.tiff)|*.tiff;*.tif"));
+        wxString savedDir=fileDialog->GetDirectory();
+        fileDialog->SetDirectory(heightMapDirectory);
         if (fileDialog->ShowModal() == wxID_OK) {
 #ifdef WIN32
             const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
@@ -1110,6 +1113,9 @@ void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
                 setDirty();
             }
         }
+
+        heightMapDirectory=fileDialog->GetDirectory();
+        fileDialog->SetDirectory(savedDir);
     }
     catch (const string &e) {
         MsgDialog(this, ToUnicode(e), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
