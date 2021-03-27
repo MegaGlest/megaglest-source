@@ -1153,6 +1153,13 @@ void TotalUpgrade::reset() {
 	boostUpgradeBase = NULL;
 	boostUpgradeSourceUnit = -1;
 	boostUpgradeDestUnit = -1;
+
+	attackStrengthMultiplierValueList.clear();
+	moveSpeedIsMultiplierValueList.clear();
+	prodSpeedProduceIsMultiplierValueList.clear();
+	prodSpeedUpgradeIsMultiplierValueList.clear();
+	prodSpeedMorphIsMultiplierValueList.clear();
+	attackSpeedIsMultiplierValueList.clear();
 }
 
 void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMode) {
