@@ -3709,7 +3709,7 @@ bool Unit::morph(const MorphCommandType *mct, int frameIndex) {
 		this->setType(morphUnitType);
 		Field original_field = this->currField;
 		this->currField=morphUnitField;
-		computeTotalUpgrade();
+		//computeTotalUpgrade(); don't do this here! Its already done in another place
 		map->putUnitCells(this, this->pos, false, frameIndex < 0);
 
 		this->faction->applyDiscount(morphUnitType, mct->getDiscount());
