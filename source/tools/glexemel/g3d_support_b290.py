@@ -129,7 +129,7 @@ bl_info = {
     "name": "G3D Mesh Import/Export",
     "description": "Import/Export .g3d file (Glest 3D)",
     "author": "various, see head of script",
-    "version": (0, 12, 0),
+    "version": (0, 12, 1),
     "blender": (2, 90, 0),
     "location": "File > Import-Export",
     "warning": "always keep .blend files",
@@ -792,8 +792,12 @@ def G3DSaver(filepath, context, toglest, operator):
         uvlist = []  # list of texcoords
         # tesselate n-polygons to triangles & quads
         bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.quads_convert_to_tris()
         bpy.ops.object.editmode_toggle()
+
+        # We have to update the mesh reference after any mesh modification (e.g. quads_to_tris()).
+        mesh = obj.data
         # mesh.update(calc_tessface=True)
         if textures:
             # uvtex = mesh.tessface_uv_textures[0]
@@ -1095,6 +1099,8 @@ def register():
         description="sets opacity to 1.0, ignoring what's set in materials")
     bpy.types.Mesh.g3d_glow = bpy.props.BoolProperty(
         name="glow", description="let objects glow like particles")
+    bpy.types.Mesh.show_double_sided = bpy.props.BoolProperty(
+        name="double_sided", description="render the object double sided")
 
     for classes in (G3DPanel, ImportG3D, ExportG3D):
         bpy.utils.register_class(classes)
