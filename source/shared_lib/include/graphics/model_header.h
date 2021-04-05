@@ -44,7 +44,8 @@ enum MeshPropertyFlag{
 	mpfCustomColor= 1,
 	mpfTwoSided= 2,
 	mpfNoSelect= 4,
-	mpfGlow= 8
+	mpfGlow= 8,
+	mpfOnlySelect= 16
 };
 
 enum MeshTexture{

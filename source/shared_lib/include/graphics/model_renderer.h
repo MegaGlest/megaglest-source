@@ -21,6 +21,7 @@ namespace Shared{ namespace Graphics{
 enum RenderMode{
 	rmNormal,
 	rmSelection,
+	rmShadows,
 
 	renderModeCount
 };
