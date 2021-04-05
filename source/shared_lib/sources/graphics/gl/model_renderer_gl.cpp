@@ -163,6 +163,11 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 	{// don't render this and do nothing
 		return;
 	}
+	if(renderMode!=rmSelection){
+		if(mesh->getOnlySelect()) {
+			return;
+		}
+	}
 	//assertions
 	assertGl();
 

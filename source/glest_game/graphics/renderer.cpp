@@ -7896,7 +7896,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 					unitsList.push_back(unit);
 				}
 
-				modelRenderer->render(model,rmSelection);
+				modelRenderer->render(model,renderingShadows?rmShadows:rmSelection);
 
 				glPopMatrix();
 
