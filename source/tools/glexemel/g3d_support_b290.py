@@ -892,12 +892,6 @@ def G3DSaver(filepath, context, toglest, operator):
         properties = 0
         if mesh.g3d_customColor:
             properties |= 1
-        try:
-            if mesh.materials[0].use_backface_culling:
-                properties |= 2
-        except Exception as e:
-            print("No material, backface culling not set: ", e)
-            
         if mesh.show_double_sided:
             properties |= 2
         if mesh.g3d_noSelect:
