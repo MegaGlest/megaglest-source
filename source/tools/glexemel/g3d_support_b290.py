@@ -255,7 +255,6 @@ class G3DMeshHeaderv4:  # Read Meshheader
         self.istwosided = bool(self.properties & 2)
         self.noselect = bool(self.properties & 4)
         self.glow = bool(self.properties & 8)
-        self.onlySelect = bool(self.properties & 16)
 
         self.hastexture = False
         self.diffusetexture = None
@@ -437,11 +436,9 @@ def createMesh(filename, header, data, toblender, operator):
     if header.isv4:
         mesh.g3d_noSelect = header.noselect
         mesh.g3d_glow = header.glow
-        mesh.g3d_onlySelect = header.onlySelect
     else:
         mesh.g3d_noSelect = False
         mesh.glow = False
-    #mesh.g3d_onlySelect = False
 
     # ===================================================================================================
     # Material Setup
@@ -898,8 +895,6 @@ def G3DSaver(filepath, context, toglest, operator):
             properties |= 4
         if mesh.g3d_glow:
             properties |= 8
-        if mesh.g3d_onlySelect:
-            properties |= 16
 
         #MeshData
         vertices = []
@@ -932,8 +927,6 @@ def G3DSaver(filepath, context, toglest, operator):
 
         context.scene.frame_set(fcurrent)
 
-        if mesh.g3d_onlySelect:
-            opacity = 1.0
 
         # MeshHeader
         fileID.write(
@@ -987,7 +980,6 @@ class G3DPanel(bpy.types.Panel):
                          "show_double_sided",
                          text="double sided")
         self.layout.prop(context.object.data, "g3d_noSelect")
-        self.layout.prop(context.object.data, "g3d_onlySelect")
         self.layout.prop(context.object.data, "g3d_glow")
 
 
@@ -1094,9 +1086,6 @@ def register():
         description="replace alpha channel of texture with team color")
     bpy.types.Mesh.g3d_noSelect = bpy.props.BoolProperty(
         name="non-selectable", description="click on mesh doesn't select unit")
-    bpy.types.Mesh.g3d_onlySelect = bpy.props.BoolProperty(
-        name="only-selectable",
-        description="this mesh is not visible, only selectable")
     bpy.types.Mesh.g3d_glow = bpy.props.BoolProperty(
         name="glow", description="let objects glow like particles")
     bpy.types.Mesh.show_double_sided = bpy.props.BoolProperty(

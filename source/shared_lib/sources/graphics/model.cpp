@@ -226,7 +226,6 @@ Mesh::Mesh() {
 	customColor= false;
 	noSelect= false;
 	glow= false;
-	onlySelect=false;
 
 	textureFlags=0;
 
@@ -449,7 +448,6 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	customColor= false;
 	noSelect= false;
 	glow= false;
-	onlySelect= false;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d modelFile [%s]\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex,modelFile.c_str());
 
@@ -591,7 +589,6 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	customColor= (meshHeader.properties & mp3CustomColor) != 0;
 	noSelect = false;
 	glow = false;
-	onlySelect=false;
 
 	textureFlags= 0;
 	if((meshHeader.properties & mp3NoTexture) != mp3NoTexture) {
@@ -788,7 +785,6 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	twoSided= (meshHeader.properties & mpfTwoSided) != 0;
 	noSelect= (meshHeader.properties & mpfNoSelect) != 0;
 	glow= (meshHeader.properties & mpfGlow) != 0;
-	onlySelect= (meshHeader.properties & mpfOnlySelect) != 0;
 
 	//material
 	diffuseColor= Vec3f(meshHeader.diffuseColor);
@@ -919,9 +915,6 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	}
 	if(glow) {
 		meshHeader.properties |= mpfGlow;
-	}
-	if(onlySelect){
-		meshHeader.properties|= mpfOnlySelect;
 	}
 
 	meshHeader.textures = textureFlags;
@@ -1557,7 +1550,6 @@ void Mesh::copyInto(Mesh *dest, bool ignoreInterpolationData,
 	dest->customColor 	= this->customColor;
 	dest->noSelect 		= this->noSelect;
 	dest->glow 			= this->glow;
-	dest->onlySelect = this->onlySelect;
 
 	dest->textureFlags 	= this->textureFlags;
 

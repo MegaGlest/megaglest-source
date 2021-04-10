@@ -74,7 +74,6 @@ private:
 	bool customColor;
 	bool noSelect;
 	bool glow;
-	bool onlySelect;
 
 	uint32 textureFlags;
 
@@ -137,7 +136,6 @@ public:
 	bool getCustomTexture() const	{return customColor;}
 	bool getNoSelect() const		{return noSelect;}
 	bool getGlow() const		{return glow;}
-	bool getOnlySelect() const		{return onlySelect;}
 	string getName() const		{return name;}
 
 	uint32 getTextureFlags() const { return textureFlags; }
