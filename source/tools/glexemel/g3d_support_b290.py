@@ -390,15 +390,45 @@ def createMesh(filename, header, data, toblender, operator):
 
     vertsCO = []
     vertsNormal = []
+
+    # Get the Vertices into an empty mesh. This is difficult because
+    # we have to pick a frame in the mesh where all the verts are
+    # different values. Otherwise it loses verts.
+    # TODO: It's possible to create a mesh where all the verts aren't
+    # different values in any frame. That could still cause problems.
+    # Figure out a better solution :p (e.g. moving verts to random
+    # different positions).
+    header_most_diff = 0 # This is the header we will use to define the mesh.
+    n_max_diff = 0 # Max number of "different" vertices found in a frame so far.
+    for x in range(0, header.framecount):
+        n_diff_verts = 0 # Current number of "different" vertices.
+        # Find nubmer of different verts
+        for i in range(0, header.vertexcount * 3, 3):
+            vert_cmp = data.vertices[x * header.vertexcount * 3 + i:x * header.vertexcount * 3 + i + 3]
+            vert_diff = True
+            for j in range(i + 3, header.vertexcount * 3, 3):
+                if (data.vertices[x * header.vertexcount * 3 + j:x * header.vertexcount * 3 + j + 3] == vert_cmp):
+                    vert_diff = False
+                    break
+            n_diff_verts += vert_diff
+        
+        if n_diff_verts == header.vertexcount:
+            # if we've found a frame where all the verts are different, we don't need to do anymore searching.
+            header_most_diff = x
+            n_max_diff = n_diff_verts # Currently not needed, may be useful when improving this code.
+            break
+        
+        if n_diff_verts > n_max_diff:
+            # If the number of different verts is greater than
+            # the previous match, this frame is the new max.
+            n_max_diff = n_diff_verts
+            header_most_diff = x
+
     # Get the Vertices and Normals into empty Mesh
     for x in range(0, header.vertexcount * 3, 3):
-        vertsCO.extend([(data.vertices[x], data.vertices[x + 1],
-                         data.vertices[x + 2])])
+        vertsCO.append(tuple(data.vertices[header_most_diff*header.vertexcount*3+x:header_most_diff*header.vertexcount*3+x+3]))
         vertsNormal.extend([(data.normals[x], data.normals[x + 1],
                              data.normals[x + 2])])
-        # vertsCO.extend([(data.vertices[x+(header.framecount-1)*header.vertexcount*3],data.vertices[x+(header.framecount-1)*header.vertexcount*3+1],data.vertices[x+(header.framecount-1)*header.vertexcount*3+2])])
-        # vertsNormal.extend([(data.normals[x+(header.framecount-1)*header.vertexcount*3],data.normals[x+(header.framecount-1)*header.vertexcount*3+1],data.normals[x+(header.framecount-1)*header.vertexcount*3+2])])
-    # mesh.vertices.add(len(vertsCO))
 
     faces = []
     faceuv = []
@@ -498,31 +528,15 @@ def createMesh(filename, header, data, toblender, operator):
         countm = 0
         psktexname = "psk" + str(countm)
         mesh.uv_layers.new(name=psktexname)
-        # mesh.tessface_uv_textures.new(name=psktexname)
         if (len(faceuv) > 0):
             uv_dat = mesh.uv_layers[psktexname].data
             for i in range(len(faceuv)):
                 for j in range(3):
                     uv_dat[i*3+j].uv = faceuv[i][0][j]
-            # for countm in range(len(mesh.tessface_uv_textures)):
-            #     uvtex = mesh.tessface_uv_textures[countm]  # add one uv texture
-            #     for i, face in enumerate(mesh.tessfaces):
-            #         blender_tface = uvtex.data[i]  # face
-            #         mfaceuv = faceuv[i]
-            #         if countm == faceuv[i][1]:
-            #             face.material_index = faceuv[i][1]
-            #             blender_tface.uv1 = mfaceuv[0][0]  # uv = (0,0)
-            #             blender_tface.uv2 = mfaceuv[0][1]  # uv = (0,0)
-            #             blender_tface.uv3 = mfaceuv[0][2]  # uv = (0,0)
-            #             blender_tface.image = img_diffuse
-            #         else:
-            #             blender_tface.uv1 = [0, 0]
-            #             blender_tface.uv2 = [0, 0]
-            #             blender_tface.uv3 = [0, 0]
+
     imported.append(meshobj)  # Add to Imported Objects
     sk = meshobj.shape_key_add()
-    for x in range(
-            1, header.framecount):  # Put in Vertex Positions for Keyanimation
+    for x in range(0, header.framecount): # Put in Vertex Positions for Keyanimation
         sk = meshobj.shape_key_add()
         for i in range(0, header.vertexcount * 3, 3):
             sk.data[i // 3].co[0] = data.vertices[x * header.vertexcount * 3 +
@@ -533,7 +547,7 @@ def createMesh(filename, header, data, toblender, operator):
                                                   i + 2]
 
     # activate one shapekey per frame
-    for i in range(1, header.framecount):
+    for i in range(0, header.framecount):
         shape = mesh.shape_keys.key_blocks[i]
         shape.value = 0.0
         shape.keyframe_insert("value", frame=i)
