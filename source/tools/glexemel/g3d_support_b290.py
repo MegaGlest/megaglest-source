@@ -403,15 +403,14 @@ def createMesh(filename, header, data, toblender, operator):
     for x in range(0, header.framecount):
         n_diff_verts = 0 # Current number of "different" vertices.
         # Find nubmer of different verts
+        diff_verts = set()
+        n_diff_verts = 0
         for i in range(0, header.vertexcount * 3, 3):
-            vert_cmp = data.vertices[x * header.vertexcount * 3 + i:x * header.vertexcount * 3 + i + 3]
-            vert_diff = True
-            for j in range(i + 3, header.vertexcount * 3, 3):
-                if (data.vertices[x * header.vertexcount * 3 + j:x * header.vertexcount * 3 + j + 3] == vert_cmp):
-                    vert_diff = False
-                    break
-            n_diff_verts += vert_diff
-        
+            vert = tuple(data.vertices[x * header.vertexcount * 3 + i:x * header.vertexcount * 3 + i + 3])
+            if (vert not in diff_verts):
+                n_diff_verts += 1
+                diff_verts.add(vert)
+
         if n_diff_verts == header.vertexcount:
             # if we've found a frame where all the verts are different, we don't need to do anymore searching.
             header_most_diff = x
@@ -423,12 +422,19 @@ def createMesh(filename, header, data, toblender, operator):
             # the previous match, this frame is the new max.
             n_max_diff = n_diff_verts
             header_most_diff = x
-
-    # Get the Vertices and Normals into empty Mesh
-    for x in range(0, header.vertexcount * 3, 3):
-        vertsCO.append(tuple(data.vertices[header_most_diff*header.vertexcount*3+x:header_most_diff*header.vertexcount*3+x+3]))
-        vertsNormal.extend([(data.normals[x], data.normals[x + 1],
-                             data.normals[x + 2])])
+        
+    if n_max_diff == header.vertexcount:
+        # Get the Vertices and Normals into empty Mesh
+        for x in range(0, header.vertexcount * 3, 3):
+            vertsCO.append(tuple(data.vertices[header_most_diff*header.vertexcount*3+x:header_most_diff*header.vertexcount*3+x+3]))
+            vertsNormal.extend([(data.normals[x], data.normals[x + 1],
+                                data.normals[x + 2])])
+    else:
+        operator.report({'WARNING'}, "Could not identify basis keyframe. Line of vertices used for import instead.\n(If no mesh is visible, please check other keyframes.)")
+        for x in range(0, header.vertexcount * 3, 3):
+            vertsCO.append((x*0.01, 0, 0))
+            vertsNormal.extend([(data.normals[x], data.normals[x + 1],
+                                data.normals[x + 2])])
 
     faces = []
     faceuv = []
@@ -548,7 +554,7 @@ def createMesh(filename, header, data, toblender, operator):
 
     # activate one shapekey per frame
     for i in range(0, header.framecount):
-        shape = mesh.shape_keys.key_blocks[i]
+        shape = mesh.shape_keys.key_blocks[i+1]
         shape.value = 0.0
         shape.keyframe_insert("value", frame=i)
         shape.value = 1.0
