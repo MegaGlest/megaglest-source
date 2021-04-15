@@ -3442,8 +3442,8 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 
 		//check for spawnattack
 		if(projectileType->getSpawnUnit()!="" && projectileType->getSpawnUnitcount()>0 ){
-			unitUpdater->spawnAttack(attacker, projectileType->getSpawnUnit(), 100,
-					100, 100, projectileType->getSpawnUnitcount(),
+			unitUpdater->spawnAttack(attacker, projectileType->getSpawnUnit(), projectileType->getSpawnUnitcount(),
+					100, 100, 100,
 					projectileType->getSpawnUnitAtTarget(), targetPos);
 		}
 
