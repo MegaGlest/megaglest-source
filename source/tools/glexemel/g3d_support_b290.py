@@ -398,8 +398,10 @@ def createMesh(filename, header, data, toblender, operator):
     # different values in any frame. That could still cause problems.
     # Figure out a better solution :p (e.g. moving verts to random
     # different positions).
+    # (We tried putting the verts in a line, to prevent merging.
+    # This was a problem because there are some verts that need merging.)
     header_most_diff = 0 # This is the header we will use to define the mesh.
-    n_max_diff = 0 # Max number of "different" vertices found in a frame so far.
+    n_max_diff = 0 # Max number of "different" vertices found in the frame.
     for x in range(0, header.framecount):
         n_diff_verts = 0 # Current number of "different" vertices.
         # Find nubmer of different verts
@@ -423,18 +425,11 @@ def createMesh(filename, header, data, toblender, operator):
             n_max_diff = n_diff_verts
             header_most_diff = x
         
-    if n_max_diff == header.vertexcount:
-        # Get the Vertices and Normals into empty Mesh
-        for x in range(0, header.vertexcount * 3, 3):
-            vertsCO.append(tuple(data.vertices[header_most_diff*header.vertexcount*3+x:header_most_diff*header.vertexcount*3+x+3]))
-            vertsNormal.extend([(data.normals[x], data.normals[x + 1],
-                                data.normals[x + 2])])
-    else:
-        operator.report({'WARNING'}, "Could not identify basis keyframe. Line of vertices used for import instead.\n(If no mesh is visible, please check other keyframes.)")
-        for x in range(0, header.vertexcount * 3, 3):
-            vertsCO.append((x*0.01, 0, 0))
-            vertsNormal.extend([(data.normals[x], data.normals[x + 1],
-                                data.normals[x + 2])])
+    # Get the Vertices and Normals into empty Mesh
+    for x in range(0, header.vertexcount * 3, 3):
+        vertsCO.append(tuple(data.vertices[header_most_diff*header.vertexcount*3+x:header_most_diff*header.vertexcount*3+x+3]))
+        vertsNormal.extend([(data.normals[x], data.normals[x + 1],
+                            data.normals[x + 2])])
 
     faces = []
     faceuv = []
