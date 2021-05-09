@@ -584,8 +584,8 @@ void Program::reset(int w, int h, int alt, int surf) {
 	if(map) map->reset(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
 }
 
-void Program::resize(int w, int h, int alt, int surf) {
-	if(map) map->resize(w, h, (float) alt, static_cast<MapSurfaceType>(surf));
+void Program::resize(int w, int h) {
+    if(map) map->resize(w, h);
 }
 
 void Program::resetFactions(int maxFactions) {

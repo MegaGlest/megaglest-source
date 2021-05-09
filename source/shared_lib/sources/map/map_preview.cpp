@@ -579,7 +579,7 @@ void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 	hasChanged = true;
 }
 
-void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
+void MapPreview::resize(int w, int h) {
 	if (w < MIN_MAP_CELL_DIMENSION || h < MIN_MAP_CELL_DIMENSION) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"Size of map must be at least %dx%d",MIN_MAP_CELL_DIMENSION,MIN_MAP_CELL_DIMENSION);
@@ -593,18 +593,6 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if (alt < MIN_MAP_CELL_HEIGHT || alt > MAX_MAP_CELL_HEIGHT) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"Height must be in the range %d-%d",MIN_MAP_CELL_HEIGHT,MAX_MAP_CELL_HEIGHT);
-		throw megaglest_runtime_error(szBuf);
-	}
-
-	if (surf < st_Grass || surf > st_Ground) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"Surface must be in the range %d-%d",st_Grass,st_Ground);
-		throw megaglest_runtime_error(szBuf);
-	}
-
 	int oldW = this->w;
 	int oldH = this->h;
 	this->w = w;
@@ -612,46 +600,24 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 	//this->maxFactions = maxFactions;
 
 	//create new cells
-	//Cell **oldCells = cells;
 	std::vector<std::vector<Cell> > oldCells = cells;
 
-	//cells = new Cell*[w];
-	cells.resize(w);
-	for (int i = 0; i < w; i++) {
-		//cells[i] = new Cell[h];
-		cells[i].resize(h);
-		for (int j = 0; j < h; j++) {
-			cells[i][j].height = alt;
-			cells[i][j].object = 0;
-			cells[i][j].resource = 0;
-			cells[i][j].surface = surf;
-		}
-	}
-
-	int wOffset = w < oldW ? 0 : (w - oldW) / 2;
-	int hOffset = h < oldH ? 0 : (h - oldH) / 2;
-	//assign old values to cells
-	for (int i = 0; i < oldW; i++) {
-		for (int j = 0; j < oldH; j++) {
-			if (i + wOffset < w && j + hOffset < h) {
-				cells[i+wOffset][j+hOffset].height = oldCells[i][j].height;
-				cells[i+wOffset][j+hOffset].object = oldCells[i][j].object;
-				cells[i+wOffset][j+hOffset].resource = oldCells[i][j].resource;
-				cells[i+wOffset][j+hOffset].surface = oldCells[i][j].surface;
-			}
-		}
-	}
-	for (int i = 0; i < maxFactions; ++i) {
-		startLocations[i].x += wOffset;
-		startLocations[i].y += hOffset;
-	}
-
-	//delete old cells
-	//if (oldCells != NULL) {
-	//	for (int i = 0; i < oldW; i++)
-	//		delete [] oldCells[i];
-	//	delete [] oldCells;
-	//}
+    cells.resize(w);
+    for (int i = 0; i < w; i++) {
+        cells[i].resize(h);
+        for (int j = 0; j < h; j++) {
+            int from_x = (i*oldW)/w;
+            int from_y = (j*oldH)/h;
+            cells[i][j].height = oldCells[from_x][from_y].height;
+            cells[i][j].object = oldCells[from_x][from_y].object;
+            cells[i][j].resource = oldCells[from_x][from_y].resource;
+            cells[i][j].surface = oldCells[from_x][from_y].surface;
+        }
+    }
+    for (int i = 0; i < maxFactions; ++i) {
+        startLocations[i].x *= (float)w/oldW;
+        startLocations[i].y *= (float)h/oldH;
+    }
 
 	hasChanged = true;
 }

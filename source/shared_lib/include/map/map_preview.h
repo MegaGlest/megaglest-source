@@ -206,7 +206,7 @@ public:
 	void copyXY(int x, int y, int sx, int sy);  // destination x,y = source sx,sy
 	void swapXY(int x, int y, int sx, int sy);
 	void reset(int w, int h, float alt, MapSurfaceType surf);
-	void resize(int w, int h, float alt, MapSurfaceType surf);
+    void resize(int w, int h);
 	void resetFactions(int maxFactions);
 	void randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions);
     void importMapHeights(unsigned char* data);
