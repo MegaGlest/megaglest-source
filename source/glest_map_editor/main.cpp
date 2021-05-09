@@ -920,16 +920,12 @@ void MainWindow::onMenuEditResize(wxCommandEvent &event) {
 	SimpleDialog simpleDialog;
 	simpleDialog.addValue("Width", intToStr(program->getMap()->getW()),"(must be 16,32,64,128,256,512...)");
 	simpleDialog.addValue("Height", intToStr(program->getMap()->getH()),"(must be 16,32,64,128,256,512...)");
-	simpleDialog.addValue("Surface", "1","(surface material for new area around map)");
-	simpleDialog.addValue("Altitude", "10","(surface height for new area around map)");
-	if (!simpleDialog.show("Resize - expand around, shrink to topleft")) return;
+    if (!simpleDialog.show("Resize")) return;
 
 	try {
 		program->resize(
 			strToInt(simpleDialog.getValue("Width")),
-			strToInt(simpleDialog.getValue("Height")),
-			strToInt(simpleDialog.getValue("Altitude")),
-			strToInt(simpleDialog.getValue("Surface")));
+            strToInt(simpleDialog.getValue("Height")));
 	}
 	catch (const exception &e) {
 		MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();

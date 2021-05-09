@@ -134,7 +134,7 @@ public:
 
 	//map ops
 	void reset(int w, int h, int alt, int surf);
-	void resize(int w, int h, int alt, int surf);
+    void resize(int w, int h);
 	void resetFactions(int maxFactions);
 	void setRefAlt(int x, int y);
 	void flipX();
