@@ -139,6 +139,7 @@ private:
 
 		miEditRandomizeHeights,
         miEditImportHeights,
+        miEditExportHeights,
 		miEditRandomize,
 		miEditSwitchSurfaces,
 		miEditInfo,
@@ -262,6 +263,7 @@ public:
 
 	void onMenuEditRandomizeHeights(wxCommandEvent &event);
     void onMenuEditImportHeights(wxCommandEvent &event);
+    void onMenuEditExportHeights(wxCommandEvent &event);
 	void onMenuEditRandomize(wxCommandEvent &event);
 	void onMenuEditSwitchSurfaces(wxCommandEvent &event);
 	void onMenuEditInfo(wxCommandEvent &event);
