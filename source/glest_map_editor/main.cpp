@@ -185,6 +185,7 @@ void MainWindow::init(string fname) {
 
 	menuEdit->Append(miEditRandomizeHeights, wxT("Randomize &Heights"));
     menuEdit->Append(miEditImportHeights, wxT("Import Heightsmap"));
+    menuEdit->Append(miEditExportHeights, wxT("Export Heightsmap"));
 	menuEdit->Append(miEditRandomize, wxT("Randomi&ze Players"));
 	menuEdit->Append(miEditSwitchSurfaces, wxT("Switch Sur&faces..."));
 	menuEdit->Append(miEditInfo, wxT("&Info..."));
@@ -1121,6 +1122,46 @@ void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
     }
 }
 
+void MainWindow::onMenuEditExportHeights(wxCommandEvent &event) {
+    if(program == NULL) {
+        return;
+    }
+#if wxCHECK_VERSION(2, 9, 1)
+    wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("All Images|*.bmp;*.png;*.jpg;*.jpeg;*.gif;.*.tga;*.tiff;*.tif|PNG-Image (*.png)|*.png|JPEG-Image (*.jpg, *.jpeg)|*.jpg;*.jpeg|BMP-Image (*.bmp)|*.bmp|GIF-Image (*.gif)|*.gif|TIFF-Image (*.tif, *.tiff)|*.tiff;*.tif"), wxFD_SAVE);
+#else
+    wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("All Images|*.bmp;*.png;*.jpg;*.jpeg;*.gif;.*.tga;*.tiff;*.tif|PNG-Image (*.png)|*.png|JPEG-Image (*.jpg, *.jpeg)|*.jpg;*.jpeg|BMP-Image (*.bmp)|*.bmp|GIF-Image (*.gif)|*.gif|TIFF-Image (*.tif, *.tiff)|*.tiff;*.tif"), wxSAVE);
+#endif
+    fd.SetDirectory(heightMapDirectory);
+    if (fd.ShowModal() == wxID_OK) {
+#ifdef WIN32
+        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
+        currentFile = tmp_buf;
+
+        auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
+        currentFile = utf8_encode(wstr.get());
+#elif wxCHECK_VERSION(2, 9, 1)
+        currentFile = fd.GetPath().ToStdString();
+#else
+        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
+        currentFile = tmp_buf;
+#endif
+        int map_w = program->getMap()->getW();
+        int map_h = program->getMap()->getH();
+        wxImage img(map_w, map_h);
+        unsigned char* img_data = img.GetData();
+        for(int i = 0; i < map_w; i++) {
+            for(int j = 0; j < map_h; j++) {
+                //cells[i][j].height=(data[(i+j*w)*3]*(MAX_MAP_CELL_HEIGHT-MIN_MAP_CELL_HEIGHT)/255)+MIN_MAP_CELL_HEIGHT;
+                img_data[(i+j*map_w)*3] = (unsigned char) ((program->getMap()->getHeight(i,j)-MIN_MAP_CELL_HEIGHT)*255/(MAX_MAP_CELL_HEIGHT-MIN_MAP_CELL_HEIGHT)+0.5);
+                img_data[(i+j*map_w)*3+1] = (unsigned char) ((program->getMap()->getHeight(i,j)-MIN_MAP_CELL_HEIGHT)*255/(MAX_MAP_CELL_HEIGHT-MIN_MAP_CELL_HEIGHT)+0.5);
+                img_data[(i+j*map_w)*3+2] = (unsigned char) ((program->getMap()->getHeight(i,j)-MIN_MAP_CELL_HEIGHT)*255/(MAX_MAP_CELL_HEIGHT-MIN_MAP_CELL_HEIGHT)+0.5);
+            }
+        }
+        img.SaveFile(currentFile);
+    }
+    heightMapDirectory=fd.GetDirectory();
+}
+
 void MainWindow::onMenuEditRandomize(wxCommandEvent &event) {
 	if(program == NULL) {
 		return;
@@ -1538,6 +1579,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(miEditRandomizeHeights, MainWindow::onMenuEditRandomizeHeights)
     EVT_MENU(miEditImportHeights, MainWindow::onMenuEditImportHeights)
+    EVT_MENU(miEditExportHeights, MainWindow::onMenuEditExportHeights)
 	EVT_MENU(miEditRandomize, MainWindow::onMenuEditRandomize)
 	EVT_MENU(miEditSwitchSurfaces, MainWindow::onMenuEditSwitchSurfaces)
 	EVT_MENU(miEditInfo, MainWindow::onMenuEditInfo)
