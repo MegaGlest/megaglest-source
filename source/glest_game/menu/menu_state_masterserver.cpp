@@ -33,7 +33,7 @@ namespace Glest{ namespace Game{
 
 DisplayMessageFunction MenuStateMasterserver::pCB_DisplayMessage = NULL;
 
-static string IRC_SERVER   = "irc.freenode.net";
+static string IRC_SERVER   = "irc.libera.chat";
 static string IRC_CHANNEL  = "#megaglest-lobby";
 
 // =====================================================
