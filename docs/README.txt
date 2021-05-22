@@ -215,7 +215,7 @@ network slots and the other players have to join.
 The best ways to find people to play a multi-player game are:
 a) using the Internet Game menu
 b) scheduling a game on the MegaGlest forums
-c) finding other players on the #megaglest-lobby IRC channel on irc.freenode.net.
+c) finding other players on the #megaglest-lobby IRC channel on irc.libera.chat.
 
 For LAN play, clients may click the 'Find LAN games' menu item to find servers
 with an open network slot on the local network (this uses UDP broadcasting).
@@ -281,6 +281,6 @@ their own by reading up on available documentation before getting in touch.
   http://forum.megaglest.org
 
 - Contact us on IRC:
-  Network: chat.freenode.net
+  Network: irc.libera.chat
   Channel: #megaglest
   Or use the webchat at http://chat.megaglest.org/
