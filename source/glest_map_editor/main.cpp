@@ -545,8 +545,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::setDirty(bool val) {
-	wxPaintEvent ev;
-	onPaint(ev);
+	refreshThings();
 	if (fileModified && val) {
 		return;
 	}
@@ -582,8 +581,8 @@ void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
 		if (!isDirty()) {
 			setDirty(true);
 		}
-		wxPaintEvent ev;
-		onPaint(ev);
+
+		refreshThings();
 	}
 	event.Skip();
 }
@@ -593,18 +592,16 @@ void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 	if(program == NULL) {
 		return;
 	}
-	wxPaintEvent ev;
 	program->incCellSize(1);
-	onPaint(ev);
+	refreshThings();
 }
 
 void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
 	if(program == NULL) {
 		return;
 	}
-	wxPaintEvent ev;
 	program->incCellSize(-1);
-	onPaint(ev);
+	refreshThings();
 }
 
 void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
@@ -651,8 +648,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 	lastX = x;
 	lastY = y;
 
-    wxPaintEvent ev;
-    onPaint(ev);
+	refreshThings();
 
 	event.Skip();
 }
@@ -866,8 +862,7 @@ void MainWindow::onMenuEditReset(wxCommandEvent &event) {
 	currentFile = "";
 	fileName = "New (unsaved) map";
 
-	wxPaintEvent ev;
-	onPaint(ev);
+	refreshThings();
 }
 
 void MainWindow::onMenuEditResetPlayers(wxCommandEvent &event) {
