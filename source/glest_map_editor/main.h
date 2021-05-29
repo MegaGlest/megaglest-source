@@ -228,6 +228,8 @@ public:
 	void refreshMapRender();
 	void init(string fname);
 
+	void refreshThings();
+
 	void onClose(wxCloseEvent &event);
 
 	void onMouseDown(wxMouseEvent &event, int x, int y);

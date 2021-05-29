@@ -657,32 +657,16 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 	event.Skip();
 }
 
-void MainWindow::onPaint(wxPaintEvent &event) {
-	//printf("onPaint map\n");
-
+void MainWindow::refreshThings() {
 	if(!IsShown()) {
-		//printf("onPaint skip map\n");
-
-		event.Skip();
 		return;
 	}
-
-//#if wxCHECK_VERSION(2, 9, 3)
-
-//#elif wxCHECK_VERSION(2, 9, 1)
-//	glCanvas->setCurrentGLContext();
-//#endif
-
-	//static bool contextSet = false;
-	//if(contextSet == false) {
-	//	contextSet = true;
 	glCanvas->setCurrentGLContext();
 	//}
 
 	//printf("lastPaintEvent.getMillis() map\n");
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
-		event.Skip();
 		return;
 	}
 
@@ -697,7 +681,11 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	if(menuBar) menuBar->Refresh(false);
 
 	refreshMapRender();
-	event.Skip();
+}
+void MainWindow::onPaint(wxPaintEvent &event) {
+		refreshThings();
+		event.Skip();
+		return;
 }
 
 void MainWindow::refreshMapRender() {
@@ -834,8 +822,7 @@ void MainWindow::onMenuEditUndo(wxCommandEvent &event) {
 
 	// std::cout << "Undo Pressed" << std::endl;
 	if (program->undo()) {
-		wxPaintEvent e;
-		onPaint(e);
+		refreshThings();
 		setDirty();
 	}
 }
@@ -846,8 +833,7 @@ void MainWindow::onMenuEditRedo(wxCommandEvent &event) {
 	}
 
 	if (program->redo()) {
-		wxPaintEvent e;
-		onPaint(e);
+		refreshThings();
 		setDirty();
 	}
 }
@@ -1246,8 +1232,7 @@ void MainWindow::onMenuViewResetZoomAndPos(wxCommandEvent &event) {
 	}
 
 	program->resetOfset();
-	wxPaintEvent e;
-	onPaint(e);
+	refreshThings();
 }
 
 void MainWindow::onMenuViewGrid(wxCommandEvent &event) {
@@ -1256,8 +1241,7 @@ void MainWindow::onMenuViewGrid(wxCommandEvent &event) {
 	}
 
 	menuView->Check(miViewGrid, program->setGridOnOff());    // miViewGrid event.GetId()
-	wxPaintEvent e;
-	onPaint(e);
+	refreshThings();
 }
 
 
@@ -1267,8 +1251,7 @@ void MainWindow::onMenuViewHeightMap(wxCommandEvent &event) {
 	}
 
 	menuView->Check(miViewHeightMap, program->setHeightMapOnOff());    // miViewGrid event.GetId()
-	wxPaintEvent e;
-	onPaint(e);
+	refreshThings();
 }
 void MainWindow::onMenuHideWater(wxCommandEvent &event) {
 	if(program == NULL) {
@@ -1276,8 +1259,7 @@ void MainWindow::onMenuHideWater(wxCommandEvent &event) {
 	}
 
 	menuView->Check(miHideWater, program->setHideWaterOnOff());    // miViewGrid event.GetId()
-	wxPaintEvent e;
-	onPaint(e);
+	refreshThings();
 }
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
