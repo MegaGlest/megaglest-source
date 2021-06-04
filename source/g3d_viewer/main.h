@@ -146,6 +146,7 @@ public:
 
 	void Notify();
 
+	void onPaintNoEvent();
 	void onPaint(wxPaintEvent &event);
 	void onClose(wxCloseEvent &event);
 	void onMenuFileLoad(wxCommandEvent &event);
@@ -162,6 +163,7 @@ public:
 	void onMenuSpeedSlower(wxCommandEvent &event);
 	void onMenuSpeedFaster(wxCommandEvent &event);
 	void onMenuRestart(wxCommandEvent &event);
+	void onMenuRestartNoEvent();
 	void OnChangeColor(wxCommandEvent &event);
 	void onMenuColorRed(wxCommandEvent &event);
 	void onMenuColorBlue(wxCommandEvent &event);
