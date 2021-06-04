@@ -493,7 +493,7 @@ void MainWindow::onClose(wxCloseEvent &event) {
 
 void MainWindow::initGlCanvas(){
 	if(glCanvas == NULL) {
-		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA,  8 };
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA, 8, 0 };
 		glCanvas = new GlCanvas(this, this->panel, args);
 
 		boxsizer->Add(glCanvas, 1, wxEXPAND);
