@@ -565,7 +565,7 @@ void MainWindow::setupStartupSettings() {
 	renderer->init();
 
 	wxCommandEvent event;
-	onMenuRestart(event);
+	onMenuRestartNoEvent();
 }
 
 MainWindow::~MainWindow(){
@@ -610,10 +610,14 @@ void MainWindow::init() {
 
 void MainWindow::onPaint(wxPaintEvent &event) {
 	if(!IsShown()) {
-		event.Skip();
-		return;
-	}
-	
+			event.Skip();
+			return;
+		}
+
+	onPaintNoEvent( );
+}
+
+void MainWindow::onPaintNoEvent( ) {
 	bool isFirstWindowShownEvent = !startupSettingsInited ;
 	if(startupSettingsInited == false) {
 		startupSettingsInited = true;
@@ -712,7 +716,6 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 			resetAnimation 		= false;
 			particleLoopStart 	= resetParticleLoopStart;
 
-			wxCommandEvent event;
 			if(unitPath.first != "") {
 				//onMenuFileClearAll(event);
 
@@ -720,12 +723,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 				particlePathList.clear();
 				particleProjectilePathList.clear();
 				particleSplashPathList.clear(); // as above
-
-				onMenuRestart(event);
 			}
-			else {
-				onMenuRestart(event);
-			}
+			onMenuRestartNoEvent();
 		}
 	}
 	else if(modelPathList.empty() == true && haveLoadedParticles) {
@@ -740,7 +739,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 			particleLoopStart 	= resetParticleLoopStart;
 
 			wxCommandEvent event;
-			onMenuRestart(event);
+			onMenuRestartNoEvent();
 		}
 	}
 
@@ -796,14 +795,13 @@ void MainWindow::onClose(wxCloseEvent &event){
 // for the mousewheel
 void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 	try {
-		wxPaintEvent paintEvent;
 		zoom*= 1.1f;
 		zoom= clamp(zoom, 0.1f, 10.0f);
 
 		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
-		onPaint(paintEvent);
+		onPaintNoEvent();
 	}
 	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
@@ -813,14 +811,13 @@ void MainWindow::onMouseWheelDown(wxMouseEvent &event) {
 
 void MainWindow::onMouseWheelUp(wxMouseEvent &event) {
 	try {
-		wxPaintEvent paintEvent;
 		zoom*= 0.90909f;
 		zoom= clamp(zoom, 0.1f, 10.0f);
 
 		string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 		GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
-		onPaint(paintEvent);
+		onPaintNoEvent();
 	}
 	catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
@@ -833,7 +830,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 	try {
 		int x= event.GetX();
 		int y= event.GetY();
-		wxPaintEvent paintEvent;
+
 
 		if(event.LeftIsDown()){
 			rotX+= clamp(lastX-x, -10, 10);
@@ -842,7 +839,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
-			onPaint(paintEvent);
+			onPaintNoEvent();
 		}
 		else if(event.RightIsDown()){
 			zoom*= 1.0f+(lastX-x+lastY-y)/100.0f;
@@ -851,7 +848,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event){
 			string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);
 			GetStatusBar()->SetStatusText(ToUnicode(statusTextValue.c_str()));
 
-			onPaint(paintEvent);
+			onPaintNoEvent();
 		}
 
 		lastX= x;
@@ -1868,8 +1865,8 @@ void MainWindow::onTimer(wxTimerEvent &event) {
 		anim -= 1.f;
 		resetAnimation = true;
 	}
-	wxPaintEvent paintEvent;
-	onPaint(paintEvent);
+
+	onPaintNoEvent();
 }
 
 string MainWindow::getModelInfo() {
@@ -1962,6 +1959,10 @@ void MainWindow::onKeyDown(wxKeyEvent &e) {
 }
 
 void MainWindow::onMenuRestart(wxCommandEvent &event) {
+	onMenuRestartNoEvent();
+}
+
+void MainWindow::onMenuRestartNoEvent() {
 	try {
 		// std::cout << "pressed R (restart particle animation)" << std::endl;
 		if(timer) timer->Stop();
