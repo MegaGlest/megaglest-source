@@ -564,7 +564,6 @@ void MainWindow::setupStartupSettings() {
 	}
 	renderer->init();
 
-	wxCommandEvent event;
 	onMenuRestartNoEvent();
 }
 
@@ -738,7 +737,6 @@ void MainWindow::onPaintNoEvent( ) {
 			anim				= 0.f;
 			particleLoopStart 	= resetParticleLoopStart;
 
-			wxCommandEvent event;
 			onMenuRestartNoEvent();
 		}
 	}
