@@ -591,7 +591,7 @@ MainWindow::~MainWindow(){
 
 void MainWindow::initGlCanvas(){
 	if(glCanvas == NULL) {
-		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER,  WX_GL_MIN_ALPHA,  8  }; // to prevent flicker
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_MIN_ALPHA, 8, 0 }; // to prevent flicker
 		glCanvas = new GlCanvas(this, args);
 	}
 }
