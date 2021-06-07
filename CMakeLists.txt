@@ -1,4 +1,25 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8.2 )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.20 )
+
+IF(WIN32)
+	STRING(SUBSTRING ${CMAKE_GENERATOR} 0 13 GENERATOR_TYPE)
+	IF(GENERATOR_TYPE STREQUAL "Visual Studio")
+		# This must be Set before "PROJECT()" is called.
+		set(VCPKG_TARGET_TRIPLET "x64-windows-static")
+
+		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+		ADD_COMPILE_DEFINITIONS(UNICODE _UNICODE)
+
+
+		SET(MEGAGLEST_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/" CACHE STRING "The installation path for data files ${COMMON_INFO_ABOUT_PATH}")
+		SET(MEGAGLEST_INI_INSTALL_PATH "${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "Install path for ini files")
+		
+		INCLUDE(FindPkgConfig)
+	ENDIF()
+ENDIF()
+
 PROJECT( MegaGlest )
 
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -31,8 +52,8 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 ENDIF()
 
 OPTION(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS "Build model import/export tools" ON)
-OPTION(BUILD_MEGAGLEST_MODEL_VIEWER "Build model viewer" ON)
-OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" ON)
+OPTION(BUILD_MEGAGLEST_MODEL_VIEWER "Build model viewer" OFF)
+OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" OFF)
 OPTION(BUILD_MEGAGLEST "Build MegaGlest" ON)
 OPTION(BUILD_MEGAGLEST_TESTS "Build MegaGlest Unit Tests" OFF)
 OPTION(WANT_SINGLE_INSTALL_DIRECTORY "Use single install directory for everything. It is useful for example for MacOS cpack bundles." OFF)
@@ -366,33 +387,6 @@ ELSEIF(UNIX AND NOT APPLE)
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/other_unix/")
 ELSE()
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/data/glest_game/")
-ENDIF()
-
-IF(WIN32)
-	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
-           ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
-
-	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
-
-	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
-	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
-	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
-	include_directories("${PROJECT_SOURCE_DIR}/source/win32_deps/Microsoft\ DirectX\ SDK \(November 2007\)/Include")
-	include_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
 ENDIF()
 
 # Check if sources exist
