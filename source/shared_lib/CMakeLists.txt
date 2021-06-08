@@ -4,7 +4,7 @@
 OPTION(FORCE_EMBEDDED_LIBS "Force use of embedded libraries' code." OFF)
 
 # IMPORTANT: should come BEFORE finding packages
-IF(PKG_CONFIG_FOUND)
+IF(NOT GENERATOR_TYPE STREQUAL "Visual Studio")
 	find_package(PkgConfig REQUIRED)
 ENDIF()
 
