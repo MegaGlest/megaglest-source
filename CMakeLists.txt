@@ -2,16 +2,28 @@ CMAKE_MINIMUM_REQUIRED( VERSION 3.20 )
 
 IF(WIN32)
 	STRING(SUBSTRING ${CMAKE_GENERATOR} 0 13 GENERATOR_TYPE)
-	IF(GENERATOR_TYPE STREQUAL "Visual Studio")
+	SET(VS_BUILD GENERATOR_TYPE STREQUAL "Visual Studio" CACHE STRING "Target visual studio.")
+	IF(VS_BUILD)
 		# This must be Set before "PROJECT()" is called.
 		set(VCPKG_TARGET_TRIPLET "x64-windows-static")
 
+		# Sets the flags MT/ MTd correctly.
 		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-		ADD_COMPILE_DEFINITIONS(UNICODE _UNICODE)
+		include(ProcessorCount)
+		ProcessorCount(N)
+		IF(N GREATER 0)
+			MESSAGE(STATUS "Will build on ${N} cores.")
+		ELSE()
+			SET(N 1)
+			MESSAGE(STATUS "Could not find number of cores. Will attempt to build on ${N} cores.")
+		ENDIF()
 
+		# "MP" is build with all cores.
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP${N}")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP${N}")
+		SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_$} /MP${N}" )
+		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_$} /MP${N}" )
 
 		SET(MEGAGLEST_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/" CACHE STRING "The installation path for data files ${COMMON_INFO_ABOUT_PATH}")
 		SET(MEGAGLEST_INI_INSTALL_PATH "${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "Install path for ini files")
@@ -122,20 +134,24 @@ IF(APPLE)
 	include(${PROJECT_SOURCE_DIR}/mk/macos/CMakeLists.txt)
 ENDIF(APPLE)
 
-IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
+IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR VS_BUILD)
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         MESSAGE(STATUS "Detected CLANG Compiler...")
 	ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		MESSAGE(STATUS "Detected GNUC Compiler...")
 	ELSEIF(MINGW)
 		MESSAGE(STATUS "Detected MINGW Compiler...")
+	ELSEIF(VS_BUILD)
+		MESSAGE(STATUS "Detected VS target for building with msbuild...")
 	ENDIF()
 
     # Common generic GNU type compiler options that work with all generic GCC compatible compilers
-    ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+	IF(NOT VS_BUILD)
+    	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+	ENDIF()
 
 	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-	IF(NOT MINGW)
+	IF(NOT WIN32)
 		# For tons of verbose warnings add: -Wall
 #		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -rdynamic")
 #		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -rdynamic")
@@ -147,6 +163,8 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
     # CLang specific Compiler Options
     IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+
+	ELSEIF(VS_BUILD)
 
     # GCC specific Compiler Options
     ELSE()
@@ -194,25 +212,25 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		MESSAGE(STATUS "*WARNING: Disabled use of STREFLOP! Out of synchs may occur")
 	ENDIF()
 
-        include(CheckCXXSourceRuns)
+	include(CheckCXXSourceRuns)
 
-        check_cxx_source_runs("
-        #include <execinfo.h>
-        #include <stdio.h>
-        int main()
-        {
-	const size_t max_depth = 6;
-	void *stack_addrs[max_depth];
-	size_t stack_depth = backtrace(stack_addrs, max_depth);
-        }"
-        HAS_GCC_BACKTRACE)
+	check_cxx_source_runs("
+	#include <execinfo.h>
+	#include <stdio.h>
+	int main()
+	{
+const size_t max_depth = 6;
+void *stack_addrs[max_depth];
+size_t stack_depth = backtrace(stack_addrs, max_depth);
+	}"
+	HAS_GCC_BACKTRACE)
 
-        IF(HAS_GCC_BACKTRACE)
-            message(STATUS "Found GCC backtrace lib, will support backtraces")
-            ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
-        ELSE()
-            message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
-        ENDIF()
+	IF(HAS_GCC_BACKTRACE)
+		message(STATUS "Found GCC backtrace lib, will support backtraces")
+		ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
+	ELSE()
+		message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
+	ENDIF()
 
 	# Debug compiler flags
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
@@ -348,7 +366,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	message(STATUS "CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}: ${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}}")
 
 	# Win32 specific Compiler Flags
-	IF(WIN32)
+	IF(WIN32 AND NOT VS_BUILD)
 		ADD_DEFINITIONS("-D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -D_LIB -DCURL_STATICLIB")
 	ENDIF()
 ENDIF()
@@ -385,8 +403,18 @@ ELSEIF(UNIX AND APPLE)
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/macos/")
 ELSEIF(UNIX AND NOT APPLE)
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/other_unix/")
+ELSEIF(WIN32)
+	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/windoze/")
 ELSE()
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/data/glest_game/")
+ENDIF()
+
+# Set VS project exe outputs.
+IF(VS_BUILD)
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
 ENDIF()
 
 # Check if sources exist

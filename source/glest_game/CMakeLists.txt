@@ -139,7 +139,7 @@ IF(BUILD_MEGAGLEST)
 	ENDIF()
 
 
-	IF(NOT GENERATOR_TYPE STREQUAL "Visual Studio")
+	IF(NOT VS_BUILD)
     	find_package(PkgConfig REQUIRED)
 	ENDIF()
     IF(FORCE_STREFLOP_SOFTWRAPPER)
@@ -263,7 +263,7 @@ IF(BUILD_MEGAGLEST)
 		add_custom_target(run ALL DEPENDS mg.tmp)
 	ENDIF()
 
-	IF(WIN32 AND NOT GENERATOR_TYPE STREQUAL "Visual Studio")
+	IF(WIN32 AND NOT VS_BUILD)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-subsystem,console -mconsole")
 	ENDIF()
 
