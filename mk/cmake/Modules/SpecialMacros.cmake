@@ -20,7 +20,8 @@ macro(special_check_for_sse _max_sse_level_desired)
   include(CheckCXXSourceRuns)
   include(CheckCSourceRuns)
 
-  IF(NOT MINGW)
+  # Add vs_build to stop flags added to msbuild.
+  IF(NOT MINGW AND NOT VS_BUILD)
           if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
            set(SSE_FLAGS)
           
@@ -201,4 +202,3 @@ macro(_special_list_to_string _string _list)
         endif(${_len} GREATER 0)
     endforeach(_item)
 endmacro(_special_list_to_string)
-

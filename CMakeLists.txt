@@ -37,8 +37,9 @@ PROJECT( MegaGlest )
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
-# *NOTE: For now we assume some variation of GCC Compiler (or MingW for Windows binaries)
-# VC++ users should not use CMake yet but rather the build-mg.bat file in mk/windoze
+# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS). 
+# MSBuild requires using vcpkg and installing required libs.
+# Script works with Windows, Linux and Mac.
 #
 
 # build type
@@ -64,8 +65,8 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 ENDIF()
 
 OPTION(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS "Build model import/export tools" ON)
-OPTION(BUILD_MEGAGLEST_MODEL_VIEWER "Build model viewer" OFF)
-OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" OFF)
+OPTION(BUILD_MEGAGLEST_MODEL_VIEWER "Build model viewer" ON)
+OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" ON)
 OPTION(BUILD_MEGAGLEST "Build MegaGlest" ON)
 OPTION(BUILD_MEGAGLEST_TESTS "Build MegaGlest Unit Tests" OFF)
 OPTION(WANT_SINGLE_INSTALL_DIRECTORY "Use single install directory for everything. It is useful for example for MacOS cpack bundles." OFF)
@@ -123,10 +124,12 @@ FOREACH(ver_var VER_MAJOR;VER_MINOR;VER_PATCH;MEGAGLEST_VERSION)
 ENDFOREACH()
 MESSAGE(STATUS "Detected MegaGlest Version is [v${MEGAGLEST_VERSION}] ")
 
-SET(PIC_FLAG "${PIC_FLAG} -fPIC")
-IF(WANT_STATIC_LIBS AND "${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-	# CMAKE_SIZEOF_VOID_P=8 => 64bit
-	ADD_DEFINITIONS("${PIC_FLAG}")
+IF(NOT VS_BUILD)
+	SET(PIC_FLAG "${PIC_FLAG} -fPIC")
+	IF(WANT_STATIC_LIBS AND "${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+		# CMAKE_SIZEOF_VOID_P=8 => 64bit
+		ADD_DEFINITIONS("${PIC_FLAG}")
+	ENDIF()
 ENDIF()
 
 ## Compiler flags, CPACK configuration and other Apple specific code.
@@ -231,22 +234,24 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	ELSE()
 		message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
 	ENDIF()
+	
+	IF(NOT VS_BUILD)
+		# Debug compiler flags
+		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 
-	# Debug compiler flags
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
+		# Release compiler flags
+		SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 ")
+		IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
+			SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
+		ENDIF()
 
-	# Release compiler flags
-	SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 ")
-	IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
-		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
-	ENDIF()
+		# Release with debug info compiler flags
+		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 ")
 
-	# Release with debug info compiler flags
-	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 ")
-
-	# Release minimum size compiler flags
-	IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
-		SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary
+		# Release minimum size compiler flags
+		IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
+			SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary
+		ENDIF()
 	ENDIF()
 
     # see if this fixes compile issue for tomreyn: libpthread.so.0: error adding symbols: DSO missing from command line

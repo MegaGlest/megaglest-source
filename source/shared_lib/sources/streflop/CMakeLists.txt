@@ -21,4 +21,7 @@ ENDIF()
 ADD_LIBRARY(streflop STATIC EXCLUDE_FROM_ALL
 	${STREFLOP_SRC}
 )
-set_target_properties(streflop PROPERTIES COMPILE_FLAGS "${PIC_FLAG}")
+
+IF(NOT VS_BUILD)
+	set_target_properties(streflop PROPERTIES COMPILE_FLAGS "${PIC_FLAG}")
+ENDIF()
