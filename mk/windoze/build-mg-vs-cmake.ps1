@@ -69,12 +69,12 @@ git pull
 Write-Title "Setup vcpkg"
 Test-Command "cmake" "Please download and install CMake: https://cmake.org/download/. (For 64 bit windows, select 'cmake-x.y.z-windows-x86_64.msi'.)"
 
-${vcpkg-location} = $(Resolve-Path ${vcpkg-location}).ToString()
-"path is ${vcpkg-location}"
-
 if ( !${vcpkg-location} ) {
     ${vcpkg-location} = Join-Path $PSScriptRoot \vcpkg
     "Vcpkg location not set. Setting it to ${vcpkg-location}."
+}
+else {
+    ${vcpkg-location} = $(Resolve-Path ${vcpkg-location}).ToString()
 }
 
 if ( Test-Path ${vcpkg-location} ) {
