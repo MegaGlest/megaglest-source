@@ -1,0 +1,77 @@
+name: CMake
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build-win64:
+    # The CMake configure and build commands are platform agnostic and should work equally
+    # well on Windows or Mac.  You can convert this to a matrix build if you need
+    # cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+        build_type: [Release]
+        include:
+          - build_type: Release
+            release: 'ON'
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install Dependencies
+      run: |
+        vcpkg integrate install
+        vcpkg install brotli:x64-windows-static
+        vcpkg install bzip2:x64-windows-static
+        vcpkg install curl:x64-windows-static
+        vcpkg install expat:x64-windows-static
+        vcpkg install freetype:x64-windows-static
+        vcpkg install fribidi:x64-windows-static
+        vcpkg install ftgl:x64-windows-static
+        vcpkg install glew:x64-windows-static
+        vcpkg install libiconv:x64-windows-static
+        vcpkg install libjpeg-turbo:x64-windows-static
+        vcpkg install liblzma:x64-windows-static
+        vcpkg install libogg:x64-windows-static
+        vcpkg install libpng:x64-windows-static
+        vcpkg install libvorbis:x64-windows-static
+        vcpkg install libxml2:x64-windows-static
+        vcpkg install lua:x64-windows-static
+        vcpkg install openal-soft:x64-windows-static
+        vcpkg install opengl:x64-windows-static
+        vcpkg install miniupnpc:x64-windows-static
+        vcpkg install sdl2:x64-windows-static
+        vcpkg install sqlite3:x64-windows-static
+        vcpkg install tiff:x64-windows-static
+        vcpkg install tool-meson:x64-windows-static
+        vcpkg install wxwidgets:x64-windows-static
+        vcpkg install xerces-c:x64-windows-static
+        vcpkg install zlib:x64-windows-static
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      # Kinda guessing this using supertux + my own build scripts as guides.
+      run: cmake --no-warn-unused-cli -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 16 2019" -T host=x64 -A x64 -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD
+
+   # - name: Test
+   #   working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.  
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+   #   run: ctest -C ${{env.BUILD_TYPE}}
+      
