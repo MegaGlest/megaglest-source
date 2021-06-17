@@ -31,11 +31,11 @@ jobs:
     
     - name: Cache Vcpkg Libs
       uses: actions/cache@v2
-        env:
-          cache-name: cache-vcpkg-deps
-        with:
-          path: c:/vcpkg/installed
-          key: vcpkg-deps
+      env:
+        cache-name: cache-vcpkg-deps
+      with:
+        path: c:/vcpkg/installed
+        key: vcpkg-deps
     
     - name: Install Dependencies
       run: |
