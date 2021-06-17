@@ -29,6 +29,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
+    - name: Cache Vcpkg Libs
+      uses: actions/cache@v2
+        env:
+          cache-name: cache-vcpkg-deps
+        with:
+          path: c:/vcpkg/installed
+          key: vcpkg-deps
+    
     - name: Install Dependencies
       run: |
         vcpkg integrate install
@@ -65,13 +73,24 @@ jobs:
       # Kinda guessing this using supertux + my own build scripts as guides.
       run: cmake --no-warn-unused-cli -B ${{github.workspace}}/build -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 16 2019" -T host=x64 -A x64 -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
 
-    - name: Build
+    - name: Build Mega Glest
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD
+    
+    - name: Create Mega Glest Artifact
+      run: |
+        cd mk/windoze
+        7z a -mx=9 megaglest-x64-snapshot.7z .\megaglest.exe .\megaglest_editor.exe .\megaglest_g3dviewer.exe .\glest.ini
+        cd ../..
+    
+    - name: Archive Mega Glest
+      uses: actions/upload-artifact@v2
+      with:
+        name: megaglest-x64-snapshot
+        path: mk/windoze/megaglest-x64-snapshot.7z
 
    # - name: Test
    #   working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
    #   run: ctest -C ${{env.BUILD_TYPE}}
-      
