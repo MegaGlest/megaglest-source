@@ -105,7 +105,7 @@ $buildFolder = $(Join-Path $PSScriptRoot build)
 $topLevelTargetDir = $(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString()
 
 cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G "Visual Studio 16 2019" -T host=x64 -A x64
-cmake --build $buildFolder --config Release --target ALL_BUILD -j 18
+cmake --build $buildFolder --config Release --target ALL_BUILD
 ""
 
 if ($?) {
