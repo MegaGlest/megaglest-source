@@ -77,17 +77,25 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD
     
-    - name: Create Mega Glest Artifact
+      # Make a copy of 7z.exe and 7z.dll
       run: |
         cd mk/windoze
-        7z a -mx=9 megaglest-x64-snapshot.7z .\megaglest.exe .\megaglest_editor.exe .\megaglest_g3dviewer.exe .\glest.ini
+        $7zPath = $(Get-Command 7z).Source | Split-Path
+        $dllPath = Join-Path $7zPath 7z.dll
+        $exePath = Join-Path $path 7z.exe
+        cp $dllPath .
+        cp $exePath .
         cd ../..
-    
-    - name: Archive Mega Glest
+      
+    - name: Create Mega Glest Snapshot
       uses: actions/upload-artifact@v2
       with:
         name: megaglest-x64-snapshot
-        path: mk/windoze/megaglest-x64-snapshot.7z
+        path: |
+          mk/windoze/*.exe
+          mk/windoze/*.dll
+          mk/windoze/glest.ini
+          mk/shared/*.ini
 
    # - name: Test
    #   working-directory: ${{github.workspace}}/build
