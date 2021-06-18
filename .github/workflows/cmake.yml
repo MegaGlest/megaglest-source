@@ -81,6 +81,7 @@ jobs:
       # Make a copy of 7z.exe
       run: |
         cd mk/windoze
+        cp ..\shared\*.ini .
         $7zPath = $(Get-Command 7z).Source
         cp $7zPath .
         cd ../..
@@ -91,8 +92,8 @@ jobs:
         name: megaglest-x64-snapshot
         path: |
           mk/windoze/*.exe
-          mk/windoze/glest.ini
-          mk/shared/*.ini
+          mk/windoze/*.ini
+          !mk/windoze/glest-dev.ini
 
    # - name: Test
    #   working-directory: ${{github.workspace}}/build
