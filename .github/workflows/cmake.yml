@@ -77,6 +77,7 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD
     
+    - name: Get Additional Dependencies
       # Make a copy of 7z.exe and 7z.dll
       run: |
         cd mk/windoze
