@@ -18,6 +18,7 @@
 #include "faction.h"
 #include "unit.h"
 #include "game.h"
+#include "core_data.h"
 #include "logger.h"
 #include "sound_renderer.h"
 #include "game_settings.h"
@@ -805,6 +806,7 @@ void World::underTakeDeadFactionUnits() {
 
 void World::updateAllFactionConsumableCosts() {
 	//food costs
+	bool warningSoundNeeded=false;
 	int resourceTypeCount = techTree->getResourceTypeCount();
 	int factionCount = getFactionCount();
 	for(int i = 0; i < resourceTypeCount; ++i) {
@@ -815,10 +817,14 @@ void World::updateAllFactionConsumableCosts() {
 				if(faction == NULL) {
 					throw megaglest_runtime_error("faction == NULL");
 				}
-
-				faction->applyCostsOnInterval(rt);
+				warningSoundNeeded = warningSoundNeeded || faction->applyCostsOnInterval(rt);
 			}
 		}
+	}
+	if (warningSoundNeeded) {
+		CoreData &coreData = CoreData::getInstance();
+		//StaticSound *sound= static_cast<const DieSkillType *>(unit->getType()->getFirstStOfClass(scDie))->getSound();
+		SoundRenderer::getInstance().playFx(coreData.getHighlightSound());
 	}
 }
 

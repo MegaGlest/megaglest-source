@@ -1181,8 +1181,10 @@ void Faction::deApplyStaticConsumption(const ProducibleType *p,const CommandType
 }
 
 //apply resource on interval (cosumable resouces)
-void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
+// returns true if warning sound for food etc is needed
+bool Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 
+	bool warningSoundNeeded=false;
 	// For each Resource type we store in the int a total consumed value, then
 	// a vector of units that consume the resource type
 	std::map<const ResourceType *, std::pair<int, std::vector<Unit *> > > resourceIntervalUsage;
@@ -1219,6 +1221,20 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			int resourceTypeUsage = iter->second.first;
 			incResourceAmount(rt, resourceTypeUsage);
 
+			if (rt->getClass() == rcConsumable  ) {
+				const Resource *r = getResource(rt);
+				if (r->getBalance() * 5 + r->getAmount() < 0 && r->getAmount() >= 0) {
+					// warning for player and team( if shared resources or control )
+					bool sharedTeamResources = world->getGame()->isFlagType1BitEnabled(ft1_allow_shared_team_resources);
+					bool sharedTeamUnits = world->getGame()->isFlagType1BitEnabled(ft1_allow_shared_team_units);
+					bool isTeam = ( this->getTeam() == world->getThisTeamIndex());
+
+					if (this->getIndex() == world->getThisFactionIndex() || (isTeam && (sharedTeamResources || sharedTeamUnits))) {
+						warningSoundNeeded=true;
+					}
+				}
+			}
+
 			// Check if we have any unit consumers
 			if(getResource(rt)->getAmount() < 0) {
 				resetResourceAmount(rt);
@@ -1247,6 +1263,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			}
 		}
 	}
+	return warningSoundNeeded;
 }
 
 int Faction::getAmountOfProducable(const ProducibleType *pt,const CommandType *ct) {
@@ -1804,8 +1821,8 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr,i
 
 				if(deleteList.empty() == false) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "], needToCleanup [%d]",
+						char szBuf[8095]="";
+						snprintf(szBuf,8095,"[cleaning old resource targets] deleteList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "], needToCleanup [%d]",
 											deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
 						//unit->logSynchData(szBuf);
 

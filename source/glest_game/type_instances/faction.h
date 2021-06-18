@@ -314,7 +314,7 @@ public:
 	void deApplyCosts(const ProducibleType *p,const CommandType *ct);
 	void deApplyStaticCosts(const ProducibleType *p,const CommandType *ct);
 	void deApplyStaticConsumption(const ProducibleType *p,const CommandType *ct);
-	void applyCostsOnInterval(const ResourceType *rtApply);
+	bool applyCostsOnInterval(const ResourceType *rtApply);
 	bool checkCosts(const ProducibleType *pt,const CommandType *ct);
 	int getAmountOfProducable(const ProducibleType *pt,const CommandType *ct);
 
