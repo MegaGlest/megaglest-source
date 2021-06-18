@@ -83,7 +83,7 @@ jobs:
         cd mk/windoze
         $7zPath = $(Get-Command 7z).Source | Split-Path
         $dllPath = Join-Path $7zPath 7z.dll
-        $exePath = Join-Path $path 7z.exe
+        $exePath = Join-Path $7zPath 7z.exe
         cp $dllPath .
         cp $exePath .
         cd ../..
