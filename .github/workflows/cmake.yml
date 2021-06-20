@@ -6,11 +6,50 @@ on:
   pull_request:
     branches: [ develop ]
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 jobs:
+  build-linux:
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-latest]
+        compiler: [gcc, clang]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: sudo mk/linux/setupBuildDeps.sh
+    
+    - name: Set GCC compiler
+      if: ${{ matrix.compiler == gcc }}
+      env:
+        CC: gcc
+        CXX: g++
+    
+    - name: Set Clang Compiler
+      if: ${{ matrix.compiler == clang }}
+      env:
+        CC: clang
+        CXX: clang++
+      
+    - name: Bulid MegaGlest
+      run: mk/linux/build-mg.sh
+    
+    - name: Get Additional Dependencies
+      run: cp mk/shared/*.ini mk/linux/
+      
+    - name: Create Mega Glest Snapshot
+      if: ${{ matrix.compiler == gcc }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: megaglest-x64-snapshot
+        path: |
+          mk/linux/megaglest
+          mk/linux/megaglest_editor
+          mk/linux/megaglest_g3dviewer
+          mk/linux/*.ini
+          !mk/linux/glest-dev.ini
+
   build-win64:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
