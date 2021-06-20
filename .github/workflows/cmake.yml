@@ -20,21 +20,20 @@ jobs:
     - name: Get dependencies
       run: sudo mk/linux/setupBuildDeps.sh
     
-    - name: Set GCC compiler
+    - name: Bulid MegaGlest With GCC Compiler
       if: ${{ matrix.compiler == gcc }}
       env:
         CC: gcc
         CXX: g++
-    
-    - name: Set Clang Compiler
+      run: mk/linux/build-mg.sh
+
+    - name: Bulid MegaGlest With Clang Compiler
       if: ${{ matrix.compiler == clang }}
       env:
         CC: clang
         CXX: clang++
-      
-    - name: Bulid MegaGlest
       run: mk/linux/build-mg.sh
-    
+
     - name: Get Additional Dependencies
       run: cp mk/shared/*.ini mk/linux/
       
