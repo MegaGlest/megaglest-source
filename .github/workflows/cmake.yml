@@ -42,7 +42,7 @@ jobs:
       run: cp mk/shared/*.ini mk/linux/
       
     - name: Create Mega Glest Snapshot
-      if: ${{ matrix.compiler == 'gcc' }}
+      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
       uses: actions/upload-artifact@v2
       with:
         name: megaglest-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.compiler }}
