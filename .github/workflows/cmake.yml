@@ -11,6 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        arch: [x64]
         os: [ubuntu-18.04, ubuntu-latest]
         compiler: [gcc, clang]
     runs-on: ${{ matrix.os }}
@@ -44,7 +45,7 @@ jobs:
       if: ${{ matrix.compiler == 'gcc' }}
       uses: actions/upload-artifact@v2
       with:
-        name: megaglest-x64-snapshot
+        name: megaglest-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.compiler }}
         path: |
           mk/linux/megaglest
           mk/linux/megaglest_editor
@@ -130,7 +131,7 @@ jobs:
     - name: Create Mega Glest Snapshot
       uses: actions/upload-artifact@v2
       with:
-        name: megaglest-x64-snapshot
+        name: megaglest-x64-windows
         path: |
           mk/windoze/*.exe
           mk/windoze/*.ini
