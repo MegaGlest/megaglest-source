@@ -9,6 +9,7 @@ on:
 jobs:
   build-linux:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-18.04, ubuntu-latest]
         compiler: [gcc, clang]
