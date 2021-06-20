@@ -38,8 +38,11 @@ jobs:
         CXX: clang++
       run: mk/linux/build-mg.sh
 
-    - name: Get Additional Dependencies
-      run: cp mk/shared/*.ini mk/linux/
+    - name: Prepare Snapshot
+      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
+      run: |
+        cp mk/shared/*.ini mk/linux/
+        strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
       
     - name: Create Mega Glest Snapshot
       if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
@@ -119,8 +122,7 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD
     
-    - name: Get Additional Dependencies
-      # Make a copy of 7z.exe
+    - name: Prepare Snapshot
       run: |
         cd mk/windoze
         cp ..\shared\*.ini .
