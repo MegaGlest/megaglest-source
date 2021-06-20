@@ -21,7 +21,7 @@ jobs:
       run: sudo mk/linux/setupBuildDeps.sh
     
     - name: Bulid MegaGlest With GCC Compiler
-      if: ${{ matrix.compiler == gcc }}
+      if: ${{ matrix.compiler == 'gcc' }}
       env:
         CC: gcc
         CXX: g++
