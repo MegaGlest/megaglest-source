@@ -28,7 +28,7 @@ jobs:
       run: mk/linux/build-mg.sh
 
     - name: Bulid MegaGlest With Clang Compiler
-      if: ${{ matrix.compiler == clang }}
+      if: ${{ matrix.compiler == 'clang' }}
       env:
         CC: clang
         CXX: clang++
@@ -38,7 +38,7 @@ jobs:
       run: cp mk/shared/*.ini mk/linux/
       
     - name: Create Mega Glest Snapshot
-      if: ${{ matrix.compiler == gcc }}
+      if: ${{ matrix.compiler == 'gcc' }}
       uses: actions/upload-artifact@v2
       with:
         name: megaglest-x64-snapshot
