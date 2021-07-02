@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 3.20 )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.10 )
 
 IF(WIN32)
 	STRING(SUBSTRING ${CMAKE_GENERATOR} 0 13 GENERATOR_TYPE)
@@ -58,7 +58,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/mk/cmake/Modules)
 IF(CMAKE_BUILD_TYPE)
 	MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 ENDIF()
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
     SET(CMAKE_COMPILER_IS_GNUCXX "YES")
 #        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
     ADD_DEFINITIONS("-Wno-switch")
@@ -138,7 +138,7 @@ IF(APPLE)
 ENDIF(APPLE)
 
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR VS_BUILD)
-    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
         MESSAGE(STATUS "Detected CLANG Compiler...")
 	ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		MESSAGE(STATUS "Detected GNUC Compiler...")
@@ -165,7 +165,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR VS_BUILD)
 	ENDIF()
 
     # CLang specific Compiler Options
-    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
 
 	ELSEIF(VS_BUILD)
 
@@ -449,7 +449,7 @@ ENDIF()
 #get_directory_property( DirDefs COMPILE_DEFINITIONS )
 #MESSAGE(STATUS ">>>> NOTICE Compiler definitions used: ${DirDefs}")
 #MESSAGE(STATUS "END of compile defs...")
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
     MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 
