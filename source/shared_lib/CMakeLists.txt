@@ -166,7 +166,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	OPTION(WANT_USE_FTGL "Use libFTGL for on-screen fonts (found on your system)" ON)
 	find_package( Freetype REQUIRED)
 	include_directories( ${FREETYPE_INCLUDE_DIRS} )
-	FIND_PACKAGE(FTGL)
+	FIND_PACKAGE(FTGL REQUIRED)
 	IF(WANT_USE_FTGL)
 		if (FTGL_FOUND)
 		        MESSAGE(STATUS "**NOTE: FTGL font support was detected and enabled.")
