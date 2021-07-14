@@ -8,7 +8,7 @@
 # Seems like a good place to add version specific compiler flags too.
 
 IF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
-	IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
 		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 		#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
 	ENDIF()

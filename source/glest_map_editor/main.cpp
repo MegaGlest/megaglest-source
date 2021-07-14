@@ -706,13 +706,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 		fileDialog->SetMessage(wxT("Select Glestmap to load"));
 		fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
 		if (fileDialog->ShowModal() == wxID_OK) {
-#ifdef WIN32
-			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
-			currentFile = tmp_buf;
-
-			auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
-			currentFile = utf8_encode(wstr.get());
-#elif wxCHECK_VERSION(2, 9, 1)
+#ifdef wxCHECK_VERSION(2, 9, 1)
 			currentFile = fileDialog->GetPath().ToStdString();
 #else
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
@@ -782,13 +776,8 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 
 	fd.SetWildcard(wxT("MegaGlest Map (*.mgm)|*.mgm|Glest Map (*.gbm)|*.gbm"));
 	if (fd.ShowModal() == wxID_OK) {
-#ifdef WIN32
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
-		currentFile = tmp_buf;
 
-		auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
-		currentFile = utf8_encode(wstr.get());
-#elif wxCHECK_VERSION(2, 9, 1)
+#ifdef wxCHECK_VERSION(2, 9, 1)
 		currentFile = fd.GetPath().ToStdString();
 #else
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
@@ -1062,13 +1051,7 @@ void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
         wxString savedDir=fileDialog->GetDirectory();
         fileDialog->SetDirectory(heightMapDirectory);
         if (fileDialog->ShowModal() == wxID_OK) {
-#ifdef WIN32
-            const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fileDialog->GetPath()));
-            currentFile = tmp_buf;
-
-            auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
-            currentFile = utf8_encode(wstr.get());
-#elif wxCHECK_VERSION(2, 9, 1)
+#ifdef wxCHECK_VERSION(2, 9, 1)
             currentFile = fileDialog->GetPath().ToStdString();
 #else
             const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
@@ -1114,13 +1097,7 @@ void MainWindow::onMenuEditExportHeights(wxCommandEvent &event) {
 #endif
     fd.SetDirectory(heightMapDirectory);
     if (fd.ShowModal() == wxID_OK) {
-#ifdef WIN32
-        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
-        currentFile = tmp_buf;
-
-        auto_ptr<wchar_t> wstr(Ansi2WideString(currentFile.c_str()));
-        currentFile = utf8_encode(wstr.get());
-#elif wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 1)
         currentFile = fd.GetPath().ToStdString();
 #else
         const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
@@ -1721,12 +1698,7 @@ bool SimpleDialog::show(const string &title, bool wide) {
 	if(m_returnCode==wxID_CANCEL) return false; // don't change values if canceled
 
 	for (unsigned int i = 0; i < texts.size(); ++i) {
-#ifdef WIN32
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(texts[i]->GetValue()));
-		values[i].second = tmp_buf;
-#else
 		values[i].second = texts[i]->GetValue().ToAscii();
-#endif
 	}
 	return true;
 }
@@ -1782,15 +1754,7 @@ bool App::OnInit() {
     //exe_path += path_separator;
 
 	string appPath;
-//#if defined(__MINGW32__)
-
-#ifdef WIN32
-	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
-	appPath = tmp_buf;
-
-	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
-	appPath = utf8_encode(wstr.get());
-#elif wxCHECK_VERSION(2, 9, 1)
+#ifdef wxCHECK_VERSION(2, 9, 1)
 	appPath = exe_path.ToStdString();
 #else
 	appPath = wxFNCONV(exe_path);

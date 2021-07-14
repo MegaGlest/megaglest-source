@@ -16,9 +16,6 @@
 #include "conversion.h"
 #include <algorithm>
 #include "util.h"
-#ifdef WIN32
-#include "glext.h"
-#endif
 
 #include "leak_dumper.h"
 

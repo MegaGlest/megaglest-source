@@ -290,7 +290,7 @@ static void cleanupProcessObjects() {
 	CacheManager::cleanupMutexes();
 }
 
-#if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)
+#if defined(WIN32) && !defined(__GNUC__)
 void fatal(const char *s, ...)    // failure exit
 {
     static int errors = 0;
