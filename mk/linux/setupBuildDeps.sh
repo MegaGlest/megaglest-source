@@ -145,7 +145,7 @@ case $distribution in
 				;;
 			14.04*)
 				#LTS, name > trusty, EoL April 2019
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
+				installcommand="apt-get install $APT_OPTIONS build-essential cmake libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
 				;;
 			16.04*)
 				#LTS, name > xenial, EoL April 2021

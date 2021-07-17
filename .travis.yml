@@ -1,85 +1,94 @@
 # https://docs.travis-ci.com/user/customizing-the-build/
 language: cpp
-
-sudo: required
-
 matrix:
   include:
     - os: linux
+      dist: xenial
+      # Default gcc version is 5 on xenial
       compiler: gcc
-      addons:
-          apt:
-            packages:
-            - libsdl2-dev
-      env: Tr_Compiler_Version="7"
-      # https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test
-      dist: trusty # broken compiler on 12.04
+      env: MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
     - os: linux
+      dist: xenial
       compiler: gcc
-      addons:
-          apt:
-            packages:
-            - libsdl2-dev
-      env: Tr_Compiler_Version="default"
-      dist: trusty
+      env: MATRIX_EVAL="CC=gcc-5 && CXX=g++-5" FORCE_EMBEDDED="-e"
     - os: linux
+      dist: xenial
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - os: linux
+      dist: bionic
+      # Default gcc version is 7 on bionic
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    - os: linux
+      dist: xenial
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      env: MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
+# clang
+    - os: linux
+      dist: xenial
       compiler: clang
       addons:
-          apt:
-            packages:
-            - libsdl2-dev
-      env: Tr_Compiler_Version="5.0"
-      # http://apt.llvm.org/, compiler not newer than available on debian testing
-      # https://packages.debian.org/search?suite=testing&keywords=clang-
-      dist: trusty
-    - os: linux
-      compiler: clang
-      addons:
-          apt:
-            packages:
-            - libsdl2-dev
-      env: Tr_Compiler_Version="default"
-      dist: trusty # broken compiler on 12.04
+        apt:
+          sources:
+            - llvm-toolchain-xenial-5.0
+          packages:
+            - clang-5.0
+      env: MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0" WITHOUT_WXWIDGETS="-w"
+# osx
     - os: osx
-      #osx_image: xcode6.4 # seems broken and has lower priority in queue than default one
-      env: Tr_Xcode_Version="default"
-      #env: Tr_Xcode_Version="6.4"
-      # https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
-      # https://github.com/Homebrew/brew/blob/master/docs/Installation.md#requirements
+      osx_image: xcode9.4
+      env: XCODE="true"
+    - os: osx
+      osx_image: xcode10.1
+      env: XCODE="true"
+
   fast_finish: true
   allow_failures:
     - os: osx
-    # it's not really acceptable to wait 40 minutes or sometimes up to even 3 hours
-    # for the result just because the queue for mac is always so long
 
 git:
   submodules: false
 
-#branches:
-#  only:
-#    - master
+install:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      eval "${MATRIX_EVAL}";
+      if [ "$CXX" != "g++-5" ] && [ "$CXX" != "g++-7" ]; then
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157 &&
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+      fi;
+      sudo apt-get update -qq;
+      if [ "$CXX" != "g++-5" ] && [ "$CXX" != "g++-7" ]; then
+        sudo apt-get install -y $CXX;
+      fi;
+      sudo $TRAVIS_BUILD_DIR/mk/linux/setupBuildDeps.sh --quiet;
+    else
+      brew update &&
+      brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac &&
+      brew outdated cmake || brew upgrade cmake; brew outdated pkgconfig || brew upgrade pkgconfig &&
+      brew link --force gettext;
+    fi
 
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./.travis-before_install.sh "$CC" "$Tr_Compiler_Version"; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install sdl2 lua freetype ftgl libogg glew libvorbis cppunit glib fribidi miniupnpc wxmac; fi
-    # ^ not on travis also needed are: cmake + pkgconfig + xquartz (find by "search") + (maybe) git + (maybe) bash
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew outdated cmake || brew upgrade cmake; brew outdated pkgconfig || brew upgrade pkgconfig; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew link --force gettext; fi
-    # ^ odd linking problems related with brew which is not creating links
-  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$Tr_Xcode_Version" = "6.4" ]; then brew install Caskroom/cask/xquartz; fi
-  - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" = "gcc" ]; then export CXX="g++-${Tr_Compiler_Version}" CC="gcc-${Tr_Compiler_Version}"; fi
-  - if [ "$Tr_Compiler_Version" != "" ] && [ "$Tr_Compiler_Version" != "default" ] && [ "$CC" == "clang" ]; then export CXX="clang++-${Tr_Compiler_Version}" CC="clang-${Tr_Compiler_Version}"; fi
+before_script:
   - $CC --version
   - $CXX --version
   - cmake --version
+  - BUILD_OPTIONS="-c 4 $FORCE_EMBEDDED $WITHOUT_WXWIDGETS"
 
 script:
-# ALL THE BUILD COMMANDS HERE
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" = "" ]; then mk/linux/build-mg.sh -c 4; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$(echo "$CC" | grep 'clang')" != "" ]; then mk/linux/build-mg.sh -w -c 4; fi
-  # ^ -w may be removed on more modern dist: than trusty, problems related with 'new wx+clang+old gcc'
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then mk/macos/build-mg.sh -c 4; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      mk/linux/build-mg.sh $BUILD_OPTIONS;
+    else
+      mk/macos/build-mg.sh $BUILD_OPTIONS;
+    fi
 
 # https://docs.travis-ci.com/user/notifications/#IRC-notification
 notifications:
