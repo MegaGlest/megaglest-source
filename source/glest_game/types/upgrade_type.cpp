@@ -1189,7 +1189,20 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMo
 		}
 	}
 
-	maxHpRegeneration+= ut->getMaxHpRegeneration();
+	 {
+		int upgradeValue;
+		if (ut->getMaxEpIsMultiplier() == true) {
+			upgradeValue = ((double) unit->getType()->getHpRegeneration() * ((double) ut->getMaxHpRegeneration() / (double) 100));
+		} else {
+			upgradeValue = ut->getMaxHpRegeneration();
+		}
+		if (boostMode) {
+			//ignore! no boost for MaxEP. This makes no sense. Just upgrades allowed
+			maxHpRegeneration=upgradeValue;
+		} else {
+			maxHpRegeneration += upgradeValue;
+		}
+	}
 
 	 {
 		int upgradeValue;
@@ -1206,7 +1219,20 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMo
 		}
 	}
 
-	maxEpRegeneration+= ut->getMaxEpRegeneration();
+	 {
+		int upgradeValue;
+		if (ut->getMaxEpIsMultiplier() == true) {
+			upgradeValue = ((double) unit->getType()->getEpRegeneration() * ((double) ut->getMaxEpRegeneration() / (double) 100));
+		} else {
+			upgradeValue = ut->getMaxEpRegeneration();
+		}
+		if (boostMode) {
+			//ignore! no boost for MaxEP. This makes no sense. Just upgrades allowed
+			maxEpRegeneration=upgradeValue;
+		} else {
+			maxEpRegeneration += upgradeValue;
+		}
+	}
 
 	{
 		int upgradeValue;
