@@ -278,7 +278,16 @@ void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 			Vec2i targetPos=game->getMouseCellPos();
 			if(prepared || (game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true)) {
-				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
+
+				for(int unitIndex = 0; unitIndex < selection.getCount(); ++unitIndex){
+						const Unit *unit = selection.getUnit(unitIndex);
+						if(unit == NULL) {
+							//ignore
+						}
+						else {
+							commander->trySetMeetingPoint(unit, targetPos);
+						}
+				}
 			}
 		}
 		resetState();
