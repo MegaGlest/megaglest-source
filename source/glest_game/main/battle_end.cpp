@@ -523,6 +523,7 @@ void BattleEnd::render() {
 		int bm= 100;
 
 		int realPlayerCount = 0;
+		Vec3f normalColor = Vec3f(WHITE.x,WHITE.y,WHITE.z);
 		for(int i = 0; i < stats.getFactionCount(); ++i) {
 			if(stats.getTeam(i) == GameConstants::maxPlayers -1 + fpt_Observer) {
 				continue;
@@ -618,60 +619,60 @@ void BattleEnd::render() {
 			}
 
 			if(stats.getPersonalityType(i) == fpt_Observer) {
-				textRenderer->render(lang.getString("GameOver").c_str(), textX, bm+360);
+				textRenderer->render(lang.getString("GameOver").c_str(), textX, bm+360, false , &normalColor);
 			}
 			else {
 				if(stats.getVictory(i)) {
 					textRenderer->render(stats.getVictory(i)? lang.getString("Victory").c_str(): lang.getString("Defeat").c_str(), textX, bm+360, false, &highliteColor);
 				}
 				else {
-					textRenderer->render(stats.getVictory(i)? lang.getString("Victory").c_str(): lang.getString("Defeat").c_str(), textX, bm+360);
+					textRenderer->render(stats.getVictory(i)? lang.getString("Victory").c_str(): lang.getString("Defeat").c_str(), textX, bm+360, false, &normalColor);
 				}
 			}
 
-			textRenderer->render(controlString, textX, bm+320);
-			textRenderer->render(stats.getFactionTypeName(i), textX, bm+280);
-			textRenderer->render(intToStr(team).c_str(), textX, bm+240);
+			textRenderer->render(controlString, textX, bm+320, false, &normalColor);
+			textRenderer->render(stats.getFactionTypeName(i), textX, bm+280, false, &normalColor);
+			textRenderer->render(intToStr(team).c_str(), textX, bm+240, false, &normalColor);
 
 			if(kills == bestKills) {
 				textRenderer->render(intToStr(kills).c_str(), textX, bm+200, false,&highliteColor);
 			}
 			else {
-				textRenderer->render(intToStr(kills).c_str(), textX, bm+200);
+				textRenderer->render(intToStr(kills).c_str(), textX, bm+200, false, &normalColor);
 			}
 			if(enemykills == bestEnemyKills) {
 				textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180, false , &highliteColor);
 			}
 			else {
-				textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180);
+				textRenderer->render(intToStr(enemykills).c_str(), textX, bm+180, false, &normalColor);
 			}
 			if(deaths == leastDeaths) {
 				textRenderer->render(intToStr(deaths).c_str(), textX, bm+160,false,&highliteColor);
 			}
 			else {
-				textRenderer->render(intToStr(deaths).c_str(), textX, bm+160);
+				textRenderer->render(intToStr(deaths).c_str(), textX, bm+160, false, &normalColor);
 			}
 			if(unitsProduced == bestUnitsProduced) {
 				textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120,false,&highliteColor);
 			}
 			else {
-				textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120);
+				textRenderer->render(intToStr(unitsProduced).c_str(), textX, bm+120, false, &normalColor);
 			}
 			if(resourcesHarvested == bestResourcesHarvested) {
 				textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80,false,&highliteColor);
 			}
 			else {
-				textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80);
+				textRenderer->render(intToStr(resourcesHarvested).c_str(), textX, bm+80, false, &normalColor);
 			}
 			if(score == bestScore) {
 				textRenderer->render(intToStr(score).c_str(), textX, bm+20,false,&highliteColor);
 			}
 			else {
-				textRenderer->render(intToStr(score).c_str(), textX, bm+20);
+				textRenderer->render(intToStr(score).c_str(), textX, bm+20, false, &normalColor);
 			}
 		}
 
-		textRenderer->render("\n"+(lang.getString("LeftAt")), lm, bm+400);
+		textRenderer->render("\n"+(lang.getString("LeftAt")), lm, bm+400, false, &normalColor);
 		textRenderer->render(lang.getString("Result"), lm, bm+360);
 		textRenderer->render(lang.getString("Control"), lm, bm+320);
 		textRenderer->render(lang.getString("Faction"), lm, bm+280);
