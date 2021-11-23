@@ -1578,11 +1578,6 @@ void TotalUpgrade::incLevel(const UnitType *ut) {
 	maxEp += ut->getMaxEp()*50/100;
 	sight += ut->getSight()*20/100;
 	armor += ut->getArmor()*50/100;
-
-	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
-		TotalUpgrade *boost = boostUpgrades[index];
-		boost->copyDataFrom(this);
-	}
 }
 
 void TotalUpgrade::saveGame(XmlNode *rootNode) const {
