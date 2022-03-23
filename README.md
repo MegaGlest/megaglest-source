@@ -17,7 +17,7 @@ within the game at no cost.
 [**MegaGlest Downloads**](https://megaglest.org/download.html)
 
 ![gif](https://megaglest.org/uploads/images/screenshots/game_screens.gif)
-[> game trailer <](http://downloads.megaglest.org/videos/megaglest_game_trailer_lq.webm)
+[> game trailer <](https://downloads.megaglest.org/videos/megaglest_game_trailer_lq.webm)
 
 If you want to compile MegaGlest yourself, you should read the following:
 
