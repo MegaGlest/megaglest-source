@@ -278,7 +278,7 @@ their own by reading up on available documentation before getting in touch.
 
 - Post to the forums:
   If you are reporting a bug, please be sure to read the bug reporting guide.
-  http://forum.megaglest.org
+  https://forum.megaglest.org
 
 - Contact us on IRC:
   Network: irc.libera.chat

@@ -10,7 +10,7 @@
 Developed on Linux with glibc, little endian CPU. While MacIntel builds exist
 (for some versions of the game), MegaGlest does not currently work on big
 endian CPUs like PPC (though some unfinished patches for vanilla Glest float
-around on the forums, e.g. http://forum.megaglest.org/?topic=1426#).
+around on the forums, e.g. https://forum.megaglest.org/?topic=1426#).
 
 ~~~~~~~~~~~~~~~~~~~~~~ 2. Building and Installation ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
