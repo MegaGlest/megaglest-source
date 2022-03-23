@@ -259,7 +259,7 @@ megaglest --help
 Further information:
 
 - The MegaGlest website:
-  http://megaglest.org
+  https://megaglest.org
 
 - The MegaGlest wiki:
   http://wiki.megaglest.org

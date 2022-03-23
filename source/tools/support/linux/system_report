@@ -84,7 +84,7 @@ common_info () {
     echo "  sudo find -type f -name $Exec_2 /" >&2
     echo >&2
     echo "Please be aware that this script is written to work with installations created" >&2
-    echo "using the installation instructions on http://megaglest.org. It may or may not" >&2
+    echo "using the installation instructions on https://megaglest.org. It may or may not" >&2
     echo "work with variants of MegaGlest which were packaged by your Linux distribution." >&2
     echo >&2; exit 1
 }
