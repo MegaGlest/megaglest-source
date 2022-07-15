@@ -1016,7 +1016,7 @@ void Gui::computeDisplay(){
 
 						//printf("computeDisplay i = %d cc = %d isshared = %d lastCommand = %d\n",i,cc,isSharedCommandClass(cc),lastCommand);
 
-						if(isSharedCommandClass(cc) && cc != ccBuild){
+						if(cc == ccAttack || isSharedCommandClass(cc) && cc != ccBuild){
 							display.setDownLighted(lastCommand, true);
 							display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
 							display.setCommandClass(lastCommand, cc);
