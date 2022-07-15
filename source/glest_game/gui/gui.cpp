@@ -447,6 +447,19 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
 		clickCommonCommand(ccStop);
 	}
+
+	else if(isKeyPressed(configKeys.getSDLKey("HotKeyBuild1"),key) == true) {
+        const CommandType *ct;
+        for(int i=0; i<selection.getCount(); ++i){
+            const Unit *unit= selection.getUnit(i);
+            ct= unit->getType()->getFirstCtOfClass(ccBuild);
+            if(ct != NULL) {
+                break;
+            }
+        }
+		clickCommonCommand(ct->getClass());
+    }
+
 }
 
 void Gui::switchToNextDisplayColor(){
