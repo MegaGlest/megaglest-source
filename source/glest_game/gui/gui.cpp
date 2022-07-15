@@ -408,22 +408,22 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 		centerCameraOnSelection();
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectIdleHarvesterUnit")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectIdleHarvesterUnit"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectIdleHarvesterUnit"),key) == true) {
 		selectInterestingUnit(iutIdleHarvester);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectBuiltBuilding")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectBuiltBuilding"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectBuiltBuilding"),key) == true) {
 		selectInterestingUnit(iutBuiltBuilding);
 	}
 	//else if(key == configKeys.getCharKey("HotKeyDumpWorldToLog")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeyDumpWorldToLog"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeyDumpWorldToLog"),key) == true) {
 		 if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
 			 std::string worldLog = world->DumpWorldToLog();
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
 		}
 	}
 	//else if(key == configKeys.getCharKey("HotKeyRotateUnitDuringPlacement")){
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeyRotateUnitDuringPlacement"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeyRotateUnitDuringPlacement"),key) == true) {
 	    // Here the user triggers a unit rotation while placing a unit
 	    if(isPlacingBuilding()) {
 	    	if(getBuilding()->getRotationAllowed()){
@@ -432,34 +432,32 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	    }
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectDamagedUnit")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectDamagedUnit"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectDamagedUnit"),key) == true) {
 		selectInterestingUnit(iutDamaged);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectStoreUnit")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectStoreUnit"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectStoreUnit"),key) == true) {
 		selectInterestingUnit(iutStore);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectedUnitsAttack")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsAttack"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsAttack"),key) == true) {
 		clickCommonCommand(ccAttack);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectedUnitsStop")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
 		clickCommonCommand(ccStop);
 	}
 
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeyBuild1"),key) == true) {
-        const CommandType *ct;
-        for(int i=0; i<selection.getCount(); ++i){
-            const Unit *unit= selection.getUnit(i);
-            ct= unit->getType()->getFirstCtOfClass(ccBuild);
-            if(ct != NULL) {
-                break;
+    for (int i=0; i<10; i++) {
+        string name = "HotKeyBuild" + intToStr(i+1);
+        if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
+            if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
+                mouseDownDisplayUnitBuild(i);
+            } else {
+                mouseDownDisplayUnitSkills(i);
             }
         }
-		clickCommonCommand(ct->getClass());
     }
-
 }
 
 void Gui::switchToNextDisplayColor(){
@@ -756,7 +754,7 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay) {
 				activeCommandType->getClass() == ccBuild) {
 
 			const BuildCommandType *bct	= dynamic_cast<const BuildCommandType*>(activeCommandType);
-			if(bct != NULL) {
+			if(bct != NULL && bct->getBuildingCount() > posDisplay) {
 				const UnitType *ut 			= bct->getBuilding(posDisplay);
 
 				const Unit *unit = selection.getFrontUnit();
