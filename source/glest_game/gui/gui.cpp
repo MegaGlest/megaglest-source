@@ -38,7 +38,7 @@ namespace Glest {
 namespace Game {
 
 // =====================================================
-// 	class Mouse3d
+//	class Mouse3d
 // =====================================================
 
 const float Mouse3d::fadeSpeed = 1.f / 50.f;
@@ -65,7 +65,7 @@ void Mouse3d::update() {
 }
 
 // ===============================
-// 	class SelectionQuad
+//	class SelectionQuad
 // ===============================
 
 SelectionQuad::SelectionQuad() {
@@ -89,7 +89,7 @@ void SelectionQuad::disable() {
 }
 
 // =====================================================
-// 	class Gui
+//	class Gui
 // =====================================================
 
 // constructor
