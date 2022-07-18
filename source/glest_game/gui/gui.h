@@ -88,7 +88,7 @@ public:
 };
 
 // =====================================================
-// 	class Gui
+//	class Gui
 //
 ///	In game GUI
 // =====================================================
@@ -124,7 +124,7 @@ private:
 	CommandClass activeCommandClass;
 	int activePos;
 	int lastPosDisplay;
-    int commonCommands;
+	int commonCommands;
 
 	//composite
 	Display display;
