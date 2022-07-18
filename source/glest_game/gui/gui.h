@@ -124,6 +124,7 @@ private:
 	CommandClass activeCommandClass;
 	int activePos;
 	int lastPosDisplay;
+    int commonCommands;
 
 	//composite
 	Display display;

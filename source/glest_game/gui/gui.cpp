@@ -97,6 +97,7 @@ Gui::Gui(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	lastGroupRecall = -1;
+    commonCommands=0;
     posObjWorld= Vec2i(54, 14);
 	validPosObjWorld= false;
     activeCommandType= NULL;
@@ -453,8 +454,10 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
         if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
             if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
                 mouseDownDisplayUnitBuild(i);
+                break;
             } else {
-                mouseDownDisplayUnitSkills(i);
+                if (i < commonCommands) mouseDownDisplayUnitSkills(i);
+                break;
             }
         }
     }
@@ -1056,6 +1059,7 @@ void Gui::computeDisplay(){
 							lastCommand++;
 						}
 					}
+                    commonCommands = lastCommand;
 				}
 			}
 			else if (activeCommandType != NULL && activeCommandType->getClass() == ccBuild) {
