@@ -64,7 +64,7 @@ Setup.Package
 
     postinstall = function(package)
 	if MojoSetup.promptyn(_("MegaGlest Visit Website Title"), _("MegaGlest Visit Website Prompt")) then
-        	MojoSetup.launchbrowser("http://megaglest.org/get-started.html")
+        	MojoSetup.launchbrowser("https://megaglest.org/get_started")
 	end
     end,
 
