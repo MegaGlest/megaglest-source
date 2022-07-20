@@ -114,7 +114,7 @@ directory tree the %AppData% environment variable points to.
 * Try to get updated graphics drivers.
 
 -- The game crashes ---
-* Check the forums at http://forums.megaglest.org/
+* Check the forums at https://forums.megaglest.org/
 * Please report any other crashes and freezes that are not yet described on 
   the forums, preferably with a backtrace from a debugging enabled build
   
@@ -127,7 +127,7 @@ directory tree the %AppData% environment variable points to.
   https://docs.megaglest.org/Main_Page
 
 * Forums
-  http://forums.megaglest.org/
+  https://forums.megaglest.org/
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 5. Contact + Credits ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * MegaGlest is developed by:

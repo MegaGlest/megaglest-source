@@ -84,7 +84,7 @@ common_info () {
     echo "  sudo find -type f -name $Exec_2 /" >&2
     echo >&2
     echo "Please be aware that this script is written to work with installations created" >&2
-    echo "using the installation instructions on http://megaglest.org. It may or may not" >&2
+    echo "using the installation instructions on https://megaglest.org. It may or may not" >&2
     echo "work with variants of MegaGlest which were packaged by your Linux distribution." >&2
     echo >&2; exit 1
 }
@@ -386,7 +386,7 @@ echo ' take note of this new location/URL/Internet address and make it available
 echo ' the MegaGlest developers. Unless you were instructed to do otherwise, please'
 echo ' post both the Internet address of where you uploaded to and a verbose'
 echo ' description of the issues you are experiencing at'
-echo '   http://forum.megaglest.org'
+echo '   https://forum.megaglest.org'
 echo ''
 echo ' Thank you for making it easy for us to assist you,'
 echo ''

@@ -10,7 +10,7 @@
 Developed on Linux with glibc, little endian CPU. While MacIntel builds exist
 (for some versions of the game), MegaGlest does not currently work on big
 endian CPUs like PPC (though some unfinished patches for vanilla Glest float
-around on the forums, e.g. http://forum.megaglest.org/?topic=1426#).
+around on the forums, e.g. https://forum.megaglest.org/?topic=1426#).
 
 ~~~~~~~~~~~~~~~~~~~~~~ 2. Building and Installation ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -131,7 +131,7 @@ BSD distributions. Please see the website, forums and wiki for details.
   AMD APUs (the graphics chips embedded into AMD processors).
 
 --- Crashing ---
-* Check the forums at http://forums.megaglest.org/
+* Check the forums at https://forums.megaglest.org/
 * Please report any crashes and freezes that are not yet described on the forums, 
   preferably with a gdb backtrace from a debugging enabled build 
   (cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo)
@@ -146,7 +146,7 @@ BSD distributions. Please see the website, forums and wiki for details.
   https://docs.megaglest.org/Main_Page
 
 * Forums
-  http://forums.megaglest.org/
+  https://forums.megaglest.org/
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 5. Contact + Credits ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * MegaGlest is developed by:

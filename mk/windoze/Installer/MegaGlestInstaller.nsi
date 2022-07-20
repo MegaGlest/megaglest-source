@@ -195,7 +195,7 @@ FunctionEnd
 Function .onInstSuccess
 
     MessageBox MB_YESNO "Would you like to view our getting started page on megaglest.org?" IDNO noLaunchWebsite
-    ExecShell open 'http://megaglest.org/get-started.html'
+    ExecShell open 'https://megaglest.org/get_started'
     
 noLaunchWebsite:
 
