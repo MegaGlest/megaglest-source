@@ -454,9 +454,13 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 		if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
 			if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
 				mouseDownDisplayUnitBuild(i);
+				computeDisplay();
 				break;
 			} else {
-				if (i < numberCommands) mouseDownDisplayUnitSkills(i);
+				if (i < numberCommands) {
+					mouseDownDisplayUnitSkills(i);
+					computeDisplay();
+				}
 				break;
 			}
 		}
