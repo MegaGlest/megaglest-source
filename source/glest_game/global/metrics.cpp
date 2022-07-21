@@ -51,10 +51,10 @@ void Metrics::reloadData(int resWidth, int resHeight) {
 		screenH= config.getInt("ScreenHeight");
 	}
 	
-	minimapX= 10;
-	minimapY= 750-128-30+16;
-	minimapW= 128;
-	minimapH= 128;
+	minimapX= config.getInt("MinimapX","7")+3;
+	minimapY= config.getInt("MinimapY",intToStr(750-128-30+13).c_str())+3;
+	minimapW= config.getInt("MinimapWidth","128");
+	minimapH= config.getInt("MinimapHeight","128");
 
 	displayX= 800;
 	displayY= 250;
