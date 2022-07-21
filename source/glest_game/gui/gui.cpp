@@ -450,7 +450,7 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	}
 
 	for (int i=0; i<10; i++) {
-		string name = "HotKeyBuild" + intToStr(i+1);
+		string name = "CommandKey" + intToStr(i+1);
 		if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
 			if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
 				mouseDownDisplayUnitBuild(i);
