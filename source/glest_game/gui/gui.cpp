@@ -1030,6 +1030,7 @@ void Gui::computeDisplay(){
 									}
 								}
 							}
+							commonCommands = i;
 						}
 					}
 				}
