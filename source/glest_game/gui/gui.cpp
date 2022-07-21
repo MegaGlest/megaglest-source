@@ -1034,8 +1034,8 @@ void Gui::computeDisplay(){
 									}
 								}
 							}
-							numberCommands = i;
 						}
+						numberCommands = ut->getCommandTypeCount();
 					}
 				}
 				else{
