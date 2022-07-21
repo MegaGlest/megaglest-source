@@ -802,8 +802,14 @@ void Gui::computeInfoString(int posDisplay){
 	lastPosDisplay = posDisplay;
 
 	display.setInfoText(computeDefaultInfoString());
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	string commandKeyName = "CommandKey" + intToStr(posDisplay+1);
 
 	if(posDisplay!=invalidPos && selection.isCommandable()){
+		string hotkey = "";
+		if (posDisplay < 10) { // there's 10 configurable command hotkeys
+			hotkey=lang.getString("HotKey")+": "+SDL_GetKeyName(configKeys.getSDLKey(commandKeyName.c_str())) +"\n\n";
+		}
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
 				display.setInfoText(lang.getString("Cancel"));
@@ -819,10 +825,10 @@ void Gui::computeInfoString(int posDisplay){
 
 					if(ct!=NULL){
 						if(unit->getFaction()->reqsOk(ct)){
-							display.setInfoText(ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
+							display.setInfoText(hotkey+ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
 						}
 						else{
-							display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
+							display.setInfoText(hotkey+ct->getReqDesc(game->showTranslatedTechTree()));
 							if(ct->getClass()==ccUpgrade){
 								string text="";
 								const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
@@ -832,20 +838,20 @@ void Gui::computeInfoString(int posDisplay){
 								else if(unit->getFaction()->getUpgradeManager()->isUpgraded(uct->getProducedUpgrade())){
 									text=lang.getString("AlreadyUpgraded")+"\n\n";
 								}
-								display.setInfoText(text+ct->getReqDesc(game->showTranslatedTechTree()));
+								display.setInfoText(hotkey+text+ct->getReqDesc(game->showTranslatedTechTree()));
 							}
 							//locked by scenario
 							else if(ct->getClass()==ccProduce){
 								string text="";
 								const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
 								if(unit->getFaction()->isUnitLocked(pct->getProducedUnit())){
-									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+									display.setInfoText(hotkey+lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
 								}
 							}
 							else if(ct->getClass()==ccMorph){
 								const MorphCommandType *mct= static_cast<const MorphCommandType*>(ct);
 								if(unit->getFaction()->isUnitLocked(mct->getMorphUnit())){
-									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+									display.setInfoText(hotkey+lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
 								}
 							}
 						}
@@ -877,7 +883,7 @@ void Gui::computeInfoString(int posDisplay){
 					const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
 					const Unit *unit= selection.getFrontUnit();
 					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
-						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+						display.setInfoText(hotkey+lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 					} else {
 						bool translatedValue= game->showTranslatedTechTree();
 						const UnitType *building=bct->getBuilding(posDisplay);
@@ -889,7 +895,7 @@ void Gui::computeInfoString(int posDisplay){
 						str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+": "+intToStr(seconds);
 						str+="\n\n";
 						str+=building->getReqDesc(translatedValue);
-						display.setInfoText(str);
+						display.setInfoText(hotkey+str);
 					}
 				}
 			}
