@@ -708,8 +708,12 @@ void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) 
 	// Now check all linux network devices
 	struct ifaddrs *ifap = NULL;
 	getifaddrs(&ifap);
-	for(struct ifaddrs *ifa = ifap; ifa; ifa = ifa->ifa_next) {
-		if (ifa->ifa_addr->sa_family == AF_INET) {
+	for(struct ifaddrs *ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+        if (!ifa->ifa_addr) {
+            continue;
+        }
+		if (ifa->ifa_addr->sa_family == AF_INET) { // check it is IP4
+            // is a valid IP4 Address
 			struct sockaddr_in *sa = (struct sockaddr_in *) ifa->ifa_addr;
 			char *addr = inet_ntoa(sa->sin_addr);
 			//printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
@@ -725,7 +729,7 @@ void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) 
  		    }
 		}
 	}
-	freeifaddrs(ifap);
+	if (ifap != NULL) freeifaddrs(ifap);
 
 	if(Socket::intfTypes.empty()) {
 		Socket::intfTypes.push_back("lo");
