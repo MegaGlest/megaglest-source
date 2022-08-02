@@ -112,6 +112,24 @@ int Display::computeDownIndex(int x, int y) const {
 	return index;
 }
 
+int Display::computeUpIndex(int x, int y) const {
+	y= y-(Metrics::getInstance().getDisplayH()-upCellSideCount*upImageSize);
+	
+	if(y>imageSize*upCellSideCount || y < 0){
+		return invalidPos;
+	}
+
+	int cellX= x/upImageSize;
+	int cellY= (y/upImageSize) % upCellSideCount;
+	int index= (upCellSideCount-cellY-1)*upCellSideCount+cellX;;
+
+	if(index<0 || index>=upCellCount || upImages[index]==NULL){
+		index= invalidPos;
+	}
+
+	return index;
+}
+
 int Display::computeDownX(int index) const{
 	return (index % cellSideCount) * imageSize;
 }

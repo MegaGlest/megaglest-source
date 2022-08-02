@@ -102,6 +102,7 @@ Gui::Gui(){
     activeCommandType= NULL;
     activeCommandClass= ccStop;
 	selectingBuilding= false;
+	hoveringUnitPortrait= false;
 	selectedBuildingFacing = CardinalDir(CardinalDir::NORTH);
 	selectingPos= false;
 	selectingMeetingPoint= false;
@@ -203,6 +204,7 @@ void Gui::invalidatePosObjWorld(){
 
 void Gui::resetState(){
     selectingBuilding= false;
+	hoveringUnitPortrait= false;
 	selectedBuildingFacing = CardinalDir(CardinalDir::NORTH);
 	selectingPos= false;
 	selectingMeetingPoint= false;
@@ -237,7 +239,10 @@ void Gui::mouseDownLeftDisplay(int x, int y) {
 		int posDisplay = computePosDisplay(x, y);
 
 		if(posDisplay != invalidPos) {
-			if(selection.isCommandable()) {
+			if (hoveringUnitPortrait) {
+				mouseDownPortrait(posDisplay);
+			} else {
+				if(selection.isCommandable()) {
 
 				if(selectingBuilding) {
 					mouseDownDisplayUnitBuild(posDisplay);
@@ -249,6 +254,7 @@ void Gui::mouseDownLeftDisplay(int x, int y) {
 			else {
 				resetState();
 			}
+            }
 		}
 		computeDisplay();
 	}
@@ -646,6 +652,15 @@ void Gui::clickCommonCommand(CommandClass commandClass) {
 	computeDisplay();
 }
 
+void Gui::mouseDownPortrait(int posDisplay) {
+	Unit *unit = selection.getUnitPtr(posDisplay);
+	if (!isKeyDown(vkShift)) {
+		selection.clear();
+		selection.select(unit, false);
+	} else {
+		selection.unSelect(posDisplay);
+	}
+}
 void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 	if(selection.isEmpty() == false) {
 		if(posDisplay != cancelPos) {
@@ -778,7 +793,7 @@ void Gui::computeInfoString(int posDisplay){
 
 	display.setInfoText(computeDefaultInfoString());
 
-	if(posDisplay!=invalidPos && selection.isCommandable()){
+	if(!hoveringUnitPortrait && posDisplay!=invalidPos && selection.isCommandable()){
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
 				display.setInfoText(lang.getString("Cancel"));
@@ -1113,6 +1128,12 @@ int Gui::computePosDisplay(int x, int y){
     }
 
 	//printf("computePosDisplay returning = %d\n",posDisplay);
+	if (posDisplay == invalidPos) {
+		posDisplay = display.computeUpIndex(x, y);
+		if (posDisplay != invalidPos) {
+			hoveringUnitPortrait = true;
+		}
+	}
 
 	return posDisplay;
 }

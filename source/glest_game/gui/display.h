@@ -105,6 +105,7 @@ public:
 	void clear();
 	void switchColor();
 	int computeDownIndex(int x, int y) const;
+	int computeUpIndex(int x, int y) const;
 	int computeDownX(int index) const;
 	int computeDownY(int index) const;
 	int computeUpX(int index) const;
