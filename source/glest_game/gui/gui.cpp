@@ -364,9 +364,9 @@ void Gui::mouseDoubleClickLeftGraphics(int x, int y){
 void Gui::groupKey(int groupIndex) {
 	if(isKeyDown(vkControl) || isKeyDown(vkAlt)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
-		bool clearGroup=!isKeyDown(vkShift);
-		bool move=isKeyDown(vkAlt) && !isKeyDown(vkControl);
-		bool allAssigned=selection.assignGroup(groupIndex,!move && clearGroup, move);
+		bool move=isKeyDown(vkAlt);
+		bool clearGroup= move && isKeyDown(vkControl) || !move && isKeyDown(vkShift);
+		bool allAssigned=selection.assignGroup(groupIndex,clearGroup, move);
 		if(!allAssigned){
 			console->addStdMessage("GroupAssignFailed");
 		}
