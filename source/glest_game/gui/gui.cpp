@@ -449,7 +449,7 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 		clickCommonCommand(ccStop);
 	}
 
-	for (int i=0; i<10; i++) {
+	for (int i=0; i<commandKeys; i++) {
 		string name = "CommandKey" + intToStr(i+1);
 		if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
 			if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
@@ -807,7 +807,7 @@ void Gui::computeInfoString(int posDisplay){
 
 	if(posDisplay!=invalidPos && selection.isCommandable()){
 		string hotkey = "";
-		if (posDisplay < 10) { // there's 10 configurable command hotkeys
+		if (posDisplay < commandKeys) {
 			hotkey=lang.getString("HotKey")+": "+SDL_GetKeyName(configKeys.getSDLKey(commandKeyName.c_str())) +"\n\n";
 		}
 		if(!selectingBuilding){
