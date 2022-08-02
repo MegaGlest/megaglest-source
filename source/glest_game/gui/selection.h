@@ -89,7 +89,7 @@ public:
 	Vec3f getRefPos() const;
 	bool hasUnit(const Unit* unit) const;
 	
-	bool assignGroup(int groupIndex, bool clearGroup=true, const UnitContainer *pUnits=NULL);
+	bool assignGroup(int groupIndex, bool clearGroup=true, bool move=false, const UnitContainer *pUnits=NULL);
 	bool addUnitToGroup(int groupIndex,Unit *unit);
 	void removeUnitFromGroup(int groupIndex,int UnitId);
 	void recallGroup(int groupIndex, bool clearSelection=true);
