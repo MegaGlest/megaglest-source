@@ -457,7 +457,7 @@ IF("${CPACK_GENERATOR}" STREQUAL "NSIS")
 	SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
 	SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
 	SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
-	SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
+	SET(CPACK_NSIS_URL_INFO_ABOUT "https://megaglest.org")
 ENDIF()
 
 INCLUDE(CPack)

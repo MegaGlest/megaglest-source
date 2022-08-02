@@ -1,9 +1,9 @@
 **This is the game engine source code repository.**
 
-MegaGlest (http://megaglest.org) is a libre software cross
+MegaGlest (https://megaglest.org) is a libre software cross
 platform real-time strategy game.
 
-![logo](http://megaglest.org/uploads/megaglest2011/logo/logo.png)
+![logo](https://megaglest.org/uploads/megaglest2011/logo/logo.png)
 
 MegaGlest is an entertaining free (freeware and free software)
 and open source cross-platform 3D real-time strategy (RTS) game,
@@ -14,10 +14,10 @@ like the unit models, are crafted with great attention to
 detail. A lot of additional game data can be downloaded from
 within the game at no cost.
 
-[**MegaGlest Downloads**](http://megaglest.org/download.html)
+[**MegaGlest Downloads**](https://megaglest.org/download.html)
 
-![gif](http://megaglest.org/uploads/images/screenshots/game_screens.gif)
-[> game trailer <](http://downloads.megaglest.org/videos/megaglest_game_trailer_lq.webm)
+![gif](https://megaglest.org/uploads/images/screenshots/game_screens.gif)
+[> game trailer <](https://downloads.megaglest.org/videos/megaglest_game_trailer_lq.webm)
 
 If you want to compile MegaGlest yourself, you should read the following:
 

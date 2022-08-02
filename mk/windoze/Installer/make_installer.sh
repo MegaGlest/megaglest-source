@@ -9,8 +9,8 @@ cd "$CURRENTDIR"
 
 # We need the AccessControl plugin for nsis and place this in plugins directory
 # original from http://nsis.sourceforge.net/AccessControl_plug-in
-wget http://downloads.megaglest.org/windowsInstallerHelp/AccessControl.dll -P plugins
-wget http://downloads.megaglest.org/windowsInstallerHelp/AccessControl.txt -P plugins
+wget https://downloads.megaglest.org/windowsInstallerHelp/AccessControl.dll -P plugins
+wget https://downloads.megaglest.org/windowsInstallerHelp/AccessControl.txt -P plugins
 
 makensis MegaGlestInstaller.nsi
 
