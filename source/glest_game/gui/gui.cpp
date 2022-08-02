@@ -654,7 +654,9 @@ void Gui::clickCommonCommand(CommandClass commandClass) {
 
 void Gui::mouseDownPortrait(int posDisplay) {
 	Unit *unit = selection.getUnitPtr(posDisplay);
-	if (!isKeyDown(vkShift)) {
+	if (isKeyDown(vkControl)) {
+		selection.selectType(unit);
+	} else if (!isKeyDown(vkShift)) {
 		selection.clear();
 		selection.select(unit, false);
 	} else {
