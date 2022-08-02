@@ -1040,8 +1040,9 @@ void Gui::computeDisplay(){
 									}
 								}
 							}
+							numberCommands = displayPos;
 						}
-						numberCommands = ut->getCommandTypeCount();
+						numberCommands++;
 					}
 				}
 				else{
