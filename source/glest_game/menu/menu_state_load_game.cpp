@@ -317,8 +317,9 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 #endif
 
-						
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
+                        versionWarningLabel.setText("");
+                        infoTextLabel.setText("Loading...");
 						std::map<string,string> mapExtraTagReplacementValues;
 						try {
                             auto xmlTree = std::make_shared<XmlTree>(engine_type);
