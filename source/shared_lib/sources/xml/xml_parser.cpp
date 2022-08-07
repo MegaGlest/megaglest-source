@@ -585,6 +585,16 @@ void XmlTree::load(const string &path, const std::map<string,string> &mapTagRepl
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
 }
 
+std::shared_ptr<CallBack<void>> XmlTree::loadAsync(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation,bool skipStackCheck,bool skipStackTrace) {
+    auto load = [this, path, mapTagReplacementValues, noValidation, skipStackCheck, skipStackTrace]() {
+         this->load(path, mapTagReplacementValues, noValidation, skipStackCheck, skipStackTrace);
+    };
+    auto cb = std::make_shared<CallBack<void>>(load);
+    
+    std::thread([cb]() { cb->run(); }).detach();
+    return cb;
+}
+
 void XmlTree::save(const string &path) {
 
 #if defined(WANT_XERCES)
