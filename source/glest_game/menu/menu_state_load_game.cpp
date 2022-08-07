@@ -281,6 +281,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 					Lang &lang= Lang::getInstance();
 					cleanupTexture(&previewTexture);
 					selectedButton = slots[i];
+                    for(auto slot : slots) slot->setEnabled(false);
 					string filename	= saveGameDir + selectedButton->getText()+".xml";
 					string screenShotFilename = filename + ".jpg";
 					if(fileExists(screenShotFilename) == true) {
@@ -365,6 +366,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 									 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
 									newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
 							infoTextLabel.setText(szBuf);
+                            for(auto slot : slots) slot->setEnabled(true);
                             });
 						}
 						catch(const megaglest_runtime_error &ex) {
@@ -373,6 +375,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 							SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 
 							showMessageBox(ex.what(), lang.getString("Notice"), false);
+                            for(auto slot : slots) slot->setEnabled(true);
 						}
 					}
 					else {
