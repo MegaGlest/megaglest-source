@@ -922,6 +922,7 @@ const Level *UnitType::getLevel(string name) const {
 
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	if(firstCommandTypeOfClass[commandClass] == NULL) {
+		return NULL;
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandClass = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commandClass);
 
 		/*
