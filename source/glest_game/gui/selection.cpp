@@ -324,6 +324,16 @@ void Selection::removeUnitFromGroup(int groupIndex,int unitId) {
 	}
 }
 
+const Unit* Selection::getUnitFromCC(CommandClass commandClass){
+	const Unit *unit = NULL;
+	for(int i=0; i<(int)selectedUnits.size(); ++i){
+		const Unit *unit= selectedUnits[i];
+		const CommandType *ct= unit->getType()->getFirstCtOfClass(commandClass);
+		if(ct != NULL && ct->getClass()  == commandClass) return unit;
+	}
+	return unit;
+}
+
 //vector<Unit*> Selection::getUnitsForGroup(int groupIndex) {
 //	if(groupIndex < 0 || groupIndex >= maxGroups) {
 //		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
