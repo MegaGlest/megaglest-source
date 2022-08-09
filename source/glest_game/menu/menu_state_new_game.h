@@ -34,6 +34,7 @@ public:
 	MenuStateNewGame(Program *program, MainMenu *mainMenu);
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
+	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
 	void render();

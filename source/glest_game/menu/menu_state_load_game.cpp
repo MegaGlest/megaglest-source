@@ -189,6 +189,12 @@ void MenuStateLoadGame::reloadUI() {
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
+void MenuStateLoadGame::mouseDoubleClick(int x, int y, MouseButton mouseButton) {
+	if (mouseButton == mbLeft) {
+		slotsScrollBar.mouseDown(x, y);
+		mouseClick(loadButton.getX()+1, loadButton.getY()+1, mouseButton);
+	}
+}
 void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	CoreData &coreData=  CoreData::getInstance();

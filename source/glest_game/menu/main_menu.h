@@ -74,6 +74,8 @@ public:
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
     virtual void eventMouseWheel(int x, int y,int zDelta);
     virtual void mouseDownLeft(int x, int y);
+	virtual void mouseDoubleClickLeft(int x, int y);
+	virtual void mouseDoubleClickRight(int x, int y);
     virtual void mouseDownRight(int x, int y);
 	virtual void mouseUpLeft(int x, int y);
 	virtual bool textInput(std::string text);
@@ -119,6 +121,7 @@ public:
 	MenuState(Program *program, MainMenu *mainMenu, const string &stateName);
 	virtual ~MenuState();
 	virtual void mouseClick(int x, int y, MouseButton mouseButton)=0;
+	virtual void mouseDoubleClick(int x, int y, MouseButton mouseButton)=0;
 	virtual void mouseUp(int x, int y, const MouseButton mouseButton){};
 	virtual void mouseMove(int x, int y, const MouseState *mouseState)=0;
 	virtual void eventMouseWheel(int x, int y, int zDelta){};
