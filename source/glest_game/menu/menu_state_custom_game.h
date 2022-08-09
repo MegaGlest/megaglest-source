@@ -245,6 +245,7 @@ public:
 	virtual ~MenuStateCustomGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
+	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void eventMouseWheel(int x, int y,int zDelta);
 	void render();
