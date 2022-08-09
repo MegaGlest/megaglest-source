@@ -56,6 +56,7 @@ public:
 	~MenuStateLoadGame();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
+	void mouseDoubleClick(int x, int y, MouseButton mouseButton);
 	void mouseUp(int x, int y, const MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void update();
