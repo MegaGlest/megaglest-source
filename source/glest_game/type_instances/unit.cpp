@@ -5342,7 +5342,9 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		string skillTypeName = unitNode->getAttribute("currSkillName")->getValue();
 		SkillClass skillClass = static_cast<SkillClass>(unitNode->getAttribute("currSkillClass")->getIntValue());
 		result->currSkill = ut->getSkillType(skillTypeName,skillClass);
+        int tempProgress2 = result->progress2; // setCurrSkill overwrites progress2
 		result->setCurrSkill(result->currSkill);
+        result->progress2  = tempProgress2; // restore  it
 	}
 
 //    int lastModelIndexForCurrSkillType;
