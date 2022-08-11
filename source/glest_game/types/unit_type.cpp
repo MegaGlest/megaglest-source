@@ -880,6 +880,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				}
 			}
 		}
+		sortCommandTypes(commandTypes);
 
 		computeFirstStOfClass();
 		computeFirstCtOfClass();
@@ -1236,6 +1237,78 @@ void UnitType::computeFirstCtOfClass() {
     }
 }
 
+void UnitType::sortCommandTypes(CommandTypes cts){
+		CommandTypes ctBuf(cts); 
+		
+		CommandTypes ctCores;
+		CommandTypes ctBasics = {NULL,NULL,NULL,NULL};
+		CommandTypes ctMorphs;
+		
+		CommandTypes ctAttack;
+		CommandTypes ctBuild;
+
+		//Morphs
+		for(int i = (int)ctBuf.size(); i --> 0; ) {
+			if(ctBuf[i]->getClass() == ccMorph) {
+				ctMorphs.insert(ctMorphs.begin(), ctBuf[i]);
+				ctBuf.erase(ctBuf.begin() + i);
+			}
+		}
+
+		//Attacks
+		CommandTypeFilter(ctBuf, ctAttack, ccAttack);
+		if(ctAttack.size() > 0) {
+			ctBasics[0] = ctAttack[0];// first attack to basics
+			ctAttack.erase(ctAttack.begin());// another to cores
+			ctCores.insert(ctCores.end(), ctAttack.begin(), ctAttack.end());
+		}
+		auto basicsCC = CommandHelper::getBasicsCC();
+		// removing attack cuz we catch all attacks above
+		basicsCC.erase( basicsCC.begin() + CommandHelper::getBasicPos(ccAttack)); 
+		
+		//Basics
+		for(int i = (int)ctBuf.size(); i --> 0; ) {
+			for(auto &&cc : basicsCC ){
+				if(ctBuf[i]->getClass() == cc) {
+					auto ccPos = CommandHelper::getBasicPos(cc);
+					ctBasics[ccPos] = ctBuf[i];
+					ctBuf.erase(ctBuf.begin() + i);
+				}
+			}
+		}
+		
+// 		//Cores
+		CommandTypeFilter(ctBuf, ctCores, ccProduce);
+		CommandTypeFilter(ctBuf, ctCores, ccUpgrade);
+		CommandTypeFilter(ctBuf, ctCores, ccSwitchTeam);
+		CommandTypeFilter(ctBuf, ctCores, ccHarvest);
+		CommandTypeFilter(ctBuf, ctCores, ccRepair);
+
+		//Build
+		CommandTypeFilter(ctBuf, ctBuild, ccBuild);// Build position always 4 in cores
+		if(ctCores.size() == 4) {/*do nothing*/ }
+		else if(ctCores.size() < 4) {
+			int nullCount = 4 - ctCores.size();
+			for(int i=0; i<nullCount; i++){
+				ctCores.push_back(NULL);
+			}
+			if(ctBuild.size() > 0){
+				ctCores[3] = ctBuild[0];
+			}
+		}
+		commandTypesSorted.insert(commandTypesSorted.end(), ctCores.begin(), ctCores.end());
+		commandTypesSorted.insert(commandTypesSorted.end(), ctBasics.begin(), ctBasics.end());
+		commandTypesSorted.insert(commandTypesSorted.end(), ctMorphs.begin(), ctMorphs.end());
+}
+
+void UnitType::CommandTypeFilter(CommandTypes &input, CommandTypes &output, CommandClass cc){
+	std::copy_if(input.begin(), input.end(), std::back_inserter(output), [cc](CommandType* i) {
+		if(i->getClass() == cc)
+			return true;
+		else return false;
+	});
+}
+
 const CommandType* UnitType::findCommandTypeById(int id) const{
 	const HarvestEmergencyReturnCommandType *result = dynamic_cast<const HarvestEmergencyReturnCommandType *>(ctHarvestEmergencyReturnCommandType.get());
 	if(result != NULL && id == result->getId()) {
@@ -1258,6 +1331,15 @@ const CommandType *UnitType::getCommandType(int i) const {
 		throw megaglest_runtime_error(szBuf);
 	}
 	return commandTypes[i];
+}
+
+const CommandType *UnitType::getCommandTypeSorted(int i) const {
+	if(i >= (int)commandTypesSorted.size()) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypesSorted.size(), i = %d, commandTypesSorted.size() = " MG_SIZE_T_SPECIFIER "",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,commandTypesSorted.size());
+		throw megaglest_runtime_error(szBuf);
+	}
+	return commandTypesSorted[i];
 }
 
 string UnitType::getCommandTypeListDesc() const {

@@ -31,6 +31,20 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+// =====================================================
+// 	class CommandHelper
+// =====================================================	
+
+int CommandHelper::getBasicPos(CommandClass cc){
+	switch(cc) {
+	case ccAttack: return 0; break;
+	case ccStop: return 1; break;
+	case ccMove: return 2; break;
+	case ccAttackStopped: return 3; break;
+	default:
+		return ccNull;
+	}
+}
 
 // =====================================================
 // 	class CommandType

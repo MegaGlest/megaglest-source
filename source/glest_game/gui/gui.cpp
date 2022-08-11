@@ -97,7 +97,6 @@ Gui::Gui(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	lastGroupRecall = -1;
-	numberCommands=0;
 	posObjWorld= Vec2i(54, 14);
 	validPosObjWorld= false;
 	activeCommandType= NULL;
@@ -454,15 +453,11 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 		if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
 			if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
 				mouseDownDisplayUnitBuild(i);
-				computeDisplay();
-				break;
 			} else {
-				if (i < numberCommands) {
-					mouseDownDisplayUnitSkills(i);
-					computeDisplay();
-				}
-				break;
+				mouseDownDisplayUnitSkills(i);
 			}
+			computeDisplay();
+			break;
 		}
 	}
 }
@@ -720,7 +715,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 				}
 
 				//give orders depending on command type
-				if(!selection.isEmpty()){
+				if(activeCommandClass != ccNull){
 					const CommandType *ct= selection.getUnit(0)->getType()->getFirstCtOfClass(activeCommandClass);
 					if (activeCommandClass  == ccAttack) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
@@ -737,7 +732,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 						selectingPos= true;
 						activePos= posDisplay;
 					}
-				}
+				} else { posDisplay= invalidPos;}
 			}
 			else{
 				activePos= posDisplay;
@@ -994,10 +989,11 @@ void Gui::computeDisplay(){
 					if(u->isBuilt()){
 						//printf("u->isBuilt()\n");
 
-						int morphPos= 8;
-						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
+						int morphPos= CommandHelper::getMorphPos();
+						for(int i= 0; i < ut->getCommandTypeSortedCount(); ++i){
 							int displayPos= i;
-							const CommandType *ct= ut->getCommandType(i);
+							const CommandType *ct= ut->getCommandTypeSorted(i);
+							if(ct == NULL) continue;
 							if(ct->getClass() == ccMorph) {
 								displayPos= morphPos++;
 							}
@@ -1040,38 +1036,38 @@ void Gui::computeDisplay(){
 									}
 								}
 							}
-							numberCommands = displayPos;
 						}
-						numberCommands++;
 					}
 				}
 				else{
 					//printf("selection.isUniform() == FALSE\n");
 					//non uniform selection
-					int lastCommand= 0;
-					for(int i= 0; i < ccCount; ++i){
-						CommandClass cc= static_cast<CommandClass> (i);
+					int basicPos=  CommandHelper::getBasicPos();
+					// only basics can be shared
+					for(auto &&cc : CommandHelper::getBasicsCC()){
 
-						//printf("computeDisplay i = %d cc = %d isshared = %d lastCommand = %d\n",i,cc,isSharedCommandClass(cc),lastCommand);
+						//printf("computeDisplay i = %d cc = %d isshared = %d basicPos = %d\n",i,cc,isSharedCommandClass(cc),basicPos);
 
 						const Unit* attackingUnit = NULL;
 						if (cc == ccAttack) {
 							attackingUnit = selection.getUnitFromCC(ccAttack);
 						}
 
+						auto ccPos = CommandHelper::getBasicPos(cc);
+
 						if((cc == ccAttack && attackingUnit != NULL) || (isSharedCommandClass(cc) && cc != ccBuild)){
-							display.setDownLighted(lastCommand, true);
+							display.setDownLighted(basicPos + ccPos, true);
 
                             if (cc == ccAttack && attackingUnit != NULL) {
-							    display.setDownImage(lastCommand, attackingUnit->getType()->getFirstCtOfClass(cc)->getImage());
+							    display.setDownImage(basicPos + ccPos, attackingUnit->getType()->getFirstCtOfClass(cc)->getImage());
                             } else {
-							    display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
+								display.setDownImage(basicPos + ccPos, ut->getFirstCtOfClass(cc)->getImage());
                             }
+							display.setCommandClass(basicPos + ccPos, cc);
 							display.setCommandClass(lastCommand, cc);
 							lastCommand++;
 						}
 					}
-					numberCommands = lastCommand;
 				}
 			}
 			else if (activeCommandType != NULL && activeCommandType->getClass() == ccBuild) {

@@ -66,6 +66,18 @@ enum Queueability {
 	qAlways
 };
 
+class CommandHelper {// TODO put magic numbers to settings
+public:
+	inline static int getCorePos() {	return 0;	} 
+	inline static int getBasicPos() {	return 4;	} 
+	inline static int getMorphPos() {	return 8;	} 
+	static int getBasicPos(CommandClass cc);
+	inline static vector<CommandClass> getBasicsCC() { return { ccAttack, ccStop, ccMove, ccAttackStopped }; }
+	
+private:
+	CommandHelper(){ }
+};
+
 // =====================================================
 // 	class CommandType
 //
