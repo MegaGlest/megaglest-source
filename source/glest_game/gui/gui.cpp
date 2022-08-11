@@ -993,7 +993,12 @@ void Gui::computeDisplay(){
 						for(int i= 0; i < ut->getCommandTypeSortedCount(); ++i){
 							int displayPos= i;
 							const CommandType *ct= ut->getCommandTypeSorted(i);
-							if(ct == NULL) continue;
+							if(ct == NULL) {
+								display.setDownImage(displayPos, ut->getCancelImage());
+								display.setCommandType(displayPos, ct);
+								display.setDownLighted(displayPos,false);
+								continue;
+							}
 							if(ct->getClass() == ccMorph) {
 								displayPos= morphPos++;
 							}
@@ -1042,7 +1047,15 @@ void Gui::computeDisplay(){
 				else{
 					//printf("selection.isUniform() == FALSE\n");
 					//non uniform selection
-					int basicPos=  CommandHelper::getRowPos(crBasics);
+					int basicPos = CommandHelper::getRowPos(crBasics);
+
+					// First row is always empty
+					for (int i = 0; i < 5; i++) {
+						display.setDownImage(i, ut->getCancelImage());
+						display.setCommandType(i, NULL);
+						display.setDownLighted(i,false);
+					}
+
 					// only basics can be shared
 					for(auto &&cc : CommandHelper::getBasicsCC()){
 
@@ -1064,8 +1077,10 @@ void Gui::computeDisplay(){
 								display.setDownImage(basicPos + ccPos, ut->getFirstCtOfClass(cc)->getImage());
                             }
 							display.setCommandClass(basicPos + ccPos, cc);
-							display.setCommandClass(lastCommand, cc);
-							lastCommand++;
+						} else {
+							display.setDownImage(basicPos+ccPos, ut->getCancelImage());
+							display.setCommandType(basicPos+ccPos, NULL);
+							display.setDownLighted(basicPos+ccPos,false);
 						}
 					}
 				}
