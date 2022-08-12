@@ -36,14 +36,11 @@ namespace Glest{ namespace Game{
 // =====================================================	
 
 int CommandHelper::getBasicPos(CommandClass cc){
-	switch(cc) {
-	case ccAttack: return 0; break;
-	case ccStop: return 1; break;
-	case ccMove: return 2; break;
-	case ccAttackStopped: return 3; break;
-	default:
-		return ccNull;
-	}
+	auto basics = getBasicsCC();
+	auto it = find(basics.begin(), basics.end(), cc);
+	if (it != basics.end()) 
+		return it - basics.begin();
+	else throw megaglest_runtime_error("Basics command have not class: " + intToStr(cc));
 }
 
 // =====================================================

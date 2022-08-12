@@ -989,7 +989,7 @@ void Gui::computeDisplay(){
 					if(u->isBuilt()){
 						//printf("u->isBuilt()\n");
 
-						int morphPos= CommandHelper::getMorphPos();
+						int morphPos= CommandHelper::getRowPos(crMorphs);
 						for(int i= 0; i < ut->getCommandTypeSortedCount(); ++i){
 							int displayPos= i;
 							const CommandType *ct= ut->getCommandTypeSorted(i);
@@ -1042,7 +1042,7 @@ void Gui::computeDisplay(){
 				else{
 					//printf("selection.isUniform() == FALSE\n");
 					//non uniform selection
-					int basicPos=  CommandHelper::getBasicPos();
+					int basicPos=  CommandHelper::getRowPos(crBasics);
 					// only basics can be shared
 					for(auto &&cc : CommandHelper::getBasicsCC()){
 

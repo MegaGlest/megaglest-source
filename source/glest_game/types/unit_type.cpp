@@ -1239,73 +1239,57 @@ void UnitType::computeFirstCtOfClass() {
 
 void UnitType::sortCommandTypes(CommandTypes cts){
 	try{
-		CommandTypes ctBuf(cts); 
-		
-		CommandTypes ctCores;
-		CommandTypes ctBasics = {NULL,NULL,NULL,NULL};
+		CommandTypes ctCores, ctBasics = {NULL,NULL,NULL,NULL}, ctMorphs, ctAttack;
 		vector<int>	 basicNulls = {0,1,2,3};
-		CommandTypes ctMorphs;
-		
-		CommandTypes ctAttack;
-		CommandTypes ctBuild;
 
 		//Morphs
-		for(int i = (int)ctBuf.size(); i --> 0; ) {
-			if(ctBuf[i]->getClass() == ccMorph) {
-				ctMorphs.insert(ctMorphs.begin(), ctBuf[i]);
-				ctBuf.erase(ctBuf.begin() + i);
+		for(int i = (int)cts.size(); i --> 0; ) {
+			if(cts[i]->getClass() == ccMorph) {
+				ctMorphs.insert(ctMorphs.begin(), cts[i]);
+				cts.erase(cts.begin() + i);
 			}
 		}
 
 		//Attacks
-		CommandTypeFilter(ctBuf, ctAttack, ccAttack);
+		CommandTypeFilter(cts, ctAttack, ccAttack);
 		if(ctAttack.size() > 0) {
-			ctBasics[0] = ctAttack[0];// first attack to basics
+			ctBasics[CommandHelper::getBasicPos(ccAttack)] = ctAttack[0];// first attack to basics
 			basicNulls.erase(basicNulls.begin());
-			ctAttack.erase(ctAttack.begin());// another to cores
-			ctCores.insert(ctCores.end(), ctAttack.begin(), ctAttack.end());
+			ctAttack.erase(ctAttack.begin());// another to cores, see below
 		}
-		auto basicsCC = CommandHelper::getBasicsCC();
-		// removing attack cuz we catch all attacks above
-		basicsCC.erase( basicsCC.begin() + CommandHelper::getBasicPos(ccAttack)); 
 		
 		//Basics
-		for(int i = (int)ctBuf.size(); i --> 0; ) {
-			for(auto &&cc : basicsCC ){
-				if(ctBuf[i]->getClass() == cc) {
+		for(int i = (int)cts.size(); i --> 0; ) {
+			for(auto &&cc : CommandHelper::getBasicsCC()){
+				if(cc == ccAttack) continue;// we catch all attacks above
+				if(cts[i]->getClass() == cc) {
 					auto ccPos = CommandHelper::getBasicPos(cc);
-					ctBasics[ccPos] = ctBuf[i];
-					ctBuf.erase(ctBuf.begin() + i);
+					ctBasics[ccPos] = cts[i];
+					cts.erase(cts.begin() + i);
 					basicNulls.erase(std::remove(basicNulls.begin(), basicNulls.end(), ccPos), basicNulls.end());
 				}
 			}
 		}
 		
 		//Cores
-		CommandTypeFilter(ctBuf, ctCores, ccProduce);
-		CommandTypeFilter(ctBuf, ctCores, ccUpgrade);
-		CommandTypeFilter(ctBuf, ctCores, ccSwitchTeam);
-		CommandTypeFilter(ctBuf, ctCores, ccHarvest);
-		CommandTypeFilter(ctBuf, ctCores, ccRepair);
-
-		//Build
-		CommandTypeFilter(ctBuf, ctBuild, ccBuild);// Build position always 4 in cores
-		int nullCount = 4 - ctCores.size() - ctBuild.size();
+		for(auto &&cc : CommandHelper::getCoresCC()){
+			if(cc == ccAttack) ctCores.insert(ctCores.end(), ctAttack.begin(), ctAttack.end());
+			else CommandTypeFilter(cts, ctCores, cc);
+		}
+		int nullCount = 4 - ctCores.size();
 		for(int i=0; i<nullCount; i++){
 			ctCores.push_back(NULL);
 		}
-		if(ctBuild.size() > 0) {
-			if(nullCount < 0) {//magic
-				int buildToBasics = -nullCount;// if we cant push all builds to cores
-				int until = (int)ctBuild.size() - buildToBasics;
-				for(int i = (int)ctBuild.size(); i --> until; ) {// we push it to basics
-					ctBasics[basicNulls[i - until]] = ctBuild[i];
-					ctBuild.erase(ctBuild.begin() + i);
-					basicNulls.erase(basicNulls.begin() + i - until);
-				}
+		
+		if(nullCount < 0) {//magic: if we cant push all commands to cores
+			CommandTypes ctToBasics(ctCores.end() + nullCount, ctCores.end());
+			ctCores.resize(4);
+			for(int i = (int)ctToBasics.size(); i --> 0; ) {// we push it to basics
+				ctBasics[basicNulls[i]] = ctToBasics[i];
+				basicNulls.erase(basicNulls.begin() + i);
 			}
-			ctCores.insert(ctCores.end(), ctBuild.begin(), ctBuild.end());
 		}
+
 		commandTypesSorted.insert(commandTypesSorted.end(), ctCores.begin(), ctCores.end());
 		commandTypesSorted.insert(commandTypesSorted.end(), ctBasics.begin(), ctBasics.end());
 		commandTypesSorted.insert(commandTypesSorted.end(), ctMorphs.begin(), ctMorphs.end());
