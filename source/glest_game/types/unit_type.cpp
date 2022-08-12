@@ -1238,10 +1238,12 @@ void UnitType::computeFirstCtOfClass() {
 }
 
 void UnitType::sortCommandTypes(CommandTypes cts){
+	try{
 		CommandTypes ctBuf(cts); 
 		
 		CommandTypes ctCores;
 		CommandTypes ctBasics = {NULL,NULL,NULL,NULL};
+		vector<int>	 basicNulls = {0,1,2,3};
 		CommandTypes ctMorphs;
 		
 		CommandTypes ctAttack;
@@ -1259,6 +1261,7 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 		CommandTypeFilter(ctBuf, ctAttack, ccAttack);
 		if(ctAttack.size() > 0) {
 			ctBasics[0] = ctAttack[0];// first attack to basics
+			basicNulls.erase(basicNulls.begin());
 			ctAttack.erase(ctAttack.begin());// another to cores
 			ctCores.insert(ctCores.end(), ctAttack.begin(), ctAttack.end());
 		}
@@ -1273,11 +1276,12 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 					auto ccPos = CommandHelper::getBasicPos(cc);
 					ctBasics[ccPos] = ctBuf[i];
 					ctBuf.erase(ctBuf.begin() + i);
+					basicNulls.erase(std::remove(basicNulls.begin(), basicNulls.end(), ccPos), basicNulls.end());
 				}
 			}
 		}
 		
-// 		//Cores
+		//Cores
 		CommandTypeFilter(ctBuf, ctCores, ccProduce);
 		CommandTypeFilter(ctBuf, ctCores, ccUpgrade);
 		CommandTypeFilter(ctBuf, ctCores, ccSwitchTeam);
@@ -1286,19 +1290,28 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 
 		//Build
 		CommandTypeFilter(ctBuf, ctBuild, ccBuild);// Build position always 4 in cores
-		if(ctCores.size() == 4) {/*do nothing*/ }
-		else if(ctCores.size() < 4) {
-			int nullCount = 4 - ctCores.size();
-			for(int i=0; i<nullCount; i++){
-				ctCores.push_back(NULL);
+		int nullCount = 4 - ctCores.size() - ctBuild.size();
+		for(int i=0; i<nullCount; i++){
+			ctCores.push_back(NULL);
+		}
+		if(ctBuild.size() > 0) {
+			if(nullCount < 0) {//magic
+				int buildToBasics = -nullCount;// if we cant push all builds to cores
+				int until = (int)ctBuild.size() - buildToBasics;
+				for(int i = (int)ctBuild.size(); i --> until; ) {// we push it to basics
+					ctBasics[basicNulls[i - until]] = ctBuild[i];
+					ctBuild.erase(ctBuild.begin() + i);
+					basicNulls.erase(basicNulls.begin() + i - until);
+				}
 			}
-			if(ctBuild.size() > 0){
-				ctCores[3] = ctBuild[0];
-			}
+			ctCores.insert(ctCores.end(), ctBuild.begin(), ctBuild.end());
 		}
 		commandTypesSorted.insert(commandTypesSorted.end(), ctCores.begin(), ctCores.end());
 		commandTypesSorted.insert(commandTypesSorted.end(), ctBasics.begin(), ctBasics.end());
 		commandTypesSorted.insert(commandTypesSorted.end(), ctMorphs.begin(), ctMorphs.end());
+	} catch(exception &ex){
+		
+	}
 }
 
 void UnitType::CommandTypeFilter(CommandTypes &input, CommandTypes &output, CommandClass cc){
