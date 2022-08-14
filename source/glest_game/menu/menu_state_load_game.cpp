@@ -281,7 +281,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 					Lang &lang= Lang::getInstance();
 					cleanupTexture(&previewTexture);
 					selectedButton = slots[i];
-                    for(auto slot : slots) slot->setEnabled(false);
+					for(auto slot : slots) slot->setEnabled(false);
 					string filename	= saveGameDir + selectedButton->getText()+".xml";
 					string screenShotFilename = filename + ".jpg";
 					if(fileExists(screenShotFilename) == true) {
@@ -319,13 +319,13 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 #endif
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
-                        versionWarningLabel.setText("");
-                        infoTextLabel.setText("Loading...");
+						versionWarningLabel.setText("");
+						infoTextLabel.setText("Loading...");
 						std::map<string,string> mapExtraTagReplacementValues;
 						try {
-                            auto xmlTree = std::make_shared<XmlTree>(engine_type);
+							auto xmlTree = std::make_shared<XmlTree>(engine_type);
 							xmlTree->loadAsync(filename, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true,false,true)
-                                ->then([this, xmlTree, &lang, filename](){
+								->then([this, xmlTree, &lang, filename](){
                             
 							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
 
@@ -366,8 +366,8 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 									 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
 									newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
 							infoTextLabel.setText(szBuf);
-                            for(auto slot : slots) slot->setEnabled(true);
-                            });
+							for(auto slot : slots) slot->setEnabled(true);
+							});
 						}
 						catch(const megaglest_runtime_error &ex) {
 							char szBuf[8096]="";
@@ -375,7 +375,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 							SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 
 							showMessageBox(ex.what(), lang.getString("Notice"), false);
-                            for(auto slot : slots) slot->setEnabled(true);
+							for(auto slot : slots) slot->setEnabled(true);
 						}
 					}
 					else {
@@ -384,21 +384,21 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 					break;
 				}
-    		}
-    	}
-    }
+			}
+		}
+	}
 }
 
 void MenuStateLoadGame::mouseUp(int x, int y, const MouseButton mouseButton) {
-    if (mouseButton == mbLeft) {
-        slotsScrollBar.mouseUp(x, y);
-    }
+	if (mouseButton == mbLeft) {
+		slotsScrollBar.mouseUp(x, y);
+	}
 }
 
 void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms) {
-    abortButton.mouseMove(x, y);
-    deleteButton.mouseMove(x, y);
-    loadButton.mouseMove(x, y);
+	abortButton.mouseMove(x, y);
+	deleteButton.mouseMove(x, y);
+	loadButton.mouseMove(x, y);
 	if(slotsScrollBar.getElementCount()!=0){
 		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
 			slots[i]->mouseMove(x, y);
