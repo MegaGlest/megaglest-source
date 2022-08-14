@@ -281,6 +281,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     	if(slotsScrollBar.getElementCount()!=0){
     		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
 				if(slots[i]->mouseClick(x, y) && selectedButton != slots[i]) {
+					loadButton.setEnabled(false);
 					soundRenderer.playFx(coreData.getClickSoundB());
 
 					Lang &lang= Lang::getInstance();
@@ -372,6 +373,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 									newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
 							infoTextLabel.setText(szBuf);
 							for(auto slot : slots) slot->setEnabled(true);
+							loadButton.setEnabled(true);
 							});
 						}
 						catch(const megaglest_runtime_error &ex) {
@@ -381,6 +383,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 							showMessageBox(ex.what(), lang.getString("Notice"), false);
 							for(auto slot : slots) slot->setEnabled(true);
+							loadButton.setEnabled(true);
 						}
 					}
 					else {
