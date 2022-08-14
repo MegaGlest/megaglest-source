@@ -1,4 +1,7 @@
 name: CMake
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -23,7 +26,7 @@ jobs:
       run: |
         sudo apt update
         sudo mk/linux/setupBuildDeps.sh
-    
+
     - name: Bulid MegaGlest With GCC Compiler
       if: ${{ matrix.compiler == 'gcc' }}
       env:
@@ -43,7 +46,7 @@ jobs:
       run: |
         cp mk/shared/*.ini mk/linux/
         strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
-      
+
     - name: Create Mega Glest Snapshot
       if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
       uses: actions/upload-artifact@v2
@@ -73,7 +76,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Cache Vcpkg Libs
       uses: actions/cache@v2
       env:
@@ -81,7 +84,7 @@ jobs:
       with:
         path: c:/vcpkg/installed
         key: vcpkg-deps
-    
+
     - name: Install Dependencies
       run: |
         vcpkg integrate install
@@ -121,7 +124,7 @@ jobs:
     - name: Build Mega Glest
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config Release --target ALL_BUILD
-    
+
     - name: Prepare Snapshot
       run: |
         cd mk/windoze
@@ -129,7 +132,7 @@ jobs:
         $7zPath = $(Get-Command 7z).Source
         cp $7zPath .
         cd ../..
-      
+
     - name: Create Mega Glest Snapshot
       uses: actions/upload-artifact@v2
       with:
@@ -154,7 +157,7 @@ jobs:
   #   - name: Get dependencies
   #     run: |
   #       brew install pkg-config cmake sdl2 lua jpeg libpng freetype ftgl libogg glew libvorbis cppunit fribidi miniupnpc curl wxmac xquartz zstd xml2 openldap
-    
+
   #   - name: Bulid MegaGlest With Clang Compiler
   #     if: ${{ matrix.compiler == 'clang' }}
   #     env:
@@ -166,6 +169,6 @@ jobs:
   #       mk/macos/build-mg.sh
    # - name: Test
    #   working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
+      # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
    #   run: ctest -C ${{env.BUILD_TYPE}}
