@@ -190,8 +190,7 @@ void MenuStateLoadGame::reloadUI() {
 }
 
 void MenuStateLoadGame::mouseDoubleClick(int x, int y, MouseButton mouseButton) {
-	if (mouseButton == mbLeft) {
-		slotsScrollBar.mouseDown(x, y);
+	if (mouseButton == mbLeft && selectedButton != NULL && selectedButton->mouseClick(x, y)) {
 		mouseClick(loadButton.getX()+1, loadButton.getY()+1, mouseButton);
 	}
 }
