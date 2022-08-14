@@ -153,7 +153,7 @@ public:
 	void setSkipUpdatePathClimbingParts(bool value);
 	void init(const string &name);
 	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
-    std::shared_ptr<CallBack<void>> loadAsync(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
+	std::shared_ptr<CallBack<void>> loadAsync(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}
