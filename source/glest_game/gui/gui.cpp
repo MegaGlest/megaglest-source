@@ -479,6 +479,8 @@ void Gui::giveOneClickOrders(){
 	addOrdersResultToConsole(activeCommandClass, result);
 	activeCommandType= NULL;
 	activeCommandClass= ccStop;
+	selectingPos= false;
+	activePos= invalidPos;
 }
 
 void Gui::giveDefaultOrders(int x, int y) {
