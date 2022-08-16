@@ -217,7 +217,6 @@ private:
 	//hotkeys
 	void centerCameraOnSelection();
 	void selectInterestingUnit(InterestingUnitType iut);
-	void clickCommonCommand(CommandClass commandClass);
 
 	//misc
 	int computePosDisplay(int x, int y);
