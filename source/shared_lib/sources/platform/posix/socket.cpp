@@ -707,7 +707,7 @@ struct addrinfo *Socket::getAddrInfo(const int port) {
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
+	hints.ai_flags = 0;
 	hints.ai_protocol = 0;
 	hints.ai_canonname = NULL;
 	hints.ai_addr = NULL;
@@ -720,18 +720,11 @@ struct addrinfo *Socket::getAddrInfo(const int port) {
 		throw megaglest_runtime_error(strPort);
 	}
 
-	char myhostname[HOST_NAME_MAX]="";
-	int r=gethostname(myhostname,HOST_NAME_MAX);
-	if (r != 0) {
-		fputs("gethostname failed.", stderr);
-		throw megaglest_runtime_error(myhostname);
-	}
-
-	int s = getaddrinfo(myhostname, strPort, &hints, &result);
+	int s = getaddrinfo(this->getHostName().c_str(), strPort, &hints, &result);
 	if (s != 0)
 	{
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
-		throw megaglest_runtime_error(myhostname);
+		throw megaglest_runtime_error("");
 	}
 
 	return result;
@@ -740,7 +733,8 @@ struct addrinfo *Socket::getAddrInfo(const int port) {
 std::vector<std::string>Socket::getLocalIPAddressList() {
 	std::vector<std::string> ipList;
 	Socket tmp;
-	struct addrinfo *result = tmp.getAddrInfo(61357);
+	// I'm not sure the best port to specify here, using '0' for now.
+	struct addrinfo *result = tmp.getAddrInfo(0);
 	char ipStr[INET6_ADDRSTRLEN];
 	struct addrinfo *ptr = result;
 
@@ -2499,12 +2493,10 @@ void ServerSocket::bind(int port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
 
 	boundPort = port;
-
-	char strPort[BUFSIZ];
-	size_t n = snprintf (strPort, sizeof strPort, "%d", boundPort);
-	if (n >= sizeof strPort) {
-		fprintf (stderr, "strPort truncated. This should not happen.");
-		throw megaglest_runtime_error(strPort);
+	char portStr[BUFSIZ];
+	if ((size_t)(snprintf (portStr, sizeof portStr, "%d", boundPort)) >= sizeof portStr) {
+		fprintf (stderr, "portStr truncated. This should not happen.");
+		throw megaglest_runtime_error(portStr);
 	}
 
 	struct addrinfo hints, *res;
@@ -2522,7 +2514,7 @@ void ServerSocket::bind(int port) {
 
 	// the first argument must be NULL, otherwise AI_PASSIVE flag will be ignored.
 	// See getaddrinfo man page
-	int s = getaddrinfo(NULL, strPort, &hints, &res);
+	int s = getaddrinfo(NULL, portStr, &hints, &res);
 	if (s != 0)
 	{
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
@@ -2543,7 +2535,7 @@ void ServerSocket::bind(int port) {
 
 		char buf[BUFSIZ];
 		Socket::getIpStr(ptr, buf);
-		printf("ipStr = %s\n");
+		printf("binding %s:%s\n", buf, portStr);
 
 		int val = 1;
 
@@ -3141,9 +3133,6 @@ void BroadCastSocketThread::execute() {
     int pn=0;                     // The number of the packet broadcasted.
     const int buffMaxSize=1024;
     char buff[buffMaxSize]="";            // Buffers the data to be broadcasted.
-    char myhostname[100]="";       // hostname of local machine
-    //char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
-    //struct hostent* myhostent=NULL;
 
     for(unsigned int idx = 0; idx < (unsigned int)MAX_NIC_COUNT; idx++) {
     	memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
@@ -3154,9 +3143,6 @@ void BroadCastSocketThread::execute() {
 		bcfd[idx] = -1;
 #endif
     }
-    /* get my host name */
-    gethostname(myhostname,100);
-    //struct hostent*myhostent = gethostbyname(myhostname);
 
     // get all host IP addresses
     std::vector<std::string> ipList = Socket::getLocalIPAddressList();
@@ -3228,13 +3214,14 @@ void BroadCastSocketThread::execute() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	string myhostname = Socket::getHostName();
 	time_t elapsed = 0;
 	for( pn = 1; getQuitStatus() == false; pn++ ) {
 		for(unsigned int idx = 0; getQuitStatus() == false && idx < ipSubnetMaskList.size(); idx++) {
 			if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
-					snprintf(buff,1024,"%s",myhostname);
+					snprintf(buff,1024,"%s",myhostname.c_str());
 					for(unsigned int idx1 = 0; idx1 < ipList.size(); idx1++) {
 //						strcat(buff,":");
 //						strcat(buff,ipList[idx1].c_str());
