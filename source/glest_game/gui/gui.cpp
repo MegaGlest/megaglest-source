@@ -673,9 +673,12 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 					if (activeCommandClass  == ccAttack) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
 					}
+
 					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 						assert(selection.isUniform());
 						selectingBuilding= true;
+						selectingPos= false;
+						activePos= invalidPos;
 					}
 					else if(ct->getClicks()==cOne){
 						invalidatePosObjWorld();
