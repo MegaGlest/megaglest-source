@@ -2512,10 +2512,7 @@ void ServerSocket::bind(int port) {
 	/* Obtain address(es) matching host/port */
 	memset(&hints, 0, sizeof(struct addrinfo));
 
-	// Bind errors when used.
-	// hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
-
-	hints.ai_family = AF_INET;  /* Allow only IPV4 */
+	hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG|AI_NUMERICSERV;
 	hints.ai_protocol = 0;
@@ -2565,11 +2562,11 @@ void ServerSocket::bind(int port) {
 			snprintf(szBuf, 8096,"Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
-
-		freeaddrinfo(res);
 		portBound = true;
+		break;
 	}
 
+	freeaddrinfo(res);
 	if(isSocketValid() == false)
 		throwException("Error creating socket");
 
