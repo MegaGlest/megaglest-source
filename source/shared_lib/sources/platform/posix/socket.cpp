@@ -2517,7 +2517,7 @@ void ServerSocket::bind(int port) {
 
 	hints.ai_family = AF_INET;  /* Allow only IPV4 */
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG;
+	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG|AI_NUMERICSERV;
 	hints.ai_protocol = 0;
 	hints.ai_canonname = NULL;
 	hints.ai_addr = NULL;
