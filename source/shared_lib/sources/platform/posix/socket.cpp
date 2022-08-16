@@ -715,7 +715,7 @@ struct addrinfo *Socket::getAddrInfo(const int port) {
 
 	char strPort[BUFSIZ];
 	size_t n = snprintf (strPort, sizeof strPort, "%d", port);
-	if (n > sizeof strPort) {
+	if (n >= sizeof strPort) {
 		fprintf (stderr, "strPort truncated. This should not happen.");
 		throw megaglest_runtime_error(strPort);
 	}
@@ -2449,47 +2449,144 @@ bool ServerSocket::isBroadCastThreadRunning() {
 	return isThreadRunning;
 }
 
-void ServerSocket::bind(int port) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
-	boundPort = port;
+// This works and gives the results shown at https://github.com/MegaGlest/megaglest-source/pull/246#issuecomment-1215996778
+// but I believe it won't ultimately handle ipv4 and ipv6 correctly
 
-	struct sockaddr_in6 addr;
-	memset(&addr, 0, sizeof(addr));
-	addr.sin6_family = AF_INET6;
-	addr.sin6_flowinfo = 0;
-	addr.sin6_port=htons(boundPort);
-	addr.sin6_addr = in6addr_any;
+//void ServerSocket::bind(int port) {
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
+	//boundPort = port;
 
-	sock = socket(addr.sin6_family, SOCK_STREAM, 0);
-	if(sock == -1) {
-		throw megaglest_runtime_error("socket failed");
-	}
+	//struct sockaddr_in6 addr;
+	//memset(&addr, 0, sizeof(addr));
+	//addr.sin6_family = AF_INET6;
+	//addr.sin6_flowinfo = 0;
+	//addr.sin6_port=htons(boundPort);
+	//addr.sin6_addr = in6addr_any;
 
-	setBlock(false);
-	int val = 1;
-
-#ifndef WIN32
-int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-#else
-int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
-#endif
-
-	//char ipStr[INET6_ADDRSTRLEN];
-	//if (Socket::getIpStr(ptr, ipStr) != 0) {
-		//throw megaglest_runtime_error("");
+	//sock = socket(addr.sin6_family, SOCK_STREAM, 0);
+	//if(sock == -1) {
+		//throw megaglest_runtime_error("socket failed");
 	//}
 
-	//printf("Binding to %s:%d...", ipStr, boundPort);
+	//setBlock(false);
+	//int val = 1;
 
-	if ((::bind (sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in6))) < 0) {
-		puts("fail");
-		perror("bind");
-		close(sock);
-		exit(EXIT_FAILURE);
+//#ifndef WIN32
+//int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+//#else
+//int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+//#endif
+
+	////char ipStr[INET6_ADDRSTRLEN];
+	////if (Socket::getIpStr(ptr, ipStr) != 0) {
+		////throw megaglest_runtime_error("");
+	////}
+
+	////printf("Binding to %s:%d...", ipStr, boundPort);
+
+	//if ((::bind (sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in6))) < 0) {
+		//puts("fail");
+		//perror("bind");
+		//close(sock);
+		//exit(EXIT_FAILURE);
+	//}
+	//puts("ok");
+
+	//portBound = true;
+//}
+
+void ServerSocket::bind(int port) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
+
+	boundPort = port;
+
+	char strPort[BUFSIZ];
+	size_t n = snprintf (strPort, sizeof strPort, "%d", boundPort);
+	if (n >= sizeof strPort) {
+		fprintf (stderr, "strPort truncated. This should not happen.");
+		throw megaglest_runtime_error(strPort);
 	}
-	puts("ok");
 
-	portBound = true;
+	struct addrinfo hints, *res;
+
+	/* Obtain address(es) matching host/port */
+	memset(&hints, 0, sizeof(struct addrinfo));
+
+	// Bind errors when used.
+	// hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
+
+	hints.ai_family = AF_INET;  /* Allow only IPV4 */
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG;
+	hints.ai_protocol = 0;
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
+
+	// the first argument must be NULL, otherwise AI_PASSIVE flag will be ignored.
+	// See getaddrinfo man page
+	int s = getaddrinfo(NULL, strPort, &hints, &res);
+	if (s != 0)
+	{
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+		throw megaglest_runtime_error("");
+	}
+
+	struct addrinfo *ptr = res;
+	for (ptr; ptr != NULL; ptr = ptr->ai_next)
+	{
+		if(isSocketValid() == false) {
+			sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+			if(isSocketValid() == false) {
+				// throwException("Error creating socket");
+				continue;
+			}
+			setBlock(false);
+		}
+
+		char buf[BUFSIZ];
+		Socket::getIpStr(ptr, buf);
+		printf("ipStr = %s\n");
+
+		int val = 1;
+
+#ifndef WIN32
+	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+#else
+	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+#endif
+
+		int err = ::bind(sock, ptr->ai_addr, res->ai_addrlen);
+		if(err < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
+
+			snprintf(szBuf, 8096,"Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		freeaddrinfo(res);
+		portBound = true;
+	}
+
+	if(isSocketValid() == false)
+		throwException("Error creating socket");
+
+	//if(this->bindSpecificAddress != "") {
+		//if (inet_pton(af, this->bindSpecificAddress.c_str(), buf) == 1) {
+			//// addr.sin6_addr.in6_addr = buf;
+		//}
+		//else
+			//throwException("Error creating socket");
+	//}
+	//else {
+		//addr.sin6_addr = in6addr_any;
+	//}
+	//addr.sin6_port= htons(port);
+	//addr.sin6_flowinfo = 0;
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d END\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
 }
 
 void ServerSocket::disconnectSocket() {
