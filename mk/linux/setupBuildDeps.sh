@@ -169,7 +169,7 @@ case $distribution in
 				;;
 			22.04)
 				#name > Jammy
-				installcommand="apt-get install $APT_OPTIONS cmake libcurl4-openssl-dev libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+				installcommand="apt-get install $APT_OPTIONS cmake libcurl4-openssl-dev libsdl2-dev libopenal-dev liblua5.3-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 				;;
 			*)
 				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
