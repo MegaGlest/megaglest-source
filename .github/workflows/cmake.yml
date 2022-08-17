@@ -15,26 +15,25 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x64]
-        os: [ubuntu-18.04, ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
         compiler: [gcc, clang]
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Get dependencies
-      run: |
-        sudo apt update
-        sudo mk/linux/setupBuildDeps.sh
+      run: sudo mk/linux/setupBuildDeps.sh
 
-    - name: Bulid MegaGlest With GCC Compiler
+
+    - name: Build MegaGlest With GCC Compiler
       if: ${{ matrix.compiler == 'gcc' }}
       env:
         CC: gcc
         CXX: g++
       run: mk/linux/build-mg.sh
 
-    - name: Bulid MegaGlest With Clang Compiler
+    - name: Build MegaGlest With Clang Compiler
       if: ${{ matrix.compiler == 'clang' }}
       env:
         CC: clang
@@ -75,7 +74,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Cache Vcpkg Libs
       uses: actions/cache@v2
