@@ -714,13 +714,17 @@ struct addrinfo *Socket::getAddrInfo(const int port) {
 	hints.ai_next = NULL;
 
 	char strPort[BUFSIZ];
-	size_t n = snprintf (strPort, sizeof strPort, "%d", port);
-	if (n >= sizeof strPort) {
-		fprintf (stderr, "strPort truncated. This should not happen.");
-		throw megaglest_runtime_error(strPort);
+	char *portPtr = NULL;
+	if (port != 0)
+	{
+		size_t n = snprintf (strPort, sizeof strPort, "%d", port);
+		if (n >= sizeof strPort) {
+			fprintf (stderr, "strPort truncated. This should not happen.");
+			throw megaglest_runtime_error(strPort);
+		}
+		portPtr = strPort;
 	}
-
-	int s = getaddrinfo(this->getHostName().c_str(), strPort, &hints, &result);
+	int s = getaddrinfo(this->getHostName().c_str(), portPtr, &hints, &result);
 	if (s != 0)
 	{
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
@@ -733,7 +737,7 @@ struct addrinfo *Socket::getAddrInfo(const int port) {
 std::vector<std::string>Socket::getLocalIPAddressList() {
 	std::vector<std::string> ipList;
 	Socket tmp;
-	// I'm not sure the best port to specify here, using '0' for now.
+
 	struct addrinfo *result = tmp.getAddrInfo(0);
 	char ipStr[INET6_ADDRSTRLEN];
 	struct addrinfo *ptr = result;
@@ -2507,7 +2511,7 @@ void ServerSocket::bind(int port) {
 	hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG|AI_NUMERICSERV;
-	hints.ai_protocol = 0;
+	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_canonname = NULL;
 	hints.ai_addr = NULL;
 	hints.ai_next = NULL;
@@ -2538,14 +2542,30 @@ void ServerSocket::bind(int port) {
 		printf("binding %s:%s\n", buf, portStr);
 
 		int val = 1;
+		int v6flag = 0;
 
 #ifndef WIN32
 	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
+	// see https://stackoverflow.com/questions/70996215/why-i-cannot-bind-to-scoped-ipv6-any-address
+	// for details... I'm not sure if this is necessary, but I keep getting errors when trying to
+	// bind with IPV6
+	opt_result = setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &v6flag, sizeof(v6flag));
+  if (opt_result != 0) {
+    printf("opt error: %d: %s\n", errno, strerror(errno));
+    freeaddrinfo(res);
+    char szBuf[BUFSIZ]="";
+		snprintf(szBuf, 8096,"Error setting sock options = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,opt_result,getLastSocketErrorFormattedText().c_str());
+		close(sock);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 #else
 	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
 
-		int err = ::bind(sock, ptr->ai_addr, res->ai_addrlen);
+		printf ("family: %s\n", ptr->ai_family == AF_INET6 ? "INET6" : "INET4");
+		int err = ::bind(sock, ptr->ai_addr, ptr->ai_addrlen);
 		if(err < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);

@@ -137,7 +137,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 #                ENDIF()
     ENDIF()
 
-	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
     #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
 
 	OPTION(FORCE_STREFLOP_SOFTWRAPPER "Set the streflop library to be forced to use the software emulator" OFF)
@@ -230,7 +230,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		include(FindGit)
 
 		IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-            SET(HAS_GIT "TRUE") 
+            SET(HAS_GIT "TRUE")
             MESSAGE(STATUS "Found GIT and using GIT version stamping...")
 
             # Get the current commit SHA1
@@ -320,7 +320,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	ENDIF()
 	SET(CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}} ${CUSTOM_INSTALL_PATHS_VALUES}")
 
-	# We do some funky character escaping to get the right stuff written out to 
+	# We do some funky character escaping to get the right stuff written out to
 	# the final Makefile so we get the GIT Global Revsion #
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}}")
 
