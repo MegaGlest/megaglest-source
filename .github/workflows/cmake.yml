@@ -63,7 +63,7 @@ jobs:
     - name: Build
       run:  |
         mk/linux/build-mg.sh -m
-        make -C build -j$(nproc) VERBOSE=1
+        make -C mk/linux/build -j$(nproc) VERBOSE=1
 
     - name: Prepare Snapshot
       if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
