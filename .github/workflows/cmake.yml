@@ -36,7 +36,8 @@ jobs:
         else
           eval "CC=clang && CXX=clang++"
         fi
-        mk/linux/build-mg.sh
+        mk/linux/build-mg.sh -m
+        make -C build -j$(nproc) VERBOSE=1
 
   build-latest-gcc:
     strategy:
@@ -60,7 +61,9 @@ jobs:
         sudo apt-get install -y $CC $CXX
         sudo mk/linux/setupBuildDeps.sh
     - name: Build
-      run: mk/linux/build-mg.sh
+      run:  |
+        mk/linux/build-mg.sh -m
+        make -C build -j$(nproc) VERBOSE=1
 
     - name: Prepare Snapshot
       if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
