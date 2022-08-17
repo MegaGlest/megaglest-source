@@ -14,10 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
-        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
+        os: [ubuntu-18.04, ubuntu-20.04]
         compiler: [gcc, clang]
     runs-on: ${{ matrix.os }}
+    env:
+      MATRIX_COMPILER: ${{matrix.compiler}}
 
     steps:
     - uses: actions/checkout@v3
@@ -28,17 +29,37 @@ jobs:
         sudo mk/linux/setupBuildDeps.sh
 
     - name: Build MegaGlest With GCC Compiler
-      if: ${{ matrix.compiler == 'gcc' }}
-      env:
-        CC: gcc
-        CXX: g++
-      run: mk/linux/build-mg.sh
 
-    - name: Build MegaGlest With Clang Compiler
-      if: ${{ matrix.compiler == 'clang' }}
-      env:
-        CC: clang
-        CXX: clang++
+      run:  |
+        if [ "${MATRIX_COMPILER}" = "gcc" ]; then
+          eval "CC=gcc && CXX=g++"
+        else
+          eval "CC=clang && CXX=clang++"
+        fi
+        mk/linux/build-mg.sh
+
+  build-latest-gcc:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        compiler: [10, 11] # 12 is not available in focal at this time, and MG won't build on 22.04
+    runs-on: ubuntu-20.04
+    env:
+      CC: gcc-${{matrix.compiler}}
+      CXX: g++-${{matrix.compiler}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get dependencies
+      run:  |
+        if [ "${CC}" = "gcc-11" ]; then
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157;
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        fi
+        sudo apt-get update && sudo apt-get -y upgrade
+        sudo apt-get install -y $CC $CXX
+        sudo mk/linux/setupBuildDeps.sh
+    - name: Build MegaGlest With GCC Compiler
       run: mk/linux/build-mg.sh
 
     - name: Prepare Snapshot
