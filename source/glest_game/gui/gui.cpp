@@ -439,6 +439,14 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectStoreUnit"),key) == true) {
 		selectInterestingUnit(iutStore);
 	}
+	//else if(key == configKeys.getCharKey("HotKeySelectedUnitsAttack")) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsAttack"),key) == true) {
+		clickCommonCommand(ccAttack);
+	}
+	//else if(key == configKeys.getCharKey("HotKeySelectedUnitsStop")) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
+		clickCommonCommand(ccStop);
+	}
 
 	for (int i=0; i<commandKeys; i++) {
 		string name = "CommandKey" + intToStr(i+1);
@@ -637,6 +645,20 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 			}
 		}
 	}
+}
+
+void Gui::clickCommonCommand(CommandClass commandClass) {
+	for(int index = 0; index < Display::downCellCount; ++index) {
+		const CommandType *ct = display.getCommandType(index);
+
+		if((ct != NULL && ct->getClass() == commandClass) ||
+				display.getCommandClass(index) == commandClass) {
+
+			mouseDownDisplayUnitSkills(index);
+			break;
+		}
+	}
+	computeDisplay();
 }
 
 void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
