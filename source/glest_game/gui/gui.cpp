@@ -487,6 +487,8 @@ void Gui::giveOneClickOrders(){
 	addOrdersResultToConsole(activeCommandClass, result);
 	activeCommandType= NULL;
 	activeCommandClass= ccStop;
+	selectingPos= false;
+	activePos= invalidPos;
 }
 
 void Gui::giveDefaultOrders(int x, int y) {
@@ -669,29 +671,6 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 				if(selection.isUniform()) {
 					const CommandType *ct = display.getCommandType(posDisplay);
 
-					// try to switch to next attack type
-					if(activeCommandClass == ccAttack && activeCommandType!=NULL) {
-
-						int maxI			= unit->getType()->getCommandTypeCount();
-						int cmdTypeId		= activeCommandType->getId();
-						int cmdTypeIdNext	= cmdTypeId+1;
-
-						while(cmdTypeIdNext != cmdTypeId) {
-							if(cmdTypeIdNext >= maxI) {
-								cmdTypeIdNext = 0;
-							}
-							const CommandType *ctype = display.getCommandType(cmdTypeIdNext);
-							if(ctype != NULL && ctype->getClass() == ccAttack) {
-								if(ctype != NULL && unit->getFaction()->reqsOk(ctype)) {
-									posDisplay=cmdTypeIdNext;
-									ct = display.getCommandType(posDisplay);
-									break;
-								}
-							}
-							cmdTypeIdNext++;
-						}
-					}
-
 					if(ct != NULL && unit->getFaction()->reqsOk(ct)) {
 						activeCommandType= ct;
 						activeCommandClass= activeCommandType->getClass();
@@ -703,9 +682,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 						return;
 					}
 				}
-
-				//non uniform selection
-				else {
+				else {//non uniform selection
 					activeCommandType= NULL;
 					activeCommandClass= display.getCommandClass(posDisplay);
 					if (activeCommandClass  == ccAttack) {
@@ -720,9 +697,12 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 					if (activeCommandClass  == ccAttack) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
 					}
+
 					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 						assert(selection.isUniform());
 						selectingBuilding= true;
+						selectingPos= false;
+						activePos= invalidPos;
 					}
 					else if(ct->getClicks()==cOne){
 						invalidatePosObjWorld();
