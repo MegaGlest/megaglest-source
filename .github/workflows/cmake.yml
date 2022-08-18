@@ -14,63 +14,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
+        arch: [x64]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04]
         compiler: [gcc, clang]
     runs-on: ${{ matrix.os }}
     env:
       MATRIX_COMPILER: ${{matrix.compiler}}
-
+      MATRIX_OS: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v3
-
     - name: Get dependencies
       run:  |
         sudo apt-get update && sudo apt-get -y upgrade
-        sudo mk/linux/setupBuildDeps.sh
+        sudo apt-get install $APT_OPTIONS build-essential cmake  \
+          libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev \
+          libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev  \
+          libcppunit-dev libfribidi-dev libftgl-dev libglew-dev \
+          libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev  \
+          libxml2-dev libx11-dev  \
+          libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev  \
+          libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev \
+          libnghttp2-dev libssh-dev libbrotli-dev \
 
     - name: Build
-
       run:  |
         if [ "${MATRIX_COMPILER}" = "clang" ]; then
           EXTRA_OPTS="-f"
         fi
-        mk/linux/build-mg.sh -m ${EXTRA_OPTS}
+        mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
         make -C mk/linux/build -j$(nproc) VERBOSE=1
-
-  build-latest-gcc:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-20.04]
-        compiler: [10, 11] # 12 is not available in focal at this time, and MG won't build on 22.04
-    runs-on: ubuntu-20.04
-    env:
-      CC: gcc-${{matrix.compiler}}
-      CXX: g++-${{matrix.compiler}}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Get dependencies
-      run:  |
-        if [ "${CC}" = "gcc-11" ]; then
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157;
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        fi
-        sudo apt-get update && sudo apt-get -y upgrade
-        sudo apt-get install -y $CC $CXX
-        sudo mk/linux/setupBuildDeps.sh
-    - name: Build
-      run:  |
-        mk/linux/build-mg.sh -m
-        make -C mk/linux/build -j$(nproc) VERBOSE=1
-
     - name: Prepare Snapshot
-      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
+      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-20.04' }}
       run: |
         cp mk/shared/*.ini mk/linux/
         strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
-
     - name: Create Mega Glest Snapshot
-      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
+      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-20.04' }}
       uses: actions/upload-artifact@v2
       with:
         name: megaglest-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.compiler }}
@@ -80,6 +59,35 @@ jobs:
           mk/linux/megaglest_g3dviewer
           mk/linux/*.ini
           !mk/linux/glest-dev.ini
+
+  jammy-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [10, 12] # 11 is on 22.04 by default, tested above
+    runs-on: ubuntu-22.04
+    env:
+      CC: gcc-${{matrix.compiler}}
+      CXX: g++-${{matrix.compiler}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get dependencies
+      run:  |
+        sudo apt-get update && sudo apt-get -y upgrade
+        sudo apt-get install -y $CC $CXX
+        sudo apt-get install $APT_OPTIONS build-essential cmake  \
+          libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev \
+          libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev  \
+          libcppunit-dev libfribidi-dev libftgl-dev libglew-dev \
+          libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev  \
+          libxml2-dev libx11-dev  \
+          libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev  \
+          libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev \
+          libnghttp2-dev libssh-dev libbrotli-dev \
+    - name: Build
+      run:  |
+        mk/linux/build-mg.sh -d -m
+        make -C mk/linux/build -j$(nproc) VERBOSE=1
 
   build-win64:
     # The CMake configure and build commands are platform agnostic and should work equally
