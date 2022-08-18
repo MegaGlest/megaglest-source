@@ -27,8 +27,14 @@ FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:defg:hl:mnswx" option; do
+BUILDDIR_DEFAULT="build"
+BUILDDIR=$BUILDDIR_DEFAULT
+
+while getopts "b:c:defg:hl:mnswx" option; do
    case "${option}" in
+        b)
+           BUILDDIR=${OPTARG}
+        ;;
         c)
            CPU_COUNT=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
@@ -51,8 +57,9 @@ while getopts "c:defg:hl:mnswx" option; do
         ;;
         h)
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
+                echo "       where <option> can be: -b x -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
                 echo "       option descriptions:"
+                echo "       -b x : Specify build directory (default \"${BUILDDIR_DEFAULT}\")"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
                 echo "       -e   : Force compile with EMBEDDED libraries"
@@ -61,7 +68,7 @@ while getopts "c:defg:hl:mnswx" option; do
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
-                echo "       -s   : Force compilation of wxWidgets STATIC libs"                
+                echo "       -s   : Force compilation of wxWidgets STATIC libs"
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
@@ -148,10 +155,10 @@ echo "CPU cores to be used: $NUMCORES"
 # ----------------------------------------------------------------------------
 
 if [ $MAKE_ONLY = 0 ]; then
-        mkdir -p build
+        mkdir -p "${BUILDDIR}"
 fi
 
-cd build
+cd "${BUILDDIR}"
 
 if [ $MAKE_ONLY = 0 ]; then
         if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
