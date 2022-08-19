@@ -966,7 +966,7 @@ Socket::Socket() {
 
 	this->connectedIpAddress = "";
 
-	sock = socket(AF_INET, SOCK_STREAM, 0);
+	sock = socket(AF_INET6, SOCK_STREAM, 0);
 	if(isSocketValid() == false) {
 		throwException("Error creating socket");
 	}
@@ -2512,7 +2512,7 @@ void ServerSocket::bind(int port) {
 	/* Obtain address(es) matching host/port */
 	memset(&hints, 0, sizeof(struct addrinfo));
 
-	hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
+	hints.ai_family = AF_INET6;  /* Allow IPv4 or IPv6 */
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG|AI_NUMERICSERV;
 	hints.ai_protocol = IPPROTO_TCP;
@@ -2554,15 +2554,15 @@ void ServerSocket::bind(int port) {
 	// see https://stackoverflow.com/questions/70996215/why-i-cannot-bind-to-scoped-ipv6-any-address
 	// for details... I'm not sure if this is necessary, but I keep getting errors when trying to
 	// bind with IPV6
-	opt_result = setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &v6flag, sizeof(v6flag));
-  if (opt_result != 0) {
-    printf("opt error: %d: %s\n", errno, strerror(errno));
-    freeaddrinfo(res);
-    char szBuf[BUFSIZ]="";
-		snprintf(szBuf, 8096,"Error setting sock options = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,opt_result,getLastSocketErrorFormattedText().c_str());
-		close(sock);
-		throw megaglest_runtime_error(szBuf);
-	}
+	//opt_result = setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &v6flag, sizeof(v6flag));
+  //if (opt_result != 0) {
+    //printf("opt error: %d: %s\n", errno, strerror(errno));
+    //freeaddrinfo(res);
+    //char szBuf[BUFSIZ]="";
+		//snprintf(szBuf, 8096,"Error setting sock options = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,opt_result,getLastSocketErrorFormattedText().c_str());
+		//close(sock);
+		//throw megaglest_runtime_error(szBuf);
+	//}
 
 #else
 	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
@@ -2614,7 +2614,7 @@ void ServerSocket::listen(int connectionQueueSize) {
 		if(isSocketValid() == false) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			sock = socket(AF_INET, SOCK_STREAM, 0);
+			sock = socket(AF_INET6, SOCK_STREAM, 0);
 			if(isSocketValid() == false) {
 				throwException("Error creating socket");
 			}
