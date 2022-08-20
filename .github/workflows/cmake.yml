@@ -34,22 +34,6 @@ jobs:
         fi
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
         make -C mk/linux/build -j$(nproc) VERBOSE=1
-    - name: Prepare Snapshot
-      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-20.04' }}
-      run: |
-        cp mk/shared/*.ini mk/linux/
-        strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
-    - name: Create Mega Glest Snapshot
-      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-20.04' }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: megaglest-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.compiler }}
-        path: |
-          mk/linux/megaglest
-          mk/linux/megaglest_editor
-          mk/linux/megaglest_g3dviewer
-          mk/linux/*.ini
-          !mk/linux/glest-dev.ini
 
   build-linux-other:
     strategy:
