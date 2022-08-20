@@ -1,0 +1,39 @@
+name: Make Snapshot
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches: [ develop ]
+
+# The artifact only runs on the same distro that it was built on.
+# TODO: make AppImage instead
+jobs:
+  make-snapshot:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get dependencies
+      run: |
+        sudo apt-get update && sudo apt-get upgrade
+        sudo mk/linux/setupBuildDeps.sh
+    - name: Build
+      run:  |
+        mk/linux/build-mg.sh -m
+        make -C mk/linux/build -j$(nproc) VERBOSE=1
+    - name: Prepare Snapshot
+      run: |
+        cp mk/shared/*.ini mk/linux/
+        strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
+    - name: Create Mega Glest Snapshot
+      uses: actions/upload-artifact@v2
+      with:
+        name: megaglest-x64-ubuntu-20.04-gcc
+        path: |
+          mk/linux/megaglest
+          mk/linux/megaglest_editor
+          mk/linux/megaglest_g3dviewer
+          mk/linux/*.ini
+          !mk/linux/glest-dev.ini
