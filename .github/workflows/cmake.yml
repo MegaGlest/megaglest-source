@@ -15,49 +15,46 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x64]
-        os: [ubuntu-18.04, ubuntu-latest]
+        os: [ubuntu-20.04, ubuntu-22.04]
         compiler: [gcc, clang]
     runs-on: ${{ matrix.os }}
-
+    env:
+      MATRIX_COMPILER: ${{matrix.compiler}}
+      MATRIX_OS: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v2
-
+    - uses: actions/checkout@v3
     - name: Get dependencies
       run: |
-        sudo apt update
+        sudo apt-get update && sudo apt-get upgrade
         sudo mk/linux/setupBuildDeps.sh
+    - name: Build
+      run:  |
+        if [ "${MATRIX_COMPILER}" = "clang" ]; then
+          EXTRA_OPTS="-f"
+        fi
+        mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
+        make -C mk/linux/build -j$(nproc) VERBOSE=1
 
-    - name: Bulid MegaGlest With GCC Compiler
-      if: ${{ matrix.compiler == 'gcc' }}
-      env:
-        CC: gcc
-        CXX: g++
-      run: mk/linux/build-mg.sh
-
-    - name: Bulid MegaGlest With Clang Compiler
-      if: ${{ matrix.compiler == 'clang' }}
-      env:
-        CC: clang
-        CXX: clang++
-      run: mk/linux/build-mg.sh
-
-    - name: Prepare Snapshot
-      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
+  build-linux-other:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [10, 12] # 11 is on 22.04 by default, tested above
+    runs-on: ubuntu-22.04
+    env:
+      CC: gcc-${{matrix.compiler}}
+      CXX: g++-${{matrix.compiler}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get dependencies
       run: |
-        cp mk/shared/*.ini mk/linux/
-        strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
-
-    - name: Create Mega Glest Snapshot
-      if: ${{ matrix.compiler == 'gcc' && matrix.os == 'ubuntu-latest' }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: megaglest-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.compiler }}
-        path: |
-          mk/linux/megaglest
-          mk/linux/megaglest_editor
-          mk/linux/megaglest_g3dviewer
-          mk/linux/*.ini
-          !mk/linux/glest-dev.ini
+        sudo apt-get update && sudo apt-get upgrade
+        sudo apt-get install -y $CXX
+        sudo mk/linux/setupBuildDeps.sh
+    - name: Build
+      run:  |
+        mk/linux/build-mg.sh -d -m
+        make -C mk/linux/build -j$(nproc) VERBOSE=1
 
   build-win64:
     # The CMake configure and build commands are platform agnostic and should work equally
@@ -75,7 +72,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Cache Vcpkg Libs
       uses: actions/cache@v2
