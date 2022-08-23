@@ -3,7 +3,7 @@
 param(${vcpkg-location})
 
 $sword = [char]::ConvertFromUtf32(0x2694)
-Write-Output "=====$sword Mega Glest $sword====="
+Write-Output "=====$sword MegaGlest $sword====="
 ""
 <#
 .SYNOPSIS
@@ -87,7 +87,7 @@ else {
     & "$(Join-Path ${vcpkg-location} bootstrap-vcpkg.bat)"
 }
 
-"Installing vcpkg and Mega Glest dependencies."
+"Installing vcpkg and MegaGlest dependencies."
 Set-Location ${vcpkg-location}
 & "$(Join-Path $PSScriptRoot install-deps-vcpkg.ps1)"
 if (!$?) {
@@ -98,21 +98,33 @@ if (!$?) {
 Set-Location $PSScriptRoot
 ""
 
-Write-Title "Build Mega Glest"
+Write-Title "Build MegaGlest"
 
 $toolchainPath = $(Join-Path ${vcpkg-location} \scripts\buildsystems\vcpkg.cmake)
 $buildFolder = $(Join-Path $PSScriptRoot build)
 $topLevelTargetDir = $(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString()
 
-cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G "Visual Studio 16 2019" -T host=x64 -A x64
+$vsVersion=(msbuild --version | select -Last 1).Split(".")[0] -as [int]
+
+echo "version is " $vsVersion
+
+if ($vsVersion -eq 17) {
+    $vsProjType = "Visual Studio 17 2022"
+}
+else {
+    $vsProjType = "Visual Studio 16 2019"
+}
+
+cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G $vsProjType -T host=x64 -A x64
 cmake --build $buildFolder --config Release --target ALL_BUILD
-""
+
 
 if ($?) {
     "Build succeeded. megaglest.exe, megaglest_editor.exe and megaglest_g3dviewer.exe can be found in mk/windoze/."
 }
 else {
-    "Build failed. Please make sure you have installed VS C++ tools: https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019"
-    "If you have installed all the relevant tools and you still can't build Mega Glest, try running '.\clean-build.ps1'. Then run this script again."
-    "If Mega Glest still fails to build, please consider submitting a bug report at https://github.com/MegaGlest/megaglest-source/issues."
+    "Build failed. Please make sure you have installed VS C++ tools (2019 or 2022): https://visualstudio.microsoft.com/downloads ."
+    "If you have installed all the relevant tools and you still can't build MegaGlest, try running '.\clean-build.ps1'. Then run this script again."
+    "Make sure this script is running in developer powershell: https://docs.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell ."
+    "If MegaGlest still fails to build, please help us by submitting a bug report at https://github.com/MegaGlest/megaglest-source/issues."
 }
