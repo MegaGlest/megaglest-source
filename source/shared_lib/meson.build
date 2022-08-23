@@ -39,7 +39,19 @@ dep_curl = dependency('libcurl')
 dep_sdl = dependency('sdl2')
 dep_x11 = dependency('x11')
 dep_openal = dependency('openal')
-dep_lua = dependency('lua')
+
+# Using simply 'lua' doesn't work on all Linux distributions
+# See https://github.com/mesonbuild/meson/issues/4553 for more info
+foreach name : ['lua', 'lua5.3', 'lua-5.3', 'lua53']
+    dep_lua = dependency(name, version: '>=5.3', required: false)
+    if dep_lua.found()
+        break
+    endif
+endforeach
+if not dep_lua.found()
+    error('Lua could not be found!')
+endif
+
 dep_cppunit = dependency('cppunit')
 dep_fribidi = dependency('fribidi')
 dep_glib = dependency('glib-2.0')
@@ -77,7 +89,7 @@ dep_glib = dependency('glib-2.0')
 #-lGLEW
 #-lminiupnpc
 #-lircclient
-#-lSDL2main 
+#-lSDL2main
 #-lfribidi
 #-lglib-2.0
 

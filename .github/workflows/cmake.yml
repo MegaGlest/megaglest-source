@@ -15,198 +15,217 @@ on:
       - '**/appimage.yml'
 
 jobs:
-  freebsd:
-    runs-on: ubuntu-latest
-    name: FreeBSD
-    steps:
-    - uses: actions/checkout@v4
-    - name: Test in FreeBSD
-      id: test
-      uses: vmactions/freebsd-vm@v1
-      with:
-        usesh: true
-        prepare: |
-          pkg install -y \
-              bash \
-              cmake \
-              cppunit \
-              curl \
-              freetype2 \
-              fribidi \
-              ftgl \
-              git \
-              glew \
-              jpeg-turbo \
-              libGLU \
-              libircclient \
-              libogg \
-              libvorbis \
-              libX11 \
-              libxml2 \
-              lua53 \
-              mesa-libs \
-              miniupnpc \
-              openal-soft \
-              pkgconf \
-              png \
-              sdl2 \
-              wx30-gtk3
+  #freebsd:
+    #runs-on: ubuntu-latest
+    #name: FreeBSD
+    #steps:
+    #- uses: actions/checkout@v4
+    #- name: Test in FreeBSD
+      #id: test
+      #uses: vmactions/freebsd-vm@v1
+      #with:
+        #usesh: true
+        #prepare: |
+          #pkg install -y \
+              #bash \
+              #cmake \
+              #cppunit \
+              #curl \
+              #freetype2 \
+              #fribidi \
+              #ftgl \
+              #git \
+              #glew \
+              #jpeg-turbo \
+              #libGLU \
+              #libircclient \
+              #libogg \
+              #libvorbis \
+              #libX11 \
+              #libxml2 \
+              #lua53 \
+              #mesa-libs \
+              #miniupnpc \
+              #openal-soft \
+              #pkgconf \
+              #png \
+              #sdl2 \
+              #wx30-gtk3
 
-        run: |
-          git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
-          cd mk/linux
-          ./build-mg.sh -f -d
+        #run: |
+          #git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
+          #cd mk/linux
+          #./build-mg.sh -f -d
 
-  build-linux:
+  #build-linux:
+    #strategy:
+      #fail-fast: false
+      #matrix:
+        #arch: [x64]
+        #os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
+        #compiler: [gcc, clang]
+    #runs-on: ${{ matrix.os }}
+    #env:
+      #MATRIX_COMPILER: ${{matrix.compiler}}
+      #MATRIX_OS: ${{matrix.os}}
+    #steps:
+    #- uses: actions/checkout@v4
+    #- name: Get dependencies
+      #run: |
+        #echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
+        #sudo apt update
+        #sudo apt remove -y firefox # save some time during upgrade
+        #sudo apt upgrade -y
+        #sudo mk/linux/setupBuildDeps.sh
+    #- name: Build
+      #run:  |
+        #if [ "${MATRIX_COMPILER}" = "clang" ]; then
+          #EXTRA_OPTS="-f"
+        #else
+          #ADD_FLAGS="-flto=auto"
+          #export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
+        #fi
+        #mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
+        #make -C mk/linux/build -j$(nproc) VERBOSE=1
+
+  #build-win64-deps:
+    ## The CMake configure and build commands are platform agnostic and should work equally
+    ## well on Windows or Mac.  You can convert this to a matrix build if you need
+    ## cross-platform coverage.
+    ## See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    #strategy:
+      #fail-fast: false
+      #matrix:
+        #arch: [x64]
+        #build_type: [Release]
+        #include:
+          #- build_type: Release
+            #release: 'ON'
+    #runs-on: windows-latest
+
+    #steps:
+    #- uses: actions/checkout@v4
+
+    #- name: Cache Vcpkg Libs
+      #uses: actions/cache@v4
+      #env:
+        #cache-name: cache-vcpkg-deps
+      #with:
+        #path: c:/vcpkg/installed
+        #key: vcpkg-deps
+
+    #- name: Install Windows Deps
+      #run: |
+        #cd mk\windoze
+        #$scriptDir = Get-Location
+        #cd c:\vcpkg
+        #& "$(Join-Path $scriptDir install-deps-vcpkg.ps1)"
+
+  #build-win64:
+    #needs: build-win64-deps
+    #strategy:
+      #fail-fast: false
+      #matrix:
+        #arch: [x64]
+        #build_type: [Release]
+        #include:
+          #- build_type: Release
+            #release: 'ON'
+    #runs-on: windows-latest
+
+    #steps:
+    #- uses: actions/checkout@v4
+
+    #- name: Get Vcpkg Libs Cache
+      #uses: actions/cache@v4
+      #env:
+        #cache-name: cache-vcpkg-deps
+      #with:
+        #path: c:/vcpkg/installed
+        #key: vcpkg-deps
+
+    #- name: Build MegaGlest
+      #run: |
+        #cd mk/windoze
+        #./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
+
+    #- name: Git Hash
+      #if: ${{ github.ref == 'refs/heads/develop' }}
+      #run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+
+    #- name: Prepare Snapshot
+      #if: ${{ github.ref == 'refs/heads/develop' }}
+      #run: |
+        #cd mk\windoze
+        #Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
+        #cp ..\shared\*.ini .
+        #$7zPath = $(Get-Command 7z).Source
+        #cp $7zPath .
+        #Remove-Item glest-dev.ini
+        #Compress-Archive -Path *.exe,*.ini -DestinationPath megaglest-x64-windows.zip
+        #cd ../..
+
+    #- name: Create MegaGlest Snapshot
+      #if: ${{ github.ref == 'refs/heads/develop' }}
+      #uses: actions/upload-artifact@v4
+      #with:
+        #name: megaglest-x64-windows-archive
+        #retention-days: 1
+        #path: mk/windoze/*.zip
+
+  #build-macos:
+    #strategy:
+      #fail-fast: false
+    #runs-on: macos-latest
+    #steps:
+    #- uses: actions/checkout@v4
+
+    #- name: Get dependencies
+      #run: |
+        #mk/macos/setupBuildDeps.sh
+
+    #- name: Build MegaGlest With Clang Compiler
+      #run: |
+        #mk/macos/build-mg.sh -m
+        #make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
+
+    #- name: Git Hash
+      #if: ${{ github.ref == 'refs/heads/develop' }}
+      #run: |
+        #echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+    #- name: Prepare Snapshot
+      #if: ${{ github.ref == 'refs/heads/develop' }}
+      #run: |
+        #cd mk/macos
+        #./make-binary-archive.sh
+        #cd -
+        #mv release/mg-binary-macos*.tar.bz2 release/megaglest-x64-macos.tar.bz2
+
+    #- name: Create MegaGlest Snapshot
+      #if: ${{ github.ref == 'refs/heads/develop' }}
+      #uses: actions/upload-artifact@v4
+      #with:
+        #name: megaglest-x64-macos
+        #retention-days: 1
+        #path: release/*.tar.bz2
+
+  meson:
     strategy:
       fail-fast: false
-      matrix:
-        arch: [x64]
-        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
-        compiler: [gcc, clang]
-    runs-on: ${{ matrix.os }}
-    env:
-      MATRIX_COMPILER: ${{matrix.compiler}}
-      MATRIX_OS: ${{matrix.os}}
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - name: Get dependencies
       run: |
-        echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
-        sudo apt update
-        sudo apt remove -y firefox # save some time during upgrade
-        sudo apt upgrade -y
+        sudo apt-get -y update && sudo apt-get -y upgrade
         sudo mk/linux/setupBuildDeps.sh
+        sudo apt-get install -y meson
+        # Using pip is only required if a newer version of meson is required
+        # sudo apt-get install -y python3-pip python3-setuptools # required for pip
+        # sudo -H python3 -m pip install meson ninja # version included w
     - name: Build
       run:  |
-        if [ "${MATRIX_COMPILER}" = "clang" ]; then
-          EXTRA_OPTS="-f"
-        else
-          ADD_FLAGS="-flto=auto"
-          export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
-        fi
-        mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
-        make -C mk/linux/build -j$(nproc) VERBOSE=1
-
-  build-win64-deps:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [x64]
-        build_type: [Release]
-        include:
-          - build_type: Release
-            release: 'ON'
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Cache Vcpkg Libs
-      uses: actions/cache@v4
-      env:
-        cache-name: cache-vcpkg-deps
-      with:
-        path: c:/vcpkg/installed
-        key: vcpkg-deps
-
-    - name: Install Windows Deps
-      run: |
-        cd mk\windoze
-        $scriptDir = Get-Location
-        cd c:\vcpkg
-        & "$(Join-Path $scriptDir install-deps-vcpkg.ps1)"
-
-  build-win64:
-    needs: build-win64-deps
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [x64]
-        build_type: [Release]
-        include:
-          - build_type: Release
-            release: 'ON'
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Get Vcpkg Libs Cache
-      uses: actions/cache@v4
-      env:
-        cache-name: cache-vcpkg-deps
-      with:
-        path: c:/vcpkg/installed
-        key: vcpkg-deps
-
-    - name: Build MegaGlest
-      run: |
-        cd mk/windoze
-        ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
-
-    - name: Git Hash
-      if: ${{ github.ref == 'refs/heads/develop' }}
-      run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
-
-    - name: Prepare Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
-      run: |
-        cd mk\windoze
-        Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
-        cp ..\shared\*.ini .
-        $7zPath = $(Get-Command 7z).Source
-        cp $7zPath .
-        Remove-Item glest-dev.ini
-        Compress-Archive -Path *.exe,*.ini -DestinationPath megaglest-x64-windows.zip
-        cd ../..
-
-    - name: Create MegaGlest Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: megaglest-x64-windows-archive
-        retention-days: 1
-        path: mk/windoze/*.zip
-
-  build-macos:
-    strategy:
-      fail-fast: false
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Get dependencies
-      run: |
-        mk/macos/setupBuildDeps.sh
-
-    - name: Build MegaGlest With Clang Compiler
-      run: |
-        mk/macos/build-mg.sh -m
-        make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
-
-    - name: Git Hash
-      if: ${{ github.ref == 'refs/heads/develop' }}
-      run: |
-        echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-    - name: Prepare Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
-      run: |
-        cd mk/macos
-        ./make-binary-archive.sh
-        cd -
-        mv release/mg-binary-macos*.tar.bz2 release/megaglest-x64-macos.tar.bz2
-
-    - name: Create MegaGlest Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: megaglest-x64-macos
-        retention-days: 1
-        path: release/*.tar.bz2
-
+        meson setup builddir
+        cd builddir
+        meson compile -v
