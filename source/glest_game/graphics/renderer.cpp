@@ -8736,7 +8736,7 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 		float t= static_cast<float>(i)/tesselation;
 		Vec3f a= pos1Left.lerp(t, pos2Left);
 		Vec3f b= pos1Right.lerp(t, pos2Right);
-		Vec4f c= Vec4f(color, alphaFactor);
+		Vec4f c= Vec4f(color, std::max(0.04f,t*alphaFactor));
 
 		glColor4fv(c.ptr());
 
