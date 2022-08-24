@@ -138,6 +138,6 @@ inc_common = [
 executable('megaglest',
   src_game,
   include_directories: [inc_game, inc_common],
-  dependencies: [dep_sdl, dep_lua, dep_feathery_ftp],
+  dependencies: [dep_sdl, dep_lua],
   link_with: [lib_megaglest]
   )
