@@ -116,7 +116,7 @@ else {
     $vsProjType = "Visual Studio 17 2022"
 }
 
-cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G $vsProjType -T host=x64 -A x64 -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
+cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G $vsProjType -T host=x64 -A x64
 cmake --build $buildFolder --config Release --target ALL_BUILD
 
 
