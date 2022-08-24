@@ -106,16 +106,17 @@ $topLevelTargetDir = $(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString(
 
 $vsVersion=(msbuild --version | select -Last 1).Split(".")[0] -as [int]
 
-echo "version is " $vsVersion
-
 if ($vsVersion -eq 17) {
     $vsProjType = "Visual Studio 17 2022"
 }
-else {
+elseif ($vsVersion -eq 16) {
     $vsProjType = "Visual Studio 16 2019"
 }
+else {
+    $vsProjType = "Visual Studio 17 2022"
+}
 
-cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G $vsProjType -T host=x64 -A x64
+cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G $vsProjType -T host=x64 -A x64 -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
 cmake --build $buildFolder --config Release --target ALL_BUILD
 
 
