@@ -2,35 +2,8 @@ IF(WIN32)
 	# Windows cmake version needs to be higher - for CMAKE_MSVC_RUNTIME_LIBRARY.
 	CMAKE_MINIMUM_REQUIRED( VERSION 3.15 )
 
-	STRING(SUBSTRING ${CMAKE_GENERATOR} 0 13 GENERATOR_TYPE)
-	SET(VS_BUILD GENERATOR_TYPE STREQUAL "Visual Studio" CACHE STRING "Target visual studio.")
-	IF(VS_BUILD)
-		# This must be Set before "PROJECT()" is called.
-		set(VCPKG_TARGET_TRIPLET "x64-windows-static")
-
-		# Sets the flags MT/ MTd correctly.
-		set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
-		include(ProcessorCount)
-		ProcessorCount(N)
-		IF(N GREATER 0)
-			MESSAGE(STATUS "Will build on ${N} cores.")
-		ELSE()
-			SET(N 1)
-			MESSAGE(STATUS "Could not find number of cores. Will attempt to build on ${N} cores.")
-		ENDIF()
-
-		# "MP" is build with all cores.
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP${N}")
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP${N}")
-		SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_$} /MP${N}" )
-		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_$} /MP${N}" )
-
-		SET(MEGAGLEST_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/" CACHE STRING "The installation path for data files ${COMMON_INFO_ABOUT_PATH}")
-		SET(MEGAGLEST_INI_INSTALL_PATH "${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "Install path for ini files")
-		
-		INCLUDE(FindPkgConfig)
-	ENDIF()
+	# This must be Set before "PROJECT()" is called.
+	SET(VCPKG_TARGET_TRIPLET "x64-windows-static")
 ELSE()
 	CMAKE_MINIMUM_REQUIRED( VERSION 3.5 )
 ENDIF()
@@ -53,6 +26,31 @@ SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS None Debug Release RelWithD
 
 IF(NOT CMAKE_VERSION VERSION_LESS "3.1")
     cmake_policy(SET CMP0054 NEW)
+ENDIF()
+
+IF(MSVC)
+	# Sets the flags MT/ MTd correctly.
+	SET(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+	INCLUDE(ProcessorCount)
+	ProcessorCount(N)
+	IF(N GREATER 0)
+		MESSAGE(STATUS "Will build on ${N} cores.")
+	ELSE()
+		SET(N 1)
+		MESSAGE(STATUS "Could not find number of cores. Will attempt to build on ${N} cores.")
+	ENDIF()
+
+	# "MP" is build with all cores.
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP${N}")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP${N}")
+	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_$} /MP${N}" )
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_$} /MP${N}" )
+
+	SET(MEGAGLEST_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/" CACHE STRING "The installation path for data files ${COMMON_INFO_ABOUT_PATH}")
+	SET(MEGAGLEST_INI_INSTALL_PATH "${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "Install path for ini files")
+
+	INCLUDE(FindPkgConfig)
 ENDIF()
 
 # add additional CMake modules
@@ -127,7 +125,7 @@ FOREACH(ver_var VER_MAJOR;VER_MINOR;VER_PATCH;MEGAGLEST_VERSION)
 ENDFOREACH()
 MESSAGE(STATUS "Detected MegaGlest Version is [v${MEGAGLEST_VERSION}] ")
 
-IF(NOT VS_BUILD)
+IF(NOT MSVC)
 	SET(PIC_FLAG "${PIC_FLAG} -fPIC")
 	IF(WANT_STATIC_LIBS AND "${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 		# CMAKE_SIZEOF_VOID_P=8 => 64bit
@@ -140,19 +138,19 @@ IF(APPLE)
 	include(${PROJECT_SOURCE_DIR}/mk/macos/CMakeLists.txt)
 ENDIF(APPLE)
 
-IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR VS_BUILD)
+IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
     IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
         MESSAGE(STATUS "Detected CLANG Compiler...")
 	ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		MESSAGE(STATUS "Detected GNUC Compiler...")
 	ELSEIF(MINGW)
 		MESSAGE(STATUS "Detected MINGW Compiler...")
-	ELSEIF(VS_BUILD)
+	ELSEIF(MSVC)
 		MESSAGE(STATUS "Detected VS target for building with msbuild...")
 	ENDIF()
 
     # Common generic GNU type compiler options that work with all generic GCC compatible compilers
-	IF(NOT VS_BUILD)
+	IF(NOT MSVC)
     	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
 	ENDIF()
 
@@ -170,7 +168,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR VS_BUILD)
     # CLang specific Compiler Options
     IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
 
-	ELSEIF(VS_BUILD)
+	ELSEIF(MSVC)
 
     # GCC specific Compiler Options
     ELSE()
@@ -238,7 +236,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 		message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
 	ENDIF()
 	
-	IF(NOT VS_BUILD)
+	IF(NOT MSVC)
 		# Debug compiler flags
 		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 
@@ -374,7 +372,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	message(STATUS "CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}: ${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}}")
 
 	# Win32 specific Compiler Flags
-	IF(WIN32 AND NOT VS_BUILD)
+	IF(WIN32 AND NOT MSVC)
 		ADD_DEFINITIONS("-D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -D_LIB -DCURL_STATICLIB")
 	ENDIF()
 ENDIF()
@@ -418,7 +416,7 @@ ELSE()
 ENDIF()
 
 # Set VS project exe outputs.
-IF(VS_BUILD)
+IF(MSVC)
 	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
 	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
 	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})

@@ -49,7 +49,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	ENDIF()
 
 	IF(WIN32)
-		IF(NOT VS_BUILD)
+		IF(NOT MSVC)
 			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
 			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
 			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxpng-2.8-i586-mingw32msvc.a)
@@ -82,7 +82,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		ENDIF()
 	ENDIF()
 
-	IF(NOT VS_BUILD)
+	IF(NOT MSVC)
 		find_package(PkgConfig REQUIRED)
 	ENDIF()
     IF(FORCE_STREFLOP_SOFTWRAPPER)
@@ -187,7 +187,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-	IF(VS_BUILD)
+	IF(MSVC)
 		# Needed to build a window app and not just a upnp console app. Not really sure why.
 		ADD_EXECUTABLE(${TARGET_NAME} WIN32 ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 	ELSE()

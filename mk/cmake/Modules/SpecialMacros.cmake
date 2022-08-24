@@ -20,7 +20,7 @@ macro(special_check_for_sse _max_sse_level_desired)
   include(CheckCXXSourceRuns)
   include(CheckCSourceRuns)
 
-  # Add vs_build to stop flags added to msbuild.
+  # Add MSVC to stop flags being added to msbuild.
   IF(NOT MINGW)
     set(SSE_FLAGS)
   
