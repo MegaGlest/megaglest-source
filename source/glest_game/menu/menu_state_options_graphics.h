@@ -99,6 +99,7 @@ public:
 	MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
+	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	//virtual void keyDown(SDL_KeyboardEvent key);

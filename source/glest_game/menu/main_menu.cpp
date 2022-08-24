@@ -227,6 +227,16 @@ void MainMenu::mouseDownLeft(int x, int y){
 	state->mouseClick(x, y, mbLeft);
 }
 
+void MainMenu::mouseDoubleClickLeft(int x, int y){
+	if(GraphicComponent::getFade()<0.2f) return;
+	state->mouseDoubleClick(x, y, mbLeft);
+}
+
+void MainMenu::mouseDoubleClickRight(int x, int y){
+	if(GraphicComponent::getFade()<0.2f) return;
+	state->mouseDoubleClick(x, y, mbRight);
+}
+
 void MainMenu::mouseDownRight(int x, int y){
 	if(GraphicComponent::getFade()<0.2f) return;
 	state->mouseClick(x, y, mbRight);
