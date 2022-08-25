@@ -75,22 +75,30 @@ endif
 dep_cppunit = dependency('cppunit')
 dep_fribidi = dependency('fribidi')
 dep_glib = dependency('glib-2.0')
-# TODO: needs condition for OSes which can/ can't find libircclient.
-# dep_ircclient = dependency('libircclient')
-inc_ircclient = '/usr/include/libircclient'
-dep_ircclient = cxx.find_library(
-  'libircclient', 
-  has_headers: 'libircclient.h',
-  header_include_directories: include_directories(inc_ircclient),
-  )
 
-inc_miniupnpc = ['/usr/include/miniupnpc', 'include/platform/miniupnpc']
-dep_ircclient = cxx.find_library(
-  'miniupnpc', 
-  has_headers: 'miniupnpc.h',
-  header_include_directories: include_directories(inc_miniupnpc),
-  )
+inc_ircclient = []
+dep_irclient = []
+dep_ircclient = dependency('libircclient', required: false)
+if not dep_ircclient.found()
+  dep_ircclient = cc.find_library('libircclient', has_headers: 'libircclient.h', required: false)
+  if not dep_ircclient.found()
+    inc_ircclient = '/usr/include/libircclient'
+    dep_ircclient = cc.find_library(
+      'libircclient',
+      has_headers: 'libircclient.h',
+      header_include_directories: include_directories(inc_ircclient)
+    )
+  endif
+endif
+
+inc_miniupnpc = ['include/platform/miniupnpc']
+dep_miniupnpc = []
 dep_miniupnpc = dependency('miniupnpc')
+if not dep_miniupnpc.found()
+  dep_miniupnpc = cxx.find_library('miniupnpc', required: false)
+  inc_miniupnpc += '/usr/include/miniupnpc'
+endif
+
 #dep_ = dependency('')
 #dep_ = dependency('')
 #dep_ = dependency('')
@@ -147,18 +155,14 @@ lib_megaglest = static_library(
     inc_miniupnpc,
   ],
   dependencies: [
-	dep_curl,
-	dep_sdl,
-  dep_x11,
+  dep_curl,
+  dep_sdl,
   dep_openal,
   dep_lua,
-	dep_cppunit,
-	dep_fribidi,
-	dep_glib,
   dep_feathery_ftp,
   dep_ircclient,
   dep_miniupnpc,
-	]
+  ]
   )
 
-# dep_libmegaglest = declare_dependency(link_with: lib_megaglest, include_directories : '..')
+dep_libmegaglest = declare_dependency(link_with: lib_megaglest)
