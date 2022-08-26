@@ -3,12 +3,14 @@ project(
   ['c', 'cpp'],
   version: '3.13.0.999',
   meson_version : '>= 0.53.2',
-  default_options: ['warning_level=0']
+  default_options: ['warning_level=1']
   )
 
 # Setup compiler.
 cxx = meson.get_compiler('cpp')
 cc = meson.get_compiler('c')
+
+add_global_arguments(['-DNDEBUG', '-DUSE_FTGL'], language: 'cpp')
 
 #add_global_arguments(
 #  [
@@ -34,7 +36,7 @@ cc = meson.get_compiler('c')
 #  language: 'cpp')
 
 subdir('source/shared_lib')
-#subdir('source/glest_game')
+subdir('source/glest_game')
 
 
 #subdir('source')
