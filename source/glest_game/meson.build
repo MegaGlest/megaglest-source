@@ -3,10 +3,6 @@ src_game = [
 	'ai/ai_interface.cpp',
 	'ai/ai_rule.cpp',
 	'ai/path_finder.cpp',
-	'facilities/auto_test.cpp',
-	'facilities/components.cpp',
-	'facilities/game_util.cpp',
-	'facilities/logger.cpp',
 	'game/achievement.cpp',
 	'game/chat_manager.cpp',
 	'game/commander.cpp',
@@ -59,6 +55,7 @@ src_game = [
 	'sound/sound_container.cpp',
 	'sound/sound_renderer.cpp',
 	'steam/steam.cpp',
+	'steamshim/steamshim_child.c',
 	'type_instances/command.cpp',
 	'type_instances/faction.cpp',
 	'type_instances/object.cpp',
@@ -86,6 +83,10 @@ src_game = [
 	'world/unit_updater.cpp',
 	'world/water_effects.cpp',
 	'world/world.cpp',
+	'facilities/auto_test.cpp',
+	'facilities/components.cpp',
+	'facilities/game_util.cpp',
+	'facilities/logger.cpp',
 	]
  
 	
@@ -112,20 +113,20 @@ inc_common = [
   '../shared_lib/include/platform/posix',
   '../shared_lib/include/platform/common',
   '../shared_lib/include/platform/win32',
-  '../shared_lib/include/platform/miniupnpc',
+#   '../shared_lib/include/platform/miniupnpc',
   '../shared_lib/include/platform/sdl',
   '../shared_lib/include/util',
   '../shared_lib/include/util/utf8',
   '../shared_lib/include/map',
   '../shared_lib/include/compression',
   '../shared_lib/include/feathery_ftp',
-  '../shared_lib/include/libircclient',
-  '../shared_lib/include/libircclient/include',
-  '../shared_lib/include/streflop',
-  '../shared_lib/include/streflop/softfloat',
-  '../shared_lib/include/streflop/libm',
-  '../shared_lib/include/streflop/libm/headers',
-  '../shared_lib/include/streflop/libm/flt-32',
+#   '../shared_lib/include/libircclient',
+#   '../shared_lib/include/libircclient/include',
+#   '../shared_lib/include/streflop',
+#   '../shared_lib/include/streflop/softfloat',
+#   '../shared_lib/include/streflop/libm',
+#   '../shared_lib/include/streflop/libm/headers',
+#   '../shared_lib/include/streflop/libm/flt-32',
   '../shared_lib/include/lua',
   '../shared_lib/include/xml',
   '../shared_lib/include/xml/rapidxml',
@@ -135,9 +136,57 @@ inc_common = [
   '../shared_lib/include/graphics/gl',
   ]
 
+dep_cppunit = dependency('cppunit')
+dep_fribidi = dependency('fribidi')
+dep_glib = dependency('glib-2.0')
+dep_pthread = dependency('threads')
+dep_gl = dependency('gl')
+dep_openal = dependency('openal')
+dep_x11 = dependency('x11')
+# dep_ogg = dependency('ogg')
+dep_vorbis = dependency('vorbisfile')
+dep_glew = dependency('glew')
+dep_png = dependency('libpng')
+dep_jpeg = dependency('libjpeg')
+dep_fontconfig = dependency('fontconfig')
+dep_ftgl = dependency('ftgl')
+dep_freetype = dependency('freetype2')
+# dep_math = dependency('libm')
+
 executable('megaglest',
   src_game,
   include_directories: [inc_game, inc_common],
-  dependencies: [dep_sdl, dep_lua],
-  link_with: [lib_megaglest]
+  dependencies: [dep_libmegaglest,
+  	dep_sdl,
+	dep_lua,
+	dep_cppunit,
+	dep_fribidi,
+	dep_glib,
+	dep_pthread,
+	# dep_gl,
+	dep_openal,
+	dep_x11,
+	# dep_ogg,
+	dep_vorbis,
+	dep_curl,
+	dep_glew,
+	dep_png,
+	dep_jpeg,
+	# dep_fontconfig,
+	dep_ftgl,
+	dep_freetype,
+	# dep_math,
+	],
+	cpp_args: [ '-DGITVERSION="HELPME"'],
+	link_args: ['-lm',
+#  		'-lSM',
+# 		'-lICE',
+		'-lGLU',
+		'-ldl',
+		'-lXext',
+		'-Wl,-Bstatic',
+		'-lSDL2main',
+		'-Wl,-Bdynamic',
+	]
+		
   )
