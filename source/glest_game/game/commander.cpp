@@ -263,8 +263,12 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
 				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
+				int unitTypeId= -1;
+				auto mct= unit->getCurrMorphCt();
+				if(mct) unitTypeId= mct->getMorphUnit()->getId();
+
 				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
-						commandType->getId(), currPos, -1, targetId, -1, tryQueue,
+						commandType->getId(), currPos, unitTypeId, targetId, -1, tryQueue,
 						cst_None, -1, unitCommandGroupId);
 
 				//every unit is ordered to a different position
@@ -316,13 +320,16 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			if(commandType != NULL) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
+				int unitTypeId= -1;
+				auto mct= unit->getCurrMorphCt();
+				if(mct) unitTypeId= mct->getMorphUnit()->getId();
 
 				std::pair<CommandResult,string> resultCur(crFailUndefined,"");
 
 				bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 				if(canSubmitCommand == true) {
 					NetworkCommand networkCommand(this->world,nctGiveCommand,
-							unitId, commandType->getId(), currPos, -1, targetId,
+							unitId, commandType->getId(), currPos, unitTypeId, targetId,
 							-1, tryQueue, cst_None, -1, unitCommandGroupId);
 					resultCur= pushNetworkCommand(&networkCommand);
 				}
@@ -950,7 +957,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-    ct = unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
+	ct = unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
 
 	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
 
@@ -984,7 +991,11 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		throw megaglest_runtime_error(sError);
 	}
 
-    const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
+	const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
+	
+	if( networkCommand->getUnitTypeId() > -1 &&  networkCommand->getWantQueue()) { //Morph Queue
+		ct = unitType->findCommandTypeById(networkCommand->getCommandTypeId());
+	}
 
 	// debug test!
 	//throw megaglest_runtime_error("Test missing command type!");

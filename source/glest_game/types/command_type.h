@@ -425,7 +425,7 @@ public:
 	virtual string toString(bool translatedValue) const;
 	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
-	Queueability isQueuable() const						{return qOnlyLast;} //After morph anything can happen
+	Queueability isQueuable() const						{return qAlways;} //After morph anything can happen
 
     //get
 	const MorphSkillType *getMorphSkillType() const		{return morphSkillType;}

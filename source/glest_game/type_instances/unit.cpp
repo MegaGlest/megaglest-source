@@ -745,6 +745,15 @@ void Unit::cleanupAllParticlesystems() {
 
 }
 
+const MorphCommandType* Unit::getCurrMorphCt() const {
+	auto result = std::find_if(commands.rbegin(), commands.rend(),[](Command *i) 
+	{ return i->getCommandType()->getClass() == ccMorph? true: false; });
+	if(result != commands.rend()) {
+		return static_cast<const MorphCommandType*>((*result)->getCommandType());
+	}
+	else return NULL;
+}
+
 ParticleSystem * Unit::getFire() const	{
 	if(this->fire != NULL &&
 		Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
@@ -3825,6 +3834,9 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			command->getCommandType()->getClass() == ccRepair &&
 			this->getType()->getFirstRepairCommand(this->getType()) != NULL) {
 
+		}
+		else if(getCurrMorphCt()->getMorphUnit()->hasCommandType(command->getCommandType())) {
+			// Allow Current Morph Commands
 		}
 		else {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);

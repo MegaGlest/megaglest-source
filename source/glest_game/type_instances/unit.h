@@ -653,6 +653,7 @@ public:
 		}
 		return NULL;
 	}
+	const MorphCommandType* getCurrMorphCt() const;
 	void replaceCurrCommand(Command *cmd);
 	int getCountOfProducedUnitsPreExistence(const UnitType *ut) const;
 	unsigned int getCommandSize() const;

@@ -552,7 +552,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 		else {
 			result= commander->tryGiveCommand(&selection, activeCommandClass,
 											targetPos, targetUnit,queueKeyDown);
-        	}
+		}
 	}
 	else {
 		//selecting building
@@ -969,6 +969,10 @@ void Gui::computeDisplay(){
 					//uniform selection
 					if(u->isBuilt()){
 						//printf("u->isBuilt()\n");
+						auto mct = u->getCurrMorphCt();
+						if(mct && isKeyDown(queueCommandKey)) {//Morph Queue
+							ut=mct->getMorphUnit();
+						}
 
 						int morphPos= 8;
 						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
