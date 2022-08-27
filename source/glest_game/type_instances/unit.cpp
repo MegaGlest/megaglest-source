@@ -3829,13 +3829,14 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
        (ignoreCheckCommand == false && this->getFaction()->reqsOk(command->getCommandType()) == false)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
 
+		auto mct = getCurrMorphCt();
 		// Allow self healing if able to heal own unit type
 		if(	command->getUnit() == this &&
 			command->getCommandType()->getClass() == ccRepair &&
 			this->getType()->getFirstRepairCommand(this->getType()) != NULL) {
 
 		}
-		else if(getCurrMorphCt()->getMorphUnit()->hasCommandType(command->getCommandType())) {
+		else if(mct && mct->getMorphUnit()->hasCommandType(command->getCommandType())) {
 			// Allow Current Morph Commands
 		}
 		else {
