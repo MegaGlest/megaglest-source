@@ -707,6 +707,9 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 					if (activeCommandClass  == ccAttack) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
 					}
+					auto mct= unit->getCurrMorphCt();
+					if(mct) ct= mct->getMorphUnit()->getFirstCtOfClass(activeCommandClass);
+
 					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 						assert(selection.isUniform());
 						selectingBuilding= true;

@@ -747,7 +747,7 @@ void Unit::cleanupAllParticlesystems() {
 
 const MorphCommandType* Unit::getCurrMorphCt() const {
 	auto result = std::find_if(commands.rbegin(), commands.rend(),[](Command *i) 
-	{ return i->getCommandType()->getClass() == ccMorph? true: false; });
+	{ return i->getCommandType()->getClass() == ccMorph; });//TODO set CurrMorphCt on push comands instead of looping
 	if(result != commands.rend()) {
 		return static_cast<const MorphCommandType*>((*result)->getCommandType());
 	}
