@@ -10,7 +10,7 @@ project(
 cxx = meson.get_compiler('cpp')
 cc = meson.get_compiler('c')
 
-add_global_arguments(['-DNDEBUG', '-DUSE_FTGL'], language: 'cpp')
+add_global_arguments(['-DUSE_FTGL'], language: 'cpp')
 
 #add_global_arguments(
 #  [
@@ -37,6 +37,6 @@ add_global_arguments(['-DNDEBUG', '-DUSE_FTGL'], language: 'cpp')
 
 subdir('source/shared_lib')
 subdir('source/glest_game')
-
+subdir('source/glest_map_editor')
 
 #subdir('source')
