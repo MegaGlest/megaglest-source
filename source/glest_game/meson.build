@@ -151,7 +151,7 @@ dep_jpeg = dependency('libjpeg')
 dep_fontconfig = dependency('fontconfig')
 dep_ftgl = dependency('ftgl')
 dep_freetype = dependency('freetype2')
-# dep_math = dependency('libm')
+dep_math = cxx.find_library('m')
 
 executable('megaglest',
   src_game,
@@ -175,18 +175,18 @@ executable('megaglest',
 	# dep_fontconfig,
 	dep_ftgl,
 	dep_freetype,
-	# dep_math,
+	dep_math,
 	],
 	cpp_args: [ '-DGITVERSION="HELPME"'],
-	link_args: ['-lm',
+	# link_args: ['-lm',
 #  		'-lSM',
 # 		'-lICE',
-		'-lGLU',
-		'-ldl',
-		'-lXext',
-		'-Wl,-Bstatic',
-		'-lSDL2main',
-		'-Wl,-Bdynamic',
-	]
+		# '-lGLU',
+		# '-ldl',
+		# '-lXext',
+		# '-Wl,-Bstatic',
+		# '-lSDL2main',
+		# '-Wl,-Bdynamic',
+	# ]
 		
   )
