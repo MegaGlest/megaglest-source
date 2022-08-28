@@ -4,5 +4,5 @@ executable('g2xml',
 
 executable('xml2g',
     'xml2g.c',
-    dependencies: dependency('libxml2')
+    dependencies: dependency('libxml-2.0')
 )
