@@ -14,7 +14,6 @@ inc_common = [
   '../glest_game/global',
   '../glest_game/game',
   '../glest_game/facilities',
-  '.',
 ]
 
 dep_wx = dependency('wxwidgets', version : '>=3.0.0', modules : ['gl', 'core', 'base'])
