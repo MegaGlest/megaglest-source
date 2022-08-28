@@ -4,7 +4,6 @@ src_g3d_viewer = [
     '../glest_game/global/config.cpp',
     '../glest_game/graphics/unit_particle_type.cpp',
     '../glest_game/graphics/particle_type.cpp',
-
 ]
 
 inc_common = [
@@ -23,8 +22,6 @@ inc_common = [
     '../glest_game/sound',
 ]
 
-dep_xercesc = dependency('XercesC')
-
 executable('megaglest_g3d_viewer',
   src_g3d_viewer,
   include_directories: inc_common,
@@ -37,7 +34,6 @@ executable('megaglest_g3d_viewer',
     dep_jpeg,
     dep_png,
     dep_glew,
-    dep_xercesc
   ],
 #   cpp_args: [
 #     '-DNDEBUG',
