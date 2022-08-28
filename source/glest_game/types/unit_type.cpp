@@ -1286,7 +1286,9 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 			ctCores.resize(4);
 			for(int i = (int)ctToBasics.size(); i --> 0; ) {// we push it to basics
 				ctBasics[basicNulls[i]] = ctToBasics[i];
-				basicNulls.erase(basicNulls.begin() + i);
+				if(i < (int)basicNulls.size())
+					basicNulls.erase(basicNulls.begin() + i);
+				else printf("Unit: %s have too match core commands \n", this->getName().c_str());
 			}
 		}
 
