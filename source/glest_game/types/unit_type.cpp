@@ -1239,8 +1239,9 @@ void UnitType::computeFirstCtOfClass() {
 
 void UnitType::sortCommandTypes(CommandTypes cts){
 	try{
-		CommandTypes ctCores, ctBasics = {NULL,NULL,NULL,NULL}, ctMorphs, ctAttack;
+		CommandTypes ctCores, ctBasics = {NULL,NULL,NULL,NULL}, ctMorphs;
 		vector<int>	 basicNulls = {0,1,2,3};
+		map<CommandClass, int>	basicIndexes = {};
 
 		//Morphs
 		for(int i = (int)cts.size(); i --> 0; ) {
@@ -1250,20 +1251,18 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 			}
 		}
 
-		//Attacks
-		CommandTypeFilter(cts, ctAttack, ccAttack);
-		if(ctAttack.size() > 0) {
-			ctBasics[CommandHelper::getBasicPos(ccAttack)] = ctAttack[0];// first attack to basics
-			basicNulls.erase(basicNulls.begin());
-			ctAttack.erase(ctAttack.begin());// another to cores, see below
-		}
-		
 		//Basics
+		for(int i= 0; i < (int)cts.size(); i++) {
+			for(auto &&cc : CommandHelper::getBasicsCC()) {
+				if(cts[i]->getClass() == cc && basicIndexes.find(cc) == basicIndexes.end()) {
+					basicIndexes[cc]= i;
+				}
+			}
+		}
 		for(int i = (int)cts.size(); i --> 0; ) {
-			for(auto &&cc : CommandHelper::getBasicsCC()){
-				if(cc == ccAttack) continue;// we catch all attacks above
-				if(cts[i]->getClass() == cc) {
-					auto ccPos = CommandHelper::getBasicPos(cc);
+			for(auto kv : basicIndexes ) {
+				if(kv.second == i) {
+					auto ccPos = CommandHelper::getBasicPos(kv.first);
 					ctBasics[ccPos] = cts[i];
 					cts.erase(cts.begin() + i);
 					basicNulls.erase(std::remove(basicNulls.begin(), basicNulls.end(), ccPos), basicNulls.end());
@@ -1273,8 +1272,7 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 		
 		//Cores
 		for(auto &&cc : CommandHelper::getCoresCC()){
-			if(cc == ccAttack) ctCores.insert(ctCores.end(), ctAttack.begin(), ctAttack.end());
-			else CommandTypeFilter(cts, ctCores, cc);
+				CommandTypeFilter(cts, ctCores, cc);
 		}
 		int nullCount = 4 - ctCores.size();
 		for(int i=0; i<nullCount; i++){
@@ -1285,11 +1283,14 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 			CommandTypes ctToBasics(ctCores.end() + nullCount, ctCores.end());
 			ctCores.resize(4);
 			for(int i = (int)ctToBasics.size(); i --> 0; ) {// we push it to basics
+				if(i < (int)basicNulls.size()){
 				ctBasics[basicNulls[i]] = ctToBasics[i];
-				if(i < (int)basicNulls.size())
-					basicNulls.erase(basicNulls.begin() + i);
-				else printf("Unit: %s have too match core commands \n", this->getName().c_str());
+				ctToBasics.erase(ctToBasics.begin() + i);
+				basicNulls.erase(basicNulls.begin() + i);
+				}
 			}
+			//everything else to Morphs and so on untill cancel image 
+			ctMorphs.insert(ctMorphs.end(), ctToBasics.begin(), ctToBasics.end());
 		}
 
 		commandTypesSorted.insert(commandTypesSorted.end(), ctCores.begin(), ctCores.end());
