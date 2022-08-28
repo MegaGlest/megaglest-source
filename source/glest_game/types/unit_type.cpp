@@ -1272,7 +1272,9 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 		
 		//Cores
 		for(auto &&cc : CommandHelper::getCoresCC()){
-				CommandTypeFilter(cts, ctCores, cc);
+			std::copy_if(cts.begin(), cts.end(), std::back_inserter(ctCores), [cc](CommandType* i) {
+				return i->getClass() == cc;
+			});
 		}
 		int nullCount = 4 - ctCores.size();
 		for(int i=0; i<nullCount; i++){
@@ -1299,14 +1301,6 @@ void UnitType::sortCommandTypes(CommandTypes cts){
 	} catch(exception &ex){
 		
 	}
-}
-
-void UnitType::CommandTypeFilter(CommandTypes &input, CommandTypes &output, CommandClass cc){
-	std::copy_if(input.begin(), input.end(), std::back_inserter(output), [cc](CommandType* i) {
-		if(i->getClass() == cc)
-			return true;
-		else return false;
-	});
 }
 
 const CommandType* UnitType::findCommandTypeById(int id) const{

@@ -365,7 +365,6 @@ private:
     void computeFirstStOfClass();
     void computeFirstCtOfClass();
     void sortCommandTypes(CommandTypes cts);
-	void CommandTypeFilter(CommandTypes &input, CommandTypes &output, CommandClass cc);
 };
 
 /**
