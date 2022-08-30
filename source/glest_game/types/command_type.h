@@ -77,7 +77,7 @@ public:
 	inline static int getRowPos(CommandRow cr) { return cr * 4; } 
 	static int getBasicPos(CommandClass cc);
 	inline static vector<CommandClass> getBasicsCC() { return { ccAttack, ccStop, ccMove, ccAttackStopped }; }
-	inline static vector<CommandClass> getCoresCC() { return { ccAttack, ccProduce, ccUpgrade, ccSwitchTeam, ccHarvest, ccRepair, ccBuild }; }
+	inline static vector<CommandClass> getCoresCC() { return { ccAttack, ccProduce, ccUpgrade, ccSwitchTeam, ccHarvest, ccRepair, ccBuild, ccAttackStopped, ccMove, ccStop }; }
 	
 private:
 	CommandHelper(){ }
