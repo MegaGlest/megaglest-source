@@ -939,6 +939,7 @@ void Gui::computeDisplay(){
 			//printf("selection.isComandable()\n");
 
 			if(selectingBuilding == false){
+				vector<int> emptyPosIndexes = {};
 
 				//cancel button
 				const Unit *u= selection.getFrontUnit();
@@ -974,9 +975,7 @@ void Gui::computeDisplay(){
 							int displayPos= i;
 							const CommandType *ct= ut->getCommandTypeSorted(i);
 							if(ct == NULL) {
-								display.setDownImage(displayPos, ut->getCancelImage());
-								display.setCommandType(displayPos, ct);
-								display.setDownLighted(displayPos,false);
+								emptyPosIndexes.push_back(displayPos);
 								continue;
 							}
 							if(ct->getClass() == ccMorph) {
@@ -1030,11 +1029,8 @@ void Gui::computeDisplay(){
 					int basicPos = CommandHelper::getRowPos(crBasics);
 
 					// First row is always empty
-					for (int i = 0; i < 5; i++) {
-						display.setDownImage(i, ut->getCancelImage());
-						display.setCommandType(i, NULL);
-						display.setDownLighted(i,false);
-					}
+					for (int i = 0; i < 5; i++)
+						emptyPosIndexes.push_back(i);
 
 					// only basics can be shared
 					for(auto &&cc : CommandHelper::getBasicsCC()){
@@ -1058,11 +1054,14 @@ void Gui::computeDisplay(){
                             }
 							display.setCommandClass(basicPos + ccPos, cc);
 						} else {
-							display.setDownImage(basicPos+ccPos, ut->getCancelImage());
-							display.setCommandType(basicPos+ccPos, NULL);
-							display.setDownLighted(basicPos+ccPos,false);
+							emptyPosIndexes.push_back(basicPos+ccPos);
 						}
 					}
+				}
+				for (int i : emptyPosIndexes ) {
+					display.setDownImage(i, ut->getCancelImage());
+					display.setCommandType(i, NULL);
+					display.setDownLighted(i,false);
 				}
 			}
 			else if (activeCommandType != NULL && activeCommandType->getClass() == ccBuild) {
