@@ -31,6 +31,17 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+// =====================================================
+// 	class CommandHelper
+// =====================================================	
+
+int CommandHelper::getBasicPos(CommandClass cc){
+	auto basics = getBasicsCC();
+	auto it = find(basics.begin(), basics.end(), cc);
+	if (it != basics.end()) 
+		return it - basics.begin();
+	else throw megaglest_runtime_error("Basics command have not class: " + intToStr(cc));
+}
 
 // =====================================================
 // 	class CommandType

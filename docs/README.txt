@@ -149,7 +149,7 @@ the default keyboard values).
 
 * Camera keyboard controls *
 
-f                                => toggle free camera mode
+y                                => toggle free camera mode
 w                                => move camera up (free camera mode only)
 s                                => move camera down (free camera mode only)
 a                                => rotate camera left (free camera mode only)
@@ -185,21 +185,34 @@ n                                => show network status
 
 * Hotkeys (game camera mode only) *
 
-a                                => activate attack command for selection
-s                                => issue stop command to selection
+,                                => activate attack command for selection
+;                                => issue stop command to selection
 i                                => select next idle harvester
 b                                => select next building
-d                                => select next damaged unit
+u                                => select next damaged unit
 t                                => select next storage unit
 r                                => rotate building before placement
 
+Unit commands can be activated using the keyboard by pressing corresponding
+keys in the grid layout:
+
++---+---+---+---+
+| q | w | e | r |
++---+---+---+---+
+| a | s | d | f |
++---+---+---+---+
+| z | x | c | v |
++---+---+---+---+
+
+The position of the command for the selected unit (or group) in the UI
+button grid corresponds to the key in the same position in the grid above.
 
 * Other Keys *
 
 - +                              => adjust game speed (disabled in multiplayer)
 p                                => pause game (disabled in multiplayer)
-e                                => save screen shot to file
-c                                => toggle ingame font color (and font shadow)
+j                                => save screen shot to file
+o                                => toggle ingame font color (and font shadow)
 m                                => show faded mesages again
 ?                                => when DebugMode=true, display debug info
 /                                => toggle mouse pointer rendering mode (OS/MG)

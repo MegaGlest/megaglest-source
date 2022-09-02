@@ -38,7 +38,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 // =====================================================
-// 	class Mouse3d
+//	class Mouse3d
 // =====================================================
 
 const float Mouse3d::fadeSpeed= 1.f/50.f;
@@ -65,7 +65,7 @@ void Mouse3d::update(){
 }
 
 // ===============================
-// 	class SelectionQuad
+//	class SelectionQuad
 // ===============================
 
 SelectionQuad::SelectionQuad(){
@@ -89,7 +89,7 @@ void SelectionQuad::disable(){
 }
 
 // =====================================================
-// 	class Gui
+//	class Gui
 // =====================================================
 
 //constructor
@@ -97,10 +97,10 @@ Gui::Gui(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	lastGroupRecall = -1;
-    posObjWorld= Vec2i(54, 14);
+	posObjWorld= Vec2i(54, 14);
 	validPosObjWorld= false;
-    activeCommandType= NULL;
-    activeCommandClass= ccStop;
+	activeCommandType= NULL;
+	activeCommandClass= ccStop;
 	selectingBuilding= false;
 	selectedBuildingFacing = CardinalDir(CardinalDir::NORTH);
 	selectingPos= false;
@@ -149,8 +149,8 @@ void Gui::end(){
 // ==================== get ====================
 
 const UnitType *Gui::getBuilding() const{
-    assert(selectingBuilding);
-    return choosenBuildingType;
+	assert(selectingBuilding);
+	return choosenBuildingType;
 }
 const Object *Gui::getSelectedResourceObject()	const{
 	if(selectedResourceObjectPos.x==-1){
@@ -196,17 +196,17 @@ bool Gui::isPlacingBuilding() const{
 // ==================== set ====================
 
 void Gui::invalidatePosObjWorld(){
-    validPosObjWorld= false;
+	validPosObjWorld= false;
 }
 
 // ==================== reset state ====================
 
 void Gui::resetState(){
-    selectingBuilding= false;
+	selectingBuilding= false;
 	selectedBuildingFacing = CardinalDir(CardinalDir::NORTH);
 	selectingPos= false;
 	selectingMeetingPoint= false;
-    activePos= invalidPos;
+	activePos= invalidPos;
 	activeCommandClass= ccStop;
 	activeCommandType= NULL;
 }
@@ -215,9 +215,9 @@ void Gui::resetState(){
 
 void Gui::update(){
 
-    if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize){
-    	computeSelected(false,false);
-    }
+	if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())>minQuadSize){
+		computeSelected(false,false);
+	}
 	mouse3d.update();
 }
 
@@ -408,44 +408,57 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 		centerCameraOnSelection();
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectIdleHarvesterUnit")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectIdleHarvesterUnit"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectIdleHarvesterUnit"),key) == true) {
 		selectInterestingUnit(iutIdleHarvester);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectBuiltBuilding")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectBuiltBuilding"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectBuiltBuilding"),key) == true) {
 		selectInterestingUnit(iutBuiltBuilding);
 	}
 	//else if(key == configKeys.getCharKey("HotKeyDumpWorldToLog")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeyDumpWorldToLog"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeyDumpWorldToLog"),key) == true) {
 		 if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled == true) {
 			 std::string worldLog = world->DumpWorldToLog();
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] worldLog dumped to [%s]\n",__FILE__,__FUNCTION__,__LINE__,worldLog.c_str());
 		}
 	}
 	//else if(key == configKeys.getCharKey("HotKeyRotateUnitDuringPlacement")){
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeyRotateUnitDuringPlacement"),key) == true) {
-	    // Here the user triggers a unit rotation while placing a unit
-	    if(isPlacingBuilding()) {
-	    	if(getBuilding()->getRotationAllowed()){
+	if(isKeyPressed(configKeys.getSDLKey("HotKeyRotateUnitDuringPlacement"),key) == true) {
+		// Here the user triggers a unit rotation while placing a unit
+		if(isPlacingBuilding()) {
+			if(getBuilding()->getRotationAllowed()){
 				++selectedBuildingFacing;
-	    	}
-	    }
+			}
+		}
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectDamagedUnit")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectDamagedUnit"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectDamagedUnit"),key) == true) {
 		selectInterestingUnit(iutDamaged);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectStoreUnit")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectStoreUnit"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectStoreUnit"),key) == true) {
 		selectInterestingUnit(iutStore);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectedUnitsAttack")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsAttack"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsAttack"),key) == true) {
 		clickCommonCommand(ccAttack);
 	}
 	//else if(key == configKeys.getCharKey("HotKeySelectedUnitsStop")) {
-	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
+	if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
 		clickCommonCommand(ccStop);
+	}
+
+	for (int i=0; i<commandKeys; i++) {
+		string name = "CommandKey" + intToStr(i+1);
+		if(isKeyPressed(configKeys.getSDLKey(name.c_str()),key) == true) {
+			if(activeCommandType != NULL && activeCommandType->getClass() == ccBuild)  {
+				mouseDownDisplayUnitBuild(i);
+			} else {
+				mouseDownDisplayUnitSkills(i);
+			}
+			computeDisplay();
+			break;
+		}
 	}
 }
 
@@ -472,8 +485,10 @@ void Gui::giveOneClickOrders(){
 		result= commander->tryGiveCommand(&selection, activeCommandClass, Vec2i(0), (Unit*)NULL, queueKeyDown);
 	}
 	addOrdersResultToConsole(activeCommandClass, result);
-    activeCommandType= NULL;
-    activeCommandClass= ccStop;
+	activeCommandType= NULL;
+	activeCommandClass= ccStop;
+	selectingPos= false;
+	activePos= invalidPos;
 }
 
 void Gui::giveDefaultOrders(int x, int y) {
@@ -543,7 +558,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 	}
 
 	bool queueKeyDown = isKeyDown(queueCommandKey);
-    //give orders to the units of this faction
+	//give orders to the units of this faction
 	if(selectingBuilding == false) {
 		if(selection.isUniform()) {
 			result= commander->tryGiveCommand(&selection, activeCommandType,
@@ -552,14 +567,14 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 		else {
 			result= commander->tryGiveCommand(&selection, activeCommandClass,
 											targetPos, targetUnit,queueKeyDown);
-        	}
+			}
 	}
 	else {
 		//selecting building
 		result= commander->tryGiveCommand(&selection,
 						activeCommandType, posObjWorld, choosenBuildingType,
 						selectedBuildingFacing,queueKeyDown);
-    }
+	}
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
@@ -585,7 +600,7 @@ void Gui::centerCameraOnSelection() {
 }
 
 void Gui::selectInterestingUnit(InterestingUnitType iut) {
-	const Faction *thisFaction 	= world->getThisFaction();
+	const Faction *thisFaction	= world->getThisFaction();
 	const Unit* previousUnit	= NULL;
 	bool previousFound			= true;
 
@@ -654,30 +669,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 
 				//uniform selection
 				if(selection.isUniform()) {
-				    const CommandType *ct = display.getCommandType(posDisplay);
-
-				    // try to switch to next attack type
-				    if(activeCommandClass == ccAttack && activeCommandType!=NULL) {
-
-						int maxI			= unit->getType()->getCommandTypeCount();
-						int cmdTypeId		= activeCommandType->getId();
-						int cmdTypeIdNext	= cmdTypeId+1;
-
-						while(cmdTypeIdNext != cmdTypeId) {
-							if(cmdTypeIdNext >= maxI) {
-								cmdTypeIdNext = 0;
-							}
-							const CommandType *ctype = display.getCommandType(cmdTypeIdNext);
-							if(ctype != NULL && ctype->getClass() == ccAttack) {
-								if(ctype != NULL && unit->getFaction()->reqsOk(ctype)) {
-									posDisplay=cmdTypeIdNext;
-									ct = display.getCommandType(posDisplay);
-									break;
-								}
-							}
-							cmdTypeIdNext++;
-						}
-					}
+					const CommandType *ct = display.getCommandType(posDisplay);
 
 					if(ct != NULL && unit->getFaction()->reqsOk(ct)) {
 						activeCommandType= ct;
@@ -690,9 +682,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 						return;
 					}
 				}
-
-				//non uniform selection
-				else {
+				else {//non uniform selection
 					activeCommandType= NULL;
 					activeCommandClass= display.getCommandClass(posDisplay);
 					if (activeCommandClass  == ccAttack) {
@@ -702,14 +692,17 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 				}
 
 				//give orders depending on command type
-				if(!selection.isEmpty()){
+				if(activeCommandClass != ccNull){
 					const CommandType *ct= selection.getUnit(0)->getType()->getFirstCtOfClass(activeCommandClass);
 					if (activeCommandClass  == ccAttack) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
 					}
+
 					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 						assert(selection.isUniform());
 						selectingBuilding= true;
+						selectingPos= false;
+						activePos= invalidPos;
 					}
 					else if(ct->getClicks()==cOne){
 						invalidatePosObjWorld();
@@ -719,7 +712,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 						selectingPos= true;
 						activePos= posDisplay;
 					}
-				}
+				} else { posDisplay= invalidPos;}
 			}
 			else{
 				activePos= posDisplay;
@@ -743,8 +736,8 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay) {
 				activeCommandType->getClass() == ccBuild) {
 
 			const BuildCommandType *bct	= dynamic_cast<const BuildCommandType*>(activeCommandType);
-			if(bct != NULL) {
-				const UnitType *ut 			= bct->getBuilding(posDisplay);
+			if(bct != NULL && bct->getBuildingCount() > posDisplay) {
+				const UnitType *ut			= bct->getBuilding(posDisplay);
 
 				const Unit *unit = selection.getFrontUnit();
 				if(unit != NULL && unit->getFaction() != NULL) {
@@ -754,7 +747,7 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay) {
 
 						choosenBuildingType		= ut;
 						selectingPos			= true;
-						selectedBuildingFacing 	= CardinalDir(CardinalDir::NORTH);
+						selectedBuildingFacing	= CardinalDir(CardinalDir::NORTH);
 						activePos				= posDisplay;
 					}
 				}
@@ -784,8 +777,14 @@ void Gui::computeInfoString(int posDisplay){
 	lastPosDisplay = posDisplay;
 
 	display.setInfoText(computeDefaultInfoString());
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	string commandKeyName = "CommandKey" + intToStr(posDisplay+1);
 
 	if(posDisplay!=invalidPos && selection.isCommandable()){
+		string hotkey = "";
+		if (posDisplay < commandKeys) {
+			hotkey=lang.getString("HotKey")+": "+SDL_GetKeyName(configKeys.getSDLKey(commandKeyName.c_str())) +"\n\n";
+		}
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
 				display.setInfoText(lang.getString("Cancel"));
@@ -801,10 +800,10 @@ void Gui::computeInfoString(int posDisplay){
 
 					if(ct!=NULL){
 						if(unit->getFaction()->reqsOk(ct)){
-							display.setInfoText(ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
+							display.setInfoText(hotkey+ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
 						}
 						else{
-							display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
+							display.setInfoText(hotkey+ct->getReqDesc(game->showTranslatedTechTree()));
 							if(ct->getClass()==ccUpgrade){
 								string text="";
 								const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
@@ -814,20 +813,20 @@ void Gui::computeInfoString(int posDisplay){
 								else if(unit->getFaction()->getUpgradeManager()->isUpgraded(uct->getProducedUpgrade())){
 									text=lang.getString("AlreadyUpgraded")+"\n\n";
 								}
-								display.setInfoText(text+ct->getReqDesc(game->showTranslatedTechTree()));
+								display.setInfoText(hotkey+text+ct->getReqDesc(game->showTranslatedTechTree()));
 							}
 							//locked by scenario
 							else if(ct->getClass()==ccProduce){
 								string text="";
 								const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
 								if(unit->getFaction()->isUnitLocked(pct->getProducedUnit())){
-									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+									display.setInfoText(hotkey+lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
 								}
 							}
 							else if(ct->getClass()==ccMorph){
 								const MorphCommandType *mct= static_cast<const MorphCommandType*>(ct);
 								if(unit->getFaction()->isUnitLocked(mct->getMorphUnit())){
-									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+									display.setInfoText(hotkey+lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
 								}
 							}
 						}
@@ -859,19 +858,19 @@ void Gui::computeInfoString(int posDisplay){
 					const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
 					const Unit *unit= selection.getFrontUnit();
 					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
-						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+						display.setInfoText(hotkey+lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 					} else {
 						bool translatedValue= game->showTranslatedTechTree();
 						const UnitType *building=bct->getBuilding(posDisplay);
 						string str= lang.getString("BuildSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(bct->getBuildSkillType()->getSpeed())+"\n";
-					    str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+": "+intToStr(building->getProductionTime())+"\n";
-					    int64 speed=bct->getBuildSkillType()->getSpeed()+bct->getBuildSkillType()->getTotalSpeed(unit->getTotalUpgrade());
-					    int64 time=building->getProductionTime();
-					    int64 seconds=time*100/speed;
-					    str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+": "+intToStr(seconds);
-					    str+="\n\n";
-					    str+=building->getReqDesc(translatedValue);
-					    display.setInfoText(str);
+						str+=""+Lang::getInstance().getString("TimeSteps",(translatedValue == true ? "" : "english"))+": "+intToStr(building->getProductionTime())+"\n";
+						int64 speed=bct->getBuildSkillType()->getSpeed()+bct->getBuildSkillType()->getTotalSpeed(unit->getTotalUpgrade());
+						int64 time=building->getProductionTime();
+						int64 seconds=time*100/speed;
+						str+=""+Lang::getInstance().getString("Time",(translatedValue == true ? "" : "english"))+": "+intToStr(seconds);
+						str+="\n\n";
+						str+=building->getReqDesc(translatedValue);
+						display.setInfoText(hotkey+str);
 					}
 				}
 			}
@@ -940,6 +939,7 @@ void Gui::computeDisplay(){
 			//printf("selection.isComandable()\n");
 
 			if(selectingBuilding == false){
+				vector<int> emptyPosIndexes = {};
 
 				//cancel button
 				const Unit *u= selection.getFrontUnit();
@@ -970,10 +970,14 @@ void Gui::computeDisplay(){
 					if(u->isBuilt()){
 						//printf("u->isBuilt()\n");
 
-						int morphPos= 8;
-						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
+						int morphPos= CommandHelper::getRowPos(crMorphs);
+						for(int i= 0; i < ut->getCommandTypeSortedCount(); ++i){
 							int displayPos= i;
-							const CommandType *ct= ut->getCommandType(i);
+							const CommandType *ct= ut->getCommandTypeSorted(i);
+							if(ct == NULL) {
+								emptyPosIndexes.push_back(displayPos);
+								continue;
+							}
 							if(ct->getClass() == ccMorph) {
 								displayPos= morphPos++;
 							}
@@ -1022,29 +1026,41 @@ void Gui::computeDisplay(){
 				else{
 					//printf("selection.isUniform() == FALSE\n");
 					//non uniform selection
-					int lastCommand= 0;
-					for(int i= 0; i < ccCount; ++i){
-						CommandClass cc= static_cast<CommandClass> (i);
+					int basicPos = CommandHelper::getRowPos(crBasics);
 
-						//printf("computeDisplay i = %d cc = %d isshared = %d lastCommand = %d\n",i,cc,isSharedCommandClass(cc),lastCommand);
+					// Cores row is always empty
+					for (int i = CommandHelper::getRowPos(crCores); i < basicPos; i++)
+						emptyPosIndexes.push_back(i);
+
+					// only basics can be shared
+					for(auto &&cc : CommandHelper::getBasicsCC()){
+						//printf("computeDisplay i = %d cc = %d isshared = %d basicPos = %d\n",i,cc,isSharedCommandClass(cc),basicPos);
 
 						const Unit* attackingUnit = NULL;
 						if (cc == ccAttack) {
 							attackingUnit = selection.getUnitFromCC(ccAttack);
 						}
 
-						if((cc == ccAttack && attackingUnit != NULL) || (isSharedCommandClass(cc) && cc != ccBuild)){
-							display.setDownLighted(lastCommand, true);
+						auto ccPos = CommandHelper::getBasicPos(cc);
+
+						if((cc == ccAttack && attackingUnit != NULL) || isSharedCommandClass(cc)) {
+							display.setDownLighted(basicPos + ccPos, true);
 
                             if (cc == ccAttack && attackingUnit != NULL) {
-							    display.setDownImage(lastCommand, attackingUnit->getType()->getFirstCtOfClass(cc)->getImage());
+							    display.setDownImage(basicPos + ccPos, attackingUnit->getType()->getFirstCtOfClass(cc)->getImage());
                             } else {
-							    display.setDownImage(lastCommand, ut->getFirstCtOfClass(cc)->getImage());
+								display.setDownImage(basicPos + ccPos, ut->getFirstCtOfClass(cc)->getImage());
                             }
-							display.setCommandClass(lastCommand, cc);
-							lastCommand++;
+							display.setCommandClass(basicPos + ccPos, cc);
+						} else {
+							emptyPosIndexes.push_back(basicPos+ccPos);
 						}
 					}
+				}
+				for (int i : emptyPosIndexes ) {
+					display.setDownImage(i, ut->getCancelImage());
+					display.setCommandType(i, NULL);
+					display.setDownLighted(i,false);
 				}
 			}
 			else if (activeCommandType != NULL && activeCommandType->getClass() == ccBuild) {
@@ -1130,9 +1146,9 @@ int Gui::computePosDisplay(int x, int y){
 		}
 	}
 	else {
-        posDisplay= invalidPos;
-        //printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
-    }
+		posDisplay= invalidPos;
+		//printf("In [%s:%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+	}
 
 	//printf("computePosDisplay returning = %d\n",posDisplay);
 
@@ -1141,64 +1157,64 @@ int Gui::computePosDisplay(int x, int y){
 
 void Gui::addOrdersResultToConsole(CommandClass cc, std::pair<CommandResult,string> result) {
 
-    switch(result.first) {
+	switch(result.first) {
 	case crSuccess:
 		break;
 	case crFailReqs:
-        switch(cc){
-        case ccBuild:
-            console->addStdMessage("BuildingNoReqs",result.second);
-		    break;
-        case ccProduce:
-            console->addStdMessage("UnitNoReqs",result.second);
-            break;
-        case ccMorph:
-            console->addStdMessage("MorphNoReqs",result.second);
-            break;
-        case ccUpgrade:
-            console->addStdMessage("UpgradeNoReqs",result.second);
-            break;
-        default:
-            break;
-        }
-        break;
-	case crFailRes:
-        switch(cc){
-        case ccBuild:
-            console->addStdMessage("BuildingNoRes",result.second);
-		    break;
-        case ccProduce:
-            console->addStdMessage("UnitNoRes",result.second);
-            break;
-        case ccMorph:
-            console->addStdMessage("MorphNoRes",result.second);
-            break;
-        case ccUpgrade:
-            console->addStdMessage("UpgradeNoRes",result.second);
-            break;
+		switch(cc){
+		case ccBuild:
+			console->addStdMessage("BuildingNoReqs",result.second);
+			break;
+		case ccProduce:
+			console->addStdMessage("UnitNoReqs",result.second);
+			break;
+		case ccMorph:
+			console->addStdMessage("MorphNoReqs",result.second);
+			break;
+		case ccUpgrade:
+			console->addStdMessage("UpgradeNoReqs",result.second);
+			break;
 		default:
 			break;
-        }
+		}
+		break;
+	case crFailRes:
+		switch(cc){
+		case ccBuild:
+			console->addStdMessage("BuildingNoRes",result.second);
+			break;
+		case ccProduce:
+			console->addStdMessage("UnitNoRes",result.second);
+			break;
+		case ccMorph:
+			console->addStdMessage("MorphNoRes",result.second);
+			break;
+		case ccUpgrade:
+			console->addStdMessage("UpgradeNoRes",result.second);
+			break;
+		default:
+			break;
+		}
 		break;
 
-    case crFailUndefined:
-        console->addStdMessage("InvalidOrder",result.second);
-        break;
+	case crFailUndefined:
+		console->addStdMessage("InvalidOrder",result.second);
+		break;
 
-    case crSomeFailed:
-        console->addStdMessage("SomeOrdersFailed",result.second);
-        break;
-    }
+	case crSomeFailed:
+		console->addStdMessage("SomeOrdersFailed",result.second);
+		break;
+	}
 }
 
 bool Gui::isSharedCommandClass(CommandClass commandClass){
-    for(int i=0; i<selection.getCount(); ++i){
+	for(int i=0; i<selection.getCount(); ++i){
 		const Unit *unit= selection.getUnit(i);
-        const CommandType *ct= unit->getType()->getFirstCtOfClass(commandClass);
+		const CommandType *ct= unit->getType()->getFirstCtOfClass(commandClass);
 		if(ct==NULL || !unit->getFaction()->reqsOk(ct))
-            return false;
-    }
-    return true;
+			return false;
+	}
+	return true;
 }
 
 
