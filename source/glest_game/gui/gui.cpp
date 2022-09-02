@@ -1028,13 +1028,12 @@ void Gui::computeDisplay(){
 					//non uniform selection
 					int basicPos = CommandHelper::getRowPos(crBasics);
 
-					// First row is always empty
-					for (int i = 0; i < 5; i++)
+					// Cores row is always empty
+					for (int i = CommandHelper::getRowPos(crCores); i < basicPos; i++)
 						emptyPosIndexes.push_back(i);
 
 					// only basics can be shared
 					for(auto &&cc : CommandHelper::getBasicsCC()){
-
 						//printf("computeDisplay i = %d cc = %d isshared = %d basicPos = %d\n",i,cc,isSharedCommandClass(cc),basicPos);
 
 						const Unit* attackingUnit = NULL;
@@ -1044,7 +1043,7 @@ void Gui::computeDisplay(){
 
 						auto ccPos = CommandHelper::getBasicPos(cc);
 
-						if((cc == ccAttack && attackingUnit != NULL) || (isSharedCommandClass(cc) && cc != ccBuild)){
+						if((cc == ccAttack && attackingUnit != NULL) || isSharedCommandClass(cc)) {
 							display.setDownLighted(basicPos + ccPos, true);
 
                             if (cc == ccAttack && attackingUnit != NULL) {
