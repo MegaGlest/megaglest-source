@@ -447,6 +447,16 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
 		clickCommonCommand(ccStop);
 	}
+	
+	if(isKeyDown(queueCommandKey)) {
+		computeDisplay();
+	}
+}
+
+void Gui::hotKeyReleased(SDL_KeyboardEvent key) {
+	if(!isKeyDown(queueCommandKey)) {
+		computeDisplay();
+	}
 }
 
 void Gui::switchToNextDisplayColor(){
@@ -975,7 +985,7 @@ void Gui::computeDisplay(){
 						auto mct = u->getCurrMorphCt();
 						if(mct && isKeyDown(queueCommandKey)) {//Morph Queue
 							ut=mct->getMorphUnit();
-						}//TODO subscribe on queueCommandKey presed => resetState() and may remove stop cmd
+						}//TODO on queueCommandKey presed disable stop cmd
 
 						int morphPos= 8;
 						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
@@ -996,7 +1006,7 @@ void Gui::computeDisplay(){
 							display.setCommandType(displayPos, ct);
 							display.setCommandClass(displayPos, ct->getClass());
 							bool reqOk=u->getFaction()->reqsOk(ct);
-							display.setDownLighted(displayPos,reqOk);
+							display.setDownLighted(displayPos, reqOk && !(!ct->isQueueAppendable() && isKeyDown(queueCommandKey)));
 
 							if (reqOk && produced != NULL) {
 								if (possibleAmount == 0) {
