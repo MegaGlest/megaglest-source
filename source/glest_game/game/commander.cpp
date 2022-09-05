@@ -314,15 +314,15 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			currPos= world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 
 			//get command type
-			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
+			auto mct= unit->getCurrMorphCt();
+			auto unitType= mct? mct->getMorphUnit(): NULL;
+			const CommandType *commandType= unit->computeCommandType(pos, targetUnit, unitType);
 
 			//give commands
 			if(commandType != NULL) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
-				int unitTypeId= -1;
-				auto mct= unit->getCurrMorphCt();
-				if(mct) unitTypeId= mct->getMorphUnit()->getId();
+				int unitTypeId= unitType? unitType->getId(): -1;
 
 				std::pair<CommandResult,string> resultCur(crFailUndefined,"");
 
