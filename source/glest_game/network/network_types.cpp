@@ -59,7 +59,8 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 			const CommandType *ct= unit->getType()->findCommandTypeById(this->commandTypeId);
 			if(unitTypeId > -1) { 
 				const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), this->unitTypeId);
-				ct= unitType->findCommandTypeById(this->commandTypeId);
+				auto mct= unitType->findCommandTypeById(this->commandTypeId);
+				if(mct) ct= mct;
 			}
             
 			if(ct != NULL && ct->getClass() == ccBuild) {
@@ -83,7 +84,8 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 			const CommandType *ct= unit->getType()->findCommandTypeById(commandTypeId);
 			if(unitTypeId > -1) { 
 				const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
-				ct= unitType->findCommandTypeById(this->commandTypeId);
+				auto mct= unitType->findCommandTypeById(this->commandTypeId);
+				if(mct) ct= mct;
 			}
 			
 			if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
