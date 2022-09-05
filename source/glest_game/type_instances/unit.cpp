@@ -2164,8 +2164,9 @@ void Unit::resetHighlight(){
 	highlight= 1.f;
 }
 
-const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *targetUnit) const{
+const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *targetUnit, const UnitType* unitType) const{
 	const CommandType *commandType= NULL;
+	unitType= unitType? unitType: type;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw megaglest_runtime_error("#6 Invalid path position = " + pos.getString());
@@ -2173,22 +2174,21 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 	SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 
-	if(type == NULL) {
+	if(unitType == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unitType == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"));
 	if(targetUnit != NULL) {
 		//attack enemies
 		if(isAlly(targetUnit) == false) {
-			commandType= type->getFirstAttackCommand(targetUnit->getCurrField());
+			commandType= unitType->getFirstAttackCommand(targetUnit->getCurrField());
 		}
 		//repair allies
 		else {
 			if(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true) {
-				commandType= type->getFirstRepairCommand(targetUnit->getType());
+				commandType= unitType->getFirstRepairCommand(targetUnit->getType());
 			}
 
 			//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s] commandType [%p]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"),commandType);
@@ -2204,7 +2204,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 					targetUnit->getType() != NULL &&
 					targetUnit->getType()->getStore(this->getLoadType()) > 0) {
 
-					commandType = type->getFirstHarvestEmergencyReturnCommand();
+					commandType = unitType->getFirstHarvestEmergencyReturnCommand();
 				}
 			}
 		}
@@ -2213,7 +2213,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		//check harvest command
 		Resource *resource= sc->getResource();
 		if(resource != NULL) {
-			commandType= type->getFirstHarvestCommand(resource->getType(),this->getFaction());
+			commandType= unitType->getFirstHarvestCommand(resource->getType(),this->getFaction());
 		}
 	}
 
@@ -2228,7 +2228,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 					(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true)) {
 					const RepairCommandType *rct= this->getType()->getFirstRepairCommand(targetUnit->getType());
 					if(rct != NULL) {
-						commandType= type->getFirstRepairCommand(targetUnit->getType());
+						commandType= unitType->getFirstRepairCommand(targetUnit->getType());
 						//printf("************ Unit will repair building built = %d, repair = %d\n",targetUnit->isBuilt(),targetUnit->isDamaged());
 					}
 				}
@@ -2238,7 +2238,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 	//default command is move command
 	if(commandType == NULL) {
-		commandType= type->getFirstCtOfClass(ccMove);
+		commandType= unitType->getFirstCtOfClass(ccMove);
 	}
 
 	return commandType;
