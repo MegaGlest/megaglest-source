@@ -720,153 +720,137 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	//if found
-	//if(frameIndex < 0) {
-	{
-		if(attackableOnRange(unit, &target, act->getAttackSkillType(),(frameIndex >= 0))) {
-    		if(frameIndex < 0) {
-				if(unit->getEp() >= act->getAttackSkillType()->getEpCost()) {
-					unit->setCurrSkill(act->getAttackSkillType());
-					unit->setTarget(target);
-				}
-				else {
-					unit->setCurrSkill(scStop);
-				}
-
+	
+	if(attackableOnRange(unit, &target, act->getAttackSkillType(),(frameIndex >= 0))) {
+		if(frameIndex < 0) {
+			if(unit->getEp() >= act->getAttackSkillType()->getEpCost()) {
+				unit->setCurrSkill(act->getAttackSkillType());
+				unit->setTarget(target);
+			}
+			else {
+				unit->setCurrSkill(scStop);
+			}
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"[updateAttack]");
+				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
+		}
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	}
+	else {
+		//compute target pos
+		Vec2i pos;
+		if(command->getUnit() != NULL) {
+			pos= command->getUnit()->getCenteredPos();
+		}
+		else if(attackableOnSight(unit, &target, act->getAttackSkillType(), (frameIndex >= 0))) {
+			pos= target->getPos();
+		}
+		else {
+			pos= command->getPos();
+		}
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
+			unit->logSynchData(__FILE__,__LINE__,szBuf);
+		}
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		TravelState tsValue = tsImpossible;
+		//if(frameIndex < 0) {
+		{
+			//printf("In [%s::%s Line: %d] START pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
+			//fflush(stdout);
+			switch(this->game->getGameSettings()->getPathFinderType()) {
+				case pfBasic:
+					tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
+					break;
+				default:
+					throw megaglest_runtime_error("detected unsupported pathfinder type!");
+			}
+			//printf("In [%s::%s Line: %d] END pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
+			//fflush(stdout);
+		}
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(frameIndex < 0) {
+			if(command->getUnit() != NULL && !command->getUnit()->isAlive() && unit->getCommandSize() > 1) {
+				// don't run over to dead body if there is still something to do in the queue
+				unit->finishCommand();
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"[updateAttack]");
 					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 				}
-    		}
-    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-		}
-		else {
-			//compute target pos
-			Vec2i pos;
-			if(command->getUnit() != NULL) {
-				pos= command->getUnit()->getCenteredPos();
-			}
-			else if(attackableOnSight(unit, &target, act->getAttackSkillType(), (frameIndex >= 0))) {
-				pos= target->getPos();
 			}
 			else {
-				pos= command->getPos();
-			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
-				unit->logSynchData(__FILE__,__LINE__,szBuf);
-			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-			TravelState tsValue = tsImpossible;
-			//if(frameIndex < 0) {
-			{
-				//printf("In [%s::%s Line: %d] START pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
-				//fflush(stdout);
-				switch(this->game->getGameSettings()->getPathFinderType()) {
-					case pfBasic:
-						tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
+				//if unit arrives destPos order has ended
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"#1 [updateAttack] tsValue = %d",tsValue);
+					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+				}
+				switch (tsValue) {
+					case tsMoving:
+						unit->setCurrSkill(act->getMoveSkillType());
+						break;
+					case tsBlocked:
+						if(unit->getPath()->isBlocked()) {
+							unit->finishCommand();
+						}
 						break;
 					default:
-						throw megaglest_runtime_error("detected unsupported pathfinder type!");
-				}
-				//printf("In [%s::%s Line: %d] END pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
-				//fflush(stdout);
-			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-			if(frameIndex < 0) {
-				if(command->getUnit() != NULL && !command->getUnit()->isAlive() && unit->getCommandSize() > 1) {
-					// don't run over to dead body if there is still something to do in the queue
-					unit->finishCommand();
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"[updateAttack]");
-						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+						unit->finishCommand();
+						break;
 					}
-				}
-				else {
-					//if unit arrives destPos order has ended
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
-							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"#1 [updateAttack] tsValue = %d",tsValue);
-						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-					}
-
-					switch (tsValue) {
-						case tsMoving:
-							unit->setCurrSkill(act->getMoveSkillType());
-							break;
-						case tsBlocked:
-							if(unit->getPath()->isBlocked()) {
-								unit->finishCommand();
-							}
-							break;
-						default:
-							unit->finishCommand();
-							break;
-						}
 	/*
-						case tsMoving:
-							unit->setCurrSkill(act->getMoveSkillType());
-
-							{
-								std::pair<bool,Unit *> beingAttacked = unitBeingAttacked(unit);
-								if(beingAttacked.first == true) {
-									Unit *enemy = beingAttacked.second;
-									const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
-									if(act_forenemy != NULL) {
-										if(unit->getEp() >= act_forenemy->getAttackSkillType()->getEpCost()) {
-											unit->setCurrSkill(act_forenemy->getAttackSkillType());
-											unit->setTarget(enemy);
-										}
-										//aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+					case tsMoving:
+						unit->setCurrSkill(act->getMoveSkillType());
+						{
+							std::pair<bool,Unit *> beingAttacked = unitBeingAttacked(unit);
+							if(beingAttacked.first == true) {
+								Unit *enemy = beingAttacked.second;
+								const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
+								if(act_forenemy != NULL) {
+									if(unit->getEp() >= act_forenemy->getAttackSkillType()->getEpCost()) {
+										unit->setCurrSkill(act_forenemy->getAttackSkillType());
+										unit->setTarget(enemy);
 									}
-									else {
-										const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
-										if(asct_forenemy != NULL) {
-											//aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
-											if(unit->getEp() >= asct_forenemy->getAttackSkillType()->getEpCost()) {
-												unit->setCurrSkill(asct_forenemy->getAttackSkillType());
-												unit->setTarget(enemy);
-											}
+									//aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+								}
+								else {
+									const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
+									if(asct_forenemy != NULL) {
+										//aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
+										if(unit->getEp() >= asct_forenemy->getAttackSkillType()->getEpCost()) {
+											unit->setCurrSkill(asct_forenemy->getAttackSkillType());
+											unit->setTarget(enemy);
 										}
 									}
 								}
 							}
-
-							break;
-
-						case tsBlocked:
-							if(unit->getPath()->isBlocked()){
-								unit->finishCommand();
-							}
-							break;
-						default:
+						}
+						break;
+					case tsBlocked:
+						if(unit->getPath()->isBlocked()){
 							unit->finishCommand();
-					}
+						}
+						break;
+					default:
+						unit->finishCommand();
+				}
 	*/
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
-							SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"#2 [updateAttack] tsValue = %d",tsValue);
-						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-					}
-
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0 &&
+						SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynchMax).enabled == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"#2 [updateAttack] tsValue = %d",tsValue);
+					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 				}
 			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
-    }
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	}
+    
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -2904,97 +2888,86 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 
 //if the unit has any enemy on range
 bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
-							  const AttackSkillType *ast,bool evalMode) {
+								const AttackSkillType *ast,bool evalMode) {
 	bool result=false;
 
 	try {
-	vector<Unit*> enemies;
-    enemies.reserve(100);
+		vector<Unit*> enemies;
+	    enemies.reserve(100);
 
-	//we check command target
-	const Unit *commandTarget = NULL;
-	if(unit->anyCommand() && unit->getCurrCommand() != NULL) {
-		commandTarget = static_cast<const Unit*>(unit->getCurrCommand()->getUnit());
-	}
-	if(commandTarget != NULL && commandTarget->isDead()) {
-		commandTarget = NULL;
-	}
-	//aux vars
-	int size 			= unit->getType()->getSize();
-	Vec2i center 		= unit->getPos();
-	Vec2f floatCenter	= unit->getFloatCenteredPos();
+		//we check command target
+		const Unit *commandTarget = NULL;
+		if(unit->anyCommand() && unit->getCurrCommand() != NULL) {
+			commandTarget = static_cast<const Unit*>(unit->getCurrCommand()->getUnit());
+		}
+		if(commandTarget != NULL && commandTarget->isDead()) {
+			commandTarget = NULL;
+		}
+		//aux vars
+		int size 			= unit->getType()->getSize();
+		Vec2i center 		= unit->getPos();
+		Vec2f floatCenter	= unit->getFloatCenteredPos();
 
-	//bool foundInCache = true;
-	if(findCachedCellsEnemies(center,range,size,enemies,ast,
-							  unit,commandTarget) == false) {
+		//bool foundInCache = true;
+		if(findCachedCellsEnemies(center,range,size,enemies,ast,
+								  unit,commandTarget) == false) {
 
-		//foundInCache = false;
-		//nearby cells
-		UnitRangeCellsLookupItem cacheItem;
-		for(int i = center.x - range; i < center.x + range + size; ++i) {
-			for(int j = center.y - range; j < center.y + range + size; ++j) {
-				//cells inside map and in range
+			//foundInCache = false;
+			//nearby cells
+			UnitRangeCellsLookupItem cacheItem;
+			for(int i = center.x - range; i < center.x + range + size; ++i) {
+				for(int j = center.y - range; j < center.y + range + size; ++j) {
+					//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
+					if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1))
 #else
-				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+					if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1))
 #endif
-					Cell *cell = map->getCell(i,j);
-					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
+					{
+						Cell *cell = map->getCell(i,j);
+						findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
 
-					cacheItem.rangeCellList.push_back(cell);
+						cacheItem.rangeCellList.push_back(cell);
+					}
 				}
+			}
+
+
+			// Ok update our caches with the latest info
+			if(cacheItem.rangeCellList.empty() == false) {
+				MutexSafeWrapper safeMutex(mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+
+				UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 			}
 		}
 
-
-		// Ok update our caches with the latest info
-		if(cacheItem.rangeCellList.empty() == false) {
-			MutexSafeWrapper safeMutex(mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
-
-			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
-		}
-	}
-
-	//attack enemies that can attack first
-	float distToUnit= -1;
-	Unit* enemySeen= NULL;
-	std::vector<Unit*> fightingEnemiesInRange;
-	std::vector<Unit*> damagedFightingEnemiesInRange;
-	Unit* myFightingEnemyInRange= NULL;
-
-	float distToStandingUnit= -1;
-	Unit* attackingEnemySeen= NULL;
-	ControlType controlType= unit->getFaction()->getControlType();
-	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
-	bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
-
-
-	string randomInfoData = "enemies.size() = " + intToStr(enemies.size());
-
-	//printf("unit %d has control:%d\n",unit->getId(),controlType);
-    for(int i = 0; i< (int)enemies.size(); ++i) {
-    	Unit *enemy = enemies[i];
-
-
-    	if(enemy != NULL && enemy->isAlive() == true) {
-
-    		// Here we default to first enemy if no attackers found
-    		if(enemySeen == NULL) {
-                *rangedPtr 	= enemy;
-    			enemySeen 	= enemy;
-                result		= true;
-    		}
-
-    		//randomInfoData += " i = " + intToStr(i) + " alive = true result = " + intToStr(result);
-
-    		// Attackers get first priority
-    		if(enemy->getType()->hasSkillClass(scAttack) == true) {
-
-    			float currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
-
-    			//randomInfoData += " currentDist = " + floatToStr(currentDist);
-
+		//attack enemies that can attack first
+		float distToUnit= -1;
+		Unit* enemySeen= NULL;
+		std::vector<Unit*> fightingEnemiesInRange;
+		std::vector<Unit*> damagedFightingEnemiesInRange;
+		Unit* myFightingEnemyInRange= NULL;
+		float distToStandingUnit= -1;
+		Unit* attackingEnemySeen= NULL;
+		ControlType controlType= unit->getFaction()->getControlType();
+		bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
+		bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
+		string randomInfoData = "enemies.size() = " + intToStr(enemies.size());
+		//printf("unit %d has control:%d\n",unit->getId(),controlType);
+		for(int i = 0; i< (int)enemies.size(); ++i) {
+			Unit *enemy = enemies[i];
+			if(enemy != NULL && enemy->isAlive() == true) {
+				// Here we default to first enemy if no attackers found
+				if(enemySeen == NULL) {
+					*rangedPtr 	= enemy;
+					enemySeen 	= enemy;
+					result		= true;
+				}
+				//randomInfoData += " i = " + intToStr(i) + " alive = true result = " + intToStr(result);
+				// Attackers get first priority
+				if(enemy->getType()->hasSkillClass(scAttack) == true) {
+					float currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
+					//randomInfoData += " currentDist = " + floatToStr(currentDist);
 					// Select closest attacking unit
 					if (distToUnit < 0 || currentDist < distToUnit) {
 						distToUnit = currentDist;
@@ -3027,10 +3000,9 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 							}
 						}
 					}
-
-    		}
-    	}
-    }
+				}
+			}
+		}
 		if (evalMode == false) {
 			bool doUltra = false;
 			if (isMega) {
@@ -3048,7 +3020,6 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 							unitList = &damagedFightingEnemiesInRange;
 						else
 							unitList = &fightingEnemiesInRange;
-
 						//printf("Choosing new one\n");
 						int myChoice = unit->getRandom()->randRange(1, unitList->size(), extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__));
 						//printf("myChoice=%d\n", myChoice);
@@ -3071,94 +3042,89 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 		}
 
 
-	if(result == true) {
+		if(result == true) {
 
-		//const Unit* teamUnit	= NULL;
-		const Unit* enemyUnit	= NULL;
-		bool onlyEnemyUnits		= true;
+			//const Unit* teamUnit	= NULL;
+			const Unit* enemyUnit	= NULL;
+			bool onlyEnemyUnits		= true;
 
-		if(unit->getTeam() == world->getThisTeamIndex()) {
-			//teamUnit		= unit;
-			enemyUnit		= enemySeen;
-			onlyEnemyUnits	= false;
-		}
-		else if(enemySeen->getTeam() == world->getThisTeamIndex()) {
-			//teamUnit		= enemySeen;
-			enemyUnit		= unit;
-			onlyEnemyUnits	= false;
-		}
+			if(unit->getTeam() == world->getThisTeamIndex()) {
+				//teamUnit		= unit;
+				enemyUnit		= enemySeen;
+				onlyEnemyUnits	= false;
+			}
+			else if(enemySeen->getTeam() == world->getThisTeamIndex()) {
+				//teamUnit		= enemySeen;
+				enemyUnit		= unit;
+				onlyEnemyUnits	= false;
+			}
 
-		if(evalMode == false && onlyEnemyUnits == false &&
-			enemyUnit->getTeam() != world->getThisTeamIndex()) {
+			if(evalMode == false && onlyEnemyUnits == false &&
+				enemyUnit->getTeam() != world->getThisTeamIndex()) {
+				
+				Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
+				// find nearest Attack and cleanup old dates
+				AttackWarningData *nearest	= NULL;
+				float currentDistance		= 0.f;
+				float nearestDistance		= 0.f;
 
-			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
-			// find nearest Attack and cleanup old dates
-			AttackWarningData *nearest	= NULL;
-			float currentDistance		= 0.f;
-			float nearestDistance		= 0.f;
 
-
-			MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
-			for(int i = (int)attackWarnings.size() - 1; i >= 0; --i) {
-				if(world->getFrameCount() - attackWarnings[i]->lastFrameCount > 200) { //after 200 frames attack break we warn again
-					AttackWarningData *toDelete =attackWarnings[i];
-					attackWarnings.erase(attackWarnings.begin()+i);
-					delete toDelete; // old one
-				}
-				else {
-#ifdef USE_STREFLOP
-					currentDistance = streflop::floor(static_cast<streflop::Simple>(enemyFloatCenter.dist(attackWarnings[i]->attackPosition))); // no need for streflops here!
-#else
-					currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
-#endif
-
-					if(nearest == NULL) {
-						nearest = attackWarnings[i];
-						nearestDistance = currentDistance;
+				MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
+				for(int i = (int)attackWarnings.size() - 1; i >= 0; --i) {
+					if(world->getFrameCount() - attackWarnings[i]->lastFrameCount > 200) { //after 200 frames attack break we warn again
+						AttackWarningData *toDelete =attackWarnings[i];
+						attackWarnings.erase(attackWarnings.begin()+i);
+						delete toDelete; // old one
 					}
 					else {
-						if(currentDistance < nearestDistance) {
+#ifdef USE_STREFLOP
+						currentDistance = streflop::floor(static_cast<streflop::Simple>(enemyFloatCenter.dist(attackWarnings[i]->attackPosition))); // no need for streflops here!
+#else
+						currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
+#endif
+
+						if(nearest == NULL) {
 							nearest = attackWarnings[i];
 							nearestDistance = currentDistance;
 						}
+						else {
+							if(currentDistance < nearestDistance) {
+								nearest = attackWarnings[i];
+								nearestDistance = currentDistance;
+							}
+						}
 					}
 				}
-	    	}
+				if(nearest != NULL) {
+					// does it fit?
+					if(nearestDistance < attackWarnRange) {
+						// update entry with current values
+						nearest->lastFrameCount=world->getFrameCount();
+						nearest->attackPosition.x=enemyFloatCenter.x;
+						nearest->attackPosition.y=enemyFloatCenter.y;
+					}
+					else {
+						//Must be a different Attack!
+						nearest=NULL;  //set to null to force a new entry in next step
+					}
+				}
+				// add new attack
+				if(nearest == NULL) {
+					// no else!
+					AttackWarningData* awd= new AttackWarningData();
+					awd->lastFrameCount=world->getFrameCount();
+					awd->attackPosition.x=enemyFloatCenter.x;
+					awd->attackPosition.y=enemyFloatCenter.y;
+					MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
+					attackWarnings.push_back(awd);
 
-	    	if(nearest != NULL) {
-
-	    		// does it fit?
-	    		if(nearestDistance < attackWarnRange) {
-	    			// update entry with current values
-					nearest->lastFrameCount=world->getFrameCount();
-					nearest->attackPosition.x=enemyFloatCenter.x;
-					nearest->attackPosition.y=enemyFloatCenter.y;
-	    		}
-	    		else {
-	    			//Must be a different Attack!
-	    			nearest=NULL;  //set to null to force a new entry in next step
-	    		}
-	    	}
-	    	// add new attack
-	    	if(nearest == NULL) {
-	    		// no else!
-	    		AttackWarningData* awd= new AttackWarningData();
-	    		awd->lastFrameCount=world->getFrameCount();
-	    		awd->attackPosition.x=enemyFloatCenter.x;
-	    		awd->attackPosition.y=enemyFloatCenter.y;
-
-				MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
-	    		attackWarnings.push_back(awd);
-
-	    		if(world->getAttackWarningsEnabled() == true) {
-
-	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound(),true);
-	    			world->addAttackEffects(enemyUnit);
-	    		}
-	    	}
+					if(world->getAttackWarningsEnabled() == true) {
+						SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound(),true);
+						world->addAttackEffects(enemyUnit);
+					}
+				}
+			}
 		}
-	}
-
 	}
 	catch(const exception &ex) {
 		//setRunningStatus(false);
