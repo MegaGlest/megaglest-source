@@ -1057,7 +1057,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	//create command
 	Command *command= NULL;
 	if(isCancelPreMorphCommand == false) {
-		if(unitType != NULL) {
+		if(unitType != NULL && ct->getClass() == ccBuild) {
 			command= new Command(ct, networkCommand->getPosition(), unitType, facing);
 		}
 		else if(target == NULL) {
