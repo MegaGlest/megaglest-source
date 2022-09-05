@@ -994,7 +994,8 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
 	
 	if( networkCommand->getUnitTypeId() > -1 &&  networkCommand->getWantQueue()) { //Morph Queue
-		ct = unitType->findCommandTypeById(networkCommand->getCommandTypeId());
+		auto mct = unitType->findCommandTypeById(networkCommand->getCommandTypeId());
+		if(mct) ct = mct;
 	}
 
 	// debug test!
