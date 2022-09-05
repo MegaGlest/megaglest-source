@@ -718,7 +718,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
 					}
 					auto mct= unit->getCurrMorphCt();
-					if(mct) ct= mct->getMorphUnit()->getFirstCtOfClass(activeCommandClass);
+					if(mct && isKeyDown(queueCommandKey)) ct= mct->getMorphUnit()->getFirstCtOfClass(activeCommandClass);
 
 					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 						assert(selection.isUniform());
