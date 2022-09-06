@@ -1320,7 +1320,7 @@ void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
 						if(previousHarvestCmd != NULL) {
 							//printf("\n\n#1a return harvested resources\n\n");
 							NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), previousHarvestCmd->getId(), unit->getLastHarvestedResourcePos(),
-															-1, Unit::invalidId, -1, false, cst_None, -1, -1);
+															-1, -1, Unit::invalidId, -1, false, cst_None, -1, -1);
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -2058,7 +2058,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
 						const CommandType *ctbuild = unit->getType()->getFirstCtOfClass(ccBuild);
 						NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), ctbuild->getId(), command->getPos(),
-														command->getUnitType()->getId(), -1, CardinalDir(CardinalDir::NORTH), true, command->getStateType(),
+														command->getUnitType()->getId(), -1, -1, CardinalDir(CardinalDir::NORTH), true, command->getStateType(),
 														command->getStateValue());
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

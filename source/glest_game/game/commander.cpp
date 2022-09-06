@@ -120,9 +120,11 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 				}
 
 				if(useCommandtype != NULL) {
+					auto mct= unit->getCurrMorphCt();
+					int nextUnitTypeId= mct? mct->getMorphUnit()->getId(): -1;
 					NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
-							useCommandtype->getId(), usePos, unitType->getId(),
-							(targetUnit != NULL ? targetUnit->getId() : -1),
+							useCommandtype->getId(), usePos, unitType->getId(), nextUnitTypeId,
+							(targetUnit != NULL ? targetUnit->getId() : -1), 
 							facing, tryQueue, commandStateType,commandStateValue,
 							unitCommandGroupId);
 
@@ -162,8 +164,10 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Unit* unit, cons
 	std::pair<CommandResult,string> result(crFailUndefined,"");
 	bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 	if(canSubmitCommand == true) {
+		auto mct= unit->getCurrMorphCt();
+		int nextUnitTypeId= mct? mct->getMorphUnit()->getId(): -1;
 		NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
-									commandType->getId(), pos, unitType->getId(),
+									commandType->getId(), pos, unitType->getId(), nextUnitTypeId,
 									(targetUnit != NULL ? targetUnit->getId() : -1),
 									facing, tryQueue,cst_None,-1,unitGroupCommandId);
 
@@ -210,8 +214,10 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 					int unitId= selection->getUnit(i)->getId();
 					Vec2i currPos= world->getMap()->computeDestPos(refPos,
 							selection->getUnit(i)->getPosNotThreadSafe(), pos);
+					auto mct= unit->getCurrMorphCt();
+					int nextUnitTypeId= mct? mct->getMorphUnit()->getId(): -1;
 					NetworkCommand networkCommand(this->world,nctGiveCommand,
-							unitId, ct->getId(), currPos, -1, targetId, -1,
+							unitId, ct->getId(), currPos, -1, nextUnitTypeId, targetId, -1,
 							tryQueue,cst_None,-1,unitCommandGroupId);
 
 					//every unit is ordered to a different pos
@@ -263,12 +269,11 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
 				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
-				int unitTypeId= -1;
 				auto mct= unit->getCurrMorphCt();
-				if(mct) unitTypeId= mct->getMorphUnit()->getId();
+				int nextUnitTypeId= mct? mct->getMorphUnit()->getId(): -1;
 
 				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
-						commandType->getId(), currPos, unitTypeId, targetId, -1, tryQueue,
+						commandType->getId(), currPos, -1, nextUnitTypeId, targetId, -1, tryQueue,
 						cst_None, -1, unitCommandGroupId);
 
 				//every unit is ordered to a different position
@@ -315,21 +320,21 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 
 			//get command type
 			auto mct= unit->getCurrMorphCt();
-			auto unitType= mct? mct->getMorphUnit(): NULL;
-			const CommandType *commandType= unit->computeCommandType(pos, targetUnit, unitType);
+			auto nextUnitType= mct? mct->getMorphUnit(): NULL;
+			const CommandType *commandType= unit->computeCommandType(pos, targetUnit, nextUnitType);
 
 			//give commands
 			if(commandType != NULL) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
-				int unitTypeId= unitType? unitType->getId(): -1;
+				int nextUnitTypeId= nextUnitType? nextUnitType->getId(): -1;
 
 				std::pair<CommandResult,string> resultCur(crFailUndefined,"");
 
 				bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 				if(canSubmitCommand == true) {
 					NetworkCommand networkCommand(this->world,nctGiveCommand,
-							unitId, commandType->getId(), currPos, unitTypeId, targetId,
+							unitId, commandType->getId(), currPos, -1, nextUnitTypeId, targetId,
 							-1, tryQueue, cst_None, -1, unitCommandGroupId);
 					resultCur= pushNetworkCommand(&networkCommand);
 				}
@@ -337,7 +342,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			}
 			else if(unit->isMeetingPointSettable() == true) {
 				NetworkCommand command(this->world,nctSetMeetingPoint,
-						unit->getId(), -1, currPos,-1,-1,-1,false,
+						unit->getId(), -1, currPos,-1,-1,-1,-1,false,
 						cst_None,-1,unitCommandGroupId);
 
 				std::pair<CommandResult,string> resultCur= pushNetworkCommand(&command);
@@ -365,7 +370,7 @@ CommandResult Commander::tryCancelCommand(const Selection *selection) const {
 
 	for(int i = 0; i < selection->getCount(); ++i) {
 		NetworkCommand command(this->world,nctCancelCommand,
-				selection->getUnit(i)->getId(),-1,Vec2i(0),-1,-1,-1,false,
+				selection->getUnit(i)->getId(),-1,Vec2i(0),-1,-1,-1,-1,false,
 				cst_None,-1,unitCommandGroupId);
 		pushNetworkCommand(&command);
 	}
@@ -993,8 +998,9 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	const UnitType* unitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getUnitTypeId());
 	
-	if( networkCommand->getUnitTypeId() > -1 &&  networkCommand->getWantQueue()) { //Morph Queue
-		auto mct = unitType->findCommandTypeById(networkCommand->getCommandTypeId());
+	if(networkCommand->getNextUnitTypeId() > -1 && networkCommand->getWantQueue()) { //Morph Queue
+		auto nextUnitType= world->findUnitTypeById(unit->getFaction()->getType(), networkCommand->getNextUnitTypeId());
+		auto mct = nextUnitType->findCommandTypeById(networkCommand->getCommandTypeId());
 		if(mct) ct = mct;
 	}
 
@@ -1058,7 +1064,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	//create command
 	Command *command= NULL;
 	if(isCancelPreMorphCommand == false) {
-		if(unitType != NULL && ct->getClass() == ccBuild) {
+		if(unitType != NULL) {
 			command= new Command(ct, networkCommand->getPosition(), unitType, facing);
 		}
 		else if(target == NULL) {
