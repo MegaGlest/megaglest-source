@@ -1006,7 +1006,7 @@ void Gui::computeDisplay(){
 							display.setCommandType(displayPos, ct);
 							display.setCommandClass(displayPos, ct->getClass());
 							bool reqOk=u->getFaction()->reqsOk(ct);
-							display.setDownLighted(displayPos, reqOk && !(!ct->isQueueAppendable() && isKeyDown(queueCommandKey)));
+							display.setDownLighted(displayPos, reqOk && !(ct->isQueuable()==qNever && isKeyDown(queueCommandKey)));
 
 							if (reqOk && produced != NULL) {
 								if (possibleAmount == 0) {
