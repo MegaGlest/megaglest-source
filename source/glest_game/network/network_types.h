@@ -94,6 +94,7 @@ public:
 		networkCommandType=0;
 		unitId=0;
 		unitTypeId=0;
+		nextUnitTypeId=0;
 		commandTypeId=0;
 		positionX=0;
 		positionY=0;
@@ -114,6 +115,7 @@ public:
 		int commandTypeId= -1,
 		const Vec2i &pos= Vec2i(0),
 		int unitTypeId= -1,
+		int nextUnitTypeId= -1,
 		int targetId= -1,
 		int facing= -1,
 		bool wantQueue = false,
@@ -124,6 +126,7 @@ public:
 	int16 networkCommandType;
 	int32 unitId;
 	int16 unitTypeId;
+	int16 nextUnitTypeId;
 	int16 commandTypeId;
 	int16 positionX;
 	int16 positionY;
@@ -141,6 +144,7 @@ public:
 	int getCommandTypeId() const						{return commandTypeId;}
 	Vec2i getPosition() const							{return Vec2i(positionX, positionY);}
 	int getUnitTypeId() const							{return unitTypeId;}
+	int getNextUnitTypeId() const						{return nextUnitTypeId;}
 	int getTargetId() const								{return targetId;}
 	int getWantQueue() const							{return wantQueue;}
 	int getFromFactionIndex() const						{return fromFactionIndex;}

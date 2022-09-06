@@ -28,12 +28,13 @@ namespace Glest{ namespace Game{
 
 NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 								int commandTypeId, const Vec2i &pos, int unitTypeId,
-								int targetId, int facing, bool wantQueue,
+								int nextUnitTypeId, int targetId, int facing, bool wantQueue,
 								CommandStateType commandStateType,
 								int commandStateValue, int unitCommandGroupId)
 		: networkCommandType(networkCommandType)
 		, unitId(unitId)
 		, unitTypeId(unitTypeId)
+		, nextUnitTypeId(nextUnitTypeId)
 		, commandTypeId(commandTypeId)
 		, positionX(pos.x)
 		, positionY(pos.y)
@@ -57,11 +58,6 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 			this->unitFactionUnitCount = unit->getFaction()->getUnitCount();
 
 			const CommandType *ct= unit->getType()->findCommandTypeById(this->commandTypeId);
-			if(unitTypeId > -1) { 
-				const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), this->unitTypeId);
-				auto mct= unitType->findCommandTypeById(this->commandTypeId);
-				if(mct) ct= mct;
-			}
             
 			if(ct != NULL && ct->getClass() == ccBuild) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] 						%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
@@ -82,12 +78,7 @@ void NetworkCommand::preprocessNetworkCommand(World *world) {
 		if(unit != NULL) {
 
 			const CommandType *ct= unit->getType()->findCommandTypeById(commandTypeId);
-			if(unitTypeId > -1) { 
-				const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
-				auto mct= unitType->findCommandTypeById(this->commandTypeId);
-				if(mct) ct= mct;
-			}
-			
+
 			if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
 				CardinalDir::assertDirValid(targetId);
 			}
