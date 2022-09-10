@@ -277,7 +277,6 @@ public:
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString(bool translatedValue) const;
-	virtual Queueability isQueuable() const						{return qOnRequest;}
 
     //get
 	const MoveSkillType *getMoveSkillType() const			{return moveSkillType;}
@@ -308,7 +307,6 @@ public:
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString(bool translatedValue) const;
-	virtual Queueability isQueuable() const						{return qOnRequest;}
 
     //get
 	virtual bool usesPathfinder() const { return true; }
@@ -425,7 +423,6 @@ public:
 	virtual string toString(bool translatedValue) const;
 	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
-	Queueability isQueuable() const						{return qOnRequest;}
 
     //get
 	const MorphSkillType *getMorphSkillType() const		{return morphSkillType;}

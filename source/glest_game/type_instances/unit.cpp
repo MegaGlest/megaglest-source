@@ -1857,7 +1857,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 				cancelCommand();
 			}
 			else //when last cmd low-priority and current cmd high-priory without queue-key
-				if(lastCt->isQueuable() != qAlways &&
+				if(lastCt->isQueuable() == qOnRequest &&
 					command->getCommandType()->isQueuable() == qAlways && !tryQueue){
 				clearCommands();
 			}
