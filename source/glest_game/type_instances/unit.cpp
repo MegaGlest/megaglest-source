@@ -1848,12 +1848,19 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		//cancel current command if it is not queuable
-		if(commands.empty() == false &&
-          commands.back()->getCommandType()->isQueueAppendable() == false) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString(false).c_str());
+		if(!commands.empty()) {
+			auto lastCt= commands.back()->getCommandType();
+			//cancel current command if it is not queuable
+			if(!lastCt->isQueueAppendable()) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString(false).c_str());
 
-		    cancelCommand();
+				cancelCommand();
+			}
+			else //when last cmd low-priority and current cmd high-priory without queue-key
+				if(lastCt->isQueuable() != qAlways &&
+					command->getCommandType()->isQueuable() == qAlways && !tryQueue){
+				clearCommands();
+			}
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
