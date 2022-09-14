@@ -102,7 +102,8 @@ Write-Title "Build MegaGlest"
 
 $toolchainPath = $(Join-Path ${vcpkg-location} \scripts\buildsystems\vcpkg.cmake)
 $buildFolder = $(Join-Path $PSScriptRoot build)
-$topLevelTargetDir = $(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString()
+# n.b. -replace removes trailing "\" from path because cmake can't cope with it x).
+$topLevelTargetDir = $($(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString() -replace "\\$", "")
 
 $vsVersion=(msbuild --version | select -Last 1).Split(".")[0] -as [int]
 
@@ -116,16 +117,15 @@ else {
     $vsProjType = "Visual Studio 17 2022"
 }
 
-cmake --no-warn-unused-cli -DCMAKE_TOOLCHAIN_FILE:STRING=$toolchainPath -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-H$topLevelTargetDir" "-B$buildFolder" -G $vsProjType -T host=x64 -A x64
-cmake --build $buildFolder --config Release --target ALL_BUILD
-
+cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-S$topLevelTargetDir" "-B$buildFolder" -G "$vsProjType" -T host=x64 -A x64
+cmake --build "$buildFolder" --config Release --target ALL_BUILD
 
 if ($?) {
     "Build succeeded. megaglest.exe, megaglest_editor.exe and megaglest_g3dviewer.exe can be found in mk/windoze/."
 }
 else {
     "Build failed. Please make sure you have installed VS C++ tools (2019 or 2022): https://visualstudio.microsoft.com/downloads ."
-    "If you have installed all the relevant tools and you still can't build MegaGlest, try running '.\clean-build.ps1'. Then run this script again."
+    "If you have installed all the relevant tools and you still can't build MegaGlest, try running '.\clean-all.ps1'. Then run this script again."
     "Make sure this script is running in developer powershell: https://docs.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell ."
     "If the language of your version of windows is not english, you may need to install the english language pack in the visual studio installer (because microsoft is racist): https://docs.microsoft.com/en-us/visualstudio/install/modify-visual-studio?view=vs-2022#modify-language-packs ."
     "If MegaGlest still fails to build, please help us by submitting a bug report at https://github.com/MegaGlest/megaglest-source/issues."
