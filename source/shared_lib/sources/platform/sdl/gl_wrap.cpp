@@ -26,6 +26,10 @@
 #include "platform_common.h"
 #include "leak_dumper.h"
 
+#ifndef NO_APPIMAGE
+#include "properties.h"
+#endif
+
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
 using namespace Shared::Graphics;
@@ -218,11 +222,16 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 #ifndef WIN32
 		string mg_icon_file = "";
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-		if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.png")) {
-			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.png";
+#ifndef NO_APPIMAGE
+		string path = Properties::appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
+#else
+		string path = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH));
+#endif
+		if(fileExists(path + "megaglest.png")) {
+			mg_icon_file = path + "megaglest.png";
 		}
-		else if(fileExists(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.bmp")) {
-			mg_icon_file = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)) + "megaglest.bmp";
+		else if(fileExists(path + "megaglest.bmp")) {
+			mg_icon_file = path + "megaglest.bmp";
 		}
 
 #endif
