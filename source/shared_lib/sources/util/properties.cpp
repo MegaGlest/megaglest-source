@@ -42,6 +42,10 @@ using namespace Shared::Graphics;
 
 namespace Shared{ namespace Util{
 
+#ifndef NO_APPIMAGE
+string Properties::appDir = "";
+#endif
+
 string Properties::applicationPath = "";
 string Properties::applicationDataPath = "";
 string Properties::gameVersion = "";
@@ -196,6 +200,19 @@ void Properties::processTextLine(bool is_utf8_language, char *lineBuffer) {
 		}
 	}
 }
+
+#ifndef NO_APPIMAGE
+void Properties::setAppDirPath() {
+		char* appDirChar = getenv("APPDIR");
+		Properties::appDir = appDirChar == NULL ? "" : appDirChar;
+}
+
+string Properties::appendAppDirPath(string value) {
+	if(!Properties::appDir.empty() && value[0] == '/')
+		return Properties::appDir + value;
+	return value;
+}
+#endif
 
 std::map<string,string> Properties::getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues) {
 	std::map<string,string> mapTagReplacementValues;
@@ -389,9 +406,15 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	replaceAll(value, "{APPLICATIONPATH}",		Properties::applicationPath);
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
+#ifndef NO_APPIMAGE
+	replaceAll(value, "$APPLICATIONDATAPATH", 		appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "{APPLICATIONDATAPATH}",		appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+#else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 	replaceAll(value, "{APPLICATIONDATAPATH}",		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
+#endif
 
 #else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationDataPath);
