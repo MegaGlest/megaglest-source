@@ -4203,6 +4203,7 @@ int glestMain(int argc, char** argv) {
 
 #ifndef NO_APPIMAGE
 	Properties::setAppDirPath();
+	Properties::setAppimageDirPath();
 #endif
 
 	Properties::setApplicationPath(executable_path(argv[0]));

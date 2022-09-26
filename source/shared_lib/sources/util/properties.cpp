@@ -44,6 +44,7 @@ namespace Shared{ namespace Util{
 
 #ifndef NO_APPIMAGE
 string Properties::appDir = "";
+string Properties::appimageDir = "";
 #endif
 
 string Properties::applicationPath = "";
@@ -203,8 +204,17 @@ void Properties::processTextLine(bool is_utf8_language, char *lineBuffer) {
 
 #ifndef NO_APPIMAGE
 void Properties::setAppDirPath() {
-		char* appDirChar = getenv("APPDIR");
-		Properties::appDir = appDirChar == NULL ? "" : appDirChar;
+	char* appDirChar = getenv("APPDIR");
+	appDir = appDirChar == NULL ? "" : appDirChar;
+}
+
+void Properties::setAppimageDirPath() {
+	char* appimageDirChar = getenv("APPIMAGE");
+	if(appimageDirChar != NULL)
+	{
+		appimageDir = appimageDirChar;
+		appimageDir = appimageDir.substr(0, appimageDir.find_last_of("/") + 1);
+	}
 }
 
 string Properties::appendAppDirPath(string value) {
@@ -236,6 +246,10 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	mapTagReplacementValues["%%USERPROFILE%%"] 	= homeDir;
 	mapTagReplacementValues["%%HOMEPATH%%"] 	= homeDir;
 	mapTagReplacementValues["{HOMEPATH}"] 		= homeDir;
+
+#ifndef NO_APPIMAGE
+    mapTagReplacementValues["$APPIMAGEPATH"] = appimageDir;
+#endif
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
@@ -310,6 +324,7 @@ bool Properties::isValuePathVariable(const string &value) {
 		value.find("%%USERPROFILE%%") != value.npos ||
 		value.find("%%HOMEPATH%%") != value.npos ||
 		value.find("{HOMEPATH}") != value.npos ||
+		value.find("$APPIMAGEPATH") != value.npos ||
         value.find("$APPDATA") != value.npos ||
 	    value.find("%%APPDATA%%") != value.npos ||
 	    value.find("{APPDATA}") != value.npos ||
@@ -372,6 +387,10 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	replaceAll(value, "%%USERPROFILE%%",homeDir);
 	replaceAll(value, "%%HOMEPATH%%",	homeDir);
 	replaceAll(value, "{HOMEPATH}",		homeDir);
+
+#ifndef NO_APPIMAGE
+	replaceAll(value, "$APPIMAGEPATH", appimageDir);
+#endif
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
