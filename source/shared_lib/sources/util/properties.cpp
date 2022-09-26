@@ -44,6 +44,9 @@ namespace Shared{ namespace Util{
 
 #ifndef NO_APPIMAGE
 string Properties::appDir = "";
+#ifdef APPIMAGE_NODATA
+string Properties::appimageDir = "";
+#endif
 #endif
 
 string Properties::applicationPath = "";
@@ -203,14 +206,33 @@ void Properties::processTextLine(bool is_utf8_language, char *lineBuffer) {
 
 #ifndef NO_APPIMAGE
 void Properties::setAppDirPath() {
-		char* appDirChar = getenv("APPDIR");
-		Properties::appDir = appDirChar == NULL ? "" : appDirChar;
+	char* appDirChar = getenv("APPDIR");
+	appDir = appDirChar == NULL ? "" : appDirChar;
 }
+
+#ifdef APPIMAGE_NODATA
+void Properties::setAppimageDirPath() {
+	char* appimageDirChar = getenv("APPIMAGE");
+	if(appimageDirChar != NULL)
+	{
+		appimageDir = appimageDirChar;
+		appimageDir = appimageDir.substr(0, appimageDir.find_last_of("/") + 1);
+	}
+}
+#endif
 
 string Properties::appendAppDirPath(string value) {
 	if(!Properties::appDir.empty() && value[0] == '/')
 		return Properties::appDir + value;
 	return value;
+}
+
+string Properties::appendAppImagePath(string value) {
+#ifdef APPIMAGE_NODATA
+	if(!Properties::appimageDir.empty())
+		return Properties::appimageDir; 
+#endif
+	return appendAppDirPath(value);
 }
 #endif
 
@@ -407,9 +429,9 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
 #ifndef NO_APPIMAGE
-	replaceAll(value, "$APPLICATIONDATAPATH", 		appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
-	replaceAll(value, "%%APPLICATIONDATAPATH%%",	appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
-	replaceAll(value, "{APPLICATIONDATAPATH}",		appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "$APPLICATIONDATAPATH", 		appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "{APPLICATIONDATAPATH}",		appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
 #else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
