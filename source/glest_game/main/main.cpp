@@ -4203,6 +4203,9 @@ int glestMain(int argc, char** argv) {
 
 #ifndef NO_APPIMAGE
 	Properties::setAppDirPath();
+#ifdef APPIMAGE_NODATA
+	Properties::setAppimageDirPath();
+#endif
 #endif
 
 	Properties::setApplicationPath(executable_path(argv[0]));
@@ -4219,7 +4222,7 @@ int glestMain(int argc, char** argv) {
 #if defined(CUSTOM_DATA_INSTALL_PATH)
     if(SystemFlags::VERBOSE_MODE_ENABLED) 
 #ifndef NO_APPIMAGE
-		printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",Properties::appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))).c_str());
+		printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",Properties::appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))).c_str());
 #else
 		printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
 #endif

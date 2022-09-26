@@ -223,7 +223,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		string mg_icon_file = "";
 #if defined(CUSTOM_DATA_INSTALL_PATH)
 #ifndef NO_APPIMAGE
-		string path = Properties::appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
+		string path = Properties::appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 #else
 		string path = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH));
 #endif
