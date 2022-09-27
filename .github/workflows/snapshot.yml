@@ -21,19 +21,10 @@ jobs:
         sudo mk/linux/setupBuildDeps.sh
     - name: Build
       run:  |
-        mk/linux/build-mg.sh -m
-        make -C mk/linux/build -j$(nproc) VERBOSE=1
-    - name: Prepare Snapshot
-      run: |
-        cp mk/shared/*.ini mk/linux/
-        strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
-    - name: Create Mega Glest Snapshot
+        mk/linux/build-appimage.sh
+    - name: Create MegaGlest Snapshot
       uses: actions/upload-artifact@v2
       with:
-        name: megaglest-x64-ubuntu-20.04-gcc
+        name: megaglest-x64-ubuntu
         path: |
-          mk/linux/megaglest
-          mk/linux/megaglest_editor
-          mk/linux/megaglest_g3dviewer
-          mk/linux/*.ini
-          !mk/linux/glest-dev.ini
+          mk/linux/MegaGlest*.AppImage
