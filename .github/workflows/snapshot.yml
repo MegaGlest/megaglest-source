@@ -23,28 +23,20 @@ jobs:
         echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
         sudo apt-get update && sudo apt-get upgrade
         sudo mk/linux/setupBuildDeps.sh
+        sudo apt install libfuse2
     - name: Build
       run:  |
-        mk/linux/build-mg.sh -m
-        make -C mk/linux/build -j$(nproc) VERBOSE=1
-    - name: Prepare Snapshot
-      run: |
-        cp mk/shared/*.ini mk/linux/
-        strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
-    - name: Create Mega Glest Snapshot
+        mk/linux/build-appimage.sh
+    - name: Create MegaGlest Snapshot
       uses: actions/upload-artifact@v3
       with:
-        name: megaglest-x64-ubuntu-20.04-gcc
+        name: megaglest-x64-ubuntu
         path: |
-          mk/linux/megaglest
-          mk/linux/megaglest_editor
-          mk/linux/megaglest_g3dviewer
-          mk/linux/*.ini
-          !mk/linux/glest-dev.ini
+          mk/linux/MegaGlest*.AppImage
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
-    - run: | 
+    - run: |
         echo 'The triggering workflow failed'
         exit 1
