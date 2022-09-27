@@ -44,7 +44,9 @@ namespace Shared{ namespace Util{
 
 #ifndef NO_APPIMAGE
 string Properties::appDir = "";
+#ifdef APPIMAGE_NODATA
 string Properties::appimageDir = "";
+#endif
 #endif
 
 string Properties::applicationPath = "";
@@ -208,6 +210,7 @@ void Properties::setAppDirPath() {
 	appDir = appDirChar == NULL ? "" : appDirChar;
 }
 
+#ifdef APPIMAGE_NODATA
 void Properties::setAppimageDirPath() {
 	char* appimageDirChar = getenv("APPIMAGE");
 	if(appimageDirChar != NULL)
@@ -216,11 +219,20 @@ void Properties::setAppimageDirPath() {
 		appimageDir = appimageDir.substr(0, appimageDir.find_last_of("/") + 1);
 	}
 }
+#endif
 
 string Properties::appendAppDirPath(string value) {
 	if(!Properties::appDir.empty() && value[0] == '/')
 		return Properties::appDir + value;
 	return value;
+}
+
+string Properties::appendAppImagePath(string value) {
+#ifdef APPIMAGE_NODATA
+	if(!Properties::appimageDir.empty())
+		return Properties::appimageDir; 
+#endif
+	return appendAppDirPath(value);
 }
 #endif
 
@@ -246,10 +258,6 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	mapTagReplacementValues["%%USERPROFILE%%"] 	= homeDir;
 	mapTagReplacementValues["%%HOMEPATH%%"] 	= homeDir;
 	mapTagReplacementValues["{HOMEPATH}"] 		= homeDir;
-
-#ifndef NO_APPIMAGE
-    mapTagReplacementValues["$APPIMAGEPATH"] = appimageDir;
-#endif
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
@@ -324,7 +332,6 @@ bool Properties::isValuePathVariable(const string &value) {
 		value.find("%%USERPROFILE%%") != value.npos ||
 		value.find("%%HOMEPATH%%") != value.npos ||
 		value.find("{HOMEPATH}") != value.npos ||
-		value.find("$APPIMAGEPATH") != value.npos ||
         value.find("$APPDATA") != value.npos ||
 	    value.find("%%APPDATA%%") != value.npos ||
 	    value.find("{APPDATA}") != value.npos ||
@@ -388,10 +395,6 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	replaceAll(value, "%%HOMEPATH%%",	homeDir);
 	replaceAll(value, "{HOMEPATH}",		homeDir);
 
-#ifndef NO_APPIMAGE
-	replaceAll(value, "$APPIMAGEPATH", appimageDir);
-#endif
-
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
 #ifdef WIN32
@@ -426,9 +429,9 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
 #ifndef NO_APPIMAGE
-	replaceAll(value, "$APPLICATIONDATAPATH", 		appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
-	replaceAll(value, "%%APPLICATIONDATAPATH%%",	appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
-	replaceAll(value, "{APPLICATIONDATAPATH}",		appendAppDirPath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "$APPLICATIONDATAPATH", 		appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
+	replaceAll(value, "{APPLICATIONDATAPATH}",		appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))));
 #else
 	replaceAll(value, "$APPLICATIONDATAPATH", 		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 	replaceAll(value, "%%APPLICATIONDATAPATH%%",	formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));

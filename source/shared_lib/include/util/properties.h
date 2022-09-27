@@ -67,8 +67,11 @@ public:
 #ifndef NO_APPIMAGE
 	static void setAppDirPath();
 	static string appendAppDirPath(string value);
+	static string appendAppImagePath(string value);
 
+#ifdef APPIMAGE_NODATA
 	static void setAppimageDirPath();
+#endif
 #endif
 
 	static void setApplicationPath(string value) { applicationPath=value; }
