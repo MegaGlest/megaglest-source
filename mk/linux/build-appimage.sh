@@ -11,6 +11,14 @@ cd $SCRIPTLOC/BuildAppImage
 make DESTDIR=AppDir -j$(nproc) install
 strip AppDir/usr/local/bin/megaglest
 
+if [ ! -d AppDir/usr/bin ]; then
+    mkdir -p AppDir/usr/bin
+fi
+
+cp $(whereis 7z | awk -F ' ' '{print $2;}') AppDir/usr/bin/
+# Hacky workaround to use internal 7z.
+sed -i 's#=7z#=$APPLICATIONPATH/7z#' AppDir/usr/local/share/megaglest/glest.ini
+
 if [ ! -f AppDir/usr/local/share/applications/megaglest.desktop ]; then 
     wget -P AppDir/usr/local/share/applications/ https://raw.githubusercontent.com/MegaGlest/megaglest-data/develop/others/desktop/megaglest.desktop;
 fi
