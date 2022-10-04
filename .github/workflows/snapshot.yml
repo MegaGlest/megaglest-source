@@ -9,21 +9,15 @@ on:
     branches: [develop]
 
 # The artifact only runs on the same distro that it was built on.
-# TODO: make AppImage instead
 jobs:
   make-snapshot:
     strategy:
       fail-fast: false
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    container: jammyjamjamman/megaglest-build-env:bionic
     steps:
     - uses: actions/checkout@v3
-    - name: Get dependencies
-      run: |
-        echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
-        sudo apt-get update && sudo apt-get upgrade
-        sudo mk/linux/setupBuildDeps.sh
-        sudo apt install libfuse2
     - name: Build
       run:  |
         mk/linux/build-appimage.sh
