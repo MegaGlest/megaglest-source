@@ -9,4 +9,4 @@ RUN apt update && apt -y upgrade && \
     libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev \
     libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev \
     libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev \
-    libbrotli-dev p7zip-full
+    libbrotli-dev p7zip-full wget

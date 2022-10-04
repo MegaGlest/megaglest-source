@@ -152,10 +152,10 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
 
 	IF(NOT WANT_APPIMAGE)
 		MESSAGE(STATUS "**Disable appimage code.")
-		ADD_COMPILE_DEFINITIONS(NO_APPIMAGE)
+		ADD_DEFINITIONS(-DNO_APPIMAGE)
 	ELSEIF((NOT EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/CMakeLists.txt") AND "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 		MESSAGE(STATUS "**AppImage compatiblity + nodata wanted. Adding flag \"APPIMAGE_NODATA\".")
-		ADD_COMPILE_DEFINITIONS(APPIMAGE_NODATA)
+		ADD_DEFINITIONS(-DAPPIMAGE_NODATA)
 	ENDIF()
 
     # Common generic GNU type compiler options that work with all generic GCC compatible compilers
