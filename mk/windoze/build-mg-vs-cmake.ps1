@@ -105,7 +105,12 @@ $buildFolder = $(Join-Path $PSScriptRoot build)
 # n.b. -replace removes trailing "\" from path because cmake can't cope with it x).
 $topLevelTargetDir = $($(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString() -replace "\\$", "")
 
-$vsVersion=(msbuild --version | select -Last 1).Split(".")[0] -as [int]
+try {
+    $vsVersion=(msbuild --version | select -Last 1).Split(".")[0] -as [int]
+}
+catch {
+    "MSBuild not found. This is likely because you're not running this script in developer powershell."
+}
 
 if ($vsVersion -eq 17) {
     $vsProjType = "Visual Studio 17 2022"
