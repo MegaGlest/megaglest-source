@@ -6,6 +6,7 @@ Compiling for windows
 ```ps1
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
 ```
+
 2. Download and install the latest version of cmake: https://cmake.org/download/
 3. Download and install visual studio build tools: https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022* . The workload / component that needs to be installed is "Desktop Development with C++". If you're using a non-english edition of windows, from the install you will need to switch to the "language packs" tab and install "english language pack"**.
 4. Open "Developer Powershell"***.
@@ -30,3 +31,19 @@ After the script has finished, the game should have built and all the exe's shou
 **https://github.com/microsoft/vcpkg/issues/24600
 
 ***https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell?view=vs-2022
+
+
+Extra notes
+-----------
+
+* Building for the first time can be very slow, because installing (and usually building) the packages from vcpkg is slow. Subsequent builds should be much faster, though.
+
+* Required dependencies for building are obtained from [vcpkg](https://vcpkg.io). By default, the vcpkg folder is cloned into `mk\windoze\vcpkg` and dependencies are installed there. However, if you've already got vcpkg installed in a different location, you can set that in the build script:
+
+```ps1
+.\build-mg-vs-cmake.ps1 -vcpkg-location C:\path\to\vcpkg\
+```
+
+If you haven't installed vcpkg yet, you can still use this parameter to set a custom vcpkg location and the build script will clone vcpkg into there.
+
+* The instructions here suggest installing the "Visual Studio build tools". However, an installation of the "Visual studio IDE" with "Desktop Development with C++" is perfectly fine (but not necessary).
