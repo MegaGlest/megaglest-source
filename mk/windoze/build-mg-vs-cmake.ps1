@@ -127,6 +127,6 @@ else {
     "Build failed. Please make sure you have installed VS C++ tools (2019 or 2022): https://visualstudio.microsoft.com/downloads ."
     "If you have installed all the relevant tools and you still can't build MegaGlest, try running '.\clean-all.ps1'. Then run this script again."
     "Make sure this script is running in developer powershell: https://docs.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell ."
-    "If the language of your version of windows is not english, you may need to install the english language pack in the visual studio installer (because microsoft is racist): https://docs.microsoft.com/en-us/visualstudio/install/modify-visual-studio?view=vs-2022#modify-language-packs ."
+    "If the language of your version of windows is not english, you may need to install the english language pack in the visual studio installer: https://docs.microsoft.com/en-us/visualstudio/install/modify-visual-studio?view=vs-2022#modify-language-packs ."
     "If MegaGlest still fails to build, please help us by submitting a bug report at https://github.com/MegaGlest/megaglest-source/issues."
 }
