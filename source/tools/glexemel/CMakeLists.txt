@@ -15,6 +15,13 @@ IF(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS)
 	ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
 
 	find_package(LibXml2)
+
+	IF(WIN32)
+		# Need to explicitly find iconv with vcpkg.
+		find_package(Iconv)
+		SET(LIBXML2_LIBRARIES ${LIBXML2_LIBRARIES} Iconv::Iconv)
+	ENDIF()
+
 	IF(LIBXML2_FOUND)
 	  include_directories(${CMAKE_INCLUDE_PATH} ${LIBXML2_INCLUDE_DIR})  
 	  add_executable(xml2g xml2g.c g3dv4.h)

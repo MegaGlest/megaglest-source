@@ -867,15 +867,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 		if(fileDialog->ShowModal()==wxID_OK){
 			modelPathList.clear();
 			string file;
-#ifdef WIN32
-			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
-			file = tmp_buf;
-
-			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
-			file = utf8_encode(wstr.get());
-#else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-#endif
 
 			//loadModel((const char*)wxFNCONV(fileDialog->GetPath().c_str()));
 			loadModel(file);
@@ -903,14 +895,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 		if(fileDialog->ShowModal()==wxID_OK){
 			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
 			string file;
-#ifdef WIN32
-			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
-			file = tmp_buf;
-			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
-			file = utf8_encode(wstr.get());
-#else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-#endif
 
 			loadParticle(file);
 		}
@@ -937,14 +922,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 		if(fileDialog->ShowModal()==wxID_OK){
 			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
 			string file;
-#ifdef WIN32
-			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
-			file = tmp_buf;
-			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
-			file = utf8_encode(wstr.get());
-#else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-#endif
 
 			loadProjectileParticle(file);
 		}
@@ -971,15 +949,7 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 		if(fileDialog->ShowModal()==wxID_OK){
 			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
 			string file;
-#ifdef WIN32
-			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
-			file = tmp_buf;
-
-			auto_ptr<wchar_t> wstr(Ansi2WideString(file.c_str()));
-			file = utf8_encode(wstr.get());
-#else
 			file = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-#endif
 
 			loadSplashParticle(file);
 		}
@@ -2523,21 +2493,7 @@ if( hasCommandArgument(knownArgCount, (wxChar**)&GAME_ARGS[0], (const char *)tmp
     }
 
 	if(argc == 2 && argv[1][0] != '-') {
-
-//#if defined(__MINGW32__)
-#ifdef WIN32
-		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[1]));
-		modelPath = tmp_buf;
-		auto_ptr<wchar_t> wstr(Ansi2WideString(modelPath.c_str()));
-		modelPath = utf8_encode(wstr.get());
-#else
 		modelPath = static_cast<const char*>(WX2CHR(argv[1]));
-#endif
-
-//#else
-//        modelPath = wxFNCONV(argv[1]);
-//#endif
-
 	}
 
 //#if defined(__MINGW32__)
@@ -2552,17 +2508,7 @@ if( hasCommandArgument(knownArgCount, (wxChar**)&GAME_ARGS[0], (const char *)tmp
     //wxString path_separator = wxFileName::GetPathSeparator();
     //exe_path = exe_path.BeforeLast(path_separator[0]);
     //exe_path += path_separator;
-
-//#if defined(__MINGW32__)
-#ifdef WIN32
-	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
-	string appPath = tmp_buf;
-
-	auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
-	appPath = utf8_encode(wstr.get());
-#else
 	string appPath(static_cast<const char*>(WX2CHR(exe_path)));
-#endif
 
 //#else
 //		appPath = wxFNCONV(exe_path);

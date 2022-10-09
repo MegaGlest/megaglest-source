@@ -112,7 +112,7 @@ void ontop_win32(int width, int height);
 void CheckPacketThrottling();
 
 // The following is used for stacking tracing for windows based exceptions
-#if !defined(_DEBUG) && !defined(__GNUC__)
+#if !defined(__GNUC__)
 
 // easy safe strings
 #define MAXSTRLEN 260

@@ -72,6 +72,8 @@ if (MINIUPNP_FOUND)
 
   set(CMAKE_REQUIRED_INCLUDES ${MINIUPNP_INCLUDE_DIR})
   set(CMAKE_REQUIRED_LIBRARIES ${MINIUPNP_LIBRARY})
+
+  INCLUDE(CheckCXXSourceRuns)
   check_cxx_source_runs("
     #include <miniwget.h>
     #include <miniupnpc.h>
@@ -201,4 +203,3 @@ else ()
 endif ()
 
 MARK_AS_ADVANCED(MINIUPNP_INCLUDE_DIR MINIUPNP_LIBRARY)
-
