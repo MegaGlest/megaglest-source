@@ -89,6 +89,7 @@ jobs:
 
     - name: Prepare Snapshot
       run: |
+        cd mk\windoze
         cp ..\shared\*.ini .
         $7zPath = $(Get-Command 7z).Source
         cp $7zPath .
