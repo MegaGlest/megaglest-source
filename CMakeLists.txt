@@ -1,11 +1,21 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8.2 )
+IF(WIN32)
+	# Windows cmake version needs to be higher - for CMAKE_MSVC_RUNTIME_LIBRARY.
+	CMAKE_MINIMUM_REQUIRED( VERSION 3.15 )
+
+	# This must be Set before "PROJECT()" is called.
+	SET(VCPKG_TARGET_TRIPLET "x64-windows-static")
+ELSE()
+	CMAKE_MINIMUM_REQUIRED( VERSION 3.5 )
+ENDIF()
+
 PROJECT( MegaGlest )
 
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
-# *NOTE: For now we assume some variation of GCC Compiler (or MingW for Windows binaries)
-# VC++ users should not use CMake yet but rather the build-mg.bat file in mk/windoze
+# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS). 
+# MSBuild requires using vcpkg and installing required libs.
+# Script works with Windows, Linux and Mac.
 #
 
 # build type
@@ -18,13 +28,38 @@ IF(NOT CMAKE_VERSION VERSION_LESS "3.1")
     cmake_policy(SET CMP0054 NEW)
 ENDIF()
 
+IF(MSVC)
+	# Sets the flags MT/ MTd correctly.
+	SET(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+	INCLUDE(ProcessorCount)
+	ProcessorCount(N)
+	IF(N GREATER 0)
+		MESSAGE(STATUS "Will build on ${N} cores.")
+	ELSE()
+		SET(N 1)
+		MESSAGE(STATUS "Could not find number of cores. Will attempt to build on ${N} cores.")
+	ENDIF()
+
+	# "MP" is build with all cores.
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP${N}")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP${N}")
+	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_$} /MP${N}" )
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_$} /MP${N}" )
+
+	SET(MEGAGLEST_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/" CACHE STRING "The installation path for data files ${COMMON_INFO_ABOUT_PATH}")
+	SET(MEGAGLEST_INI_INSTALL_PATH "${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "Install path for ini files")
+
+	INCLUDE(FindPkgConfig)
+ENDIF()
+
 # add additional CMake modules
 MESSAGE(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/mk/cmake/Modules)
 IF(CMAKE_BUILD_TYPE)
 	MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 ENDIF()
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
     SET(CMAKE_COMPILER_IS_GNUCXX "YES")
 #        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
     ADD_DEFINITIONS("-Wno-switch")
@@ -90,10 +125,12 @@ FOREACH(ver_var VER_MAJOR;VER_MINOR;VER_PATCH;MEGAGLEST_VERSION)
 ENDFOREACH()
 MESSAGE(STATUS "Detected MegaGlest Version is [v${MEGAGLEST_VERSION}] ")
 
-SET(PIC_FLAG "${PIC_FLAG} -fPIC")
-IF(WANT_STATIC_LIBS AND "${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-	# CMAKE_SIZEOF_VOID_P=8 => 64bit
-	ADD_DEFINITIONS("${PIC_FLAG}")
+IF(NOT MSVC)
+	SET(PIC_FLAG "${PIC_FLAG} -fPIC")
+	IF(WANT_STATIC_LIBS AND "${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+		# CMAKE_SIZEOF_VOID_P=8 => 64bit
+		ADD_DEFINITIONS("${PIC_FLAG}")
+	ENDIF()
 ENDIF()
 
 ## Compiler flags, CPACK configuration and other Apple specific code.
@@ -101,20 +138,24 @@ IF(APPLE)
 	include(${PROJECT_SOURCE_DIR}/mk/macos/CMakeLists.txt)
 ENDIF(APPLE)
 
-IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
-    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
+    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
         MESSAGE(STATUS "Detected CLANG Compiler...")
 	ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		MESSAGE(STATUS "Detected GNUC Compiler...")
 	ELSEIF(MINGW)
 		MESSAGE(STATUS "Detected MINGW Compiler...")
+	ELSEIF(MSVC)
+		MESSAGE(STATUS "Detected VS target for building with msbuild...")
 	ENDIF()
 
     # Common generic GNU type compiler options that work with all generic GCC compatible compilers
-    ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+	IF(NOT MSVC)
+    	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+	ENDIF()
 
 	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-	IF(NOT MINGW)
+	IF(NOT WIN32)
 		# For tons of verbose warnings add: -Wall
 #		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -rdynamic")
 #		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -rdynamic")
@@ -125,7 +166,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	ENDIF()
 
     # CLang specific Compiler Options
-    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
+
+	ELSEIF(MSVC)
 
     # GCC specific Compiler Options
     ELSE()
@@ -173,41 +216,43 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		MESSAGE(STATUS "*WARNING: Disabled use of STREFLOP! Out of synchs may occur")
 	ENDIF()
 
-        include(CheckCXXSourceRuns)
+	include(CheckCXXSourceRuns)
 
-        check_cxx_source_runs("
-        #include <execinfo.h>
-        #include <stdio.h>
-        int main()
-        {
-	const size_t max_depth = 6;
-	void *stack_addrs[max_depth];
-	size_t stack_depth = backtrace(stack_addrs, max_depth);
-        }"
-        HAS_GCC_BACKTRACE)
+	check_cxx_source_runs("
+	#include <execinfo.h>
+	#include <stdio.h>
+	int main()
+	{
+const size_t max_depth = 6;
+void *stack_addrs[max_depth];
+size_t stack_depth = backtrace(stack_addrs, max_depth);
+	}"
+	HAS_GCC_BACKTRACE)
 
-        IF(HAS_GCC_BACKTRACE)
-            message(STATUS "Found GCC backtrace lib, will support backtraces")
-            ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
-        ELSE()
-            message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
-        ENDIF()
-
-	# Debug compiler flags
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
-
-	# Release compiler flags
-	SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 ")
-	IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
-		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
+	IF(HAS_GCC_BACKTRACE)
+		message(STATUS "Found GCC backtrace lib, will support backtraces")
+		ADD_DEFINITIONS(-DHAS_GCC_BACKTRACE)
+	ELSE()
+		message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
 	ENDIF()
+	
+	IF(NOT MSVC)
+		# Debug compiler flags
+		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 
-	# Release with debug info compiler flags
-	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 ")
+		# Release compiler flags
+		SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 ")
+		IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
+			SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
+		ENDIF()
 
-	# Release minimum size compiler flags
-	IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
-		SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary
+		# Release with debug info compiler flags
+		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 ")
+
+		# Release minimum size compiler flags
+		IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
+			SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary
+		ENDIF()
 	ENDIF()
 
     # see if this fixes compile issue for tomreyn: libpthread.so.0: error adding symbols: DSO missing from command line
@@ -327,7 +372,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	message(STATUS "CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}: ${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}}")
 
 	# Win32 specific Compiler Flags
-	IF(WIN32)
+	IF(WIN32 AND NOT MSVC)
 		ADD_DEFINITIONS("-D_WINDOWS -D_WIN32 -D_STDCALL_SUPPORTED -D_M_IX86 -DXML_LIBRARY -D_LIB -DCURL_STATICLIB")
 	ENDIF()
 ENDIF()
@@ -364,35 +409,18 @@ ELSEIF(UNIX AND APPLE)
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/macos/")
 ELSEIF(UNIX AND NOT APPLE)
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/other_unix/")
+ELSEIF(WIN32)
+	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/mk/windoze/")
 ELSE()
 	SET(MEGAGLEST_FRIENDLY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/data/glest_game/")
 ENDIF()
 
-IF(WIN32)
-	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib
-           ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
-
-	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
-
-	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
-	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
-	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib)
-	include_directories("${PROJECT_SOURCE_DIR}/source/win32_deps/Microsoft\ DirectX\ SDK \(November 2007\)/Include")
-	include_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
+# Set VS project exe outputs.
+IF(MSVC)
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${MEGAGLEST_FRIENDLY_OUTPUT_PATH})
 ENDIF()
 
 # Check if sources exist
@@ -422,7 +450,7 @@ ENDIF()
 #get_directory_property( DirDefs COMPILE_DEFINITIONS )
 #MESSAGE(STATUS ">>>> NOTICE Compiler definitions used: ${DirDefs}")
 #MESSAGE(STATUS "END of compile defs...")
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
     MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 

@@ -2,6 +2,8 @@
 /*/Release/
 /x64/
 /*/x64/
+/vcpkg/
+/build/
 
 # Windows_build
 *.dll
