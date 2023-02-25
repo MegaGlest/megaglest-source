@@ -19,7 +19,7 @@
 #include <vector>
 #include <string>
 
-using Shared::Platform::int8;
+using Shared::Platform::truechar;
 using Shared::Platform::int32;
 using Shared::Platform::float32;
 using Shared::Util::RandomGen;
@@ -77,16 +77,16 @@ struct MapFileHeader {
 	int32 height;
 	int32 heightFactor;
 	int32 waterLevel;
-	int8 title[MAX_TITLE_LENGTH];
-	int8 author[MAX_AUTHOR_LENGTH];
+	truechar title[MAX_TITLE_LENGTH];
+	truechar author[MAX_AUTHOR_LENGTH];
 	union {
-		int8 description[MAX_DESCRIPTION_LENGTH];
+		truechar description[MAX_DESCRIPTION_LENGTH];
 		struct {
-			int8 short_desc[MAX_DESCRIPTION_LENGTH_VERSION2];
+			truechar short_desc[MAX_DESCRIPTION_LENGTH_VERSION2];
 			int32 magic; // 0x01020304 for meta
 			int32 cliffLevel;
 			int32 cameraHeight;
-			int8 meta[116];
+			truechar meta[116];
 		} version2;
 	};
 };
