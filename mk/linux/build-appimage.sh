@@ -111,5 +111,6 @@ cd $SCRIPTLOC/BuildAppImage/tools
 cmake ../../../.. -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
 make -j$(nproc)
 
-strip source/tools/glexemel/{g2xml,xml2g}
-mv source/tools/glexemel/{g2xml,xml2g} $SCRIPTLOC 
+strip source/tools/glexemel/g2xml source/tools/glexemel/xml2g
+mv source/tools/glexemel/g2xml $SCRIPTLOC 
+mv source/tools/glexemel/xml2g $SCRIPTLOC 

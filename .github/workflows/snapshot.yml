@@ -27,7 +27,8 @@ jobs:
         name: megaglest-x64-ubuntu
         path: |
           mk/linux/MegaGlest*.AppImage
-          source/tools/glexemel/{g2xml,xml2g}
+          mk/linux/g2xml
+          mk/linux/xml2g
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
