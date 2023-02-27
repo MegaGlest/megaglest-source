@@ -51,4 +51,6 @@ RUN /bin/bash -c 'cd $TOOLS_DIR \
     && chmod +x linuxdeploy-${ARCH}.AppImage \
     && ./linuxdeploy-${ARCH}.AppImage --appimage-extract \
     && rm ./linuxdeploy-${ARCH}.AppImage \
+    && wget -c "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh" \
+    && chmod +x linuxdeploy-plugin-gtk.sh \
     && cd -'

@@ -67,9 +67,11 @@ mv editor-2.png editor.png
 # Another stupid hack to fix icons.
 sed -i 's#Icon=megaglest#Icon=editor#' AppDir/usr/local/share/applications/megaglest_editor.desktop
 
+ln -s $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
+
 $TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_editor.desktop \
   --icon-file=editor.png \
-   --icon-filename=editor --executable AppDir/usr/local/bin/megaglest_editor --appdir AppDir --output appimage
+   --icon-filename=editor --executable AppDir/usr/local/bin/megaglest_editor --appdir AppDir --plugin gtk --output appimage
 
 mv MegaGlest*.AppImage $SCRIPTLOC
 
@@ -98,9 +100,11 @@ mv g3dviewer-2.png g3dviewer.png
 # Another stupid hack to fix icons.
 sed -i 's#Icon=megaglest#Icon=g3dviewer#' AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop
 
+ln -s $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
+
 $TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop \
   --icon-file=g3dviewer.png \
-   --icon-filename=g3dviewer --executable AppDir/usr/local/bin/megaglest_g3dviewer --appdir AppDir --output appimage
+   --icon-filename=g3dviewer --executable AppDir/usr/local/bin/megaglest_g3dviewer --appdir AppDir --plugin gtk --output appimage
 
 mv MegaGlest*.AppImage $SCRIPTLOC
 
