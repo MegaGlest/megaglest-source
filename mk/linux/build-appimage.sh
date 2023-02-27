@@ -5,15 +5,10 @@ set -e
 # SCRIPTLOC=$(dirname "$0")
 SCRIPTLOC="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-mkdir -p $SCRIPTLOC/BuildAppImage/
-cd $SCRIPTLOC/BuildAppImage/
-
-if [ ! -f linuxdeploy-x86_64.AppImage ]; then 
-    wget https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage
+if [ ! -f $TOOLS_DIR/squashfs-root/AppRun ]; then
+    echo "Please specify the path to the extracted linuxdeploy (squashfs-root) using \$TOOLS_DIR env variable."
+    exit -1
 fi
-
-chmod +x linuxdeploy-x86_64.AppImage
-./linuxdeploy-x86_64.AppImage --appimage-extract
 
 mkdir -p $SCRIPTLOC/BuildAppImage/game
 cd $SCRIPTLOC/BuildAppImage/game
@@ -41,7 +36,7 @@ fi
 convert AppDir/usr/local/share/megaglest/megaglest.ico megaglest.png
 mv megaglest-2.png megaglest.png
 
-$SCRIPTLOC/BuildAppImage/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest.desktop \
+$TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest.desktop \
   --icon-file=megaglest.png \
    --icon-filename=megaglest --executable AppDir/usr/local/bin/megaglest --appdir AppDir --output appimage
 
@@ -63,7 +58,7 @@ if [ ! -d AppDir/usr/bin ]; then
     mkdir -p AppDir/usr/bin
 fi
 
-if [ ! -f AppDir/usr/local/share/applications/megaglest.desktop ]; then 
+if [ ! -f AppDir/usr/local/share/applications/megaglest_editor.desktop ]; then 
     wget -P AppDir/usr/local/share/applications/ https://raw.githubusercontent.com/MegaGlest/megaglest-data/develop/others/desktop/megaglest_editor.desktop;
 fi
 
@@ -72,8 +67,49 @@ mv editor-2.png editor.png
 # Another stupid hack to fix icons.
 sed -i 's#Icon=megaglest#Icon=editor#' AppDir/usr/local/share/applications/megaglest_editor.desktop
 
-$SCRIPTLOC/BuildAppImage/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_editor.desktop \
+$TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_editor.desktop \
   --icon-file=editor.png \
    --icon-filename=editor --executable AppDir/usr/local/bin/megaglest_editor --appdir AppDir --output appimage
 
 mv MegaGlest*.AppImage $SCRIPTLOC
+
+# G3D viewer
+mkdir -p $SCRIPTLOC/BuildAppImage/g3dviewer
+cd $SCRIPTLOC/BuildAppImage/g3dviewer
+
+if [ -d $SCRIPTLOC/BuildAppImage/g3dviewer/AppDir ]; then
+    rm -r $SCRIPTLOC/BuildAppImage/g3dviewer/AppDir
+fi
+
+cmake ../../../.. -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=ON -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
+make DESTDIR=AppDir -j$(nproc) install
+strip AppDir/usr/local/bin/megaglest_g3dviewer
+
+if [ ! -d AppDir/usr/bin ]; then
+    mkdir -p AppDir/usr/bin
+fi
+
+if [ ! -f AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop ]; then 
+    wget -P AppDir/usr/local/share/applications/ https://raw.githubusercontent.com/MegaGlest/megaglest-data/develop/others/desktop/megaglest_g3dviewer.desktop;
+fi
+
+convert AppDir/usr/local/share/megaglest/g3dviewer.ico g3dviewer.png
+mv g3dviewer-2.png g3dviewer.png
+# Another stupid hack to fix icons.
+sed -i 's#Icon=megaglest#Icon=g3dviewer#' AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop
+
+$TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop \
+  --icon-file=g3dviewer.png \
+   --icon-filename=g3dviewer --executable AppDir/usr/local/bin/megaglest_g3dviewer --appdir AppDir --output appimage
+
+mv MegaGlest*.AppImage $SCRIPTLOC
+
+# Tools
+mkdir -p $SCRIPTLOC/BuildAppImage/tools
+cd $SCRIPTLOC/BuildAppImage/tools
+
+cmake ../../../.. -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
+make -j$(nproc)
+
+strip source/tools/glexemel/{g2xml,xml2g}
+mv source/tools/glexemel/{g2xml,xml2g} $SCRIPTLOC 
