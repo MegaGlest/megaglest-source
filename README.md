@@ -3,7 +3,7 @@
 MegaGlest (https://megaglest.org) is a libre software cross
 platform real-time strategy game.
 
-![logo](https://megaglest.org/uploads/megaglest2011/logo/logo.png)
+![logo](https://megaglest.org/assets/logo.png)
 
 MegaGlest is an entertaining free (freeware and free software)
 and open source cross-platform 3D real-time strategy (RTS) game,
