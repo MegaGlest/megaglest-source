@@ -309,6 +309,13 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
 
+#ifndef NO_APPIMAGE
+	Properties::setAppDirPath();
+#ifdef APPIMAGE_NODATA
+	Properties::setAppimageDirPath();
+#endif
+#endif
+
 	lastanim = 0;
 	model= NULL;
 

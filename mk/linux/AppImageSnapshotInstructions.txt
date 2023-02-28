@@ -1,0 +1,7 @@
+How to use the AppImages
+========================
+
+1. Clone the repo https://github.com/MegaGlest/megaglest-data
+2. Copy the contents of this snapshot into the megaglest-data folder, you cloned from above.
+3. Set all AppImages + g2xml + xml2g to executable (chmod +x MegaGlest*.AppImage g2xml xml2g)
+4. Run the AppImages. (If you use AppImageLauncher, make sure you only select "run once".)

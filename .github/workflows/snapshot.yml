@@ -29,6 +29,7 @@ jobs:
           mk/linux/MegaGlest*.AppImage
           mk/linux/g2xml
           mk/linux/xml2g
+          mk/linux/AppImageSnapshotInstructions.txt
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}

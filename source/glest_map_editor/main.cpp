@@ -116,6 +116,12 @@ MainWindow::MainWindow(string appPath)
 
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
+#ifndef NO_APPIMAGE
+	Properties::setAppDirPath();
+#ifdef APPIMAGE_NODATA
+	Properties::setAppimageDirPath();
+#endif
+#endif
 
 	this->panel = new wxPanel(this, wxID_ANY);
 }
