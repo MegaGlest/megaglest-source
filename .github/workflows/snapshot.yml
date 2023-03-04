@@ -1,10 +1,12 @@
 name: Make Snapshot
 concurrency:
-  group: build-${{ github.ref }}
+  group: snapshot-${{ github.ref }}
   cancel-in-progress: true
 on:
-  push:
-    branches: [ develop ]
+  workflow_run:
+    workflows: [CMake]
+    types: [completed]
+    branches: [develop]
 
 # The artifact only runs on the same distro that it was built on.
 # TODO: make AppImage instead
