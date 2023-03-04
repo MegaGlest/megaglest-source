@@ -5,7 +5,7 @@ IF(WIN32)
 	# This must be Set before "PROJECT()" is called.
 	SET(VCPKG_TARGET_TRIPLET "x64-windows-static")
 ELSE()
-	CMAKE_MINIMUM_REQUIRED( VERSION 3.5 )
+	CMAKE_MINIMUM_REQUIRED( VERSION 3.10 )
 ENDIF()
 
 PROJECT( MegaGlest )
