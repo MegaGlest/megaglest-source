@@ -36,7 +36,7 @@ jobs:
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
         make -C mk/linux/build -j$(nproc) VERBOSE=1
 
-  build-win64:
+  build-win64-deps:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
@@ -55,13 +55,43 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Cache Vcpkg Libs
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       env:
         cache-name: cache-vcpkg-deps
       with:
         path: c:/vcpkg/installed
         key: vcpkg-deps
+    
+    - name: Install Windows Deps
+      run: |
+        cd mk\windoze
+        $scriptDir = Get-Location
+        cd c:\vcpkg
+        & "$(Join-Path $scriptDir install-deps-vcpkg.ps1)"
 
+  build-win64:
+    needs: build-win64-deps
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+        build_type: [Release]
+        include:
+          - build_type: Release
+            release: 'ON'
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Get Vcpkg Libs Cache
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-vcpkg-deps
+      with:
+        path: c:/vcpkg/installed
+        key: vcpkg-deps
+    
     - name: Build MegaGlest
       run: |
         cd mk/windoze
