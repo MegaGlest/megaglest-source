@@ -25,6 +25,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Get dependencies
       run: |
+        echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
         sudo apt-get update && sudo apt-get upgrade
         sudo mk/linux/setupBuildDeps.sh
     - name: Build
@@ -33,27 +34,6 @@ jobs:
           EXTRA_OPTS="-f"
         fi
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
-        make -C mk/linux/build -j$(nproc) VERBOSE=1
-
-  build-linux-other:
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler: [10, 12] # 11 is on 22.04 by default, tested above
-    runs-on: ubuntu-22.04
-    env:
-      CC: gcc-${{matrix.compiler}}
-      CXX: g++-${{matrix.compiler}}
-    steps:
-    - uses: actions/checkout@v3
-    - name: Get dependencies
-      run: |
-        sudo apt-get update && sudo apt-get upgrade
-        sudo apt-get install -y $CXX
-        sudo mk/linux/setupBuildDeps.sh
-    - name: Build
-      run:  |
-        mk/linux/build-mg.sh -d -m
         make -C mk/linux/build -j$(nproc) VERBOSE=1
 
   build-win64:
