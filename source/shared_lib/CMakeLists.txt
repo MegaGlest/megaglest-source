@@ -105,9 +105,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		ENDIF()
 	ENDIF()
 
-	if(NOT VCPKG_TARGET_TRIPLET)
-		FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
-	ENDIF()
+	FIND_PACKAGE(${SDL_VERSION_NAME} CONFIG REQUIRED)
 	
 	INCLUDE_DIRECTORIES(${${SDL_VERSION_NAME}_INCLUDE_DIR})
 	IF(UNIX)
@@ -127,14 +125,14 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	ENDIF()
 
 	IF(WANT_USE_XercesC)
-		FIND_PACKAGE(XercesC REQUIRED)
+		FIND_PACKAGE(XercesC CONFIG REQUIRED)
 		INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 		IF(UNIX)
 			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
 		ENDIF()
 	ENDIF()
 
-	FIND_PACKAGE(OpenAL REQUIRED)
+	FIND_PACKAGE(OpenAL CONFIG REQUIRED)
 	INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENAL_LIBRARY})
@@ -174,7 +172,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	OPTION(WANT_USE_FTGL "Use libFTGL for on-screen fonts (found on your system)" ON)
 	find_package( Freetype REQUIRED)
 	include_directories( ${FREETYPE_INCLUDE_DIRS} )
-	FIND_PACKAGE(FTGL REQUIRED)
+	FIND_PACKAGE(FTGL CONFIG REQUIRED)
 	IF(WANT_USE_FTGL)
 		if (FTGL_FOUND)
 		        MESSAGE(STATUS "**NOTE: FTGL font support was detected and enabled.")
@@ -506,23 +504,43 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	IF(WIN32)
 		IF(VCPKG_TARGET_TRIPLET)
-			TARGET_LINK_LIBRARIES(${TARGET_NAME} odbc32 wsock32 winspool winmm shell32 comctl32 advapi32 opengl32 glu32 ole32 oleaut32 uuid ddraw dsound dxguid ws2_32 iphlpapi user32 kernel32 dbghelp shlwapi)
-			find_package(Ogg CONFIG REQUIRED)
-			find_package(Vorbis CONFIG REQUIRED)
-			# find_package(ZLIB REQUIRED)
-			# find_package(JPEG REQUIRED)
-			find_package(libpng CONFIG REQUIRED)
-			find_package(XercesC CONFIG REQUIRED)
-			find_package(OpenAL CONFIG REQUIRED)
-			# find_package(CURL CONFIG REQUIRED)
-			find_package(SDL2 CONFIG REQUIRED)
-			# include(FindLua)
-			# find_package(Lua REQUIRED)
-			# find_package(GLEW REQUIRED)
-			find_package(FTGL CONFIG REQUIRED)
-			TARGET_LINK_LIBRARIES(${TARGET_NAME} Ogg::ogg Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile ZLIB::ZLIB ${JPEG_LIBRARIES} png_static xerces_xerces-c XercesC::XercesC OpenAL::OpenAL CURL::libcurl gdi32 SDL2::SDL2main SDL2::SDL2-static ${LUA_LIBRARIES} ${MG_STREFLOP} GLEW::GLEW ftgl)
+			TARGET_LINK_LIBRARIES(${TARGET_NAME}
+				advapi32
+				comctl32
+				dbghelp
+				ddraw
+				dsound
+				dxguid
+				glu32
+				iphlpapi
+				kernel32
+				odbc32
+				ole32
+				oleaut32
+				opengl32
+				shell32
+				shlwapi
+				user32
+				uuid
+				winmm
+				winspool
+				ws2_32
+				wsock32)
+			
+			TARGET_LINK_LIBRARIES(${TARGET_NAME}
+				${JPEG_LIBRARIES}
+				${LUA_LIBRARIES}
+				${MG_STREFLOP}
+				CURL::libcurl
+				ftgl
+				gdi32
+				GLEW::GLEW
+				PNG::PNG
+				SDL2::SDL2-static
+				SDL2::SDL2main
+				ZLIB::ZLIB)
 		ELSE()
-			TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
+			TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 zlib jpeg libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
 		ENDIF()
 	ENDIF()
 
