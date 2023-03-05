@@ -1,0 +1,71 @@
+name: Pre-release
+
+on: 
+  workflow_run:
+    workflows: [Make Snapshot]
+    types: [completed]
+    branches: [develop]
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+    - name: 'Download artifact'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+          });
+          let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "megaglest-x64-windows"
+          })[0];
+          let download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+          });
+          let fs = require('fs');
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows-snapshot.zip`, Buffer.from(download.data));
+
+          matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "megaglest-x64-ubuntu"
+          })[0];
+          download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+          });
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-ubuntu.zip`, Buffer.from(download.data));
+
+    - name: 'Prepare artifacts'
+      run: |
+        mkdir AppImage-Snapshot && cd AppImage-Snapshot
+        unzip ../megaglest-x64-ubuntu.zip
+        chmod +x *.AppImage g2xml xml2g
+        tar cfJ megaglest-appimage-snapshot.tar.xz *.AppImage g2xml xml2g
+        mv megaglest-appimage-snapshot.tar.xz ..
+        cd -
+    - name: 'Prerelease'
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "megaglest-appimage-snapshot.tar.xz,megaglest-x64-windows-snapshot.zip"
+        body: "MegaGlest Snapshot Release"
+        prerelease: true
+        replacesArtifacts: true
+        tag: snapshot
+
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+    - run: | 
+        echo 'The triggering workflow failed'
+        exit 1
