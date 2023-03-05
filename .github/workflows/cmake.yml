@@ -106,7 +106,7 @@ jobs:
         cd ../..
 
     - name: Create Mega Glest Snapshot
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: megaglest-x64-windows
         path: |
