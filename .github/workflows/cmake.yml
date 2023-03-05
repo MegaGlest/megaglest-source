@@ -120,7 +120,7 @@ jobs:
           mk/windoze/*.exe
           mk/windoze/*.ini
           !mk/windoze/glest-dev.ini
-  on-failure:
+  on-dockerbuild-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
