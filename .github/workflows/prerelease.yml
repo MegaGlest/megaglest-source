@@ -50,13 +50,13 @@ jobs:
         mkdir AppImage-Snapshot && cd AppImage-Snapshot
         unzip ../megaglest-x64-ubuntu.zip
         chmod +x *.AppImage g2xml xml2g
-        tar cfJ megaglest-appimage-snapshot.tar.xz *.AppImage g2xml xml2g
-        mv megaglest-appimage-snapshot.tar.xz ..
+        tar cfJ megaglest-x64-appimage-snapshot.tar.xz *.AppImage g2xml xml2g
+        mv megaglest-x64-appimage-snapshot.tar.xz ..
         cd -
     - name: 'Prerelease'
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "${process.env.GITHUB_WORKSPACE}/megaglest-appimage-snapshot.tar.xz,${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows-snapshot.zip"
+        artifacts: "megaglest-x64-appimage-snapshot.tar.xz,megaglest-x64-windows-snapshot.zip"
         body: "MegaGlest Snapshot Release"
         prerelease: true
         replacesArtifacts: true

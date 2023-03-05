@@ -64,8 +64,8 @@ jobs:
       with:
         name: megaglest-x64-windows
         path: |
-          ${process.env.GITHUB_WORKSPACE}/*.exe
-          ${process.env.GITHUB_WORKSPACE}/*.ini
+          *.exe
+          *.ini
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
