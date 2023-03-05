@@ -32,7 +32,7 @@ jobs:
         cp mk/shared/*.ini mk/linux/
         strip -g mk/linux/megaglest mk/linux/megaglest_editor mk/linux/megaglest_g3dviewer
     - name: Create Mega Glest Snapshot
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: megaglest-x64-ubuntu-20.04-gcc
         path: |
