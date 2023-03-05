@@ -52,13 +52,23 @@ IF(BUILD_MEGAGLEST)
 	        ENDIF()
         ENDIF()
 
-	FIND_PACKAGE(OpenAL REQUIRED)
+	IF(VCPKG_TARGET_TRIPLET)
+		FIND_PACKAGE(OpenAL CONFIG REQUIRED)
+	ELSE()
+		FIND_PACKAGE(OpenAL REQUIRED)
+	ENDIF()
+
 	INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENAL_LIBRARY})
 	ENDIF()
 
-	FIND_PACKAGE(OGG REQUIRED)
+	IF(VCPKG_TARGET_TRIPLET)
+		FIND_PACKAGE(Ogg CONFIG REQUIRED)
+	ELSE()
+		FIND_PACKAGE(OGG REQUIRED)
+	ENDIF()
+
 	INCLUDE_DIRECTORIES(${OGG_INCLUDE_DIR})
 	IF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${VORBIS_FILE_LIBRARY})
@@ -302,21 +312,21 @@ IF(BUILD_MEGAGLEST)
 	IF(WIN32)
 		TARGET_SOURCES(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/mk/windoze/glest.rc)
 		IF(VCPKG_TARGET_TRIPLET)
-			TARGET_LINK_LIBRARIES(${TARGET_NAME} odbc32 wsock32 winspool winmm shell32 comctl32 advapi32 opengl32 glu32 ole32 oleaut32 uuid ddraw dsound dxguid ws2_32 iphlpapi gdi32 user32 kernel32 dbghelp shlwapi)
-			find_package(Ogg CONFIG REQUIRED)
 			find_package(Vorbis CONFIG REQUIRED)
-			# find_package(ZLIB REQUIRED)
-			# find_package(JPEG REQUIRED)
-			find_package(libpng CONFIG REQUIRED)
-			find_package(XercesC CONFIG REQUIRED)
-			find_package(OpenAL CONFIG REQUIRED)
-			# find_package(CURL CONFIG REQUIRED)
-			find_package(SDL2 CONFIG REQUIRED)
-			# include(FindLua)
-			# find_package(Lua REQUIRED)
-			# find_package(GLEW REQUIRED)
-			find_package(FTGL CONFIG REQUIRED)
-			TARGET_LINK_LIBRARIES(${TARGET_NAME} Ogg::ogg Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile ZLIB::ZLIB ${JPEG_LIBRARIES} png_static xerces_xerces-c XercesC::XercesC OpenAL::OpenAL CURL::libcurl SDL2::SDL2main SDL2::SDL2-static ${LUA_LIBRARIES} ${MG_STREFLOP} libmegaglest GLEW::GLEW ftgl)
+			TARGET_LINK_LIBRARIES(${TARGET_NAME}
+				${JPEG_LIBRARIES}
+				${LUA_LIBRARIES}
+				${MG_STREFLOP}
+				CURL::libcurl
+				GLEW::GLEW
+				libmegaglest
+				Ogg::ogg
+				OpenAL::OpenAL
+				PNG::PNG
+				Vorbis::vorbis
+				Vorbis::vorbisenc
+				Vorbis::vorbisfile
+				ZLIB::ZLIB)
 		ELSE()
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32 advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 		ENDIF()
