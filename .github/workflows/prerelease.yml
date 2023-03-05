@@ -7,7 +7,7 @@ on:
     branches: [develop]
 jobs:
 
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -56,7 +56,7 @@ jobs:
     - name: 'Prerelease'
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "megaglest-appimage-snapshot.tar.xz,megaglest-x64-windows-snapshot.zip"
+        artifacts: "${process.env.GITHUB_WORKSPACE}/megaglest-appimage-snapshot.tar.xz,${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows-snapshot.zip"
         body: "MegaGlest Snapshot Release"
         prerelease: true
         replacesArtifacts: true
