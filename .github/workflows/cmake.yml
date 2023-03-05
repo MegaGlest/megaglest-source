@@ -8,9 +8,14 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ develop ]
+  workflow_run:
+    workflows: [Docker Image]
+    types: [completed]
+    branches: [develop]
 
 jobs:
   build-linux:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -41,6 +46,7 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -114,6 +120,13 @@ jobs:
           mk/windoze/*.exe
           mk/windoze/*.ini
           !mk/windoze/glest-dev.ini
+  on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+    - run: |
+        echo 'The triggering workflow failed'
+        exit 1
 
   build-macos:
     strategy:
