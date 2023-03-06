@@ -1,6 +1,6 @@
 # Build MegaGlest on Windows.
 # Author: James Sherratt.
-param(${vcpkg-location})
+param(${vcpkg-location}, ${buildtype})
 
 $sword = [char]::ConvertFromUtf32(0x2694)
 Write-Output "=====$sword MegaGlest $sword====="
@@ -100,6 +100,10 @@ Set-Location $PSScriptRoot
 
 Write-Title "Build MegaGlest"
 
+if ( !$buildtype ) {
+    $buildtype = "release"
+}
+
 $toolchainPath = $(Join-Path ${vcpkg-location} \scripts\buildsystems\vcpkg.cmake)
 $buildFolder = $(Join-Path $PSScriptRoot build)
 # n.b. -replace removes trailing "\" from path because cmake can't cope with it x).
@@ -123,7 +127,7 @@ else {
 }
 
 cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-S$topLevelTargetDir" "-B$buildFolder" -G "$vsProjType" -T host=x64 -A x64
-cmake --build "$buildFolder" --config Release --target ALL_BUILD
+cmake --build "$buildFolder" --config $buildtype --target ALL_BUILD
 
 if ($?) {
     "Build succeeded. megaglest.exe, megaglest_editor.exe and megaglest_g3dviewer.exe can be found in mk/windoze/."

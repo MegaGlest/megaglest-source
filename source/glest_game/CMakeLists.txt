@@ -313,12 +313,16 @@ IF(BUILD_MEGAGLEST)
 		TARGET_SOURCES(${TARGET_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/mk/windoze/glest.rc)
 		IF(VCPKG_TARGET_TRIPLET)
 			find_package(Vorbis CONFIG REQUIRED)
+			find_package(SDL2 CONFIG REQUIRED)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME}
 				${JPEG_LIBRARIES}
 				${LUA_LIBRARIES}
 				${MG_STREFLOP}
 				CURL::libcurl
 				GLEW::GLEW
+				# SDL2 must come before libmegaglest, or you get a upnpc binary instead :)
+				$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+				$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 				libmegaglest
 				Ogg::ogg
 				OpenAL::OpenAL

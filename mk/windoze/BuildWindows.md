@@ -46,4 +46,16 @@ Extra notes
 
 If you haven't installed vcpkg yet, you can still use this parameter to set a custom vcpkg location and the build script will clone vcpkg into there.
 
+* The default build type is "Release". You can select a different build type like this:
+
+```ps1
+.\build-mg-vs-cmake.ps1 -buildtype Debug
+```
+
+Build type options are:
+ - Debug
+ - MinSizeRel
+ - Release
+ - RelWithDebInfo
+
 * The instructions here suggest installing the "Visual Studio build tools". However, an installation of the "Visual studio IDE" with "Desktop Development with C++" is perfectly fine (but not necessary).
