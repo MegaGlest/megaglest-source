@@ -58,6 +58,7 @@ jobs:
       with:
         artifacts: "megaglest-x64-appimage-snapshot.tar.xz,megaglest-x64-windows-snapshot.zip"
         body: "MegaGlest Snapshot Release"
+        allowUpdates: true
         prerelease: true
         replacesArtifacts: true
         tag: snapshot
