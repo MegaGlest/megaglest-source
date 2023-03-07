@@ -61,6 +61,7 @@ jobs:
         allowUpdates: true
         prerelease: true
         replacesArtifacts: true
+        omitBodyDuringUpdate: true
         tag: snapshot
 
   on-failure:
