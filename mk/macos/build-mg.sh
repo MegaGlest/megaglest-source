@@ -20,6 +20,15 @@ FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 COMPILATION_WITHOUT=0
 
+if command -v brew &> /dev/null
+then
+    echo "Found brew. Adding links. (Note, this assumes system-wide brew install.)"
+	export PATH="/opt/homebrew/opt/curl/bin:/opt/homebrew/opt/zstd/bin:/opt/homebrew/opt/brotli/bin:$PATH"
+	export LDFLAGS="-L/opt/homebrew/opt/curl/lib -L/opt/homebrew/opt/zstd/lib -L/opt/homebrew/opt/brotli/lib"
+	export CPPFLAGS="-I/opt/homebrew/opt/curl/include -L/opt/homebrew/opt/zstd/include -L/opt/homebrew/opt/brotli/include"
+	export PKG_CONFIG_PATH="/opt/homebrew/opt/curl/lib/pkgconfig:/opt/homebrew/opt/zstd/lib/pkgconfig:/opt/homebrew/opt/brotli/lib/pkgconfig"
+fi
+
 while getopts "c:defhl:mnwxb" option; do
 	case "${option}" in
 		c) CPU_COUNT=${OPTARG};;
