@@ -115,33 +115,17 @@ jobs:
           mk/windoze/*.ini
           !mk/windoze/glest-dev.ini
 
-  # build-macos:
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       arch: [x64]
-  #       os: [macos-latest]
-  #       compiler: [clang]
-  #   runs-on: ${{ matrix.os }}
+  build-macos:
+    strategy:
+      fail-fast: false
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
 
-  #   steps:
-  #   - uses: actions/checkout@v2
-
-  #   - name: Get dependencies
-  #     run: |
-  #       brew install pkg-config cmake sdl2 lua jpeg libpng freetype ftgl libogg glew libvorbis cppunit fribidi miniupnpc curl wxmac xquartz zstd xml2 openldap
-
-  #   - name: Bulid MegaGlest With Clang Compiler
-  #     if: ${{ matrix.compiler == 'clang' }}
-  #     env:
-  #       CC: clang
-  #       CXX: clang++
-  #     run: |
-  #       # Path hack to get curl working.
-  #       export PATH=/usr/local/Cellar/curl/7.77.0/bin:$PATH
-  #       mk/macos/build-mg.sh
-   # - name: Test
-   #   working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-   #   run: ctest -C ${{env.BUILD_TYPE}}
+    - name: Get dependencies
+      run: |
+        mk/macos/setupBuildDeps.sh
+    - name: Bulid MegaGlest With Clang Compiler
+      run: |
+        mk/macos/build-mg.sh -m
+        make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
