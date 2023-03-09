@@ -3,6 +3,8 @@ brew update && \
 brew install cmake \
     cppunit \
     curl \
+    expat \
+    fontconfig \
     freetype \
     fribidi \
     ftgl \
