@@ -165,14 +165,14 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 	ENDIF()
 
-	# Broken for now on apple. Leave off.
-	IF(APPLE)
-		OPTION(WANT_USE_FontConfig "use the library fontconfig" OFF)
-	ELSE()
-		OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
-	ENDIF()
+	OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
 	IF(WANT_USE_FontConfig)
 	        FIND_PACKAGE(FontConfig)
+			IF(APPLE)
+				# Apple/ brew can't collect transitive deps.
+				FIND_PACKAGE(EXPAT 2.2.8 MODULE REQUIRED)
+				SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} EXPAT::EXPAT)
+			ENDIF()
 	        IF(FONTCONFIG_FOUND)
                     MESSAGE(STATUS "**NOTE: FontConfig support was detected and enabled.")
 	            SET(HAVE_FONTCONFIG 1)
