@@ -165,7 +165,12 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 	ENDIF()
 
-    OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
+	# Broken for now on apple. Leave off.
+	IF(APPLE)
+		OPTION(WANT_USE_FontConfig "use the library fontconfig" OFF)
+	ELSE()
+		OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
+	ENDIF()
 	IF(WANT_USE_FontConfig)
 	        FIND_PACKAGE(FontConfig)
 	        IF(FONTCONFIG_FOUND)
