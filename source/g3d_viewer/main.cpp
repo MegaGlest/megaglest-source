@@ -2026,8 +2026,6 @@ GlCanvas::~GlCanvas() {
 }
 
 void GlCanvas::setCurrentGLContext() {
-#ifndef __APPLE__
-
 #if wxCHECK_VERSION(3, 0, 0)
 	//printf("Setting glcontext 3x!\n");
 
@@ -2051,9 +2049,6 @@ void GlCanvas::setCurrentGLContext() {
 		wxGLCanvas::SetCurrent(*this->context);
 		//printf("Set ctx2 [%p]\n",this->context);
 	}
-#else
-	this->SetCurrent();
-#endif
 }
 
 // for the mousewheel
