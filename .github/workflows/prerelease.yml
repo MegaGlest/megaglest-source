@@ -32,7 +32,7 @@ jobs:
               archive_format: 'zip',
           });
           let fs = require('fs');
-          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows-snapshot.zip`, Buffer.from(download.data));
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows.zip`, Buffer.from(download.data));
 
           matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
             return artifact.name == "megaglest-x64-ubuntu"
@@ -47,16 +47,13 @@ jobs:
 
     - name: 'Prepare artifacts'
       run: |
-        mkdir AppImage-Snapshot && cd AppImage-Snapshot
-        unzip ../megaglest-x64-ubuntu.zip
-        chmod +x *.AppImage g2xml xml2g
-        tar cfJ megaglest-x64-appimage-snapshot.tar.xz *.AppImage g2xml xml2g
-        mv megaglest-x64-appimage-snapshot.tar.xz ..
-        cd -
+        unzip megaglest-x64-ubuntu.zip
+        unzip megaglest-x64-windows.zip
+        rm megaglest-x64-windows.zip megaglest-x64-ubuntu.zip
     - name: 'Prerelease'
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "megaglest-x64-appimage-snapshot.tar.xz,megaglest-x64-windows-snapshot.zip"
+        artifacts: "*.tar.xz,*.zip"
         body: "MegaGlest Snapshot Release"
         allowUpdates: true
         prerelease: true

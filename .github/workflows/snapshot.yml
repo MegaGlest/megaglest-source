@@ -18,17 +18,20 @@ jobs:
     container: jammyjamjamman/megaglest-build-env:bionic
     steps:
     - uses: actions/checkout@v3
+    - name: Git Hash
+      run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
     - name: Build
-      run:  |
-        mk/linux/build-appimage.sh
+      run: mk/linux/build-appimage.sh
+    - name: Pack
+      run: |
+        cd mk/linux/
+        tar cfJ megaglest-x64-appimage-$VERSION.tar.xz *.AppImage g2xml xml2g
     - name: Create MegaGlest Snapshot
       uses: actions/upload-artifact@v3
       with:
         name: megaglest-x64-ubuntu
         path: |
-          mk/linux/MegaGlest*.AppImage
-          mk/linux/g2xml
-          mk/linux/xml2g
+          mk/linux/*.tar.xz
   transfer-windows-build:
     runs-on: ubuntu-latest
     permissions:
@@ -58,13 +61,13 @@ jobs:
     - name: 'Prepare artifacts'
       run: |
         unzip megaglest-x64-windows.zip
+        rm megaglest-x64-windows.zip
     - name: Create MegaGlest Windows Snapshot
       uses: actions/upload-artifact@v3
       with:
         name: megaglest-x64-windows
         path: |
-          *.exe
-          *.ini
+          *.zip
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}

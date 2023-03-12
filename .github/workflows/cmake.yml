@@ -103,12 +103,18 @@ jobs:
         cd mk/windoze
         ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
 
+    - name: Git Hash
+      run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+    
     - name: Prepare Snapshot
       run: |
         cd mk\windoze
+        Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
         cp ..\shared\*.ini .
         $7zPath = $(Get-Command 7z).Source
         cp $7zPath .
+        Remove-Item glest-dev.ini
+        Compress-Archive -Path *.exe,*.ini -DestinationPath megaglest-x64-windows-$env:VERSION.zip
         cd ../..
 
     - name: Create Mega Glest Snapshot
@@ -116,10 +122,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: megaglest-x64-windows
-        path: |
-          mk/windoze/*.exe
-          mk/windoze/*.ini
-          !mk/windoze/glest-dev.ini
+        path: mk/windoze/*.zip
         retention-days: 1
   on-dockerbuild-failure:
     runs-on: ubuntu-latest
