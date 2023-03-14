@@ -39,7 +39,7 @@ SNAPSHOTNAME="mg-binary-$kernel"
 SN_PACKAGE="$SNAPSHOTNAME-$VERSION-$SOURCE_BRANCH.$ARCHIVE_TYPE"
 RELEASENAME="megaglest-binary-$kernel"
 PACKAGE="$RELEASENAME-$VERSION.$ARCHIVE_TYPE"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
+RELEASEDIR_ROOT="$CURRENTDIR/../../release"
 
 if [ "$SOURCE_BRANCH" != "" ] && [ "$SOURCE_BRANCH" != "master" ] && [ "$(echo "$VERSION" | grep '\-dev$')" != "" ]; then
     RELEASENAME="$SNAPSHOTNAME"; PACKAGE="$SN_PACKAGE"

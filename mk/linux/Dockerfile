@@ -1,14 +1,14 @@
 # Dockerfile for building mg appimage
 FROM ubuntu:bionic
 
-ENV SHELL=/bin/bash
-
-RUN apt update && apt -y upgrade && \
-    apt install -y \
+RUN apt update \
+    && apt install -y software-properties-common \
+    && add-apt-repository ppa:git-core/ppa \
+    && apt update && apt -y upgrade \
+    && apt install -y \
     build-essential \
     cmake \
-    g++ \
-    gcc \
+    git \
     imagemagick \
     libbrotli-dev \
     libcppunit-dev \
@@ -40,7 +40,8 @@ RUN apt update && apt -y upgrade && \
     libx11-dev \
     libxml2-dev \
     p7zip-full \
-    wget
+    wget \
+    && rm -rf /var/lib/apt/lists
 
 # Install linuxdeploy
 ENV TOOLS_DIR="/tools"

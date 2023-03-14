@@ -45,15 +45,27 @@ jobs:
           });
           fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-ubuntu.zip`, Buffer.from(download.data));
 
+          matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "megaglest-x64-macos"
+          })[0];
+          download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+          });
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-macos.zip`, Buffer.from(download.data));
+
     - name: 'Prepare artifacts'
       run: |
         unzip megaglest-x64-ubuntu.zip
         unzip megaglest-x64-windows.zip
-        rm megaglest-x64-windows.zip megaglest-x64-ubuntu.zip
+        unzip megaglest-x64-macos.zip
+        rm megaglest-x64-windows.zip megaglest-x64-ubuntu.zip megaglest-x64-macos.zip
     - name: 'Prerelease'
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "*.tar.xz,*.zip"
+        artifacts: "*.tar.xz,*.zip,*.tar.bz2"
         body: "MegaGlest Snapshot Release"
         allowUpdates: true
         prerelease: true
