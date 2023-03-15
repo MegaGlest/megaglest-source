@@ -54,10 +54,26 @@ private:
 	static string scenarioPath;
 	static string tutorialPath;
 
+#ifndef NO_APPIMAGE
+	static string appDir;
+	static string appimageDir;
+#endif
+
 protected:
 	void processTextLine(bool is_utf8_language, char *lineBuffer);
 
 public:
+
+#ifndef NO_APPIMAGE
+	static void setAppDirPath();
+	static string appendAppDirPath(string value);
+	static string appendAppImagePath(string value);
+
+#ifdef APPIMAGE_NODATA
+	static void setAppimageDirPath();
+#endif
+#endif
+
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
 
