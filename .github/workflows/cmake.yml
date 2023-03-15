@@ -136,6 +136,7 @@ jobs:
         exit 1
 
   build-macos:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
     runs-on: macos-latest
