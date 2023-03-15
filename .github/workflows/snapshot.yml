@@ -13,7 +13,7 @@ jobs:
   appimage-snapshot:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    container: jammyjamjamman/megaglest-build-env:bionic
+    container: ${{ secrets.DOCKER_HUB_USERNAME }}/megaglest-build-env:bionic
     steps:
     - uses: actions/checkout@v3
   
