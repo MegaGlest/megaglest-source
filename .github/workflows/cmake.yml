@@ -8,9 +8,14 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ develop ]
+  workflow_run:
+    workflows: [Docker Image]
+    types: [completed]
+    branches: [develop]
 
 jobs:
   build-linux:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -41,6 +46,7 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -97,23 +103,37 @@ jobs:
         cd mk/windoze
         ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
 
+    - name: Git Hash
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+    
     - name: Prepare Snapshot
+      if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
         cd mk\windoze
+        Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
         cp ..\shared\*.ini .
         $7zPath = $(Get-Command 7z).Source
         cp $7zPath .
+        Remove-Item glest-dev.ini
+        Compress-Archive -Path *.exe,*.ini -DestinationPath megaglest-$env:VERSION-x64-windows.zip
         cd ../..
 
-    - name: Create Mega Glest Snapshot
+    - name: Create MegaGlest Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
       uses: actions/upload-artifact@v3
       with:
         name: megaglest-x64-windows
-        path: |
-          mk/windoze/*.exe
-          mk/windoze/*.ini
-          !mk/windoze/glest-dev.ini
+        retention-days: 1
+        path: mk/windoze/*.zip
+  
+  on-dockerbuild-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+    - run: |
+        echo 'The triggering workflow failed'
+        exit 1
 
   build-macos:
     strategy:
@@ -125,7 +145,29 @@ jobs:
     - name: Get dependencies
       run: |
         mk/macos/setupBuildDeps.sh
-    - name: Bulid MegaGlest With Clang Compiler
+
+    - name: Build MegaGlest With Clang Compiler
       run: |
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
+    
+    - name: Git Hash
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      run: |
+        echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+  
+    - name: Prepare Snapshot
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      run: |
+        cd mk/macos
+        ./make-binary-archive.sh
+        cd -
+        mv release/mg-binary-macos*.tar.bz2 release/megaglest-$VERSION-x64-macos.tar.bz2
+
+    - name: Create MegaGlest Snapshot
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: megaglest-x64-macos
+        retention-days: 1
+        path: release/*.tar.bz2

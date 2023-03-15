@@ -1,6 +1,7 @@
 ## Linux
 .*
 *~
+*.AppImage
 # Gimp
 *.xcf
 # Vim
