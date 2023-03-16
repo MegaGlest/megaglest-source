@@ -4201,6 +4201,13 @@ int glestMain(int argc, char** argv) {
 	bool foundInvalidArgs = false;
 	preCacheThread=NULL;
 
+#ifndef NO_APPIMAGE
+	Properties::setAppDirPath();
+#ifdef APPIMAGE_NODATA
+	Properties::setAppimageDirPath();
+#endif
+#endif
+
 	Properties::setApplicationPath(executable_path(argv[0]));
 	Properties::setApplicationDataPath(executable_path(argv[0]));
 	Properties::setGameVersion(glestVersionString);
@@ -4213,7 +4220,12 @@ int glestMain(int argc, char** argv) {
     PlatformExceptionHandler::disableBacktrace= disableBacktrace;
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
+    if(SystemFlags::VERBOSE_MODE_ENABLED) 
+#ifndef NO_APPIMAGE
+		printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",Properties::appendAppImagePath(formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH))).c_str());
+#else
+		printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
+#endif
 #endif
 
 	const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);

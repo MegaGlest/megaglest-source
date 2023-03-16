@@ -309,6 +309,13 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
 
+#ifndef NO_APPIMAGE
+	Properties::setAppDirPath();
+#ifdef APPIMAGE_NODATA
+	Properties::setAppimageDirPath();
+#endif
+#endif
+
 	lastanim = 0;
 	model= NULL;
 
@@ -2026,8 +2033,6 @@ GlCanvas::~GlCanvas() {
 }
 
 void GlCanvas::setCurrentGLContext() {
-#ifndef __APPLE__
-
 #if wxCHECK_VERSION(3, 0, 0)
 	//printf("Setting glcontext 3x!\n");
 
@@ -2051,9 +2056,6 @@ void GlCanvas::setCurrentGLContext() {
 		wxGLCanvas::SetCurrent(*this->context);
 		//printf("Set ctx2 [%p]\n",this->context);
 	}
-#else
-	this->SetCurrent();
-#endif
 }
 
 // for the mousewheel
