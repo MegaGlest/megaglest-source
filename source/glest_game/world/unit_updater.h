@@ -149,7 +149,7 @@ private:
     bool attackerOnSight(Unit *unit, Unit **enemyPtr, bool evalMode=false);
     bool attackableOnSight(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast, bool evalMode=false);
     bool attackableOnRange(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast, bool evalMode=false);
-	bool unitOnRange(Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast,bool evalMode=false);
+	bool unitOnRange(Unit *unit, int minRange, int range, Unit **enemyPtr, const AttackSkillType *ast,bool evalMode=false);
 	void enemiesAtDistance(const Unit *unit, const Unit *priorityUnit, int distance, vector<Unit*> &enemies);
 
 	void spawn(Unit *unit,string spawnUnit,int spawnUnitcount,int healthMin,int healthMax,int probability);

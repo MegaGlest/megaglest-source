@@ -855,6 +855,7 @@ AttackSkillType::AttackSkillType() {
 	attackStrength=0;
 	attackVar=0;
 	attackRange=0;
+	attackMinRange=0;
 	attackStartTime=0;
 	splashDamageAll=false;
 }
@@ -892,6 +893,8 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
     }
 
     attackRange= sn->getChild("attack-range")->getAttribute("value")->getIntValue();
+	if (sn->getChild("attack-range")->hasAttribute("min"))
+		attackMinRange= sn->getChild("attack-range")->getAttribute("min")->getIntValue();
 	string attackTypeName= sn->getChild("attack-type")->getAttribute("value")->getRestrictedValue();
 	attackType= tt->getAttackType(attackTypeName);
 	attackStartTime= sn->getChild("attack-start-time")->getAttribute("value")->getFloatValue();
@@ -1067,6 +1070,12 @@ int AttackSkillType::getTotalAttackStrength(const TotalUpgrade *totalUpgrade) co
 
 int AttackSkillType::getTotalAttackRange(const TotalUpgrade *totalUpgrade) const{
 	int result = attackRange + totalUpgrade->getAttackRange(this);
+	result = max(0,result);
+	return result;
+}
+
+int AttackSkillType::getTotalAttackMinRange(const TotalUpgrade *totalUpgrade) const{
+	int result = attackMinRange; // + totalUpgrade->getAttackMinRange(this);
 	result = max(0,result);
 	return result;
 }

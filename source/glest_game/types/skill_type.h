@@ -299,6 +299,7 @@ private:
     int attackStrength;
     int attackVar;
     int attackRange;
+	int attackMinRange;
 	const AttackType *attackType;
 	bool attackFields[fieldCount];
 	float attackStartTime;
@@ -327,6 +328,7 @@ public:
 	inline int getAttackStrength() const				{return attackStrength;}
 	inline int getAttackVar() const					{return attackVar;}
 	inline int getAttackRange() const					{return attackRange;}
+	inline int getAttackMinRange() const				{return attackMinRange;}
 	inline const AttackType *getAttackType() const		{return attackType;}
 	inline bool getAttackField(Field field) const		{return attackFields[field];}
 	inline float getAttackStartTime() const			{return attackStartTime;}
@@ -347,6 +349,7 @@ public:
 	//misc
 	int getTotalAttackStrength(const TotalUpgrade *totalUpgrade) const;
 	int getTotalAttackRange(const TotalUpgrade *totalUpgrade) const;
+	int getTotalAttackMinRange(const TotalUpgrade *totalUpgrade) const;
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
 	virtual int getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const;
 

@@ -2821,17 +2821,18 @@ bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct) {
 
 bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr, bool evalMode){
 	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
-	return unitOnRange(unit, range, rangedPtr, NULL,evalMode);
+	return unitOnRange(unit, 5,range, rangedPtr, NULL,evalMode);
 }
 
 bool UnitUpdater::attackableOnSight(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast, bool evalMode) {
 	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
-	return unitOnRange(unit, range, rangedPtr, ast, evalMode);
+	return unitOnRange(unit, 5, range, rangedPtr, ast, evalMode);
 }
 
 bool UnitUpdater::attackableOnRange(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast,bool evalMode) {
+	int minRange= ast->getTotalAttackMinRange(unit->getTotalUpgrade());
 	int range= ast->getTotalAttackRange(unit->getTotalUpgrade());
-	return unitOnRange(unit, range, rangedPtr, ast, evalMode);
+	return unitOnRange(unit, minRange, range, rangedPtr, ast, evalMode);
 }
 
 bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vector<Unit*> &enemies,
@@ -2917,7 +2918,7 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 }
 
 //if the unit has any enemy on range
-bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
+bool UnitUpdater::unitOnRange(Unit *unit, int minRange, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast,bool evalMode) {
 	bool result=false;
 
@@ -2943,19 +2944,22 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 							  unit,commandTarget) == false) {
 
 		//foundInCache = false;
-		//nearby cells
+		// Check cells in a box around unit.
 		UnitRangeCellsLookupItem cacheItem;
 		for(int i = center.x - range; i < center.x + range + size; ++i) {
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
-				//cells inside map and in range
+				// Check cells in box inside max range and outside min range.
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
+				int intCellDist = streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j))));
 #else
-				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+				int intCellDist = floor(floatCenter.dist(Vec2f((float)i, (float)j)));
 #endif
+				if (map->isInside(i, j) 
+					&& intCellDist <= (range+1)
+					&& intCellDist >= minRange){
+					
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
-
 					cacheItem.rangeCellList.push_back(cell);
 				}
 			}
