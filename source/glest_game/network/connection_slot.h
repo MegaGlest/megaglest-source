@@ -12,9 +12,9 @@
 #ifndef _GLEST_GAME_CONNECTIONSLOT_H_
 #define _GLEST_GAME_CONNECTIONSLOT_H_
 
-#include "socket.h"
-#include "network_interface.h"
 #include "base_thread.h"
+#include "network_interface.h"
+#include "socket.h"
 #include <time.h>
 #include <vector>
 
@@ -24,7 +24,8 @@ using Shared::Platform::ServerSocket;
 using Shared::Platform::Socket;
 using std::vector;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 class ServerInterface;
 class ConnectionSlot;
@@ -33,33 +34,27 @@ class ConnectionSlot;
 //	class ConnectionSlotThread
 // =====================================================
 
-enum ConnectionSlotEventType
-{
-	eNone,
-    eReceiveSocketData,
-    eSendSocketData
-};
+enum ConnectionSlotEventType { eNone, eReceiveSocketData, eSendSocketData };
 
 class ConnectionSlotEvent {
 public:
+  ConnectionSlotEvent() {
+    eventType = eNone;
+    triggerId = -1;
+    connectionSlot = NULL;
+    networkMessage = NULL;
+    socketTriggered = false;
+    eventCompleted = false;
+    eventId = -1;
+  }
 
-	ConnectionSlotEvent() {
-		eventType = eNone;
-		triggerId = -1;
-		connectionSlot = NULL;
-		networkMessage = NULL;
-		socketTriggered = false;
-		eventCompleted = false;
-		eventId = -1;
-	}
-
-	int64 triggerId;
-	ConnectionSlot* connectionSlot;
-	ConnectionSlotEventType eventType;
-	NetworkMessage *networkMessage;
-	bool socketTriggered;
-	bool eventCompleted;
-	int64 eventId;
+  int64 triggerId;
+  ConnectionSlot *connectionSlot;
+  ConnectionSlotEventType eventType;
+  NetworkMessage *networkMessage;
+  bool socketTriggered;
+  bool eventCompleted;
+  int64 eventId;
 };
 
 //
@@ -67,216 +62,238 @@ public:
 //
 class ConnectionSlotCallbackInterface {
 public:
-	virtual bool isClientConnected(int index) = 0;
-	virtual bool getAllowInGameConnections() const = 0;
-	virtual ConnectionSlot *getSlot(int index, bool lockMutex) = 0;
-	virtual Mutex *getSlotMutex(int index) = 0;
+  virtual bool isClientConnected(int index) = 0;
+  virtual bool getAllowInGameConnections() const = 0;
+  virtual ConnectionSlot *getSlot(int index, bool lockMutex) = 0;
+  virtual Mutex *getSlotMutex(int index) = 0;
 
-	virtual void slotUpdateTask(ConnectionSlotEvent *event) = 0;
-	virtual ~ConnectionSlotCallbackInterface() {}
+  virtual void slotUpdateTask(ConnectionSlotEvent *event) = 0;
+  virtual ~ConnectionSlotCallbackInterface() {}
 };
 
-class ConnectionSlotThread : public BaseThread, public SlaveThreadControllerInterface
-{
+class ConnectionSlotThread : public BaseThread,
+                             public SlaveThreadControllerInterface {
 protected:
+  ConnectionSlotCallbackInterface *slotInterface;
+  Semaphore semTaskSignalled;
+  Mutex *triggerIdMutex;
+  vector<ConnectionSlotEvent> eventList;
+  int slotIndex;
+  MasterSlaveThreadController *masterController;
 
-	ConnectionSlotCallbackInterface *slotInterface;
-	Semaphore semTaskSignalled;
-	Mutex *triggerIdMutex;
-	vector<ConnectionSlotEvent> eventList;
-	int slotIndex;
-	MasterSlaveThreadController *masterController;
+  Mutex *triggerGameStarted;
+  bool gameStarted;
 
-	Mutex *triggerGameStarted;
-	bool gameStarted;
+  virtual void setQuitStatus(bool value);
+  virtual void setTaskCompleted(int eventId);
 
-	virtual void setQuitStatus(bool value);
-	virtual void setTaskCompleted(int eventId);
-
-	void slotUpdateTask(ConnectionSlotEvent *event);
+  void slotUpdateTask(ConnectionSlotEvent *event);
 
 public:
-	explicit ConnectionSlotThread(int slotIndex);
-	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
-	virtual ~ConnectionSlotThread();
+  explicit ConnectionSlotThread(int slotIndex);
+  ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,
+                       int slotIndex);
+  virtual ~ConnectionSlotThread();
 
-	bool getGameStarted();
-	void setGameStarted(bool value);
+  bool getGameStarted();
+  void setGameStarted(bool value);
 
-	virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
-	virtual void signalSlave(void *userdata);
+  virtual void setMasterController(MasterSlaveThreadController *master) {
+    masterController = master;
+  }
+  virtual void signalSlave(void *userdata);
 
-    virtual void execute();
-    void signalUpdate(ConnectionSlotEvent *event);
-    bool isSignalCompleted(ConnectionSlotEvent *event);
+  virtual void execute();
+  void signalUpdate(ConnectionSlotEvent *event);
+  bool isSignalCompleted(ConnectionSlotEvent *event);
 
-    int getSlotIndex() const {return slotIndex; }
-    void setSlotIndex(int index) { this->slotIndex = index; }
+  int getSlotIndex() const { return slotIndex; }
+  void setSlotIndex(int index) { this->slotIndex = index; }
 
-    void purgeCompletedEvents();
-    //void purgeAllEvents();
-    void setAllEventsCompleted();
+  void purgeCompletedEvents();
+  // void purgeAllEvents();
+  void setAllEventsCompleted();
 
-    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+  virtual bool canShutdown(bool deleteSelfIfShutdownDelayed = false);
 };
 
 // =====================================================
 //	class ConnectionSlot
 // =====================================================
 
-class ConnectionSlot: public NetworkInterface {
+class ConnectionSlot : public NetworkInterface {
 private:
-	ServerInterface* serverInterface;
+  ServerInterface *serverInterface;
 
-	Mutex *mutexSocket;
-	Socket* socket;
-	int playerIndex;
-	string name;
-	bool ready;
-	vector<std::pair<string,uint32> > vctFileList;
-	bool receivedNetworkGameStatus;
-	time_t connectedTime;
-	bool gotIntro;
+  Mutex *mutexSocket;
+  Socket *socket;
+  int playerIndex;
+  string name;
+  bool ready;
+  vector<std::pair<string, uint32>> vctFileList;
+  bool receivedNetworkGameStatus;
+  time_t connectedTime;
+  bool gotIntro;
 
-	Mutex *mutexCloseConnection;
+  Mutex *mutexCloseConnection;
 
-	Mutex *mutexPendingNetworkCommandList;
-	vector<NetworkCommand> vctPendingNetworkCommandList;
-	ConnectionSlotThread* slotThreadWorker;
-	int currentFrameCount;
-	int currentLagCount;
-	time_t lastReceiveCommandListTime;
-	bool gotLagCountWarning;
-	string versionString;
-	int sessionKey;
-	uint32 connectedRemoteIPAddress;
-	int playerStatus;
-	string playerLanguage;
-	string playerUUID;
-	string platform;
+  Mutex *mutexPendingNetworkCommandList;
+  vector<NetworkCommand> vctPendingNetworkCommandList;
+  ConnectionSlotThread *slotThreadWorker;
+  int currentFrameCount;
+  int currentLagCount;
+  time_t lastReceiveCommandListTime;
+  bool gotLagCountWarning;
+  string versionString;
+  int sessionKey;
+  uint32 connectedRemoteIPAddress;
+  int playerStatus;
+  string playerLanguage;
+  string playerUUID;
+  string platform;
 
-	bool skipLagCheck;
-	bool joinGameInProgress;
-	bool canAcceptConnections;
-	bool startInGameConnectionLaunch;
-	bool pauseForInGameConnection;
-	bool unPauseForInGameConnection;
-	bool sentSavedGameInfo;
+  bool skipLagCheck;
+  bool joinGameInProgress;
+  bool canAcceptConnections;
+  bool startInGameConnectionLaunch;
+  bool pauseForInGameConnection;
+  bool unPauseForInGameConnection;
+  bool sentSavedGameInfo;
 
-	int autoPauseGameCountForLag;
+  int autoPauseGameCountForLag;
 
 public:
-	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
-	~ConnectionSlot();
+  ConnectionSlot(ServerInterface *serverInterface, int playerIndex);
+  ~ConnectionSlot();
 
-	int getAutoPauseGameCountForLag();
-	void incrementAutoPauseGameCountForLag();
+  int getAutoPauseGameCountForLag();
+  void incrementAutoPauseGameCountForLag();
 
-	bool getGameStarted();
-	void setGameStarted(bool value);
+  bool getGameStarted();
+  void setGameStarted(bool value);
 
-	bool getStartInGameConnectionLaunch() const { return startInGameConnectionLaunch; }
-	void setStartInGameConnectionLaunch(bool value) { startInGameConnectionLaunch = value; }
+  bool getStartInGameConnectionLaunch() const {
+    return startInGameConnectionLaunch;
+  }
+  void setStartInGameConnectionLaunch(bool value) {
+    startInGameConnectionLaunch = value;
+  }
 
-	bool getPauseForInGameConnection() const { return pauseForInGameConnection; }
-	void setPauseForInGameConnection(bool value) { pauseForInGameConnection = value; }
+  bool getPauseForInGameConnection() const { return pauseForInGameConnection; }
+  void setPauseForInGameConnection(bool value) {
+    pauseForInGameConnection = value;
+  }
 
-	bool getUnPauseForInGameConnection() const { return unPauseForInGameConnection; }
-	void setUnPauseForInGameConnection(bool value) { unPauseForInGameConnection = value; }
+  bool getUnPauseForInGameConnection() const {
+    return unPauseForInGameConnection;
+  }
+  void setUnPauseForInGameConnection(bool value) {
+    unPauseForInGameConnection = value;
+  }
 
-	bool getSkipLagCheck() const { return skipLagCheck; }
-	bool getJoinGameInProgress() const { return joinGameInProgress; }
+  bool getSkipLagCheck() const { return skipLagCheck; }
+  bool getJoinGameInProgress() const { return joinGameInProgress; }
 
-	bool getSentSavedGameInfo() const { return sentSavedGameInfo; }
-	void setSentSavedGameInfo(bool value) { sentSavedGameInfo = value; }
+  bool getSentSavedGameInfo() const { return sentSavedGameInfo; }
+  void setSentSavedGameInfo(bool value) { sentSavedGameInfo = value; }
 
-	ConnectionSlotThread *getWorkerThread() { return slotThreadWorker; }
+  ConnectionSlotThread *getWorkerThread() { return slotThreadWorker; }
 
-    void update(bool checkForNewClients,int lockedSlotIndex);
-	void setPlayerIndex(int value);
-	int getPlayerIndex() const {return playerIndex;}
+  void update(bool checkForNewClients, int lockedSlotIndex);
+  void setPlayerIndex(int value);
+  int getPlayerIndex() const { return playerIndex; }
 
-	uint32 getConnectedRemoteIPAddress() const { return connectedRemoteIPAddress; }
+  uint32 getConnectedRemoteIPAddress() const {
+    return connectedRemoteIPAddress;
+  }
 
-	void setReady();
-	const string &getName() const	{return name;}
-	const string &getUUID() const	{return playerUUID;}
-	const string &getPlatform() const { return platform; }
-	void setName(string value)      {name = value;}
-	bool isReady() const			{return ready;}
+  void setReady();
+  const string &getName() const { return name; }
+  const string &getUUID() const { return playerUUID; }
+  const string &getPlatform() const { return platform; }
+  void setName(string value) { name = value; }
+  bool isReady() const { return ready; }
 
-	virtual std::string getIpAddress(bool mutexLock=true);
+  virtual std::string getIpAddress(bool mutexLock = true);
 
-	virtual Socket* getSocket(bool mutexLock=true);
-	pair<bool,Socket*> getSocketInfo();
+  virtual Socket *getSocket(bool mutexLock = true);
+  pair<bool, Socket *> getSocketInfo();
 
-	virtual void close();
-	//virtual bool getFogOfWar();
+  virtual void close();
+  // virtual bool getFogOfWar();
 
-	bool getReceivedNetworkGameStatus() const { return receivedNetworkGameStatus; }
-	void setReceivedNetworkGameStatus(bool value) { receivedNetworkGameStatus = value; }
+  bool getReceivedNetworkGameStatus() const {
+    return receivedNetworkGameStatus;
+  }
+  void setReceivedNetworkGameStatus(bool value) {
+    receivedNetworkGameStatus = value;
+  }
 
-	bool hasValidSocketId();
-	virtual bool getConnectHasHandshaked() const { return gotIntro; }
-	std::vector<std::string> getThreadErrorList() const { return threadErrorList; }
-	void clearThreadErrorList() { threadErrorList.clear(); }
+  bool hasValidSocketId();
+  virtual bool getConnectHasHandshaked() const { return gotIntro; }
+  std::vector<std::string> getThreadErrorList() const {
+    return threadErrorList;
+  }
+  void clearThreadErrorList() { threadErrorList.clear(); }
 
-	vector<NetworkCommand> getPendingNetworkCommandList(bool clearList=false);
-	//void clearPendingNetworkCommandList();
+  vector<NetworkCommand> getPendingNetworkCommandList(bool clearList = false);
+  // void clearPendingNetworkCommandList();
 
-	void signalUpdate(ConnectionSlotEvent *event);
-	bool updateCompleted(ConnectionSlotEvent *event);
+  void signalUpdate(ConnectionSlotEvent *event);
+  bool updateCompleted(ConnectionSlotEvent *event);
 
-	virtual void sendMessage(NetworkMessage* networkMessage);
-	int getCurrentFrameCount() const { return currentFrameCount; }
+  virtual void sendMessage(NetworkMessage *networkMessage);
+  int getCurrentFrameCount() const { return currentFrameCount; }
 
-	int getCurrentLagCount() const { return currentLagCount; }
-	void setCurrentLagCount(int value) { currentLagCount = value; }
+  int getCurrentLagCount() const { return currentLagCount; }
+  void setCurrentLagCount(int value) { currentLagCount = value; }
 
-	time_t getLastReceiveCommandListTime() const { return lastReceiveCommandListTime; }
+  time_t getLastReceiveCommandListTime() const {
+    return lastReceiveCommandListTime;
+  }
 
-	bool getLagCountWarning() const { return gotLagCountWarning; }
-	void setLagCountWarning(bool value) { gotLagCountWarning = value; }
+  bool getLagCountWarning() const { return gotLagCountWarning; }
+  void setLagCountWarning(bool value) { gotLagCountWarning = value; }
 
-	const string &getVersionString() const	{return versionString;}
+  const string &getVersionString() const { return versionString; }
 
-	void validateConnection();
-	virtual string getHumanPlayerName(int index=-1);
-	virtual int getHumanPlayerIndex() const {return playerIndex;}
+  void validateConnection();
+  virtual string getHumanPlayerName(int index = -1);
+  virtual int getHumanPlayerIndex() const { return playerIndex; }
 
-	int getNetworkPlayerStatus() const { return playerStatus;}
+  int getNetworkPlayerStatus() const { return playerStatus; }
 
-	string getNetworkPlayerLanguage() const { return playerLanguage; }
+  string getNetworkPlayerLanguage() const { return playerLanguage; }
 
-	time_t getConnectedTime() const { return connectedTime; }
-	int getSessionKey() const { return sessionKey; }
+  time_t getConnectedTime() const { return connectedTime; }
+  int getSessionKey() const { return sessionKey; }
 
-	void updateSlot(ConnectionSlotEvent *event);
-	virtual bool isConnected();
+  void updateSlot(ConnectionSlotEvent *event);
+  virtual bool isConnected();
 
-	PLATFORM_SOCKET getSocketId();
+  PLATFORM_SOCKET getSocketId();
 
-	void setCanAcceptConnections(bool value) { canAcceptConnections = value; }
-	bool getCanAcceptConnections() const { return canAcceptConnections; }
+  void setCanAcceptConnections(bool value) { canAcceptConnections = value; }
+  bool getCanAcceptConnections() const { return canAcceptConnections; }
 
-	virtual void saveGame(XmlNode *rootNode) {};
+  virtual void saveGame(XmlNode *rootNode){};
 
-	//void resetJoinGameInProgressFlags();
-	void setJoinGameInProgressFlags();
+  // void resetJoinGameInProgressFlags();
+  void setJoinGameInProgressFlags();
 
 protected:
+  Mutex *getServerSynchAccessor();
+  std::vector<std::string> threadErrorList;
+  Mutex *socketSynchAccessor;
 
-	Mutex * getServerSynchAccessor();
-	std::vector<std::string> threadErrorList;
-	Mutex *socketSynchAccessor;
+  void setSocket(Socket *newSocket);
+  void deleteSocket();
+  virtual void update() {}
 
-	void setSocket(Socket *newSocket);
-	void deleteSocket();
-	virtual void update() {}
-
-	bool hasDataToRead();
+  bool hasDataToRead();
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

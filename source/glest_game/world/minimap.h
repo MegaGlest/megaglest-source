@@ -13,32 +13,29 @@
 #define _GLEST_GAME_MINIMAP_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
+#include "leak_dumper.h"
 #include "pixmap.h"
 #include "texture.h"
 #include "xml_parser.h"
-#include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
-using Shared::Graphics::Vec4f;
-using Shared::Graphics::Vec3f;
-using Shared::Graphics::Vec2i;
 using Shared::Graphics::Pixmap2D;
 using Shared::Graphics::Texture2D;
+using Shared::Graphics::Vec2i;
+using Shared::Graphics::Vec3f;
+using Shared::Graphics::Vec4f;
 using Shared::Xml::XmlNode;
 
 class World;
 class GameSettings;
 
-enum ExplorationState{
-    esNotExplored,
-    esExplored,
-    esVisible
-};
+enum ExplorationState { esNotExplored, esExplored, esVisible };
 
 // =====================================================
 // 	class Minimap
@@ -46,49 +43,51 @@ enum ExplorationState{
 /// State of the in-game minimap
 // =====================================================
 
-class Minimap{
+class Minimap {
 private:
-	Pixmap2D *fowPixmap0;
-	Pixmap2D *fowPixmap1;
-	Pixmap2D *fowPixmap1_default;
-	Pixmap2D *fowPixmap0Copy;
-	Pixmap2D *fowPixmap1Copy;
-	Pixmap2D *fowPixmap1Copy_default;
+  Pixmap2D *fowPixmap0;
+  Pixmap2D *fowPixmap1;
+  Pixmap2D *fowPixmap1_default;
+  Pixmap2D *fowPixmap0Copy;
+  Pixmap2D *fowPixmap1Copy;
+  Pixmap2D *fowPixmap1Copy_default;
 
-	Texture2D *tex;
-	Texture2D *fowTex;    //Fog Of War Texture2D
-	bool fogOfWar;
-	const GameSettings *gameSettings;
+  Texture2D *tex;
+  Texture2D *fowTex; // Fog Of War Texture2D
+  bool fogOfWar;
+  const GameSettings *gameSettings;
 
 private:
-	static const float exploredAlpha;
+  static const float exploredAlpha;
 
 public:
-    void init(int x, int y, const World *world, bool fogOfWar);
-	Minimap();
-	~Minimap();
+  void init(int x, int y, const World *world, bool fogOfWar);
+  Minimap();
+  ~Minimap();
 
-	const Texture2D *getFowTexture() const	{return fowTex;}
-	const Texture2D *getTexture() const		{return tex;}
+  const Texture2D *getFowTexture() const { return fowTex; }
+  const Texture2D *getTexture() const { return tex; }
 
-	void incFowTextureAlphaSurface(const Vec2i sPos, float alpha, bool isIncrementalUpdate=false);
-	void resetFowTex();
-	void updateFowTex(float t);
-	void setFogOfWar(bool value);
+  void incFowTextureAlphaSurface(const Vec2i sPos, float alpha,
+                                 bool isIncrementalUpdate = false);
+  void resetFowTex();
+  void updateFowTex(float t);
+  void setFogOfWar(bool value);
 
-	void copyFowTex();
-	void restoreFowTex();
+  void copyFowTex();
+  void restoreFowTex();
 
-	void copyFowTexAlphaSurface();
-	void restoreFowTexAlphaSurface();
+  void copyFowTexAlphaSurface();
+  void restoreFowTexAlphaSurface();
 
-	void saveGame(XmlNode *rootNode);
-	void loadGame(const XmlNode *rootNode);
+  void saveGame(XmlNode *rootNode);
+  void loadGame(const XmlNode *rootNode);
 
 private:
-	void computeTexture(const World *world);
+  void computeTexture(const World *world);
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

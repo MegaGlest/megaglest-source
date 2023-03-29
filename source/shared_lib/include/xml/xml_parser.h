@@ -12,9 +12,9 @@
 #ifndef _SHARED_XML_XMLPARSER_H_
 #define _SHARED_XML_XMLPARSER_H_
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #if defined(WANT_XERCES)
 
@@ -22,43 +22,44 @@
 
 #endif
 
-#include "rapidxml/rapidxml.hpp"
 #include "data_types.h"
 #include "leak_dumper.h"
+#include "rapidxml/rapidxml.hpp"
 
 using namespace rapidxml;
 using namespace std;
 
 #if defined(WANT_XERCES)
 
-namespace XERCES_CPP_NAMESPACE{
-	class DOMImplementation;
-	class DOMDocument;
-	class DOMNode;
-	class DOMElement;
+namespace XERCES_CPP_NAMESPACE {
+class DOMImplementation;
+class DOMDocument;
+class DOMNode;
+class DOMElement;
 
 #if XERCES_VERSION_MAJOR < 3
-	class DOMBuilder;
+class DOMBuilder;
 #else
-	class DOMLSParser;
+class DOMLSParser;
 #endif
-}
+} // namespace XERCES_CPP_NAMESPACE
 
 XERCES_CPP_NAMESPACE_USE
 
 #endif
 
-namespace Shared { namespace Xml {
+namespace Shared {
+namespace Xml {
 
 enum xml_engine_parser_type {
 
 #if defined(WANT_XERCES)
-	XML_XERCES_ENGINE = 0,
+  XML_XERCES_ENGINE = 0,
 #endif
-	XML_RAPIDXML_ENGINE = 1
-} ;
+  XML_RAPIDXML_ENGINE = 1
+};
 
-const int strSize= 8094;
+const int strSize = 8094;
 
 class XmlIo;
 class XmlTree;
@@ -74,86 +75,98 @@ class XmlAttribute;
 
 class XmlIo {
 private:
-	static bool initialized;
-	XERCES_CPP_NAMESPACE::DOMImplementation *implementation;
+  static bool initialized;
+  XERCES_CPP_NAMESPACE::DOMImplementation *implementation;
 #if XERCES_VERSION_MAJOR < 3
-	XERCES_CPP_NAMESPACE::DOMBuilder *parser;
+  XERCES_CPP_NAMESPACE::DOMBuilder *parser;
 #else
-	XERCES_CPP_NAMESPACE::DOMLSParser *parser;
+  XERCES_CPP_NAMESPACE::DOMLSParser *parser;
 #endif
 
 protected:
-	XmlIo();
-	virtual ~XmlIo();
+  XmlIo();
+  virtual ~XmlIo();
 
-	void init();
+  void init();
 
 #if XERCES_VERSION_MAJOR < 3
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * getRootDOMDocument(const string &path, DOMBuilder *parser, bool noValidation);
+  XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *
+  getRootDOMDocument(const string &path, DOMBuilder *parser, bool noValidation);
 #else
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * getRootDOMDocument(const string &path, DOMLSParser *parser, bool noValidation);
+  XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *
+  getRootDOMDocument(const string &path, DOMLSParser *parser,
+                     bool noValidation);
 #endif
 
-	DOMNode *loadDOMNode(const string &path, bool noValidation=false);
-	virtual void releaseDOMParser();
+  DOMNode *loadDOMNode(const string &path, bool noValidation = false);
+  virtual void releaseDOMParser();
 
 public:
-	static XmlIo &getInstance();
+  static XmlIo &getInstance();
 
-	static bool isInitialized();
-	void cleanup();
+  static bool isInitialized();
+  void cleanup();
 
-	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackTrace=false);
-	void save(const string &path, const XmlNode *node);
+  XmlNode *load(const string &path,
+                const std::map<string, string> &mapTagReplacementValues,
+                bool noValidation = false, bool skipStackTrace = false);
+  void save(const string &path, const XmlNode *node);
 };
 
 #endif
 
 class XmlIoRapid {
 private:
-	static bool initialized;
+  static bool initialized;
 
 private:
-	XmlIoRapid();
-	void init();
+  XmlIoRapid();
+  void init();
 
 public:
-	static XmlIoRapid &getInstance();
-	~XmlIoRapid();
+  static XmlIoRapid &getInstance();
+  ~XmlIoRapid();
 
-	static bool isInitialized();
-	void cleanup();
+  static bool isInitialized();
+  void cleanup();
 
-	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackTrace=false,bool skipUpdatePathClimbingParts=false);
-	void save(const string &path, const XmlNode *node);
+  XmlNode *load(const string &path,
+                const std::map<string, string> &mapTagReplacementValues,
+                bool noValidation = false, bool skipStackTrace = false,
+                bool skipUpdatePathClimbingParts = false);
+  void save(const string &path, const XmlNode *node);
 };
 
 // =====================================================
 //	class XmlTree
 // =====================================================
 
-class XmlTree{
+class XmlTree {
 private:
-	XmlNode *rootNode;
-	string loadPath;
-	xml_engine_parser_type engine_type;
-	bool skipStackCheck;
-	bool skipUpdatePathClimbingParts;
+  XmlNode *rootNode;
+  string loadPath;
+  xml_engine_parser_type engine_type;
+  bool skipStackCheck;
+  bool skipUpdatePathClimbingParts;
+
 private:
-	XmlTree(XmlTree&);
-	void operator =(XmlTree&);
-	void clearRootNode();
+  XmlTree(XmlTree &);
+  void operator=(XmlTree &);
+  void clearRootNode();
 
 public:
-	XmlTree(xml_engine_parser_type engine_type = XML_RAPIDXML_ENGINE);
-	~XmlTree();
+  XmlTree(xml_engine_parser_type engine_type = XML_RAPIDXML_ENGINE);
+  ~XmlTree();
 
-	void setSkipUpdatePathClimbingParts(bool value);
-	void init(const string &name);
-	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
-	void save(const string &path);
+  void setSkipUpdatePathClimbingParts(bool value);
+  void init(const string &name);
+  void load(const string &path,
+            const std::map<string, string> &mapTagReplacementValues,
+            bool noValidation = false, bool skipStackCheck = false,
+            bool skipStackTrace = false);
+  void save(const string &path);
 
-	XmlNode *getRootNode() const	{return rootNode;}
+  XmlNode *getRootNode() const { return rootNode; }
 };
 
 // =====================================================
@@ -162,56 +175,61 @@ public:
 
 class XmlNode {
 private:
-	string name;
-	string text;
-	vector<XmlNode*> children;
-	vector<XmlAttribute*> attributes;
-	mutable const XmlNode* superNode;
+  string name;
+  string text;
+  vector<XmlNode *> children;
+  vector<XmlAttribute *> attributes;
+  mutable const XmlNode *superNode;
 
 private:
-	XmlNode(XmlNode&);
-	void operator =(XmlNode&);
+  XmlNode(XmlNode &);
+  void operator=(XmlNode &);
 
-	string getTreeString() const;
-	bool hasChildNoSuper(const string& childName) const;
+  string getTreeString() const;
+  bool hasChildNoSuper(const string &childName) const;
 
 public:
-
 #if defined(WANT_XERCES)
 
-	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, const std::map<string,string> &mapTagReplacementValues);
-	XERCES_CPP_NAMESPACE::DOMElement *buildElement(XERCES_CPP_NAMESPACE::DOMDocument *document) const;
+  XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node,
+          const std::map<string, string> &mapTagReplacementValues);
+  XERCES_CPP_NAMESPACE::DOMElement *
+  buildElement(XERCES_CPP_NAMESPACE::DOMDocument *document) const;
 
 #endif
 
-	XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues,bool skipUpdatePathClimbingParts=false);
-	XmlNode(const string &name);
-	~XmlNode();
-	
-	void setSuper(const XmlNode* superNode) const { this->superNode = superNode; }
+  XmlNode(xml_node<> *node,
+          const std::map<string, string> &mapTagReplacementValues,
+          bool skipUpdatePathClimbingParts = false);
+  XmlNode(const string &name);
+  ~XmlNode();
 
-	const string &getName() const	{return name;}
-	size_t getChildCount() const		{return children.size();}
-	size_t getAttributeCount() const	{return attributes.size();}
-	const string &getText() const	{return text;}
+  void setSuper(const XmlNode *superNode) const { this->superNode = superNode; }
 
-	XmlAttribute *getAttribute(unsigned int i) const;
-	XmlAttribute *getAttribute(const string &name,bool mustExist=true) const;
-	bool hasAttribute(const string &name) const;
+  const string &getName() const { return name; }
+  size_t getChildCount() const { return children.size(); }
+  size_t getAttributeCount() const { return attributes.size(); }
+  const string &getText() const { return text; }
 
-	XmlNode *getChild(unsigned int i) const;
-	XmlNode *getChild(const string &childName, unsigned int childIndex=0) const;
-	XmlNode *getChildWithAliases(vector<string> childNameList, unsigned int childIndex=0) const;
-	vector<XmlNode *> getChildList(const string &childName) const;
-	bool hasChildAtIndex(const string &childName, int childIndex=0) const;
-	bool hasChild(const string &childName) const;
-	bool hasChildWithAliases(vector<string> childNameList) const;
-	int clearChild(const string &childName);
+  XmlAttribute *getAttribute(unsigned int i) const;
+  XmlAttribute *getAttribute(const string &name, bool mustExist = true) const;
+  bool hasAttribute(const string &name) const;
 
+  XmlNode *getChild(unsigned int i) const;
+  XmlNode *getChild(const string &childName, unsigned int childIndex = 0) const;
+  XmlNode *getChildWithAliases(vector<string> childNameList,
+                               unsigned int childIndex = 0) const;
+  vector<XmlNode *> getChildList(const string &childName) const;
+  bool hasChildAtIndex(const string &childName, int childIndex = 0) const;
+  bool hasChild(const string &childName) const;
+  bool hasChildWithAliases(vector<string> childNameList) const;
+  int clearChild(const string &childName);
 
-	XmlNode *addChild(const string &name, const string text = "");
-	XmlAttribute *addAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues);
-	xml_node<>* buildElement(xml_document<> *document) const;
+  XmlNode *addChild(const string &name, const string text = "");
+  XmlAttribute *
+  addAttribute(const string &name, const string &value,
+               const std::map<string, string> &mapTagReplacementValues);
+  xml_node<> *buildElement(xml_document<> *document) const;
 };
 
 // =====================================================
@@ -220,43 +238,48 @@ public:
 
 class XmlAttribute {
 private:
-	string value;
-	string name;
-	bool skipRestrictionCheck;
-	bool usesCommondata;
-	std::map<string,string> mapTagReplacementValues;
+  string value;
+  string name;
+  bool skipRestrictionCheck;
+  bool usesCommondata;
+  std::map<string, string> mapTagReplacementValues;
 
 private:
-	XmlAttribute(XmlAttribute&);
-	void operator =(XmlAttribute&);
+  XmlAttribute(XmlAttribute &);
+  void operator=(XmlAttribute &);
 
 public:
-
 #if defined(WANT_XERCES)
 
-	XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute, const std::map<string,string> &mapTagReplacementValues);
+  XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute,
+               const std::map<string, string> &mapTagReplacementValues);
 
 #endif
 
-	XmlAttribute(xml_attribute<> *attribute, const std::map<string,string> &mapTagReplacementValues);
-	XmlAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues);
+  XmlAttribute(xml_attribute<> *attribute,
+               const std::map<string, string> &mapTagReplacementValues);
+  XmlAttribute(const string &name, const string &value,
+               const std::map<string, string> &mapTagReplacementValues);
 
 public:
-	const string getName() const	{return name;}
-	const string getValue(string prefixValue="", bool trimValueWithStartingSlash=false) const;
+  const string getName() const { return name; }
+  const string getValue(string prefixValue = "",
+                        bool trimValueWithStartingSlash = false) const;
 
-	bool getBoolValue() const;
-	int getIntValue() const;
-	Shared::Platform::uint32 getUIntValue() const;
-	int getIntValue(int min, int max) const;
-	float getFloatValue() const;
-	float getFloatValue(float min, float max) const;
-	const string getRestrictedValue(string prefixValue="", bool trimValueWithStartingSlash=false) const;
+  bool getBoolValue() const;
+  int getIntValue() const;
+  Shared::Platform::uint32 getUIntValue() const;
+  int getIntValue(int min, int max) const;
+  float getFloatValue() const;
+  float getFloatValue(float min, float max) const;
+  const string
+  getRestrictedValue(string prefixValue = "",
+                     bool trimValueWithStartingSlash = false) const;
 
-	void setValue(string val);
+  void setValue(string val);
 };
 
-
-}}//end namespace
+} // namespace Xml
+} // namespace Shared
 
 #endif

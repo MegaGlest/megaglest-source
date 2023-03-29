@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,65 +13,68 @@
 #define _GLEST_GAME_BATTLEEND_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
+#include "leak_dumper.h"
 #include "program.h"
 #include "stats.h"
-#include "leak_dumper.h"
 
-namespace Shared { namespace Graphics {
-	class VideoPlayer;
-}}
+namespace Shared {
+namespace Graphics {
+class VideoPlayer;
+}
+} // namespace Shared
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 class GameSettings;
 // =====================================================
-// 	class BattleEnd  
+// 	class BattleEnd
 //
 ///	ProgramState representing the end of the game
 // =====================================================
 
-class BattleEnd: public ProgramState{
+class BattleEnd : public ProgramState {
 private:
-	Stats stats;
+  Stats stats;
 
-	GraphicButton buttonExit;
-	int mouse2d;
-	GraphicMessageBox mainMessageBox;
-	Texture2D *renderToTexture;
-	uint64 renderToTextureCount;
-	ProgramState *originState;
-	const char *containerName;
+  GraphicButton buttonExit;
+  int mouse2d;
+  GraphicMessageBox mainMessageBox;
+  Texture2D *renderToTexture;
+  uint64 renderToTextureCount;
+  ProgramState *originState;
+  const char *containerName;
 
-	::Shared::Graphics::VideoPlayer *menuBackgroundVideo;
-	GameSettings *gameSettings;
-	StrSound battleEndMusic;
+  ::Shared::Graphics::VideoPlayer *menuBackgroundVideo;
+  GameSettings *gameSettings;
+  StrSound battleEndMusic;
 
-	void showMessageBox(const string &text, const string &header, bool toggle);
+  void showMessageBox(const string &text, const string &header, bool toggle);
 
 public:
-	BattleEnd(Program *program, const Stats *stats, ProgramState *originState);
-	~BattleEnd();
+  BattleEnd(Program *program, const Stats *stats, ProgramState *originState);
+  ~BattleEnd();
 
-	virtual void update();
-	virtual void render();
-	virtual void keyDown(SDL_KeyboardEvent key);
-	virtual void mouseDownLeft(int x, int y);
-	virtual void mouseMove(int x, int y, const MouseState *ms);
-	//virtual void tick();
-	virtual void reloadUI();
+  virtual void update();
+  virtual void render();
+  virtual void keyDown(SDL_KeyboardEvent key);
+  virtual void mouseDownLeft(int x, int y);
+  virtual void mouseMove(int x, int y, const MouseState *ms);
+  // virtual void tick();
+  virtual void reloadUI();
 
 private:
-
-	void initBackgroundVideo();
-	std::pair<string,string> getBattleEndVideo(bool won);
-	string getBattleEndMusic(bool won);
-	void initBackgroundMusic();
+  void initBackgroundVideo();
+  std::pair<string, string> getBattleEndVideo(bool won);
+  string getBattleEndMusic(bool won);
+  void initBackgroundMusic();
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

@@ -3,153 +3,159 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #include "resource.h"
 
-#include "conversion.h"
-#include "resource_type.h"
 #include "checksum.h"
-#include <stdexcept>
-#include "util.h"
-#include "tech_tree.h"
+#include "conversion.h"
 #include "leak_dumper.h"
+#include "resource_type.h"
+#include "tech_tree.h"
+#include "util.h"
+#include <stdexcept>
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 // 	class Resource
 // =====================================================
 
 Resource::Resource() {
-    this->type= NULL;
-    this->amount= 0;
-	pos= Vec2i(0);
-	balance= 0;
+  this->type = NULL;
+  this->amount = 0;
+  pos = Vec2i(0);
+  balance = 0;
 
-	addItemToVault(&this->amount,this->amount);
-	addItemToVault(&this->balance,this->balance);
+  addItemToVault(&this->amount, this->amount);
+  addItemToVault(&this->balance, this->balance);
 }
 
 void Resource::init(const ResourceType *rt, int amount) {
-    this->type= rt;
-    this->amount= amount;        
-	pos= Vec2i(0);
-	balance= 0;
+  this->type = rt;
+  this->amount = amount;
+  pos = Vec2i(0);
+  balance = 0;
 
-	addItemToVault(&this->amount,this->amount);
-	addItemToVault(&this->balance,this->balance);
+  addItemToVault(&this->amount, this->amount);
+  addItemToVault(&this->balance, this->balance);
 }
 
 void Resource::init(const ResourceType *rt, const Vec2i &pos) {
-	this->type=rt;
-	amount=rt->getDefResPerPatch();
-	this->pos= pos;
+  this->type = rt;
+  amount = rt->getDefResPerPatch();
+  this->pos = pos;
 
-	addItemToVault(&this->amount,this->amount);
-	addItemToVault(&this->balance,this->balance);
+  addItemToVault(&this->amount, this->amount);
+  addItemToVault(&this->balance, this->balance);
 }
 
 string Resource::getDescription(bool translatedValue) const {
-     string str;
+  string str;
 
-     str+= type->getName(translatedValue);
-     str+="\n";
-     str+= intToStr(amount);
-     str+="/";
-     str+= intToStr(type->getDefResPerPatch());
+  str += type->getName(translatedValue);
+  str += "\n";
+  str += intToStr(amount);
+  str += "/";
+  str += intToStr(type->getDefResPerPatch());
 
-     return str;
+  return str;
 }
 
 int Resource::getAmount() const {
-	checkItemInVault(&this->amount,this->amount);
-	return amount;
+  checkItemInVault(&this->amount, this->amount);
+  return amount;
 }
 
 int Resource::getBalance() const {
-	checkItemInVault(&this->balance,this->balance);
-	return balance;
+  checkItemInVault(&this->balance, this->balance);
+  return balance;
 }
 
 void Resource::setAmount(int amount) {
-	checkItemInVault(&this->amount,this->amount);
-	this->amount= amount;
-	addItemToVault(&this->amount,this->amount);
+  checkItemInVault(&this->amount, this->amount);
+  this->amount = amount;
+  addItemToVault(&this->amount, this->amount);
 }
 
 void Resource::setBalance(int balance) {
-	checkItemInVault(&this->balance,this->balance);
-	this->balance= balance;
-	addItemToVault(&this->balance,this->balance);
+  checkItemInVault(&this->balance, this->balance);
+  this->balance = balance;
+  addItemToVault(&this->balance, this->balance);
 }
 
 bool Resource::decAmount(int i) {
-	checkItemInVault(&this->amount,this->amount);
-	amount -= i;
-	addItemToVault(&this->amount,this->amount);
+  checkItemInVault(&this->amount, this->amount);
+  amount -= i;
+  addItemToVault(&this->amount, this->amount);
 
-    if(amount > 0) {
-         return false;
-    }
-    return true;
+  if (amount > 0) {
+    return false;
+  }
+  return true;
 }
 
 void Resource::saveGame(XmlNode *rootNode) const {
-	std::map<string,string> mapTagReplacements;
-	XmlNode *resourceNode = rootNode->addChild("Resource");
+  std::map<string, string> mapTagReplacements;
+  XmlNode *resourceNode = rootNode->addChild("Resource");
 
-//    int amount;
-	resourceNode->addAttribute("amount",intToStr(amount), mapTagReplacements);
-//    const ResourceType *type;
-	resourceNode->addAttribute("type",type->getName(), mapTagReplacements);
-//	Vec2i pos;
-	resourceNode->addAttribute("pos",pos.getString(), mapTagReplacements);
-//	int balance;
-	resourceNode->addAttribute("balance",intToStr(balance), mapTagReplacements);
+  //    int amount;
+  resourceNode->addAttribute("amount", intToStr(amount), mapTagReplacements);
+  //    const ResourceType *type;
+  resourceNode->addAttribute("type", type->getName(), mapTagReplacements);
+  //	Vec2i pos;
+  resourceNode->addAttribute("pos", pos.getString(), mapTagReplacements);
+  //	int balance;
+  resourceNode->addAttribute("balance", intToStr(balance), mapTagReplacements);
 }
 
-void Resource::loadGame(const XmlNode *rootNode, int index,const TechTree *techTree) {
-	vector<XmlNode *> resourceNodeList = rootNode->getChildList("Resource");
+void Resource::loadGame(const XmlNode *rootNode, int index,
+                        const TechTree *techTree) {
+  vector<XmlNode *> resourceNodeList = rootNode->getChildList("Resource");
 
-	if(index < (int)resourceNodeList.size()) {
-		XmlNode *resourceNode = resourceNodeList[index];
+  if (index < (int)resourceNodeList.size()) {
+    XmlNode *resourceNode = resourceNodeList[index];
 
-		amount = resourceNode->getAttribute("amount")->getIntValue();
-		type = techTree->getResourceType(resourceNode->getAttribute("type")->getValue());
-		pos = Vec2i::strToVec2(resourceNode->getAttribute("pos")->getValue());
-		balance = resourceNode->getAttribute("balance")->getIntValue();
-	}
+    amount = resourceNode->getAttribute("amount")->getIntValue();
+    type = techTree->getResourceType(
+        resourceNode->getAttribute("type")->getValue());
+    pos = Vec2i::strToVec2(resourceNode->getAttribute("pos")->getValue());
+    balance = resourceNode->getAttribute("balance")->getIntValue();
+  }
 }
 
 std::string Resource::toString() const {
-	std::string result = "resource name = " + this->getDescription(false) + "\n";
-    result += "amount = " + intToStr(this->amount) + "\n";
-    result += "type = " + this->type->getName(false) + "\n";
-    result += "type resources per patch = " + intToStr(type->getDefResPerPatch()) + "\n";
-    result += "pos = " + this->pos.getString() + "\n";
-    result += "balance = " + intToStr(this->balance) + "\n";
+  std::string result = "resource name = " + this->getDescription(false) + "\n";
+  result += "amount = " + intToStr(this->amount) + "\n";
+  result += "type = " + this->type->getName(false) + "\n";
+  result +=
+      "type resources per patch = " + intToStr(type->getDefResPerPatch()) +
+      "\n";
+  result += "pos = " + this->pos.getString() + "\n";
+  result += "balance = " + intToStr(this->balance) + "\n";
 
-    return result;
+  return result;
 }
 
 Checksum Resource::getCRC() {
-	Checksum crcForResource;
+  Checksum crcForResource;
 
-	crcForResource.addInt(amount);
-	crcForResource.addString(type->getName(false));
-	crcForResource.addInt(pos.x);
-	crcForResource.addInt(pos.y);
-	crcForResource.addInt(balance);
+  crcForResource.addInt(amount);
+  crcForResource.addString(type->getName(false));
+  crcForResource.addInt(pos.x);
+  crcForResource.addInt(pos.y);
+  crcForResource.addInt(balance);
 
-	return crcForResource;
+  return crcForResource;
 }
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest

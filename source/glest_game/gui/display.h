@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,25 +13,26 @@
 #define _GLEST_GAME_DISPLAY_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <string>
-#include "texture.h"
-#include "util.h"
 #include "command_type.h"
 #include "game_util.h"
 #include "leak_dumper.h"
+#include "texture.h"
+#include "util.h"
+#include <string>
 
 using std::string;
 
 using Shared::Graphics::Texture2D;
-using Shared::Graphics::Vec4f;
 using Shared::Graphics::Vec3f;
+using Shared::Graphics::Vec4f;
 using Shared::Util::replaceBy;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 // 	class Display
@@ -39,84 +40,90 @@ namespace Glest{ namespace Game{
 ///	Display for unit commands, and unit selection
 // =====================================================
 
-class Display{
+class Display {
 public:
-	static const int cellSideCount= 4;
-	static const int upCellCount= 36;
-	static const int downCellCount= cellSideCount*cellSideCount;
-	static const int colorCount= 9;
-	static const int imageSize= 32;
-	static const int invalidPos= -1;
-	static const int downY = imageSize*9;
-	static const int infoStringY= imageSize*4;
+  static const int cellSideCount = 4;
+  static const int upCellCount = 36;
+  static const int downCellCount = cellSideCount * cellSideCount;
+  static const int colorCount = 9;
+  static const int imageSize = 32;
+  static const int invalidPos = -1;
+  static const int downY = imageSize * 9;
+  static const int infoStringY = imageSize * 4;
 
 private:
-	string title;
-	string text;
-	string infoText;
-	const Texture2D *upImages[upCellCount];
-	const Texture2D *downImages[downCellCount];
-	Vec3f  downImageColor[downCellCount];
-	const CommandType *commandTypes[downCellCount];
-	CommandClass commandClasses[downCellCount];
-	int progressBar;
-	int downSelectedPos;
-	Vec4f colors[colorCount];
-	int currentColor;
+  string title;
+  string text;
+  string infoText;
+  const Texture2D *upImages[upCellCount];
+  const Texture2D *downImages[downCellCount];
+  Vec3f downImageColor[downCellCount];
+  const CommandType *commandTypes[downCellCount];
+  CommandClass commandClasses[downCellCount];
+  int progressBar;
+  int downSelectedPos;
+  Vec4f colors[colorCount];
+  int currentColor;
 
-	int upCellSideCount;
-	int upImageSize;
-	int maxUpIndex;
-	
+  int upCellSideCount;
+  int upImageSize;
+  int maxUpIndex;
 
 public:
-	Display();
+  Display();
 
-	//get
-	string getTitle() const							{return title;}
-	string getText() const							{return text;}
-	string getInfoText() const						{return infoText;}
-	const Texture2D *getUpImage(int index) const	{return upImages[index];}
-	const Texture2D *getDownImage(int index) const	{return downImages[index];}
-	Vec3f getDownImageColor(int index)  const			{return downImageColor[index];}
-	const CommandType *getCommandType(int i) const	{return commandTypes[i];}
-	CommandClass getCommandClass(int i)	const		{return commandClasses[i];}
-	Vec4f getColor() const;
-	int getProgressBar() const						{return progressBar;}
-	int getDownSelectedPos() const					{return downSelectedPos;}
-	int getUpCellSideCount() const					{return upCellSideCount;}
-	int getUpImageSize() const						{return upImageSize;}
-	
-	//set
-	void setTitle(const string title)					{this->title= formatString(title);}
-	void setText(const string &text)					{this->text= formatString(text);}
-	void setInfoText(const string infoText)				{this->infoText= formatString(infoText);}
-	void setUpImage(int i, const Texture2D *image);
-	void setDownImage(int i, const Texture2D *image)	{downImages[i]= image;}
-	void setCommandType(int i, const CommandType *ct)	{commandTypes[i]= ct;}
-	void setCommandClass(int i, const CommandClass cc)	{commandClasses[i]= cc;}
-	void setDownLighted(int i, bool lighted)			{downImageColor[i]=lighted?Vec3f(1.f, 1.f, 1.f):Vec3f(0.3f, 0.3f, 0.3);}
-	void setDownRedLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.0f, 0.0);}
-	void setDownOrangeLighted(int i)			{downImageColor[i]=Vec3f(1.0f, 0.7f, 0.2);}
-	void setProgressBar(int i)							{progressBar= i;}
-	void setDownSelectedPos(int i)						{downSelectedPos= i;}
-	
-	//misc
-	void clear();
-	void switchColor();
-	int computeDownIndex(int x, int y) const;
-	int computeDownX(int index) const;
-	int computeDownY(int index) const;
-	int computeUpX(int index) const;
-	int computeUpY(int index) const;
+  // get
+  string getTitle() const { return title; }
+  string getText() const { return text; }
+  string getInfoText() const { return infoText; }
+  const Texture2D *getUpImage(int index) const { return upImages[index]; }
+  const Texture2D *getDownImage(int index) const { return downImages[index]; }
+  Vec3f getDownImageColor(int index) const { return downImageColor[index]; }
+  const CommandType *getCommandType(int i) const { return commandTypes[i]; }
+  CommandClass getCommandClass(int i) const { return commandClasses[i]; }
+  Vec4f getColor() const;
+  int getProgressBar() const { return progressBar; }
+  int getDownSelectedPos() const { return downSelectedPos; }
+  int getUpCellSideCount() const { return upCellSideCount; }
+  int getUpImageSize() const { return upImageSize; }
 
-	void saveGame(XmlNode *rootNode) const;
-	void loadGame(const XmlNode *rootNode);
+  // set
+  void setTitle(const string title) { this->title = formatString(title); }
+  void setText(const string &text) { this->text = formatString(text); }
+  void setInfoText(const string infoText) {
+    this->infoText = formatString(infoText);
+  }
+  void setUpImage(int i, const Texture2D *image);
+  void setDownImage(int i, const Texture2D *image) { downImages[i] = image; }
+  void setCommandType(int i, const CommandType *ct) { commandTypes[i] = ct; }
+  void setCommandClass(int i, const CommandClass cc) { commandClasses[i] = cc; }
+  void setDownLighted(int i, bool lighted) {
+    downImageColor[i] = lighted ? Vec3f(1.f, 1.f, 1.f) : Vec3f(0.3f, 0.3f, 0.3);
+  }
+  void setDownRedLighted(int i) { downImageColor[i] = Vec3f(1.0f, 0.0f, 0.0); }
+  void setDownOrangeLighted(int i) {
+    downImageColor[i] = Vec3f(1.0f, 0.7f, 0.2);
+  }
+  void setProgressBar(int i) { progressBar = i; }
+  void setDownSelectedPos(int i) { downSelectedPos = i; }
+
+  // misc
+  void clear();
+  void switchColor();
+  int computeDownIndex(int x, int y) const;
+  int computeDownX(int index) const;
+  int computeDownY(int index) const;
+  int computeUpX(int index) const;
+  int computeUpY(int index) const;
+
+  void saveGame(XmlNode *rootNode) const;
+  void loadGame(const XmlNode *rootNode);
 
 private:
-	void calculateUpDimensions(int index);
+  void calculateUpDimensions(int index);
 };
 
-}}//end namespace 
+} // namespace Game
+} // namespace Glest
 
 #endif

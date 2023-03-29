@@ -11,13 +11,15 @@
 
 #include "particle_renderer_gl.h"
 
+#include "leak_dumper.h"
+#include "math_util.h"
+#include "model_renderer.h"
 #include "opengl.h"
 #include "texture_gl.h"
-#include "model_renderer.h"
-#include "math_util.h"
-#include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 // =====================================================
 //	class ParticleRendererGl
@@ -25,283 +27,288 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 // ===================== PUBLIC ========================
 
-ParticleRendererGl::ParticleRendererGl(){
-	assert(bufferSize%4 == 0);
+ParticleRendererGl::ParticleRendererGl() {
+  assert(bufferSize % 4 == 0);
 
-	rendering= false;
+  rendering = false;
 
-	// init texture coordinates for quads
-	for(int i= 0; i<bufferSize; i+=4){
-		texCoordBuffer[i]= Vec2f(0.0f, 1.0f);
-		texCoordBuffer[i+1]= Vec2f(0.0f, 0.0f);
-		texCoordBuffer[i+2]= Vec2f(1.0f, 0.0f);
-		texCoordBuffer[i+3]= Vec2f(1.0f, 1.0f);
-	}
+  // init texture coordinates for quads
+  for (int i = 0; i < bufferSize; i += 4) {
+    texCoordBuffer[i] = Vec2f(0.0f, 1.0f);
+    texCoordBuffer[i + 1] = Vec2f(0.0f, 0.0f);
+    texCoordBuffer[i + 2] = Vec2f(1.0f, 0.0f);
+    texCoordBuffer[i + 3] = Vec2f(1.0f, 1.0f);
+  }
 }
 
-void ParticleRendererGl::renderManager(ParticleManager *pm, ModelRenderer *mr){
+void ParticleRendererGl::renderManager(ParticleManager *pm, ModelRenderer *mr) {
 
-	//assertions
-	assertGl();
+  // assertions
+  assertGl();
 
-	//push state
-	glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT  | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
-	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+  // push state
+  glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT |
+               GL_POLYGON_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
+  glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
-	//init state
-	glFrontFace(GL_CCW);
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_STENCIL_TEST);
-	glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(GL_FALSE);
-	glEnable(GL_BLEND);
+  // init state
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_STENCIL_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDepthMask(GL_FALSE);
+  glEnable(GL_BLEND);
 
-	//render
-	rendering= true;
-	pm->render(this, mr);
-	rendering= false;
+  // render
+  rendering = true;
+  pm->render(this, mr);
+  rendering = false;
 
-	// blend mode back to normal
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  // blend mode back to normal
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//pop state
-	glPopClientAttrib();
-	glPopAttrib();
+  // pop state
+  glPopClientAttrib();
+  glPopAttrib();
 
-	//assertions
-	assertGl();
+  // assertions
+  assertGl();
 }
 
-void ParticleRendererGl::renderSystem(ParticleSystem *ps){
-	assertGl();
-	assert(rendering);
+void ParticleRendererGl::renderSystem(ParticleSystem *ps) {
+  assertGl();
+  assert(rendering);
 
-	Vec3f rightVector;
-	Vec3f upVector;
-	float modelview[16];
+  Vec3f rightVector;
+  Vec3f upVector;
+  float modelview[16];
 
-	//render particles
-	setBlendMode(ps->getBlendMode());
+  // render particles
+  setBlendMode(ps->getBlendMode());
 
-	// get the current modelview state
-	glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
-	rightVector= Vec3f(modelview[0], modelview[4], modelview[8]);
-	upVector= Vec3f(modelview[1], modelview[5], modelview[9]);
+  // get the current modelview state
+  glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+  rightVector = Vec3f(modelview[0], modelview[4], modelview[8]);
+  upVector = Vec3f(modelview[1], modelview[5], modelview[9]);
 
-	// set state
-	if(ps->getTexture()!=NULL){
-		glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(ps->getTexture())->getHandle());
-	}
-	else{
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	glDisable(GL_ALPHA_TEST);
-	glDisable(GL_FOG);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glEnable(GL_TEXTURE_2D);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+  // set state
+  if (ps->getTexture() != NULL) {
+    glBindTexture(GL_TEXTURE_2D,
+                  static_cast<Texture2DGl *>(ps->getTexture())->getHandle());
+  } else {
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+  glDisable(GL_ALPHA_TEST);
+  glDisable(GL_FOG);
+  glAlphaFunc(GL_GREATER, 0.0f);
+  glEnable(GL_TEXTURE_2D);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
 
-	//fill vertex buffer with billboards
-	int bufferIndex= 0;
+  // fill vertex buffer with billboards
+  int bufferIndex = 0;
 
-	for(int i=0; i<ps->getAliveParticleCount(); ++i){
-		const Particle *particle= ps->getParticle(i);
-		float size= particle->getSize()/2.0f;
-		Vec3f pos= particle->getPos();
-		Vec4f color= particle->getColor();
+  for (int i = 0; i < ps->getAliveParticleCount(); ++i) {
+    const Particle *particle = ps->getParticle(i);
+    float size = particle->getSize() / 2.0f;
+    Vec3f pos = particle->getPos();
+    Vec4f color = particle->getColor();
 
-		vertexBuffer[bufferIndex] = pos - (rightVector - upVector) * size;
-		vertexBuffer[bufferIndex+1] = pos - (rightVector + upVector) * size;
-		vertexBuffer[bufferIndex+2] = pos + (rightVector - upVector) * size;
-		vertexBuffer[bufferIndex+3] = pos + (rightVector + upVector) * size;
+    vertexBuffer[bufferIndex] = pos - (rightVector - upVector) * size;
+    vertexBuffer[bufferIndex + 1] = pos - (rightVector + upVector) * size;
+    vertexBuffer[bufferIndex + 2] = pos + (rightVector - upVector) * size;
+    vertexBuffer[bufferIndex + 3] = pos + (rightVector + upVector) * size;
 
-		colorBuffer[bufferIndex]= color;
-		colorBuffer[bufferIndex+1]= color;
-		colorBuffer[bufferIndex+2]= color;
-		colorBuffer[bufferIndex+3]= color;
+    colorBuffer[bufferIndex] = color;
+    colorBuffer[bufferIndex + 1] = color;
+    colorBuffer[bufferIndex + 2] = color;
+    colorBuffer[bufferIndex + 3] = color;
 
-		bufferIndex+= 4;
+    bufferIndex += 4;
 
-		if(bufferIndex >= bufferSize){
-			bufferIndex= 0;
-			renderBufferQuads(bufferSize);
-		}
-	}
-	renderBufferQuads(bufferIndex);
+    if (bufferIndex >= bufferSize) {
+      bufferIndex = 0;
+      renderBufferQuads(bufferSize);
+    }
+  }
+  renderBufferQuads(bufferIndex);
 
-	assertGl();
+  assertGl();
 }
 
-void ParticleRendererGl::renderSystemLine(ParticleSystem *ps){
+void ParticleRendererGl::renderSystemLine(ParticleSystem *ps) {
 
-	assertGl();
-	assert(rendering);
+  assertGl();
+  assert(rendering);
 
-	if(!ps->isEmpty()){
-		const Particle *particle= ps->getParticle(0);
+  if (!ps->isEmpty()) {
+    const Particle *particle = ps->getParticle(0);
 
-		setBlendMode(ps->getBlendMode());
+    setBlendMode(ps->getBlendMode());
 
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_ALPHA_TEST);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_ALPHA_TEST);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
 
-		//fill vertex buffer with lines
-		int bufferIndex= 0;
+    // fill vertex buffer with lines
+    int bufferIndex = 0;
 
-		glLineWidth(particle->getSize());
+    glLineWidth(particle->getSize());
 
-		for(int i=0; i<ps->getAliveParticleCount(); ++i){
-			particle= ps->getParticle(i);
-			Vec4f color= particle->getColor();
+    for (int i = 0; i < ps->getAliveParticleCount(); ++i) {
+      particle = ps->getParticle(i);
+      Vec4f color = particle->getColor();
 
-			vertexBuffer[bufferIndex] = particle->getPos();
-			vertexBuffer[bufferIndex+1] = particle->getLastPos();
+      vertexBuffer[bufferIndex] = particle->getPos();
+      vertexBuffer[bufferIndex + 1] = particle->getLastPos();
 
-			colorBuffer[bufferIndex]= color;
-			colorBuffer[bufferIndex+1]= color;
+      colorBuffer[bufferIndex] = color;
+      colorBuffer[bufferIndex + 1] = color;
 
-			bufferIndex+= 2;
+      bufferIndex += 2;
 
-			if(bufferIndex >= bufferSize){
-				bufferIndex= 0;
-				renderBufferLines(bufferSize);
-			}
-		}
-		renderBufferLines(bufferIndex);
-	}
+      if (bufferIndex >= bufferSize) {
+        bufferIndex = 0;
+        renderBufferLines(bufferSize);
+      }
+    }
+    renderBufferLines(bufferIndex);
+  }
 
-	assertGl();
+  assertGl();
 }
 
-void ParticleRendererGl::renderSystemLineAlpha(ParticleSystem *ps){
+void ParticleRendererGl::renderSystemLineAlpha(ParticleSystem *ps) {
 
-	assertGl();
-	assert(rendering);
+  assertGl();
+  assert(rendering);
 
-	if(!ps->isEmpty()){
-		const Particle *particle= ps->getParticle(0);
+  if (!ps->isEmpty()) {
+    const Particle *particle = ps->getParticle(0);
 
-		setBlendMode(ps->getBlendMode());
+    setBlendMode(ps->getBlendMode());
 
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_ALPHA_TEST);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_ALPHA_TEST);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
 
-		//fill vertex buffer with lines
-		int bufferIndex= 0;
+    // fill vertex buffer with lines
+    int bufferIndex = 0;
 
-		glLineWidth(particle->getSize());
+    glLineWidth(particle->getSize());
 
-		for(int i=0; i<ps->getAliveParticleCount(); ++i){
-			particle= ps->getParticle(i);
-			Vec4f color= particle->getColor();
+    for (int i = 0; i < ps->getAliveParticleCount(); ++i) {
+      particle = ps->getParticle(i);
+      Vec4f color = particle->getColor();
 
-			vertexBuffer[bufferIndex] = particle->getPos();
-			vertexBuffer[bufferIndex+1] = particle->getLastPos();
+      vertexBuffer[bufferIndex] = particle->getPos();
+      vertexBuffer[bufferIndex + 1] = particle->getLastPos();
 
-			colorBuffer[bufferIndex]= color;
-			colorBuffer[bufferIndex+1]= color;
-			colorBuffer[bufferIndex+1].w= 0.0f;
+      colorBuffer[bufferIndex] = color;
+      colorBuffer[bufferIndex + 1] = color;
+      colorBuffer[bufferIndex + 1].w = 0.0f;
 
-			bufferIndex+= 2;
+      bufferIndex += 2;
 
-			if(bufferIndex >= bufferSize){
-				bufferIndex= 0;
-				renderBufferLines(bufferSize);
-			}
-		}
-		renderBufferLines(bufferIndex);
-	}
+      if (bufferIndex >= bufferSize) {
+        bufferIndex = 0;
+        renderBufferLines(bufferSize);
+      }
+    }
+    renderBufferLines(bufferIndex);
+  }
 
-	assertGl();
+  assertGl();
 }
 
-void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
-	//render model
-	Model *model = ps->getModel();
-	if(model != NULL) {
+void ParticleRendererGl::renderModel(GameParticleSystem *ps,
+                                     ModelRenderer *mr) {
+  // render model
+  Model *model = ps->getModel();
+  if (model != NULL) {
 
-		//init
-		glEnable(GL_LIGHTING);
-		glEnable(GL_TEXTURE_2D);
-		glColor3f(1.f, 1.f, 1.f);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
+    // init
+    glEnable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    glColor3f(1.f, 1.f, 1.f);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
 
-		//translate
-		Vec3f pos= ps->getPos();
-		glTranslatef(pos.x, pos.y, pos.z);
+    // translate
+    Vec3f pos = ps->getPos();
+    glTranslatef(pos.x, pos.y, pos.z);
 
-		//rotate
-		Vec3f direction= ps->getDirection();
-		Vec3f flatDirection= Vec3f(direction.x, 0.f, direction.z);
-		Vec3f rotVector= Vec3f(0.f, 1.f, 0.f).cross(flatDirection);
+    // rotate
+    Vec3f direction = ps->getDirection();
+    Vec3f flatDirection = Vec3f(direction.x, 0.f, direction.z);
+    Vec3f rotVector = Vec3f(0.f, 1.f, 0.f).cross(flatDirection);
 
-		float angleV= radToDeg(std::atan2(flatDirection.length(), (float)direction.y)) - 90.f;
-		glRotatef(angleV, rotVector.x, rotVector.y, rotVector.z);
+    float angleV =
+        radToDeg(std::atan2(flatDirection.length(), (float)direction.y)) - 90.f;
+    glRotatef(angleV, rotVector.x, rotVector.y, rotVector.z);
 
-		float angleH= radToDeg(std::atan2(direction.x, direction.z));
-		glRotatef(angleH, 0.f, 1.f, 0.f);
+    float angleH = radToDeg(std::atan2(direction.x, direction.z));
+    glRotatef(angleH, 0.f, 1.f, 0.f);
 
-		//render
-		mr->begin(true, true, false, false);
-		float t = ps->getTween();
+    // render
+    mr->begin(true, true, false, false);
+    float t = ps->getTween();
 
-		if(t < 0.0f || t > 1.0f) {
-			printf("In [%s::%s Line: %d] ERROR setting tween to [%f]\n",__FILE__,__FUNCTION__,__LINE__,t);
-			assert(t >= 0.0f && t <= 1.0f);
-		}
-		model->updateInterpolationData(t, false);
-		mr->render(model);
-		mr->end();
+    if (t < 0.0f || t > 1.0f) {
+      printf("In [%s::%s Line: %d] ERROR setting tween to [%f]\n", __FILE__,
+             __FUNCTION__, __LINE__, t);
+      assert(t >= 0.0f && t <= 1.0f);
+    }
+    model->updateInterpolationData(t, false);
+    mr->render(model);
+    mr->end();
 
-		//end
-		glPopMatrix();
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-	}
+    // end
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+  }
 }
-
 
 // ============== PRIVATE =====================================
 
-void ParticleRendererGl::renderBufferQuads(int quadCount){
-	glVertexPointer(3, GL_FLOAT, 0, vertexBuffer);
-	glTexCoordPointer(2, GL_FLOAT, 0, texCoordBuffer);
-	glColorPointer(4, GL_FLOAT, 0, colorBuffer);
+void ParticleRendererGl::renderBufferQuads(int quadCount) {
+  glVertexPointer(3, GL_FLOAT, 0, vertexBuffer);
+  glTexCoordPointer(2, GL_FLOAT, 0, texCoordBuffer);
+  glColorPointer(4, GL_FLOAT, 0, colorBuffer);
 
-	glDrawArrays(GL_QUADS, 0, quadCount);
+  glDrawArrays(GL_QUADS, 0, quadCount);
 }
 
-void ParticleRendererGl::renderBufferLines(int lineCount){
-	glVertexPointer(3, GL_FLOAT, 0, vertexBuffer);
-	glColorPointer(4, GL_FLOAT, 0, colorBuffer);
+void ParticleRendererGl::renderBufferLines(int lineCount) {
+  glVertexPointer(3, GL_FLOAT, 0, vertexBuffer);
+  glColorPointer(4, GL_FLOAT, 0, colorBuffer);
 
-	glDrawArrays(GL_LINES, 0, lineCount);
+  glDrawArrays(GL_LINES, 0, lineCount);
 }
 
-void ParticleRendererGl::setBlendMode(ParticleSystem::BlendMode blendMode){
-	switch(blendMode){
-	case ParticleSystem::bmOne:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		break;
-	case ParticleSystem::bmOneMinusAlpha:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		break;
-	default:
-		assert(false);
-		break;
-	}
+void ParticleRendererGl::setBlendMode(ParticleSystem::BlendMode blendMode) {
+  switch (blendMode) {
+  case ParticleSystem::bmOne:
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    break;
+  case ParticleSystem::bmOneMinusAlpha:
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    break;
+  default:
+    assert(false);
+    break;
+  }
 }
 
-}}} //end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared

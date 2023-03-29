@@ -3,28 +3,30 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHARED_GRAPHICS_GL_OPENGL_H_
 #define _SHARED_GRAPHICS_GL_OPENGL_H_
 
+#include "conversion.h"
+#include "gl_wrap.h"
+#include "leak_dumper.h"
+#include "platform_util.h"
 #include <GL/glew.h>
 #include <cassert>
 #include <stdexcept>
 #include <string>
-#include "conversion.h"
-#include "gl_wrap.h"
-#include "platform_util.h"
-#include "leak_dumper.h"
 
 using std::runtime_error;
 using std::string;
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 using Util::intToStr;
 
@@ -35,9 +37,9 @@ using Util::intToStr;
 bool getVBOSupported();
 void setVBOSupported(bool value);
 
-//void overrideGlExtensionSupport(const char *extensionName,bool value);
+// void overrideGlExtensionSupport(const char *extensionName,bool value);
 bool isGlExtensionSupported(const char *extensionName);
-//bool isGlVersionSupported(int major, int minor, int release);
+// bool isGlVersionSupported(int major, int minor, int release);
 const char *getGlVersion();
 const char *getGlRenderer();
 const char *getGlVendor();
@@ -48,40 +50,48 @@ int getGlMaxTextureSize();
 int getGlMaxTextureUnits();
 int getGlModelviewMatrixStackDepth();
 int getGlProjectionMatrixStackDepth();
-//void checkGlExtension(const char *extensionName);
+// void checkGlExtension(const char *extensionName);
 
-void inline _assertGl(const char *file, int line, GLenum *forceErrorNumber = NULL) {
-	GLenum error = (forceErrorNumber != NULL ? *forceErrorNumber : glGetError());
-	if(error != GL_NO_ERROR) {
+void inline _assertGl(const char *file, int line,
+                      GLenum *forceErrorNumber = NULL) {
+  GLenum error = (forceErrorNumber != NULL ? *forceErrorNumber : glGetError());
+  if (error != GL_NO_ERROR) {
 #ifdef _DEBUG
-		if(error == GL_INVALID_ENUM) {
-			return;
-		}
+    if (error == GL_INVALID_ENUM) {
+      return;
+    }
 #endif
 
-		//if(error != GL_INVALID_ENUM) {
-			const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d",error,error,errorString,file,line);
-			//throw megaglest_runtime_error("OpenGL error #" + intToStr(error) + " : " + string(errorString) + " at file: " + string(file) + ", line " + intToStr(line));
-			throw megaglest_runtime_error(szBuf);
-		//}
-	}
-
+    // if(error != GL_INVALID_ENUM) {
+    const char *errorString =
+        reinterpret_cast<const char *>(gluErrorString(error));
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096,
+             "OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d", error,
+             error, errorString, file, line);
+    // throw megaglest_runtime_error("OpenGL error #" + intToStr(error) + " : "
+    // + string(errorString) + " at file: " + string(file) + ", line " +
+    // intToStr(line));
+    throw megaglest_runtime_error(szBuf);
+    //}
+  }
 }
 
 #ifdef NDEBUG
 
-#define assertGl() ((void) 0);
-#define assertGlWithErrorNumber(forceErrorNumber) ((void) 0);
+#define assertGl() ((void)0);
+#define assertGlWithErrorNumber(forceErrorNumber) ((void)0);
 
 #else
 
 #define assertGl() _assertGl(__FILE__, __LINE__);
-#define assertGlWithErrorNumber(forceErrorNumber) _assertGl(__FILE__, __LINE__, &forceErrorNumber);
-	
+#define assertGlWithErrorNumber(forceErrorNumber)                              \
+  _assertGl(__FILE__, __LINE__, &forceErrorNumber);
+
 #endif
 
-}}}//end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

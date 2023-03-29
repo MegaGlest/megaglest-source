@@ -10,31 +10,35 @@
 // ==============================================================
 
 #include "sound_interface.h"
-#include "util.h"
 #include "leak_dumper.h"
+#include "util.h"
 
 using namespace Shared::Util;
 
-namespace Shared{ namespace Sound{
+namespace Shared {
+namespace Sound {
 
 // =====================================================
 //	class SoundInterface
 // =====================================================
 
-SoundInterface &SoundInterface::getInstance(){
-	static SoundInterface soundInterface;
-	return soundInterface;
+SoundInterface &SoundInterface::getInstance() {
+  static SoundInterface soundInterface;
+  return soundInterface;
 }
 
-void SoundInterface::setFactory(SoundFactory *soundFactory){
-	this->soundFactory= soundFactory;
+void SoundInterface::setFactory(SoundFactory *soundFactory) {
+  this->soundFactory = soundFactory;
 }
 
-SoundPlayer *SoundInterface::newSoundPlayer(){
+SoundPlayer *SoundInterface::newSoundPlayer() {
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+  if (SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled)
+    SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s %d]\n",
+                             __FILE__, __FUNCTION__, __LINE__);
 
-	return soundFactory->newSoundPlayer();
+  return soundFactory->newSoundPlayer();
 }
 
-}}//end namespace
+} // namespace Sound
+} // namespace Shared

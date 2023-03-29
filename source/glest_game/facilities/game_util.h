@@ -13,19 +13,20 @@
 #define _GLEST_GAME_GAMEUTIL_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
+#include "leak_dumper.h"
+#include "util.h"
 #include <string>
 #include <vector>
-#include "util.h"
-#include "leak_dumper.h"
 
-using std::string;
 using Shared::Util::sharedLibVersionString;
+using std::string;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 extern const char *mailString;
 extern const string glestVersionString;
@@ -51,11 +52,13 @@ string getCompileDateTime();
 
 string formatString(string str);
 
-string getGameReadWritePath(const string &lookupKey="");
-string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);
+string getGameReadWritePath(const string &lookupKey = "");
+string getGameCustomCoreDataPath(string originalBasePath,
+                                 string uniqueFilePath);
 
 bool upgradeFilesInTemp();
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

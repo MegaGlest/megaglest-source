@@ -11,11 +11,18 @@
 
 #include "model_gl.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
-    
-ModelGl::ModelGl(const string &path,TextureManager* textureManager,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader) {
-	setTextureManager(textureManager);
-	load(path,deletePixMapAfterLoad,loadedFileList,sourceLoader);
+namespace Shared {
+namespace Graphics {
+namespace Gl {
+
+ModelGl::ModelGl(const string &path, TextureManager *textureManager,
+                 bool deletePixMapAfterLoad,
+                 std::map<string, vector<pair<string, string>>> *loadedFileList,
+                 string *sourceLoader) {
+  setTextureManager(textureManager);
+  load(path, deletePixMapAfterLoad, loadedFileList, sourceLoader);
 }
-    
-}}}//end namespace
+
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared

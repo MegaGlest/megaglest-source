@@ -11,7 +11,6 @@
 
 #include "byte_order.h"
 
-namespace Shared{ namespace PlatformByteOrder{
-
-
-}};
+namespace Shared {
+namespace PlatformByteOrder {}
+}; // namespace Shared

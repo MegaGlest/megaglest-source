@@ -16,39 +16,34 @@
 
 using std::string;
 
-enum FontTextHandlerType {
-	ftht_2D,
-	ftht_3D
-};
+enum FontTextHandlerType { ftht_2D, ftht_3D };
 
 /**
  * Base class upon which all text rendering calls are made.
  */
 //====================================================================
-class Text
-{
+class Text {
 protected:
-	FontTextHandlerType type;
+  FontTextHandlerType type;
+
 public:
+  static std::string DEFAULT_FONT_PATH;
+  static std::string DEFAULT_FONT_PATH_ABSOLUTE;
 
-	static std::string DEFAULT_FONT_PATH;
-	static std::string DEFAULT_FONT_PATH_ABSOLUTE;
+  Text(FontTextHandlerType type);
+  virtual ~Text();
 
-	Text(FontTextHandlerType type);
-	virtual ~Text();
+  virtual void init(string fontName, string fontFamilyName, int fontSize);
+  virtual void SetFaceSize(int);
+  virtual int GetFaceSize();
 
-	virtual void init(string fontName, string fontFamilyName, int fontSize);
-	virtual void SetFaceSize(int);
-	virtual int GetFaceSize();
+  virtual void Render(const char *, const int = -1);
+  virtual float Advance(const char *, const int = -1);
+  virtual float LineHeight(const char * = " ", const int = -1);
 
-	virtual void Render(const char*, const int = -1);
-	virtual float Advance(const char*, const int = -1);
-	virtual float LineHeight(const char* = " ", const int = -1);
-
-	virtual void Render(const wchar_t*, const int = -1);
-	virtual float Advance(const wchar_t*, const int = -1);
-	virtual float LineHeight(const wchar_t* = L" ", const int = -1);
-
+  virtual void Render(const wchar_t *, const int = -1);
+  virtual float Advance(const wchar_t *, const int = -1);
+  virtual float LineHeight(const wchar_t * = L" ", const int = -1);
 };
 
 #endif // Text_h

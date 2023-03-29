@@ -13,26 +13,27 @@
 #define _GLEST_GAME_CONSOLE_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <utility>
-#include <string>
-#include <vector>
-#include <stdexcept>
 #include "font.h"
 #include "leak_dumper.h"
 #include "vec.h"
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
+using std::pair;
 using std::string;
 using std::vector;
-using std::pair;
 using namespace std;
 
-namespace Glest { namespace Game {
+namespace Glest {
+namespace Game {
 
-	using Shared::Graphics::Font;
+using Shared::Graphics::Font;
 using Shared::Graphics::Font2D;
 using Shared::Graphics::Font3D;
 using Shared::Graphics::FontChangedCallbackInterface;
@@ -45,98 +46,109 @@ using Shared::Graphics::Vec3f;
 
 class ConsoleLineInfo {
 public:
-	string text;
-	float timeStamp;
-	int PlayerIndex;
-	string originalPlayerName;
-	Vec3f color;
-	bool teamMode;
+  string text;
+  float timeStamp;
+  int PlayerIndex;
+  string originalPlayerName;
+  Vec3f color;
+  bool teamMode;
 };
 
-class Console: public FontChangedCallbackInterface {
+class Console : public FontChangedCallbackInterface {
 private:
-	static const int consoleLines= 5;
+  static const int consoleLines = 5;
 
 public:
-
-	typedef vector<ConsoleLineInfo> Lines;
-	typedef Lines::const_iterator LineIterator;
+  typedef vector<ConsoleLineInfo> Lines;
+  typedef Lines::const_iterator LineIterator;
 
 private:
-	float timeElapsed;
-	Lines lines;
-	Lines storedLines;
-	string stringToHighlight;
+  float timeElapsed;
+  Lines lines;
+  Lines storedLines;
+  string stringToHighlight;
 
-	//config
-	int maxLines;
-	int maxStoredLines;
-	float timeout;
-	int xPos;
-	int yPos;
-	int lineHeight;
-	Font2D *font;
-	Font3D *font3D;
-	string font2DUniqueId;
-	string font3DUniqueId;
+  // config
+  int maxLines;
+  int maxStoredLines;
+  float timeout;
+  int xPos;
+  int yPos;
+  int lineHeight;
+  Font2D *font;
+  Font3D *font3D;
+  string font2DUniqueId;
+  string font3DUniqueId;
 
-	bool onlyChatMessagesInStoredLines;
+  bool onlyChatMessagesInStoredLines;
 
-	string instanceName;
-	string fontCallbackName;
+  string instanceName;
+  string fontCallbackName;
 
-	string getNewUUD();
+  string getNewUUD();
 
 public:
+  Console();
+  virtual ~Console();
 
-	Console();
-	virtual ~Console();
+  void registerGraphicComponent(const std::string &containerName,
+                                const std::string &objName);
+  string getInstanceName() const { return instanceName; }
+  void setInstanceName(const string &value) { instanceName = value; }
+  string getFontCallbackName() const { return fontCallbackName; }
 
-	void registerGraphicComponent(const std::string &containerName, const std::string &objName);
-	string getInstanceName() const { return instanceName; }
-	void setInstanceName(const string &value) { instanceName = value; }
-	string getFontCallbackName() const { return fontCallbackName; }
+  int getStoredLineCount() const { return (int)storedLines.size(); }
+  int getLineCount() const { return (int)lines.size(); }
+  bool getOnlyChatMessagesInStoredLines() const {
+    return onlyChatMessagesInStoredLines;
+  }
+  void setOnlyChatMessagesInStoredLines(bool value) {
+    this->onlyChatMessagesInStoredLines = value;
+  }
 
-	int getStoredLineCount() const		{return (int)storedLines.size();}
-	int getLineCount() const			{return (int)lines.size();}
-	bool getOnlyChatMessagesInStoredLines() const { return onlyChatMessagesInStoredLines ;}
-	void setOnlyChatMessagesInStoredLines(bool value)	{this->onlyChatMessagesInStoredLines= value;}
+  int getXPos() const { return xPos; }
+  void setXPos(int xPos) { this->xPos = xPos; }
+  int getYPos() const { return yPos; }
+  void setYPos(int yPos) { this->yPos = yPos; }
+  int getLineHeight() const { return lineHeight; }
+  void setLineHeight(int lineHeight) { this->lineHeight = lineHeight; }
+  Font2D *getFont() const { return font; }
+  Font3D *getFont3D() const { return font3D; }
+  void setFont(Font2D *font);
+  void setFont3D(Font3D *font);
+  string getStringToHighlight() const { return stringToHighlight; }
+  void setStringToHighlight(const string &stringToHighlight) {
+    this->stringToHighlight = stringToHighlight;
+  }
+  void resetFonts();
 
-	int getXPos() const {return xPos;}
-	void setXPos(int xPos)	{this->xPos= xPos;}
-	int getYPos() const {return yPos;}
-	void setYPos(int yPos)	{this->yPos= yPos;}
-	int getLineHeight() const {return lineHeight;}
-	void setLineHeight(int lineHeight)	{this->lineHeight= lineHeight;}
-	Font2D *getFont() const {return font;}
-	Font3D *getFont3D() const {return font3D;}
-	void setFont(Font2D *font);
-	void setFont3D(Font3D *font);
-    string getStringToHighlight() const { return stringToHighlight;}
-    void setStringToHighlight(const string &stringToHighlight) { this->stringToHighlight = stringToHighlight;}
-    void resetFonts();
+  // string getLine(int i) const;
+  // string getStoredLine(int i) const;
+  ConsoleLineInfo getLineItem(int i) const;
+  ConsoleLineInfo getStoredLineItem(int i) const;
 
-	
-	//string getLine(int i) const;
-	//string getStoredLine(int i) const;
-	ConsoleLineInfo getLineItem(int i) const;
-	ConsoleLineInfo getStoredLineItem(int i) const;
+  void clearStoredLines();
+  void addStdMessage(const string &s, bool clearOtherLines = false);
+  void addStdMessage(const string &s, const string &failText,
+                     bool clearOtherLines = false);
 
-	void clearStoredLines();
-	void addStdMessage(const string &s, bool clearOtherLines=false);
-	void addStdMessage(const string &s, const string &failText, bool clearOtherLines=false);
+  void addStdScenarioMessage(const string &s, bool clearOtherLines = false);
+  void addLineOnly(const string &line);
+  void addLine(const string &line, bool playSound = false, int playerIndex = -1,
+               Vec3f textColor = Vec3f(1.f, 1.f, 1.f), bool teamMode = false,
+               bool clearOtherLines = false);
+  void addLine(const string &line, bool playSound, const string &playerName,
+               Vec3f textColor = Vec3f(1.f, 1.f, 1.f), bool teamMode = false);
+  void addLine(const string &line, bool playSound, Vec3f textColor) {
+    addLine(line, playSound, "", textColor, false);
+  }
+  void update();
+  bool isEmpty();
 
-	void addStdScenarioMessage(const string &s,bool clearOtherLines=false);
-	void addLineOnly(const string &line);
-	void addLine(const string &line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false,bool clearOtherLines=false);
-	void addLine(const string &line, bool playSound, const string &playerName, Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false);
-	void addLine(const string &line, bool playSound, Vec3f textColor) { addLine(line,playSound,"",textColor,false); }
-	void update();
-	bool isEmpty();
-
-	virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
+  virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

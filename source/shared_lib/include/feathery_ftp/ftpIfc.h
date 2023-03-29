@@ -25,31 +25,31 @@
 #ifndef FTPIFC_H_
 #define FTPIFC_H_
 
-
-#define FTP_ACC_RD	1
-#define FTP_ACC_WR	2
-#define FTP_ACC_LS	4
-#define FTP_ACC_DIR	8
+#define FTP_ACC_RD 1
+#define FTP_ACC_WR 2
+#define FTP_ACC_LS 4
+#define FTP_ACC_DIR 8
 #define FTP_ACC_FULL (FTP_ACC_RD | FTP_ACC_WR | FTP_ACC_LS | FTP_ACC_DIR)
 
 #include "ftpTypes.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 void ftpInit(ftpFindExternalFTPServerIpType cb1, ftpAddUPNPPortForwardType cb2,
-		     ftpRemoveUPNPPortForwardType cb3, ftpIsValidClientType cb4,
-		     ftpIsClientAllowedToGetFileType cb5);
-int ftpCreateAccount(const char* name, const char* passw, const char* root, int accRights);
-int ftpDeleteAccount(const char* name);
+             ftpRemoveUPNPPortForwardType cb3, ftpIsValidClientType cb4,
+             ftpIsClientAllowedToGetFileType cb5);
+int ftpCreateAccount(const char *name, const char *passw, const char *root,
+                     int accRights);
+int ftpDeleteAccount(const char *name);
 int ftpStart(int portNumber);
 int ftpShutdown(void);
 int ftpExecute(void);
 int ftpState(void);
 void ftpSignalShutdown(void);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -1,7 +1,7 @@
 /* Copied from math.h in same directory
  *
     Copyright 2006 Nicolas Brodu
-    		  2010 Mark Vejvoda
+                  2010 Mark Vejvoda
     Code released according to the GNU Lesser General Public License
 
  */
@@ -10,4 +10,3 @@
 
 // Include bridge, just in case math_private is not included
 #include "../streflop_libm_bridge.h"
-

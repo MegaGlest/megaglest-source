@@ -12,87 +12,89 @@
 #ifndef _GLEST_GAME_MENUSTATEKEYSETUP_H_
 #define _GLEST_GAME_MENUSTATEKEYSETUP_H_
 
+#include "leak_dumper.h"
 #include "main_menu.h"
 #include "server_line.h"
-#include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
 // 	class
 // ===============================
-typedef vector<GraphicButton*> UserButtons;
-typedef vector<GraphicLabel*> GraphicLabels;
+typedef vector<GraphicButton *> UserButtons;
+typedef vector<GraphicLabel *> GraphicLabels;
 
-class MenuStateKeysetup: public MenuState {
+class MenuStateKeysetup : public MenuState {
 
 private:
+  GraphicButton buttonOk;
+  GraphicButton buttonDefaults;
+  GraphicButton buttonReturn;
 
-	GraphicButton buttonOk;
-	GraphicButton buttonDefaults;
-	GraphicButton buttonReturn;
+  GraphicButton buttonKeyboardSetup; // configure the keyboard
+  GraphicButton buttonVideoSection;
+  GraphicButton buttonAudioSection;
+  GraphicButton buttonMiscSection;
+  GraphicButton buttonNetworkSettings;
 
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
+  GraphicLabel labelTitle;
 
-	GraphicLabel labelTitle;
+  GraphicScrollBar keyScrollBar;
+  UserButtons keyButtons;
+  GraphicLabels labels;
+  int keyButtonsToRender;
+  int keyButtonsYBase;
+  int keyButtonsXBase;
+  int keyButtonsLineHeight;
+  int keyButtonsHeight;
+  int keyButtonsWidth;
 
-	GraphicScrollBar keyScrollBar;
-	UserButtons keyButtons;
-	GraphicLabels labels;
-	int keyButtonsToRender;
-	int keyButtonsYBase;
-	int keyButtonsXBase;
-	int keyButtonsLineHeight;
-	int	keyButtonsHeight;
-	int keyButtonsWidth;
+  GraphicMessageBox mainMessageBox;
+  int mainMessageBoxState;
+  vector<pair<string, string>> mergedProperties;
+  vector<pair<string, string>> masterProperties;
+  vector<pair<string, string>> userProperties;
 
-	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
-	vector<pair<string,string> > mergedProperties;
-	vector<pair<string,string> > masterProperties;
-	vector<pair<string,string> > userProperties;
+  int hotkeyIndex;
+  // char hotkeyChar;
+  SDL_Keycode hotkeyChar;
 
-	int hotkeyIndex;
-	//char hotkeyChar;
-	SDL_Keycode hotkeyChar;
+  GraphicLabel labelTestTitle;
+  GraphicLabel labelTestValue;
 
-	GraphicLabel labelTestTitle;
-	GraphicLabel labelTestValue;
-
-	ProgramState **parentUI;
+  ProgramState **parentUI;
 
 public:
-	MenuStateKeysetup(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
-	virtual ~MenuStateKeysetup();
+  MenuStateKeysetup(Program *program, MainMenu *mainMenu,
+                    ProgramState **parentUI = NULL);
+  virtual ~MenuStateKeysetup();
 
-	void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
-	void mouseUp(int x, int y, const MouseButton mouseButton);
-	void mouseMove(int x, int y, const MouseState *mouseState);
-	void update();
-	void render();
+  void mouseClick(int x, int y, MouseButton mouseButton);
+  void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
+  void mouseUp(int x, int y, const MouseButton mouseButton);
+  void mouseMove(int x, int y, const MouseState *mouseState);
+  void update();
+  void render();
 
-	virtual void keyDown(SDL_KeyboardEvent key);
-    virtual void keyPress(SDL_KeyboardEvent c);
-    virtual void keyUp(SDL_KeyboardEvent key);
+  virtual void keyDown(SDL_KeyboardEvent key);
+  virtual void keyPress(SDL_KeyboardEvent c);
+  virtual void keyUp(SDL_KeyboardEvent key);
 
-	virtual bool isInSpecialKeyCaptureEvent() { return true; }
+  virtual bool isInSpecialKeyCaptureEvent() { return true; }
 
-	//static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
+  // static void setDisplayMessageFunction(DisplayMessageFunction
+  // pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
 
-	void reloadUI();
+  void reloadUI();
 
 private:
-	void showMessageBox(const string &text, const string &header, bool toggle);
-	void clearUserButtons();
-	void cleanup();
+  void showMessageBox(const string &text, const string &header, bool toggle);
+  void clearUserButtons();
+  void cleanup();
 };
 
-
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

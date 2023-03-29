@@ -27,35 +27,30 @@ typedef unsigned int uint32;
 
 #define NAMESIZE 64
 
-struct FileHeader{
-	uint8 id[3];
-	uint8 version;
+struct FileHeader {
+  uint8 id[3];
+  uint8 version;
 };
 
-struct ModelHeader{
-	uint16 meshCount;
-	uint8 type;
+struct ModelHeader {
+  uint16 meshCount;
+  uint8 type;
 };
-enum ModelType{
-	mtMorphMesh	
-};
+enum ModelType { mtMorphMesh };
 
-struct MeshHeader{
-	uint8 name[NAMESIZE];
-	uint32 frameCount;
-	uint32 vertexCount;
-	uint32 indexCount;
-	float32 diffuseColor[3];
-	float32 specularColor[3];
-	float32 specularPower;
-	float32 opacity;
-	uint32 properties;
-	uint32 textures;
+struct MeshHeader {
+  uint8 name[NAMESIZE];
+  uint32 frameCount;
+  uint32 vertexCount;
+  uint32 indexCount;
+  float32 diffuseColor[3];
+  float32 specularColor[3];
+  float32 specularPower;
+  float32 opacity;
+  uint32 properties;
+  uint32 textures;
 };
-enum MeshPropertyFlag{
-	mpfTwoSided= 0,
-	mpfCustomColor= 1
-};
+enum MeshPropertyFlag { mpfTwoSided = 0, mpfCustomColor = 1 };
 
 #pragma pack(pop)
 #endif

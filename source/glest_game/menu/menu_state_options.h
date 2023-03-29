@@ -12,107 +12,109 @@
 #ifndef _GLEST_GAME_MENUSTATEOPTIONS_H_
 #define _GLEST_GAME_MENUSTATEOPTIONS_H_
 
-#include "main_menu.h"
 #include "leak_dumper.h"
+#include "main_menu.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
 // 	class MenuStateOptions
 // ===============================
 
-class MenuStateOptions: public MenuState{
+class MenuStateOptions : public MenuState {
 private:
-	GraphicButton buttonOk;
-	GraphicButton buttonReturn;
+  GraphicButton buttonOk;
+  GraphicButton buttonReturn;
 
-	GraphicLabel labelLang;
-	GraphicListBox listBoxLang;
-	GraphicLabel labelPlayerName;
-	GraphicLabel labelPlayerNameLabel;
-	GraphicLabel *activeInputLabel;
+  GraphicLabel labelLang;
+  GraphicListBox listBoxLang;
+  GraphicLabel labelPlayerName;
+  GraphicLabel labelPlayerNameLabel;
+  GraphicLabel *activeInputLabel;
 
+  GraphicButton buttonKeyboardSetup; // configure the keyboard
+  GraphicButton buttonVideoSection;
+  GraphicButton buttonAudioSection;
+  GraphicButton buttonMiscSection;
+  GraphicButton buttonNetworkSettings;
 
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
+  GraphicLabel labelFontSizeAdjustment;
+  GraphicListBox listFontSizeAdjustment;
 
-	GraphicLabel labelFontSizeAdjustment;
-	GraphicListBox listFontSizeAdjustment;
+  GraphicMessageBox mainMessageBox;
+  int mainMessageBoxState;
 
-	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
+  GraphicLabel labelScreenShotType;
+  GraphicListBox listBoxScreenShotType;
 
-	GraphicLabel labelScreenShotType;
-	GraphicListBox listBoxScreenShotType;
+  GraphicLabel labelDisableScreenshotConsoleText;
+  GraphicCheckBox checkBoxDisableScreenshotConsoleText;
 
-	GraphicLabel labelDisableScreenshotConsoleText;
-	GraphicCheckBox checkBoxDisableScreenshotConsoleText;
+  GraphicLabel labelMouseMoveScrollsWorld;
+  GraphicCheckBox checkBoxMouseMoveScrollsWorld;
 
-	GraphicLabel labelMouseMoveScrollsWorld;
-	GraphicCheckBox checkBoxMouseMoveScrollsWorld;
+  GraphicLabel labelCameraMoveSpeed;
+  GraphicListBox listCameraMoveSpeed;
 
-	GraphicLabel labelCameraMoveSpeed;
-	GraphicListBox listCameraMoveSpeed;
+  GraphicLabel labelVisibleHud;
+  GraphicCheckBox checkBoxVisibleHud;
+  GraphicLabel labelHealthBars;
+  GraphicListBox listBoxHealthBars;
 
-	GraphicLabel labelVisibleHud;
-	GraphicCheckBox checkBoxVisibleHud;
-	GraphicLabel labelHealthBars;
-	GraphicListBox listBoxHealthBars;
+  GraphicLabel labelTimeDisplay;
+  GraphicCheckBox checkBoxTimeDisplay;
+  GraphicLabel labelChatStaysActive;
+  GraphicCheckBox checkBoxChatStaysActive;
 
-	GraphicLabel labelTimeDisplay;
-	GraphicCheckBox checkBoxTimeDisplay;
-	GraphicLabel labelChatStaysActive;
-	GraphicCheckBox checkBoxChatStaysActive;
+  GraphicLabel labelLuaDisableSecuritySandbox;
+  GraphicCheckBox checkBoxLuaDisableSecuritySandbox;
 
-	GraphicLabel labelLuaDisableSecuritySandbox;
-	GraphicCheckBox checkBoxLuaDisableSecuritySandbox;
+  GraphicMessageBox luaMessageBox;
+  int luaMessageBoxState;
 
-	GraphicMessageBox luaMessageBox;
-	int luaMessageBoxState;
+  map<string, string> languageList;
 
-	map<string,string> languageList;
+  GraphicLabel labelCustomTranslation;
+  GraphicCheckBox checkBoxCustomTranslation;
 
-	GraphicLabel labelCustomTranslation;
-	GraphicCheckBox checkBoxCustomTranslation;
+  GraphicButton buttonGetNewLanguageFiles;
+  GraphicButton buttonDeleteNewLanguageFiles;
+  GraphicLabel labelTransifexUserLabel;
+  GraphicLabel labelTransifexUser;
+  GraphicLabel labelTransifexPwdLabel;
+  GraphicLabel labelTransifexPwd;
+  GraphicLabel labelTransifexI18NLabel;
+  GraphicLabel labelTransifexI18N;
 
-	GraphicButton buttonGetNewLanguageFiles;
-	GraphicButton buttonDeleteNewLanguageFiles;
-	GraphicLabel labelTransifexUserLabel;
-	GraphicLabel labelTransifexUser;
-	GraphicLabel labelTransifexPwdLabel;
-	GraphicLabel labelTransifexPwd;
-	GraphicLabel labelTransifexI18NLabel;
-	GraphicLabel labelTransifexI18N;
-
-	ProgramState **parentUI;
+  ProgramState **parentUI;
 
 public:
-	MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
-	virtual ~MenuStateOptions();
+  MenuStateOptions(Program *program, MainMenu *mainMenu,
+                   ProgramState **parentUI = NULL);
+  virtual ~MenuStateOptions();
 
-	void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
-	void mouseMove(int x, int y, const MouseState *mouseState);
-	void render();
-	virtual bool textInput(std::string text);
-	virtual void keyDown(SDL_KeyboardEvent key);
-    virtual void keyPress(SDL_KeyboardEvent c);
-    virtual bool isInSpecialKeyCaptureEvent();
+  void mouseClick(int x, int y, MouseButton mouseButton);
+  void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
+  void mouseMove(int x, int y, const MouseState *mouseState);
+  void render();
+  virtual bool textInput(std::string text);
+  virtual void keyDown(SDL_KeyboardEvent key);
+  virtual void keyPress(SDL_KeyboardEvent c);
+  virtual bool isInSpecialKeyCaptureEvent();
 
-    virtual void reloadUI();
+  virtual void reloadUI();
 
 private:
-	void saveConfig();
-	void setActiveInputLable(GraphicLabel* newLable);
-	void showMessageBox(const string &text, const string &header, bool toggle);
-	void showLuaMessageBox(const string &text, const string &header, bool toggle);
+  void saveConfig();
+  void setActiveInputLable(GraphicLabel *newLable);
+  void showMessageBox(const string &text, const string &header, bool toggle);
+  void showLuaMessageBox(const string &text, const string &header, bool toggle);
 
-	void setupTransifexUI();
+  void setupTransifexUI();
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,19 +13,20 @@
 #define _GLEST_GAME_WATER_EFFECTS_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <vector>
-#include "vec.h"
 #include "leak_dumper.h"
+#include "vec.h"
+#include <vector>
 
 using std::vector;
 
 using Shared::Graphics::Vec2f;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 class Map;
 
@@ -33,50 +34,51 @@ class Map;
 //	class WaterSplash
 // =====================================================
 
-class WaterSplash{
+class WaterSplash {
 private:
-	Vec2f pos;
-	int size;
-	float anim;
-	bool enabled;
+  Vec2f pos;
+  int size;
+  float anim;
+  bool enabled;
 
 public:
-	WaterSplash(const Vec2f &pos, int size);
+  WaterSplash(const Vec2f &pos, int size);
 
-	void update(float amount);
+  void update(float amount);
 
-	const Vec2f &getPos() const	{return pos;}
-	const int &getSize() const	{return size;}
-	float getAnim() const		{return anim;}
-	bool getEnabled() const		{return enabled;}
+  const Vec2f &getPos() const { return pos; }
+  const int &getSize() const { return size; }
+  float getAnim() const { return anim; }
+  bool getEnabled() const { return enabled; }
 };
 
 // ===============================
-// 	class WaterEffects  
+// 	class WaterEffects
 //
 /// List of water splashes
 // ===============================
 
-class WaterEffects{
+class WaterEffects {
 public:
-	typedef vector<WaterSplash> WaterSplashes;
+  typedef vector<WaterSplash> WaterSplashes;
 
 private:
-	WaterSplashes waterSplashes;
-	float anim;
-		
+  WaterSplashes waterSplashes;
+  float anim;
+
 public:
-	WaterEffects();
+  WaterEffects();
 
-	void update(float speed);
+  void update(float speed);
 
-	float getAmin() const	{return anim;}
+  float getAmin() const { return anim; }
 
-	void addWaterSplash(const Vec2f &pos, int size);
-	int getWaterSplashCount() const					{return (int)waterSplashes.size();}
-	const WaterSplash *getWaterSplash(int i) const	{return &waterSplashes[i];}
+  void addWaterSplash(const Vec2f &pos, int size);
+  int getWaterSplashCount() const { return (int)waterSplashes.size(); }
+  const WaterSplash *getWaterSplash(int i) const { return &waterSplashes[i]; }
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

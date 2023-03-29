@@ -15,7 +15,8 @@
  */
 
 #if defined(LIBM_SCCS) && !defined(lint)
-static char rcsid[] = "$NetBSD: s_isnanf.c,v 1.4f 1995/05/10 20:47:38 jtc Exp $";
+static char rcsid[] =
+    "$NetBSD: s_isnanf.c,v 1.4f 1995/05/10 20:47:38 jtc Exp $";
 #endif
 
 /*
@@ -28,18 +29,16 @@ static char rcsid[] = "$NetBSD: s_isnanf.c,v 1.4f 1995/05/10 20:47:38 jtc Exp $"
 
 namespace streflop_libm {
 #ifdef __STDC__
-	int __isnanf(Simple x)
+int __isnanf(Simple x)
 #else
-	int __isnanf(x)
-	Simple x;
+int __isnanf(x) Simple x;
 #endif
 {
-	int32_t ix;
-	GET_FLOAT_WORD(ix,x);
-	ix &= 0x7fffffff;
-	ix = 0x7f800000 - ix;
-	return (int)(((u_int32_t)(ix))>>31);
+  int32_t ix;
+  GET_FLOAT_WORD(ix, x);
+  ix &= 0x7fffffff;
+  ix = 0x7f800000 - ix;
+  return (int)(((u_int32_t)(ix)) >> 31);
 }
-hidden_def (__isnanf)
-weak_alias (__isnanf, isnanf)
-}
+hidden_def(__isnanf) weak_alias(__isnanf, isnanf)
+} // namespace streflop_libm

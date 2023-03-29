@@ -13,24 +13,25 @@
 #define _SHARED_UTIL_LOGGER_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <string>
 #include <deque>
+#include <string>
 
-#include "texture.h"
-#include "properties.h"
 #include "components.h"
 #include "leak_dumper.h"
+#include "properties.h"
+#include "texture.h"
 
-using std::string;
-using std::deque;
 using Shared::Graphics::Texture2D;
 using Shared::Util::Properties;
+using std::deque;
+using std::string;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 //	class Logger
@@ -40,64 +41,66 @@ namespace Glest{ namespace Game{
 
 class Logger {
 private:
-	static const int logLineCount;
+  static const int logLineCount;
 
 private:
-	typedef deque<string> Strings;
+  typedef deque<string> Strings;
 
 private:
-	string fileName;
-	string state;
-	string subtitle;
-	string current;
-	Texture2D *loadingTexture;
-	Properties gameHints;
-	Properties gameHintsTranslation;
-	string gameHintToShow;
-	int progress;
-	bool showProgressBar;
+  string fileName;
+  string state;
+  string subtitle;
+  string current;
+  Texture2D *loadingTexture;
+  Properties gameHints;
+  Properties gameHintsTranslation;
+  string gameHintToShow;
+  int progress;
+  bool showProgressBar;
 
-	string statusText;
-	bool cancelSelected;
-	GraphicButton buttonCancel;
-	Vec4f displayColor;
-	GraphicButton buttonNextHint;
+  string statusText;
+  bool cancelSelected;
+  GraphicButton buttonCancel;
+  Vec4f displayColor;
+  GraphicButton buttonNextHint;
 
 private:
-	Logger();
-	~Logger();
+  Logger();
+  ~Logger();
 
 public:
-	static Logger & getInstance();
+  static Logger &getInstance();
 
-	//void setMasterserverMode(bool value) { masterserverMode = value; }
+  // void setMasterserverMode(bool value) { masterserverMode = value; }
 
-	void setFile(const string &fileName)		{this->fileName= fileName;}
-	void setState(const string &state)			{this->state= state;}
-	void setSubtitle(const string &subtitle)	{this->subtitle= subtitle;}
-	void setProgress(int value)                 { this->progress = value; }
-    int getProgress() const                     {return progress;}
-    void showProgress() { showProgressBar = true;}
-    void hideProgress() { showProgressBar = false;}
+  void setFile(const string &fileName) { this->fileName = fileName; }
+  void setState(const string &state) { this->state = state; }
+  void setSubtitle(const string &subtitle) { this->subtitle = subtitle; }
+  void setProgress(int value) { this->progress = value; }
+  int getProgress() const { return progress; }
+  void showProgress() { showProgressBar = true; }
+  void hideProgress() { showProgressBar = false; }
 
-	void add(const string str, bool renderScreen= false, const string statusText="");
-	void loadLoadingScreen(string filepath);
-	void loadGameHints(string filePathEnglish,string filePathTranslation,bool clearList);
-	void renderLoadingScreen();
+  void add(const string str, bool renderScreen = false,
+           const string statusText = "");
+  void loadLoadingScreen(string filepath);
+  void loadGameHints(string filePathEnglish, string filePathTranslation,
+                     bool clearList);
+  void renderLoadingScreen();
 
-	void setCancelLoadingEnabled(bool value);
-	bool getCancelLoading() const { return cancelSelected; }
-	void setCancelLoading(bool value) { cancelSelected = value; }
-	void handleMouseClick(int x, int y);
-	void clearHints();
+  void setCancelLoadingEnabled(bool value);
+  bool getCancelLoading() const { return cancelSelected; }
+  void setCancelLoading(bool value) { cancelSelected = value; }
+  void handleMouseClick(int x, int y);
+  void clearHints();
 
-	void clear();
+  void clear();
 
 private:
-	void showNextHint();
-
+  void showNextHint();
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

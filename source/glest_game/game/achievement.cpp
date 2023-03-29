@@ -10,82 +10,83 @@
 // ==============================================================
 
 #include "achievement.h"
-#include "game.h"
-#include "world.h"
-#include "steam.h"
-#include "leak_dumper.h"
 #include "config.h"
 #include "core_data.h"
+#include "game.h"
+#include "leak_dumper.h"
+#include "steam.h"
+#include "world.h"
 
-
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 AchievementBase::AchievementBase() {
-	name = "";
-	description = "";
-	pictureName = "";
+  name = "";
+  description = "";
+  pictureName = "";
 }
 
-AchievementBase::~AchievementBase(){
-}
+AchievementBase::~AchievementBase() {}
 
 void AchievementBase::load(const XmlNode *node) {
-	name= node->getAttribute("name")->getRestrictedValue();
-   description = node->getAttribute("description")->getRestrictedValue();
-   pictureName = node->getAttribute("pictureName")->getRestrictedValue();
+  name = node->getAttribute("name")->getRestrictedValue();
+  description = node->getAttribute("description")->getRestrictedValue();
+  pictureName = node->getAttribute("pictureName")->getRestrictedValue();
 }
 // =====================================================
 // 	class CounterBasedAchievement
 // =====================================================
 
-CounterBasedAchievement::CounterBasedAchievement():AchievementBase(){
-	counterName="";
-	minCount=0;
+CounterBasedAchievement::CounterBasedAchievement() : AchievementBase() {
+  counterName = "";
+  minCount = 0;
 }
-CounterBasedAchievement::~CounterBasedAchievement(){
+CounterBasedAchievement::~CounterBasedAchievement() {}
+
+void CounterBasedAchievement::load(const XmlNode *node) {
+  AchievementBase::load(node);
+  counterName = node->getAttribute("counterName")->getRestrictedValue();
+  minCount = node->getAttribute("minCount")->getIntValue();
+  printf("achievementName=%s\n", getName().c_str());
 }
 
-void  CounterBasedAchievement::load(const XmlNode *node){
-	AchievementBase::load(node);
-	counterName= node->getAttribute("counterName")->getRestrictedValue();
-	minCount= node->getAttribute("minCount")->getIntValue();
-	printf("achievementName=%s\n",getName().c_str());
-}
-
-bool CounterBasedAchievement::checkAchieved(Game *game, PlayerAchievementsInterface *playerStats) {
-	if (playerStats->getStatAsInt(counterName.c_str()) >= minCount)
-		return true;
-	else
-		return false;
+bool CounterBasedAchievement::checkAchieved(
+    Game *game, PlayerAchievementsInterface *playerStats) {
+  if (playerStats->getStatAsInt(counterName.c_str()) >= minCount)
+    return true;
+  else
+    return false;
 }
 
 // =====================================================
 // 	class Achievements
 // =====================================================
-Achievements::Achievements(){
-	string dataPath= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	string filepath=getGameCustomCoreDataPath(dataPath, "data/achievements/achievements.xml");
-	load(filepath);
+Achievements::Achievements() {
+  string dataPath =
+      getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+  string filepath =
+      getGameCustomCoreDataPath(dataPath, "data/achievements/achievements.xml");
+  load(filepath);
 }
 
-const AchievementVector* Achievements::getAchievements(){
-	static Achievements instance;
-	return &(instance.achievements);
+const AchievementVector *Achievements::getAchievements() {
+  static Achievements instance;
+  return &(instance.achievements);
 }
 
-void Achievements::load( string xmlFilePath){
-	XmlTree	xmlTree;
-	xmlTree.load(xmlFilePath,Properties::getTagReplacementValues());
-	const XmlNode *node= xmlTree.getRootNode();
-	for (unsigned int i=0; i<node->getChildCount();++i){
-		XmlNode *currentNode=node->getChild(i);
-		if("counterBasedAchievement"==currentNode->getName()){
-			CounterBasedAchievement a;
-			a.load(currentNode);
-			achievements.push_back(&a);
-		}
-	}
-
+void Achievements::load(string xmlFilePath) {
+  XmlTree xmlTree;
+  xmlTree.load(xmlFilePath, Properties::getTagReplacementValues());
+  const XmlNode *node = xmlTree.getRootNode();
+  for (unsigned int i = 0; i < node->getChildCount(); ++i) {
+    XmlNode *currentNode = node->getChild(i);
+    if ("counterBasedAchievement" == currentNode->getName()) {
+      CounterBasedAchievement a;
+      a.load(currentNode);
+      achievements.push_back(&a);
+    }
+  }
 }
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest

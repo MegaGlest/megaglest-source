@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,20 +13,21 @@
 #define _GLEST_GAME_SOUNDCONTAINER_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <vector>
-#include "sound.h"
-#include "randomgen.h"
 #include "leak_dumper.h"
+#include "randomgen.h"
+#include "sound.h"
+#include <vector>
 
-using std::vector;
-using Shared::Util::RandomGen;
 using Shared::Sound::StaticSound;
+using Shared::Util::RandomGen;
+using std::vector;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 // 	class SoundContainer
@@ -34,27 +35,28 @@ namespace Glest{ namespace Game{
 /// Holds a list of sounds that are usually played at random
 // =====================================================
 
-class SoundContainer{
+class SoundContainer {
 public:
-	typedef vector<StaticSound*> Sounds;
+  typedef vector<StaticSound *> Sounds;
 
 private:
-	Sounds sounds;
-	mutable RandomGen random;
-	mutable int lastSound;
+  Sounds sounds;
+  mutable RandomGen random;
+  mutable int lastSound;
 
 public:
-	SoundContainer();
+  SoundContainer();
 
-	void resize(int size)			{sounds.resize(size);}
-	StaticSound *&operator[](int i)	{return sounds[i];}
+  void resize(int size) { sounds.resize(size); }
+  StaticSound *&operator[](int i) { return sounds[i]; }
 
-	const Sounds &getSounds() const	{return sounds;}
-	void clearSounds() {sounds.clear();}
-	Sounds *getSoundsPtr() {return &sounds;}
-	StaticSound *getRandSound() const;
+  const Sounds &getSounds() const { return sounds; }
+  void clearSounds() { sounds.clear(); }
+  Sounds *getSoundsPtr() { return &sounds; }
+  StaticSound *getRandSound() const;
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif
