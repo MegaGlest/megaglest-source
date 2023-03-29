@@ -46,10 +46,10 @@ IF(MSVC)
 	ENDIF()
 
 	# "MP" is build with all cores.
-	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP${N} /utf-8")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP${N} /utf-8")
-	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP${N} /utf-8" )
-	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP${N} /utf-8" )
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP${N} /utf-8 /std:c++17")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP${N} /utf-8 /std:c++17")
+	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP${N} /utf-8 /std:c++17" )
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP${N} /utf-8 /std:c++17" )
 
 	SET(MEGAGLEST_DATA_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/" CACHE STRING "The installation path for data files ${COMMON_INFO_ABOUT_PATH}")
 	SET(MEGAGLEST_INI_INSTALL_PATH "${MEGAGLEST_DATA_INSTALL_PATH}" CACHE STRING "Install path for ini files")
@@ -164,7 +164,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
 
     # Common generic GNU type compiler options that work with all generic GCC compatible compilers
 	IF(NOT MSVC)
-    	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+    	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -std=c++17")
 	ENDIF()
 
 	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
