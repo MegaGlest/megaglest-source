@@ -164,7 +164,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
 
     # Common generic GNU type compiler options that work with all generic GCC compatible compilers
 	IF(NOT MSVC)
-    	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -std=c++17")
+    	ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
 	ENDIF()
 
 	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -251,16 +251,16 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	
 	IF(NOT MSVC)
 		# Debug compiler flags
-		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
+		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -std=c++17")
 
 		# Release compiler flags
-		SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 ")
+		SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 -std=c++17")
 		IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
 			SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
 		ENDIF()
 
 		# Release with debug info compiler flags
-		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 ")
+		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 -std=c++17")
 
 		# Release minimum size compiler flags
 		IF(NOT CMAKE_GENERATOR STREQUAL Xcode)
