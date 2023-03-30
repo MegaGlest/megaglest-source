@@ -2,13 +2,14 @@
 #define __DECLSPEC_H__
 
 #if defined(_WIN32) && !defined(STATICLIB)
-#ifdef MINIUPNP_EXPORTS
-#define LIBSPEC __declspec(dllexport)
+	#ifdef MINIUPNP_EXPORTS
+		#define LIBSPEC __declspec(dllexport)
+	#else
+		#define LIBSPEC __declspec(dllimport)
+	#endif
 #else
-#define LIBSPEC __declspec(dllimport)
-#endif
-#else
-#define LIBSPEC
+	#define LIBSPEC
 #endif
 
 #endif
+

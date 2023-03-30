@@ -95,7 +95,6 @@ typedef struct {
   char nodeID[6];
 } uuid_node_t;
 
-#undef uuid_t
 typedef struct {
   uint32_t time_low;
   uint16_t time_mid;
@@ -103,7 +102,7 @@ typedef struct {
   uint8_t clock_seq_hi_and_reserved;
   uint8_t clock_seq_low;
   uint8_t node[6];
-} uuid_t;
+} gen_uuid_t;
 
 /* some forward declarations.  kind of wimpy to do that but heck, we
    are all friends here right?  raj 20081024 */
@@ -200,7 +199,7 @@ inline static uint16_t true_random(void) {
 }
 
 /* puid -- print a UUID */
-inline void puid(uuid_t u) {
+inline void puid(gen_uuid_t u) {
   int i;
 
   printf("%8.8x-%4.4x-%4.4x-%2.2x%2.2x-", u.time_low, u.time_mid,
@@ -211,7 +210,7 @@ inline void puid(uuid_t u) {
 }
 
 /* snpuid -- print a UUID in the supplied buffer */
-inline void snpuid(char *str, size_t size, uuid_t u) {
+inline void snpuid(char *str, size_t size, gen_uuid_t u) {
   int i;
   char *tmp = str;
 
@@ -286,7 +285,7 @@ inline static void get_ieee_node_identifier(uuid_node_t *node) {
 
 /* format_uuid_v1 -- make a UUID from the timestamp, clockseq,
    and node ID */
-inline static void format_uuid_v1(uuid_t *uuid, uint16_t clock_seq,
+inline static void format_uuid_v1(gen_uuid_t *uuid, uint16_t clock_seq,
                                   uuid_time_t timestamp, uuid_node_t node) {
   /* Construct a version 1 uuid with the information we've gathered
      plus a few constants. */
@@ -301,7 +300,7 @@ inline static void format_uuid_v1(uuid_t *uuid, uint16_t clock_seq,
 }
 
 /* uuid_create -- generator a UUID */
-inline int uuid_create(uuid_t *uuid) {
+inline int uuid_create(gen_uuid_t *uuid) {
   uuid_time_t timestamp;
   uint16_t clockseq;
   uuid_node_t node;
@@ -319,7 +318,7 @@ inline int uuid_create(uuid_t *uuid) {
 }
 
 inline void get_uuid_string(char *uuid_str, size_t size) {
-  uuid_t u;
+  gen_uuid_t u;
 
   uuid_create(&u);
   snpuid(uuid_str, size, u);
