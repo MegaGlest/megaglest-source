@@ -12,76 +12,77 @@
 #ifndef _GLEST_GAME_MENUSTATESCENARIO_H_
 #define _GLEST_GAME_MENUSTATESCENARIO_H_
 
-#include "main_menu.h"
 #include "leak_dumper.h"
+#include "main_menu.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
 // 	class MenuStateScenario
 // ===============================
 
-class MenuStateScenario: public MenuState {
+class MenuStateScenario : public MenuState {
 private:
+  GraphicButton buttonReturn;
+  GraphicButton buttonPlayNow;
 
-	GraphicButton buttonReturn;
-	GraphicButton buttonPlayNow;
+  GraphicLabel labelInfo;
+  GraphicLabel labelScenario;
+  GraphicComboBox comboBoxScenario;
+  GraphicLabel labelScenarioName;
 
-	GraphicLabel labelInfo;
-	GraphicLabel labelScenario;
-	GraphicComboBox comboBoxScenario;
-	GraphicLabel labelScenarioName;
+  vector<string> scenarioFiles;
 
+  ScenarioInfo scenarioInfo;
+  vector<string> dirList;
 
-	vector<string> scenarioFiles;
+  GraphicMessageBox mainMessageBox;
+  int mainMessageBoxState;
 
-    ScenarioInfo scenarioInfo;
-	vector<string> dirList;
+  string autoloadScenarioName;
 
-	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
+  time_t previewLoadDelayTimer;
+  bool needToLoadTextures;
 
-	string autoloadScenarioName;
+  bool enableScenarioTexturePreview;
+  Texture2D *scenarioLogoTexture;
 
-	time_t previewLoadDelayTimer;
-	bool needToLoadTextures;
-
-	bool enableScenarioTexturePreview;
-	Texture2D *scenarioLogoTexture;
-
-	bool isTutorialMode;
+  bool isTutorialMode;
 
 public:
-	MenuStateScenario(Program *program, MainMenu *mainMenu, bool isTutorialMode, const vector<string> &dirList, string autoloadScenarioName="");
-	virtual ~MenuStateScenario();
+  MenuStateScenario(Program *program, MainMenu *mainMenu, bool isTutorialMode,
+                    const vector<string> &dirList,
+                    string autoloadScenarioName = "");
+  virtual ~MenuStateScenario();
 
-    void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
-	void mouseMove(int x, int y, const MouseState *mouseState);
-	void eventMouseWheel(int x, int y,int zDelta);
-	void render();
-	void update();
+  void mouseClick(int x, int y, MouseButton mouseButton);
+  void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
+  void mouseMove(int x, int y, const MouseState *mouseState);
+  void eventMouseWheel(int x, int y, int zDelta);
+  void render();
+  void update();
 
-	void launchGame();
-	void setScenario(int i);
-	int getScenarioCount() const	{ return comboBoxScenario.getItemCount(); }
+  void launchGame();
+  void setScenario(int i);
+  int getScenarioCount() const { return comboBoxScenario.getItemCount(); }
 
-	virtual void keyDown(SDL_KeyboardEvent key);
+  virtual void keyDown(SDL_KeyboardEvent key);
 
-	virtual void reloadUI();
+  virtual void reloadUI();
 
 private:
+  void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
+  void loadGameSettings(const ScenarioInfo *scenarioInfo,
+                        GameSettings *gameSettings);
+  void loadScenarioPreviewTexture();
+  Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
+  void showMessageBox(const string &text, const string &header, bool toggle);
 
-	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
-    void loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings);
-    void loadScenarioPreviewTexture();
-	Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
-    void showMessageBox(const string &text, const string &header, bool toggle);
-
-    void cleanupPreviewTexture();
+  void cleanupPreviewTexture();
 };
 
-
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

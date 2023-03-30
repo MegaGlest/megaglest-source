@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,87 +13,86 @@
 #define _GLEST_GAME_DAMAGEMULTIPLIER_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <string>
-#include "xml_parser.h"
 #include "leak_dumper.h"
+#include "xml_parser.h"
+#include <string>
 
-using std::string;
 using Shared::Xml::XmlNode;
+using std::string;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
-// 	class AttackType  
+// 	class AttackType
 // ===============================
 
 class AttackType {
 private:
-	string name;
-	int id;
+  string name;
+  int id;
 
 public:
-	AttackType() {
-		id = -1;
-	}
-	int getId() const					{return id;}
-	string getName(bool translatedValue=false) const;
+  AttackType() { id = -1; }
+  int getId() const { return id; }
+  string getName(bool translatedValue = false) const;
 
-	void setName(const string &name)	{this->name= name;}
-	void setId(int id)					{this->id= id;}
+  void setName(const string &name) { this->name = name; }
+  void setId(int id) { this->id = id; }
 
-	void saveGame(XmlNode *rootNode);
+  void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
-// 	class ArmorType  
+// 	class ArmorType
 // ===============================
 
 class ArmorType {
 private:
-	string name;
-	int id;
+  string name;
+  int id;
 
 public:
-	ArmorType() {
-		id = -1;
-	}
-	int getId() const					{return id;}
-	string getName(bool translatedValue=false) const;
+  ArmorType() { id = -1; }
+  int getId() const { return id; }
+  string getName(bool translatedValue = false) const;
 
-	void setName(const string &name)	{this->name= name;}
-	void setId(int id)					{this->id= id;}
+  void setName(const string &name) { this->name = name; }
+  void setId(int id) { this->id = id; }
 
-	void saveGame(XmlNode *rootNode);
+  void saveGame(XmlNode *rootNode);
 };
 
 // =====================================================
-// 	class DamageMultiplierTable  
+// 	class DamageMultiplierTable
 //
-///	Some attack types have bonuses against some 
+///	Some attack types have bonuses against some
 /// armor types and vice-versa
 // =====================================================
 
 class DamageMultiplierTable {
 private:
-	double *values;
-	int attackTypeCount;
-	int armorTypeCount;
+  double *values;
+  int attackTypeCount;
+  int armorTypeCount;
 
 public:
-	DamageMultiplierTable();
-	~DamageMultiplierTable();
+  DamageMultiplierTable();
+  ~DamageMultiplierTable();
 
-	void init(int attackTypeCount, int armorTypeCount);
-	double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
-	void setDamageMultiplier(const AttackType *att, const ArmorType *art, double value);
+  void init(int attackTypeCount, int armorTypeCount);
+  double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
+  void setDamageMultiplier(const AttackType *att, const ArmorType *art,
+                           double value);
 
-	void saveGame(XmlNode *rootNode);
+  void saveGame(XmlNode *rootNode);
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

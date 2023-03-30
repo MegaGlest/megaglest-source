@@ -16,13 +16,20 @@
 
 using std::string;
 
-namespace Shared{ namespace CompressionUtil{
+namespace Shared {
+namespace CompressionUtil {
 
-bool compressFileToZIPFile(string inFile, string outFile, int compressionLevel=5);
+bool compressFileToZIPFile(string inFile, string outFile,
+                           int compressionLevel = 5);
 bool extractFileFromZIPFile(string inFile, string outFile);
-std::pair<unsigned char *,unsigned long> compressMemoryToMemory(unsigned char *input, unsigned long input_len, int compressionLevel=5);
-std::pair<unsigned char *,unsigned long> extractMemoryToMemory(unsigned char *input, unsigned long input_len, unsigned long max_output_len);
+std::pair<unsigned char *, unsigned long>
+compressMemoryToMemory(unsigned char *input, unsigned long input_len,
+                       int compressionLevel = 5);
+std::pair<unsigned char *, unsigned long>
+extractMemoryToMemory(unsigned char *input, unsigned long input_len,
+                      unsigned long max_output_len);
 
-}};
+} // namespace CompressionUtil
+}; // namespace Shared
 
 #endif

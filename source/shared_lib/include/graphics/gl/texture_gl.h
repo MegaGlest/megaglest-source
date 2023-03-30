@@ -3,20 +3,22 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHARED_GRAPHICS_GL_TEXTUREGL_H_
 #define _SHARED_GRAPHICS_GL_TEXTUREGL_H_
 
-#include "texture.h"
-#include "opengl.h"
 #include "leak_dumper.h"
+#include "opengl.h"
+#include "texture.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 // =====================================================
 //	class TextureGl
@@ -24,108 +26,111 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 
 class TextureGl {
 protected:
-	GLuint handle;
-	GLuint renderBufferId;
-	GLuint frameBufferId;
+  GLuint handle;
+  GLuint renderBufferId;
+  GLuint frameBufferId;
 
-	static bool enableATIHacks;
+  static bool enableATIHacks;
 
-	void initRenderBuffer();
-	void initFrameBuffer();
-	void attachRenderBuffer();
+  void initRenderBuffer();
+  void initFrameBuffer();
+  void attachRenderBuffer();
 
 public:
-	TextureGl();
-	virtual ~TextureGl();
+  TextureGl();
+  virtual ~TextureGl();
 
-	static void setEnableATIHacks(bool value) 	{ enableATIHacks = value; }
-	static bool getEnableATIHacks() 			{ return enableATIHacks; }
+  static void setEnableATIHacks(bool value) { enableATIHacks = value; }
+  static bool getEnableATIHacks() { return enableATIHacks; }
 
-	GLuint getHandle() const				{return handle;}
-	GLuint getRenderBufferHandle() const	{return renderBufferId;}
-	GLuint getFrameBufferHandle() const		{return frameBufferId;}
+  GLuint getHandle() const { return handle; }
+  GLuint getRenderBufferHandle() const { return renderBufferId; }
+  GLuint getFrameBufferHandle() const { return frameBufferId; }
 
-	bool supports_FBO_RBO();
-	void setup_FBO_RBO();
-	void attachFrameBufferToTexture();
-	void dettachFrameBufferFromTexture();
-	void dettachRenderBufferFromTexture();
-	bool checkFrameBufferStatus();
-	void teardown_FBO_RBO();
+  bool supports_FBO_RBO();
+  void setup_FBO_RBO();
+  void attachFrameBufferToTexture();
+  void dettachFrameBufferFromTexture();
+  void dettachRenderBufferFromTexture();
+  bool checkFrameBufferStatus();
+  void teardown_FBO_RBO();
 
-	virtual int getTextureWidth() const  = 0;
-	virtual int getTextureHeight() const = 0;
+  virtual int getTextureWidth() const = 0;
+  virtual int getTextureHeight() const = 0;
 
-	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,std::size_t rawSize,GLenum texType);
+  void OutputTextureDebugInfo(Texture::Format format, int components,
+                              const string path, std::size_t rawSize,
+                              GLenum texType);
 };
 
 // =====================================================
 //	class Texture1DGl
 // =====================================================
 
-class Texture1DGl: public Texture1D, public TextureGl {
+class Texture1DGl : public Texture1D, public TextureGl {
 public:
-	Texture1DGl();
-	virtual ~Texture1DGl();
+  Texture1DGl();
+  virtual ~Texture1DGl();
 
-	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end(bool deletePixelBuffer=true);
+  virtual void init(Filter filter, int maxAnisotropy = 1);
+  virtual void end(bool deletePixelBuffer = true);
 
-	virtual int getTextureWidth() const  { return Texture1D::getTextureWidth();}
-	virtual int getTextureHeight() const { return Texture1D::getTextureHeight();}
+  virtual int getTextureWidth() const { return Texture1D::getTextureWidth(); }
+  virtual int getTextureHeight() const { return Texture1D::getTextureHeight(); }
 };
 
 // =====================================================
 //	class Texture2DGl
 // =====================================================
 
-class Texture2DGl: public Texture2D, public TextureGl{
+class Texture2DGl : public Texture2D, public TextureGl {
 public:
-	Texture2DGl();
-	virtual ~Texture2DGl();
+  Texture2DGl();
+  virtual ~Texture2DGl();
 
-	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end(bool deletePixelBuffer=true);
+  virtual void init(Filter filter, int maxAnisotropy = 1);
+  virtual void end(bool deletePixelBuffer = true);
 
-	virtual int getTextureWidth() const  { return Texture2D::getTextureWidth();}
-	virtual int getTextureHeight() const { return Texture2D::getTextureHeight();}
+  virtual int getTextureWidth() const { return Texture2D::getTextureWidth(); }
+  virtual int getTextureHeight() const { return Texture2D::getTextureHeight(); }
 };
 
 // =====================================================
 //	class Texture3DGl
 // =====================================================
 
-class Texture3DGl: public Texture3D, public TextureGl{
+class Texture3DGl : public Texture3D, public TextureGl {
 public:
+  Texture3DGl();
+  virtual ~Texture3DGl();
 
-	Texture3DGl();
-	virtual ~Texture3DGl();
+  virtual void init(Filter filter, int maxAnisotropy = 1);
+  virtual void end(bool deletePixelBuffer = true);
 
-	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end(bool deletePixelBuffer=true);
-
-	virtual int getTextureWidth() const  { return Texture3D::getTextureWidth();}
-	virtual int getTextureHeight() const { return Texture3D::getTextureHeight();}
+  virtual int getTextureWidth() const { return Texture3D::getTextureWidth(); }
+  virtual int getTextureHeight() const { return Texture3D::getTextureHeight(); }
 };
 
 // =====================================================
 //	class TextureCubeGl
 // =====================================================
 
-class TextureCubeGl: public TextureCube, public TextureGl{
+class TextureCubeGl : public TextureCube, public TextureGl {
 public:
+  TextureCubeGl();
+  virtual ~TextureCubeGl();
 
-	TextureCubeGl();
-	virtual ~TextureCubeGl();
+  virtual void init(Filter filter, int maxAnisotropy = 1);
+  virtual void end(bool deletePixelBuffer = true);
 
-	virtual void init(Filter filter, int maxAnisotropy= 1);
-	virtual void end(bool deletePixelBuffer=true);
-
-	virtual int getTextureWidth() const  { return TextureCube::getTextureWidth();}
-	virtual int getTextureHeight() const { return TextureCube::getTextureHeight();}
-
+  virtual int getTextureWidth() const { return TextureCube::getTextureWidth(); }
+  virtual int getTextureHeight() const {
+    return TextureCube::getTextureHeight();
+  }
 };
 
-}}}//end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

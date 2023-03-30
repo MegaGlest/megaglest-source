@@ -65,5 +65,4 @@ extern const char ftpMsg038[];
 extern const char ftpMsg039[];
 extern const char ftpMsg040[];
 
-
 #endif /* FTPMESSAGES_H_ */

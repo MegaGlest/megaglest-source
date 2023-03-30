@@ -17,7 +17,7 @@
 
 #include <GL/glew.h>
 
-#define GLEST_GLPROC(X, Y) inline X( static a= wglGetProcAddress(a); return a;)
+#define GLEST_GLPROC(X, Y) inline X(static a = wglGetProcAddress(a); return a;)
 
 #else
 
@@ -26,17 +26,18 @@
 
 #endif
 
-#include <string>
-#include "font.h"
 #include "data_types.h"
-#include <SDL.h>
+#include "font.h"
 #include "leak_dumper.h"
+#include <SDL.h>
+#include <string>
 
 using std::string;
 
 using Shared::Graphics::FontMetrics;
 
-namespace Shared{ namespace Platform{
+namespace Shared {
+namespace Platform {
 
 // =====================================================
 //	class PlatformContextGl
@@ -44,36 +45,36 @@ namespace Shared{ namespace Platform{
 
 class PlatformContextGl {
 protected:
-	SDL_Surface *icon;
-	SDL_Window *window;
-	SDL_GLContext glcontext;
+  SDL_Surface *icon;
+  SDL_Window *window;
+  SDL_GLContext glcontext;
 
 public:
-	// Example values:
-	// DEFAULT_CHARSET (English) = 1
-	// GB2312_CHARSET (Chinese)  = 134
-	#ifdef WIN32
-	static DWORD charSet;
-	#else
-	static int charSet;
-	#endif
+// Example values:
+// DEFAULT_CHARSET (English) = 1
+// GB2312_CHARSET (Chinese)  = 134
+#ifdef WIN32
+  static DWORD charSet;
+#else
+  static int charSet;
+#endif
 
 public:
-	PlatformContextGl();
-	virtual ~PlatformContextGl();
+  PlatformContextGl();
+  virtual ~PlatformContextGl();
 
-	virtual void init(int colorBits, int depthBits, int stencilBits,
-			bool hardware_acceleration, bool fullscreen_anti_aliasing,
-			float gammaValue);
-	virtual void end();
+  virtual void init(int colorBits, int depthBits, int stencilBits,
+                    bool hardware_acceleration, bool fullscreen_anti_aliasing,
+                    float gammaValue);
+  virtual void end();
 
-	virtual void makeCurrent();
-	virtual void swapBuffers();
+  virtual void makeCurrent();
+  virtual void swapBuffers();
 
-	SDL_Window * getScreenWindow() { return window; }
-	SDL_Surface * getScreenSurface();
+  SDL_Window *getScreenWindow() { return window; }
+  SDL_Surface *getScreenSurface();
 
-	DeviceContextHandle getHandle() const	{ return 0; }
+  DeviceContextHandle getHandle() const { return 0; }
 };
 
 // =====================================================
@@ -81,16 +82,21 @@ public:
 // =====================================================
 
 #if defined(__APPLE__)
-void createGlFontBitmaps(uint32 &base, const string &type, int size, int width, int charCount, FontMetrics &metrics);
-void createGlFontOutlines(uint32 &base, const string &type, int width, float depth, int charCount, FontMetrics &metrics);
+void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
+                         int charCount, FontMetrics &metrics);
+void createGlFontOutlines(uint32 &base, const string &type, int width,
+                          float depth, int charCount, FontMetrics &metrics);
 #else
-void createGlFontBitmaps(uint32 &base, const string &type, int size, int width, int charCount, FontMetrics &metrics);
-void createGlFontOutlines(uint32 &base, const string &type, int width, float depth, int charCount, FontMetrics &metrics);
+void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
+                         int charCount, FontMetrics &metrics);
+void createGlFontOutlines(uint32 &base, const string &type, int width,
+                          float depth, int charCount, FontMetrics &metrics);
 #endif
 
 const char *getPlatformExtensions(const PlatformContextGl *pcgl);
-void* getGlProcAddress(const char *procName);
+void *getGlProcAddress(const char *procName);
 
-}}//end namespace
+} // namespace Platform
+} // namespace Shared
 
 #endif

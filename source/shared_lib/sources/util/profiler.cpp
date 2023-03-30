@@ -13,117 +13,121 @@
 
 #ifdef SL_PROFILE
 
-#include <stdexcept>
 #include "leak_dumper.h"
+#include <stdexcept>
 
 using namespace std;
 
-namespace Shared{ namespace Util{
+namespace Shared {
+namespace Util {
 
 // =====================================================
 //	class Section
 // =====================================================
 
-Section::Section(const string &name){
-	this->name= name;
-	milisElapsed= 0;
-	parent= NULL;
+Section::Section(const string &name) {
+  this->name = name;
+  milisElapsed = 0;
+  parent = NULL;
 }
 
-Section *Section::getChild(const string &name){
-	SectionContainer::iterator it;
-	for(it= children.begin(); it!=children.end(); ++it){
-		if((*it)->getName()==name){
-			return *it;
-		}
-	}
+Section *Section::getChild(const string &name) {
+  SectionContainer::iterator it;
+  for (it = children.begin(); it != children.end(); ++it) {
+    if ((*it)->getName() == name) {
+      return *it;
+    }
+  }
 
-	return NULL;
+  return NULL;
 }
 
-void Section::print(FILE *outStream, int tabLevel){
+void Section::print(FILE *outStream, int tabLevel) {
 
-	float percent= (parent==NULL || parent->milisElapsed==0)? 100.0f: 100.0f*milisElapsed/parent->milisElapsed;
-	//string pname= parent==NULL? "": parent->getName();
+  float percent = (parent == NULL || parent->milisElapsed == 0)
+                      ? 100.0f
+                      : 100.0f * milisElapsed / parent->milisElapsed;
+  // string pname= parent==NULL? "": parent->getName();
 
-	for(int i=0; i<tabLevel; ++i)
-		fprintf(outStream, "\t");
+  for (int i = 0; i < tabLevel; ++i)
+    fprintf(outStream, "\t");
 
-	fprintf(outStream, "%s: ", name.c_str());
-	fprintf(outStream, "%d ms, ", milisElapsed);
-	fprintf(outStream, "%.1f%s\n", percent, "%");
+  fprintf(outStream, "%s: ", name.c_str());
+  fprintf(outStream, "%d ms, ", milisElapsed);
+  fprintf(outStream, "%.1f%s\n", percent, "%");
 
-	SectionContainer::iterator it;
-	for(it= children.begin(); it!=children.end(); ++it){
-		(*it)->print(outStream, tabLevel+1);
-	}
+  SectionContainer::iterator it;
+  for (it = children.begin(); it != children.end(); ++it) {
+    (*it)->print(outStream, tabLevel + 1);
+  }
 }
 
 // =====================================================
 //	class Profiler
 // =====================================================
 
-Profiler::Profiler(){
-	rootSection= new Section("Root");
-	currSection= rootSection;
-	rootSection->start();
+Profiler::Profiler() {
+  rootSection = new Section("Root");
+  currSection = rootSection;
+  rootSection->start();
 }
 
-Profiler::~Profiler(){
-	rootSection->stop();
+Profiler::~Profiler() {
+  rootSection->stop();
 
-    string profileLog = "profiler.log";
-    if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
-        profileLog = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + profileLog;
+  string profileLog = "profiler.log";
+  if (getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+    profileLog = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) +
+                 profileLog;
+  } else {
+    string userData = config.getString("UserData_Root", "");
+    if (userData != "") {
+      endPathWithSlash(userData);
     }
-    else {
-        string userData = config.getString("UserData_Root","");
-        if(userData != "") {
-        	endPathWithSlash(userData);
-        }
-        profileLog = userData + profileLog;
-    }
+    profileLog = userData + profileLog;
+  }
 #ifdef WIN32
-	FILE* f= = _wfopen(utf8_decode(profileLog).c_str(), L"w");
+  FILE *f = = _wfopen(utf8_decode(profileLog).c_str(), L"w");
 #else
-	FILE *f= fopen(profileLog.c_str(), "w");
+  FILE *f = fopen(profileLog.c_str(), "w");
 #endif
-	if(f==NULL)
-		throw megaglest_runtime_error("Can not open file: " + profileLog);
+  if (f == NULL)
+    throw megaglest_runtime_error("Can not open file: " + profileLog);
 
-	fprintf(f, "Profiler Results\n\n");
+  fprintf(f, "Profiler Results\n\n");
 
-	rootSection->print(f);
+  rootSection->print(f);
 
-	fclose(f);
+  fclose(f);
 }
 
-Profiler &Profiler::getInstance(){
-	static Profiler profiler;
-	return profiler;
+Profiler &Profiler::getInstance() {
+  static Profiler profiler;
+  return profiler;
 }
 
-void Profiler::sectionBegin(const string &name){
-	Section *childSection= currSection->getChild(name);
-	if(childSection==NULL){
-		childSection= new Section(name);
-		currSection->addChild(childSection);
-		childSection->setParent(currSection);
-	}
-	currSection= childSection;
-	childSection->start();
+void Profiler::sectionBegin(const string &name) {
+  Section *childSection = currSection->getChild(name);
+  if (childSection == NULL) {
+    childSection = new Section(name);
+    currSection->addChild(childSection);
+    childSection->setParent(currSection);
+  }
+  currSection = childSection;
+  childSection->start();
 }
 
-void Profiler::sectionEnd(const string &name){
-	if(name==currSection->getName()){
-		currSection->stop();
-		currSection= currSection->getParent();
-	}
-	else{
-		throw megaglest_runtime_error("Profile: Leaving section is not current section: "+name);
-	}
+void Profiler::sectionEnd(const string &name) {
+  if (name == currSection->getName()) {
+    currSection->stop();
+    currSection = currSection->getParent();
+  } else {
+    throw megaglest_runtime_error(
+        "Profile: Leaving section is not current section: " + name);
+  }
 }
 
-}};//end namespace
+} // namespace Util
+}; // namespace Shared
 
 #endif

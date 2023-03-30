@@ -11,19 +11,19 @@
 
 #include "auto_test.h"
 
-#include "program.h"
+#include "config.h"
+#include "core_data.h"
+#include "game.h"
 #include "main_menu.h"
+#include "menu_state_custom_game.h"
 #include "menu_state_new_game.h"
 #include "menu_state_scenario.h"
-#include "menu_state_custom_game.h"
-#include "game.h"
-#include "core_data.h"
-#include "config.h"
+#include "program.h"
 
 #include "leak_dumper.h"
 
-
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 //	class AutoTest
@@ -39,73 +39,77 @@ string AutoTest::loadGameSettingsFile = "";
 // ===================== PUBLIC ========================
 
 AutoTest::AutoTest() {
-	exitGame = false;
-	gameStartTime = invalidTime;
-	random.init(time(NULL));
+  exitGame = false;
+  gameStartTime = invalidTime;
+  random.init(time(NULL));
 }
 
-AutoTest & AutoTest::getInstance() {
-	static AutoTest autoTest;
-	return autoTest;
+AutoTest &AutoTest::getInstance() {
+  static AutoTest autoTest;
+  return autoTest;
 }
 
 void AutoTest::updateIntro(Program *program) {
-	program->setState(new MainMenu(program));
+  program->setState(new MainMenu(program));
 }
 
 void AutoTest::updateRoot(Program *program, MainMenu *mainMenu) {
-	mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+  mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 }
 
 void AutoTest::updateNewGame(Program *program, MainMenu *mainMenu) {
-	if(loadGameSettingsFile != "") {
-		gameStartTime = invalidTime;
-		bool fileFound = CoreData::getInstance().loadGameSettingsFromFile(
-				loadGameSettingsFile, &gameSettings);
+  if (loadGameSettingsFile != "") {
+    gameStartTime = invalidTime;
+    bool fileFound = CoreData::getInstance().loadGameSettingsFromFile(
+        loadGameSettingsFile, &gameSettings);
 
-		if(fileFound == false) {
-			throw megaglest_runtime_error("Specified game settings file [" + loadGameSettingsFile + "] was NOT found!");
-		}
-		//printf("Got settings:\n%s",gameSettings.toString().c_str());
-		mainMenu->setState(new MenuStateCustomGame(program, mainMenu, false, pNewGame, true, &gameSettings));
-	}
-	else {
-		mainMenu->setState(new MenuStateScenario(program, mainMenu, false,
-				Config::getInstance().getPathListForType(ptScenarios)));
-	}
+    if (fileFound == false) {
+      throw megaglest_runtime_error("Specified game settings file [" +
+                                    loadGameSettingsFile + "] was NOT found!");
+    }
+    // printf("Got settings:\n%s",gameSettings.toString().c_str());
+    mainMenu->setState(new MenuStateCustomGame(program, mainMenu, false,
+                                               pNewGame, true, &gameSettings));
+  } else {
+    mainMenu->setState(new MenuStateScenario(
+        program, mainMenu, false,
+        Config::getInstance().getPathListForType(ptScenarios)));
+  }
 }
 
 void AutoTest::updateScenario(MenuStateScenario *menuStateScenario) {
-	gameStartTime = invalidTime;
+  gameStartTime = invalidTime;
 
-	int scenarioIndex = random.randRange(0, menuStateScenario->getScenarioCount()-1);
-	menuStateScenario->setScenario(scenarioIndex);
+  int scenarioIndex =
+      random.randRange(0, menuStateScenario->getScenarioCount() - 1);
+  menuStateScenario->setScenario(scenarioIndex);
 
-	menuStateScenario->launchGame();
+  menuStateScenario->launchGame();
 }
 
 bool AutoTest::updateGame(Game *game) {
-	// record start time
-	if(gameStartTime == invalidTime) {
-		gameStartTime = time(NULL);
-	}
+  // record start time
+  if (gameStartTime == invalidTime) {
+    gameStartTime = time(NULL);
+  }
 
-	// quit if we've espend enough time in the game
-	if(difftime(time(NULL),gameStartTime) > gameTime) {
-		Program *program = game->getProgram();
-		Stats endStats = game->quitGame();
-		if(AutoTest::wantExitGame == true) {
-			exitGame = true;
-		}
-		Game::exitGameState(program, endStats);
-		return true;
-	}
+  // quit if we've espend enough time in the game
+  if (difftime(time(NULL), gameStartTime) > gameTime) {
+    Program *program = game->getProgram();
+    Stats endStats = game->quitGame();
+    if (AutoTest::wantExitGame == true) {
+      exitGame = true;
+    }
+    Game::exitGameState(program, endStats);
+    return true;
+  }
 
-	return false;
+  return false;
 }
 
 void AutoTest::updateBattleEnd(Program *program) {
-	program->setState(new MainMenu(program));
+  program->setState(new MainMenu(program));
 }
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest

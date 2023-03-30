@@ -11,147 +11,163 @@
 
 #include "menu_state_graphic_info.h"
 
+#include "config.h"
+#include "core_data.h"
+#include "leak_dumper.h"
+#include "menu_state_options_graphics.h"
+#include "opengl.h"
 #include "renderer.h"
 #include "sound_renderer.h"
-#include "core_data.h"
-#include "menu_state_options_graphics.h"
-#include "config.h"
-#include "opengl.h"
-#include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 // 	class MenuStateGraphicInfo
 // =====================================================
 
-MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "info")
-{
-	Lang &lang= Lang::getInstance();
+MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
+    : MenuState(program, mainMenu, "info") {
+  Lang &lang = Lang::getInstance();
 
-	containerName = "GraphicInfo";
-	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-	buttonReturn.init(650, 575, 125);
+  containerName = "GraphicInfo";
+  buttonReturn.registerGraphicComponent(containerName, "buttonReturn");
+  buttonReturn.init(650, 575, 125);
 
-	buttonReturn.setText(lang.getString("Return"));
+  buttonReturn.setText(lang.getString("Return"));
 
-	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-	labelInfo.init(0, 730);
+  labelInfo.registerGraphicComponent(containerName, "labelInfo");
+  labelInfo.init(0, 730);
 
-	labelMoreInfo.registerGraphicComponent(containerName,"labelMoreInfo");
-	labelMoreInfo.init(0, 555);
-	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
-	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+  labelMoreInfo.registerGraphicComponent(containerName, "labelMoreInfo");
+  labelMoreInfo.init(0, 555);
+  labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+  labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
-	labelInternalInfo.registerGraphicComponent(containerName,"labelInternalInfo");
-	labelInternalInfo.init(300, 730);
-	labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
-	labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+  labelInternalInfo.registerGraphicComponent(containerName,
+                                             "labelInternalInfo");
+  labelInternalInfo.init(300, 730);
+  labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+  labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
-	GraphicComponent::applyAllCustomProperties(containerName);
+  GraphicComponent::applyAllCustomProperties(containerName);
 
-	Renderer &renderer= Renderer::getInstance();
+  Renderer &renderer = Renderer::getInstance();
 
-	string glInfo= renderer.getGlInfo();
-	string glMoreInfo= renderer.getGlMoreInfo();
-	labelInfo.setText(glInfo);
-	labelMoreInfo.setText(glMoreInfo);
+  string glInfo = renderer.getGlInfo();
+  string glMoreInfo = renderer.getGlMoreInfo();
+  labelInfo.setText(glInfo);
+  labelMoreInfo.setText(glMoreInfo);
 
-	string strInternalInfo = "";
-	strInternalInfo += "VBOSupported: " + boolToStr(getVBOSupported());
-	if(getenv("MEGAGLEST_FONT") != NULL) {
-		char *tryFont = getenv("MEGAGLEST_FONT");
-		strInternalInfo += "\nMEGAGLEST_FONT: " + string(tryFont);
-	}
-	strInternalInfo += "\nforceLegacyFonts: " + boolToStr(Font::forceLegacyFonts);
-	strInternalInfo += "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
-	strInternalInfo += "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
-	strInternalInfo += "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
-	strInternalInfo += "\nscaleFontValue: " + floatToStr(Font::scaleFontValue);
-	strInternalInfo += "\nscaleFontValueCenterHFactor: " + floatToStr(Font::scaleFontValueCenterHFactor);
-	strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
-	strInternalInfo += "\nAllowAltEnterFullscreenToggle: " + boolToStr(Window::getAllowAltEnterFullscreenToggle());
-	strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
-	strInternalInfo += "\nVERBOSE_MODE_ENABLED: " + boolToStr(SystemFlags::VERBOSE_MODE_ENABLED);
-	labelInternalInfo.setText(strInternalInfo);
+  string strInternalInfo = "";
+  strInternalInfo += "VBOSupported: " + boolToStr(getVBOSupported());
+  if (getenv("MEGAGLEST_FONT") != NULL) {
+    char *tryFont = getenv("MEGAGLEST_FONT");
+    strInternalInfo += "\nMEGAGLEST_FONT: " + string(tryFont);
+  }
+  strInternalInfo += "\nforceLegacyFonts: " + boolToStr(Font::forceLegacyFonts);
+  strInternalInfo +=
+      "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
+  strInternalInfo +=
+      "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
+  strInternalInfo +=
+      "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
+  strInternalInfo += "\nscaleFontValue: " + floatToStr(Font::scaleFontValue);
+  strInternalInfo += "\nscaleFontValueCenterHFactor: " +
+                     floatToStr(Font::scaleFontValueCenterHFactor);
+  strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
+  strInternalInfo += "\nAllowAltEnterFullscreenToggle: " +
+                     boolToStr(Window::getAllowAltEnterFullscreenToggle());
+  strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
+  strInternalInfo +=
+      "\nVERBOSE_MODE_ENABLED: " + boolToStr(SystemFlags::VERBOSE_MODE_ENABLED);
+  labelInternalInfo.setText(strInternalInfo);
 }
 
 void MenuStateGraphicInfo::reloadUI() {
-	Lang &lang= Lang::getInstance();
+  Lang &lang = Lang::getInstance();
 
-	console.resetFonts();
-	buttonReturn.setText(lang.getString("Return"));
+  console.resetFonts();
+  buttonReturn.setText(lang.getString("Return"));
 
-	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
-	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+  labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+  labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
-	labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
-	labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+  labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
+  labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
-	Renderer &renderer= Renderer::getInstance();
+  Renderer &renderer = Renderer::getInstance();
 
-	string glInfo= renderer.getGlInfo();
-	string glMoreInfo= renderer.getGlMoreInfo();
-	labelInfo.setText(glInfo);
-	labelMoreInfo.setText(glMoreInfo);
+  string glInfo = renderer.getGlInfo();
+  string glMoreInfo = renderer.getGlMoreInfo();
+  labelInfo.setText(glInfo);
+  labelMoreInfo.setText(glMoreInfo);
 
-	string strInternalInfo = "";
-	strInternalInfo += "VBOSupported: " + boolToStr(getVBOSupported());
-	if(getenv("MEGAGLEST_FONT") != NULL) {
-		char *tryFont = getenv("MEGAGLEST_FONT");
-		strInternalInfo += "\nMEGAGLEST_FONT: " + string(tryFont);
-	}
-	strInternalInfo += "\nforceLegacyFonts: " + boolToStr(Font::forceLegacyFonts);
-	strInternalInfo += "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
-	strInternalInfo += "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
-	strInternalInfo += "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
-	strInternalInfo += "\nscaleFontValue: " + floatToStr(Font::scaleFontValue);
-	strInternalInfo += "\nscaleFontValueCenterHFactor: " + floatToStr(Font::scaleFontValueCenterHFactor);
-	strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
-	strInternalInfo += "\nAllowAltEnterFullscreenToggle: " + boolToStr(Window::getAllowAltEnterFullscreenToggle());
-	strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
-	strInternalInfo += "\nVERBOSE_MODE_ENABLED: " + boolToStr(SystemFlags::VERBOSE_MODE_ENABLED);
-	labelInternalInfo.setText(strInternalInfo);
+  string strInternalInfo = "";
+  strInternalInfo += "VBOSupported: " + boolToStr(getVBOSupported());
+  if (getenv("MEGAGLEST_FONT") != NULL) {
+    char *tryFont = getenv("MEGAGLEST_FONT");
+    strInternalInfo += "\nMEGAGLEST_FONT: " + string(tryFont);
+  }
+  strInternalInfo += "\nforceLegacyFonts: " + boolToStr(Font::forceLegacyFonts);
+  strInternalInfo +=
+      "\nrenderText3DEnabled: " + boolToStr(Renderer::renderText3DEnabled);
+  strInternalInfo +=
+      "\nuseTextureCompression: " + boolToStr(Texture::useTextureCompression);
+  strInternalInfo +=
+      "\nfontIsRightToLeft: " + boolToStr(Font::fontIsRightToLeft);
+  strInternalInfo += "\nscaleFontValue: " + floatToStr(Font::scaleFontValue);
+  strInternalInfo += "\nscaleFontValueCenterHFactor: " +
+                     floatToStr(Font::scaleFontValueCenterHFactor);
+  strInternalInfo += "\nlangHeightText: " + Font::langHeightText;
+  strInternalInfo += "\nAllowAltEnterFullscreenToggle: " +
+                     boolToStr(Window::getAllowAltEnterFullscreenToggle());
+  strInternalInfo += "\nTryVSynch: " + boolToStr(Window::getTryVSynch());
+  strInternalInfo +=
+      "\nVERBOSE_MODE_ENABLED: " + boolToStr(SystemFlags::VERBOSE_MODE_ENABLED);
+  labelInternalInfo.setText(strInternalInfo);
 
-	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+  GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
-void MenuStateGraphicInfo::mouseClick(int x, int y, MouseButton mouseButton){
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+void MenuStateGraphicInfo::mouseClick(int x, int y, MouseButton mouseButton) {
+  CoreData &coreData = CoreData::getInstance();
+  SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 
-	if(buttonReturn.mouseClick(x,y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu));
-    }
+  if (buttonReturn.mouseClick(x, y)) {
+    soundRenderer.playFx(coreData.getClickSoundA());
+    mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu));
+  }
 }
 
-void MenuStateGraphicInfo::mouseMove(int x, int y, const MouseState *ms){
-	buttonReturn.mouseMove(x, y);
+void MenuStateGraphicInfo::mouseMove(int x, int y, const MouseState *ms) {
+  buttonReturn.mouseMove(x, y);
 }
 
-void MenuStateGraphicInfo::render(){
+void MenuStateGraphicInfo::render() {
 
-	Renderer &renderer= Renderer::getInstance();
-	//Lang &lang= Lang::getInstance();
+  Renderer &renderer = Renderer::getInstance();
+  // Lang &lang= Lang::getInstance();
 
-	renderer.renderButton(&buttonReturn);
-	renderer.renderLabel(&labelInfo);
-	renderer.renderLabel(&labelInternalInfo);
-	renderer.renderLabel(&labelMoreInfo);
+  renderer.renderButton(&buttonReturn);
+  renderer.renderLabel(&labelInfo);
+  renderer.renderLabel(&labelInternalInfo);
+  renderer.renderLabel(&labelMoreInfo);
 
-	renderer.renderConsole(&console);
+  renderer.renderConsole(&console);
 }
 
 void MenuStateGraphicInfo::keyDown(SDL_KeyboardEvent key) {
-	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	//if(key == configKeys.getCharKey("SaveGUILayout")) {
-	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
-		GraphicComponent::saveAllCustomProperties(containerName);
-		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
-	}
+  Config &configKeys = Config::getInstance(
+      std::pair<ConfigType, ConfigType>(cfgMainKeys, cfgUserKeys));
+  // if(key == configKeys.getCharKey("SaveGUILayout")) {
+  if (isKeyPressed(configKeys.getSDLKey("SaveGUILayout"), key) == true) {
+    GraphicComponent::saveAllCustomProperties(containerName);
+    // Lang &lang= Lang::getInstance();
+    // console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ?
+    // lang.getString("Yes") : lang.getString("No"))+ "]");
+  }
 }
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest

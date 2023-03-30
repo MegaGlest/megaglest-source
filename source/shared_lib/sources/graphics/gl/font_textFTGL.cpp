@@ -11,14 +11,14 @@
 
 #ifdef USE_FTGL
 
-//#include "gettext.h"
+// #include "gettext.h"
 
 #include "font_textFTGL.h"
 
 #include "opengl.h"
+#include <FTGL/ftgl.h>
 #include <stdexcept>
 #include <sys/stat.h>
-#include <FTGL/ftgl.h>
 
 #include "platform_common.h"
 #include "util.h"
@@ -27,409 +27,445 @@ using namespace std;
 using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 
-namespace Shared { namespace Graphics { namespace Gl {
-
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 string TextFTGL::langHeightText = "yW";
-int TextFTGL::faceResolution 	= 72;
+int TextFTGL::faceResolution = 72;
 
 //====================================================================
 TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 
-	//throw megaglest_runtime_error("FTGL!");
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",0);
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/uming.ttc",0); // Chinese
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/ukai.ttc",0); // Chinese
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-doulos/DoulosSILR.ttf",0); // Russian / Cyrillic
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-charis/CharisSILR.ttf",0); // Russian / Cyrillic
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf",0); // Russian / Cyrillic
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/takao/TakaoPGothic.ttf",0); // Japanese
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-scheherazade/ScheherazadeRegOT.ttf",0); // Arabic
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/linux-libertine/LinLibertine_Re.ttf",0); // Hebrew
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/unifont/unifont.ttf",0); // Czech?
-	//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-liberation/LiberationSans-Regular.ttf",0); // Czech?
+  // throw megaglest_runtime_error("FTGL!");
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",0);
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/uming.ttc",0); //
+  // Chinese
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/arphic/ukai.ttc",0); //
+  // Chinese
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-doulos/DoulosSILR.ttf",0);
+  // // Russian / Cyrillic
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-charis/CharisSILR.ttf",0);
+  // // Russian / Cyrillic
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf",0);
+  // // Russian / Cyrillic
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/takao/TakaoPGothic.ttf",0);
+  // // Japanese
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-sil-scheherazade/ScheherazadeRegOT.ttf",0);
+  // // Arabic
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/linux-libertine/LinLibertine_Re.ttf",0);
+  // // Hebrew
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/unifont/unifont.ttf",0);
+  // // Czech?
+  // setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-liberation/LiberationSans-Regular.ttf",0);
+  // // Czech?
 
+  fontFile = findFont();
+  // ftFont = new FTBufferFont(fontFile);
+  // ftFont = new FTGLPixmapFont(fontFile);
+  // ftFont = new FTGLExtrdFont(fontFile);
+  // ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 
-	fontFile = findFont();
-	//ftFont = new FTBufferFont(fontFile);
-	//ftFont = new FTGLPixmapFont(fontFile);
-	//ftFont = new FTGLExtrdFont(fontFile);
-	//ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
+  // ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
+  if (type == ftht_2D) {
+    ftFont = new FTGLPixmapFont(fontFile);
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("2D font [%s]\n", fontFile);
+  } else if (type == ftht_3D) {
+    ftFont = new FTGLTextureFont(fontFile);
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("3D font [%s]\n", fontFile);
+  } else {
+    throw megaglest_runtime_error("font render type not set to a known value!");
+  }
 
-	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
-	if(type == ftht_2D) {
-		ftFont = new FTGLPixmapFont(fontFile);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("2D font [%s]\n",fontFile);
-	}
-	else if(type == ftht_3D) {
-		ftFont = new FTGLTextureFont(fontFile);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("3D font [%s]\n",fontFile);
-	}
-	else {
-		throw megaglest_runtime_error("font render type not set to a known value!");
-	}
+  if (ftFont->Error()) {
+    string fontFileName = (fontFile != NULL ? fontFile : "n/a");
+    printf("FTGL: error loading font: %s\n", fontFileName.c_str());
+    delete ftFont;
+    ftFont = NULL;
+    if (fontFile != NULL)
+      free((void *)fontFile);
+    fontFile = NULL;
+    throw megaglest_runtime_error(string("FTGL: error loading font: ") +
+                                  fontFileName);
+  }
+  free((void *)fontFile);
+  fontFile = NULL;
 
-	if(ftFont->Error())	{
-		string fontFileName = (fontFile != NULL ? fontFile : "n/a");
-		printf("FTGL: error loading font: %s\n", fontFileName.c_str());
-		delete ftFont; ftFont = NULL;
-		if(fontFile != NULL) free((void*)fontFile);
-		fontFile = NULL;
-		throw megaglest_runtime_error(string("FTGL: error loading font: ") + fontFileName);
-	}
-	free((void*)fontFile);
-	fontFile = NULL;
+  const unsigned int defSize = 24;
+  ftFont->FaceSize(defSize, TextFTGL::faceResolution);
 
-	const unsigned int defSize = 24;
-	ftFont->FaceSize(defSize,TextFTGL::faceResolution);
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    printf("\n[%s::%s] Line %d Error = %d [%s] for size = %u res = %d\n",
+           __FILE__, __FUNCTION__, __LINE__, error, gluErrorString(error),
+           defSize, TextFTGL::faceResolution);
+    fflush(stdout);
+  }
 
-	GLenum error = glGetError();
-	if(error != GL_NO_ERROR) {
-		printf("\n[%s::%s] Line %d Error = %d [%s] for size = %u res = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),defSize,TextFTGL::faceResolution);
-		fflush(stdout);
-	}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error setting face size, #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
+  // ftFont->UseDisplayList(false);
+  // ftFont->CharMap(ft_encoding_gb2312);
+  // ftFont->CharMap(ft_encoding_big5);
+  if (ftFont->CharMap(ft_encoding_unicode) == false) {
+    throw megaglest_runtime_error("FTGL: error setting encoding");
+  }
 
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error setting face size, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
-	//ftFont->UseDisplayList(false);
-	//ftFont->CharMap(ft_encoding_gb2312);
-	//ftFont->CharMap(ft_encoding_big5);
-	if(ftFont->CharMap(ft_encoding_unicode) == false) {
-		throw megaglest_runtime_error("FTGL: error setting encoding");
-	}
-
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error setting encoding, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error setting encoding, #%d", ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 }
 
-TextFTGL::~TextFTGL() {
-	cleanupFont();
-}
+TextFTGL::~TextFTGL() { cleanupFont(); }
 
 void TextFTGL::cleanupFont() {
-	delete ftFont;
-	ftFont = NULL;
+  delete ftFont;
+  ftFont = NULL;
 
-	if(fontFile) {
-		free((void*)fontFile);
-	}
-	fontFile = NULL;
+  if (fontFile) {
+    free((void *)fontFile);
+  }
+  fontFile = NULL;
 }
 
 void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
-	cleanupFont();
-	fontFile = findFont(fontName.c_str(),fontFamilyName.c_str());
+  cleanupFont();
+  fontFile = findFont(fontName.c_str(), fontFamilyName.c_str());
 
-	//ftFont = new FTBufferFont(fontFile);
-	//ftFont = new FTGLPixmapFont(fontFile);
-	//ftFont = new FTGLExtrdFont(fontFile);
-	//ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
-	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
+  // ftFont = new FTBufferFont(fontFile);
+  // ftFont = new FTGLPixmapFont(fontFile);
+  // ftFont = new FTGLExtrdFont(fontFile);
+  // ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
+  // ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 
-	if(type == ftht_2D) {
-		ftFont = new FTGLPixmapFont(fontFile);
-		//printf("2D font [%s]\n",fontFile);
-	}
-	else if(type == ftht_3D) {
-		ftFont = new FTGLTextureFont(fontFile);
+  if (type == ftht_2D) {
+    ftFont = new FTGLPixmapFont(fontFile);
+    // printf("2D font [%s]\n",fontFile);
+  } else if (type == ftht_3D) {
+    ftFont = new FTGLTextureFont(fontFile);
 
-		//ftFont = new FTBufferFont(fontFile);
-		//ftFont = new FTGLExtrdFont(fontFile);
-		//ftFont = new FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
+    // ftFont = new FTBufferFont(fontFile);
+    // ftFont = new FTGLExtrdFont(fontFile);
+    // ftFont = new
+    // FTGLPolygonFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 
-		//printf("3D font [%s]\n",fontFile);
-	}
-	else {
-		throw megaglest_runtime_error("font render type not set to a known value!");
-	}
+    // printf("3D font [%s]\n",fontFile);
+  } else {
+    throw megaglest_runtime_error("font render type not set to a known value!");
+  }
 
-	if(ftFont->Error())	{
-		printf("FTGL: error loading font: %s\n", fontFile);
-		delete ftFont; ftFont = NULL;
-		if(fontFile) {
-			free((void*)fontFile);
-		}
-		fontFile = NULL;
-		throw megaglest_runtime_error("FTGL: error loading font");
-	}
-	free((void*)fontFile);
-	fontFile = NULL;
+  if (ftFont->Error()) {
+    printf("FTGL: error loading font: %s\n", fontFile);
+    delete ftFont;
+    ftFont = NULL;
+    if (fontFile) {
+      free((void *)fontFile);
+    }
+    fontFile = NULL;
+    throw megaglest_runtime_error("FTGL: error loading font");
+  }
+  free((void *)fontFile);
+  fontFile = NULL;
 
-	if(fontSize <= 0) {
-		fontSize = 24;
-	}
-	ftFont->FaceSize(fontSize,TextFTGL::faceResolution);
+  if (fontSize <= 0) {
+    fontSize = 24;
+  }
+  ftFont->FaceSize(fontSize, TextFTGL::faceResolution);
 
-	GLenum error = glGetError();
-	if(error != GL_NO_ERROR) {
-		printf("\n[%s::%s] Line %d Error = %d [%s] for size = %d res = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),fontSize,TextFTGL::faceResolution);
-		fflush(stdout);
-	}
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    printf("\n[%s::%s] Line %d Error = %d [%s] for size = %d res = %d\n",
+           __FILE__, __FUNCTION__, __LINE__, error, gluErrorString(error),
+           fontSize, TextFTGL::faceResolution);
+    fflush(stdout);
+  }
 
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error setting face size, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error setting face size, #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 
-	//ftFont->UseDisplayList(false);
-	//ftFont->CharMap(ft_encoding_gb2312);
-	//ftFont->CharMap(ft_encoding_big5);
-	if(ftFont->CharMap(ft_encoding_unicode) == false) {
-		throw megaglest_runtime_error("FTGL: error setting encoding");
-	}
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error setting encoding, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
+  // ftFont->UseDisplayList(false);
+  // ftFont->CharMap(ft_encoding_gb2312);
+  // ftFont->CharMap(ft_encoding_big5);
+  if (ftFont->CharMap(ft_encoding_unicode) == false) {
+    throw megaglest_runtime_error("FTGL: error setting encoding");
+  }
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error setting encoding, #%d", ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 
-	// Create a string containing common characters
-	// and preload the chars without rendering them.
-	string preloadText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890-=!@#$%^&*()_+:\"{}[]/?.,<>\\';";
-	ftFont->Advance(preloadText.c_str());
+  // Create a string containing common characters
+  // and preload the chars without rendering them.
+  string preloadText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012"
+                       "34567890-=!@#$%^&*()_+:\"{}[]/?.,<>\\';";
+  ftFont->Advance(preloadText.c_str());
 
-	error = glGetError();
-	if(error != GL_NO_ERROR) {
-		printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),preloadText.c_str());
-		fflush(stdout);
-	}
+  error = glGetError();
+  if (error != GL_NO_ERROR) {
+    printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n", __FILE__,
+           __FUNCTION__, __LINE__, error, gluErrorString(error),
+           preloadText.c_str());
+    fflush(stdout);
+  }
 
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error advancing(a), #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error advancing(a), #%d", ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 }
 
 void TextFTGL::SetFaceSize(int value) {
-	ftFont->FaceSize(value,TextFTGL::faceResolution);
+  ftFont->FaceSize(value, TextFTGL::faceResolution);
 
-	GLenum error = glGetError();
-	if(error != GL_NO_ERROR) {
-		printf("\n[%s::%s] Line %d Error = %d [%s] for facesize = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),value);
-		fflush(stdout);
-	}
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    printf("\n[%s::%s] Line %d Error = %d [%s] for facesize = %d\n", __FILE__,
+           __FUNCTION__, __LINE__, error, gluErrorString(error), value);
+    fflush(stdout);
+  }
 
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error setting face size, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error setting face size, #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 }
 
-int TextFTGL::GetFaceSize() {
-	return ftFont->FaceSize();
+int TextFTGL::GetFaceSize() { return ftFont->FaceSize(); }
+
+void TextFTGL::Render(const char *str, const int len) {
+  // printf("Render TextFTGL\n");
+
+  /*
+    FTGL renders the whole string when len == 0
+    but we don't want any text rendered then.
+  */
+  if (len != 0) {
+    // printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
+    assertGl();
+
+    ftFont->Render(str, len);
+    // assertGl();
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+      printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n", __FILE__,
+             __FUNCTION__, __LINE__, error, gluErrorString(error), str);
+      fflush(stdout);
+    }
+
+    if (ftFont->Error()) {
+      char szBuf[8096] = "";
+      snprintf(szBuf, 8096, "FTGL: error trying to render, #%d",
+               ftFont->Error());
+      throw megaglest_runtime_error(szBuf);
+    }
+  }
 }
 
-void TextFTGL::Render(const char* str, const int len) {
-	//printf("Render TextFTGL\n");
+float TextFTGL::Advance(const char *str, const int len) {
+  float result = ftFont->Advance(str, len);
 
-	/*
-	  FTGL renders the whole string when len == 0
-	  but we don't want any text rendered then.
-	*/
-	if(len != 0) {
-		//printf("FTGL Render [%s] facesize = %d\n",str,ftFont->FaceSize());
-		assertGl();
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n", __FILE__,
+           __FUNCTION__, __LINE__, error, gluErrorString(error), str);
+    fflush(stdout);
+  }
 
-		ftFont->Render(str, len);
-		//assertGl();
-		GLenum error = glGetError();
-		if(error != GL_NO_ERROR) {
-			printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
-			fflush(stdout);
-		}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error trying to advance(b), #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
+  return result;
 
-		if(ftFont->Error())	{
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"FTGL: error trying to render, #%d",ftFont->Error());
-			throw megaglest_runtime_error(szBuf);
-		}
-	}
+  // FTBBox box = ftFont->BBox(str);
+  // float urx = box.Upper().X();
+  // float llx = box.Lower().X();
+  // float llx, lly, llz, urx, ury, urz;
+  // ftFont->BBox(str, llx, lly, llz, urx, ury, urz);
+
+  // Short_t halign = fTextAlign/10;
+  // Short_t valign = fTextAlign - 10*halign;
+  // Float_t dx = 0, dy = 0;
+  //	switch (halign) {
+  //	  case 1 : dx =  0    ; break;
+  //	  case 2 : dx = -urx/2; break;
+  //	  case 3 : dx = -urx  ; break;
+  //	}
+  //	switch (valign) {
+  //	  case 1 : dy =  0    ; break;
+  //	  case 2 : dy = -ury/2; break;
+  //	  case 3 : dy = -ury  ; break;
+  //	}
+
+  // printf("For str [%s] advance = %f, urx = %f, llx = %f\n",str,
+  // ftFont->Advance(str, len),urx,llx); return urx;
 }
 
-float TextFTGL::Advance(const char* str, const int len) {
-	float result = ftFont->Advance(str, len);
+float TextFTGL::LineHeight(const char *str, const int len) {
+  // FTBBox box = ftFont->BBox(str);
+  // printf("String [%s] lineheight = %f upper_y = %f lower_y =
+  // %f\n",str,ftFont->LineHeight(),box.Upper().Y(),box.Lower().Y());
 
-	GLenum error = glGetError();
-	if(error != GL_NO_ERROR) {
-		printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
-		fflush(stdout);
-	}
+  // printf("ftFont->Ascender():%f ftFont->Descender()*-1 = %f
+  // ftFont->LineHeight() = %f\n",ftFont->Ascender(),ftFont->Descender()*-1 ,
+  // ftFont->LineHeight()); return ftFont->Ascender() + ftFont->Descender()*-1 -
+  // ftFont->LineHeight(); return ftFont->LineHeight();
 
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error trying to advance(b), #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
-	return result;
+  // static float result = -1000;
+  float result = -1000;
+  // if(result == -1000) {
+  FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
 
-	//FTBBox box = ftFont->BBox(str);
-	//float urx = box.Upper().X();
-	//float llx = box.Lower().X();
-	//float llx, lly, llz, urx, ury, urz;
-	//ftFont->BBox(str, llx, lly, llz, urx, ury, urz);
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n", __FILE__,
+           __FUNCTION__, __LINE__, error, gluErrorString(error), str);
+    fflush(stdout);
+  }
 
-	//Short_t halign = fTextAlign/10;
-	//Short_t valign = fTextAlign - 10*halign;
-	//Float_t dx = 0, dy = 0;
-//	switch (halign) {
-//	  case 1 : dx =  0    ; break;
-//	  case 2 : dx = -urx/2; break;
-//	  case 3 : dx = -urx  ; break;
-//	}
-//	switch (valign) {
-//	  case 1 : dy =  0    ; break;
-//	  case 2 : dy = -ury/2; break;
-//	  case 3 : dy = -ury  ; break;
-//	}
+  result = box.Upper().Yf() - box.Lower().Yf();
+  if (result == 0) {
+    result = ftFont->LineHeight();
 
-	//printf("For str [%s] advance = %f, urx = %f, llx = %f\n",str, ftFont->Advance(str, len),urx,llx);
-	//return urx;
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+      printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n", __FILE__,
+             __FUNCTION__, __LINE__, error, gluErrorString(error), str);
+      fflush(stdout);
+    }
+  }
+  // printf("ftFont->BBox(''yW'')%f\n",result);
+  //}
+  //	else {
+  //		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
+  //
+  //		GLenum error = glGetError();
+  //		if(error != GL_NO_ERROR) {
+  //			printf("\n[%s::%s] Line %d Error = %d [%s] for text
+  //[%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+  //			fflush(stdout);
+  //		}
+  //
+  //		int newresult = box.Upper().Y()- box.Lower().Y();
+  //		if(newresult == 0) {
+  //			newresult = ftFont->LineHeight();
+  //
+  //			GLenum error = glGetError();
+  //			if(error != GL_NO_ERROR) {
+  //				printf("\n[%s::%s] Line %d Error = %d [%s] for
+  //text
+  //[%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
+  //				fflush(stdout);
+  //			}
+  //		}
+  //
+  //		printf("Height for [%s] result [%d]
+  //[%d]\n",str,result,newresult);
+  //	}
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error trying to get lineheight, #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
+
+  return result;
+  //	printf("For str [%s] LineHeight = %f, result = %f\n",str,
+  // ftFont->LineHeight(),result); 	return result;
+
+  // float urx = box.Upper().X();
+  // float llx = box.Lower().X();
+  // float llx, lly, llz, urx, ury, urz;
+  // ftFont->BBox(str, llx, lly, llz, urx, ury, urz);
+  // return  ury - lly;
+
+  // Short_t halign = fTextAlign/10;
+  // Short_t valign = fTextAlign - 10*halign;
+  // Float_t dx = 0, dy = 0;
+  //	switch (halign) {
+  //	  case 1 : dx =  0    ; break;
+  //	  case 2 : dx = -urx/2; break;
+  //	  case 3 : dx = -urx  ; break;
+  //	}
+  //	switch (valign) {
+  //	  case 1 : dy =  0    ; break;
+  //	  case 2 : dy = -ury/2; break;
+  //	  case 3 : dy = -ury  ; break;
+  //	}
+
+  // printf("For str [%s] advance = %f, urx = %f, llx = %f\n",str,
+  // ftFont->Advance(str, len),urx,llx); return urx;
 }
 
-float TextFTGL::LineHeight(const char* str, const int len) {
-	//FTBBox box = ftFont->BBox(str);
-	//printf("String [%s] lineheight = %f upper_y = %f lower_y = %f\n",str,ftFont->LineHeight(),box.Upper().Y(),box.Lower().Y());
+float TextFTGL::LineHeight(const wchar_t *str, const int len) {
+  static float result = -1000;
+  if (result == -1000) {
+    FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
+    result = box.Upper().Yf() - box.Lower().Yf();
+    if (result == 0) {
+      result = ftFont->LineHeight();
+    }
+    // printf("ftFont->BBox(''yW'')%f\n",result);
+  }
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error trying to get lineheight, #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 
-
-	//printf("ftFont->Ascender():%f ftFont->Descender()*-1 = %f ftFont->LineHeight() = %f\n",ftFont->Ascender(),ftFont->Descender()*-1 , ftFont->LineHeight());
-	//return ftFont->Ascender() + ftFont->Descender()*-1 - ftFont->LineHeight();
-	//return ftFont->LineHeight();
-
-	//static float result = -1000;
-	float result = -1000;
-	//if(result == -1000) {
-		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
-
-		GLenum error = glGetError();
-		if(error != GL_NO_ERROR) {
-			printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
-			fflush(stdout);
-		}
-
-		result = box.Upper().Yf()- box.Lower().Yf();
-		if(result == 0) {
-			result = ftFont->LineHeight();
-
-			GLenum error = glGetError();
-			if(error != GL_NO_ERROR) {
-				printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
-				fflush(stdout);
-			}
-		}
-		//printf("ftFont->BBox(''yW'')%f\n",result);
-	//}
-//	else {
-//		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
-//
-//		GLenum error = glGetError();
-//		if(error != GL_NO_ERROR) {
-//			printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
-//			fflush(stdout);
-//		}
-//
-//		int newresult = box.Upper().Y()- box.Lower().Y();
-//		if(newresult == 0) {
-//			newresult = ftFont->LineHeight();
-//
-//			GLenum error = glGetError();
-//			if(error != GL_NO_ERROR) {
-//				printf("\n[%s::%s] Line %d Error = %d [%s] for text [%s]\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),str);
-//				fflush(stdout);
-//			}
-//		}
-//
-//		printf("Height for [%s] result [%d] [%d]\n",str,result,newresult);
-//	}
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error trying to get lineheight, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
-
-	return result;
-//	printf("For str [%s] LineHeight = %f, result = %f\n",str, ftFont->LineHeight(),result);
-//	return result;
-
-	//float urx = box.Upper().X();
-	//float llx = box.Lower().X();
-	//float llx, lly, llz, urx, ury, urz;
-	//ftFont->BBox(str, llx, lly, llz, urx, ury, urz);
-	//return  ury - lly;
-
-	//Short_t halign = fTextAlign/10;
-	//Short_t valign = fTextAlign - 10*halign;
-	//Float_t dx = 0, dy = 0;
-//	switch (halign) {
-//	  case 1 : dx =  0    ; break;
-//	  case 2 : dx = -urx/2; break;
-//	  case 3 : dx = -urx  ; break;
-//	}
-//	switch (valign) {
-//	  case 1 : dy =  0    ; break;
-//	  case 2 : dy = -ury/2; break;
-//	  case 3 : dy = -ury  ; break;
-//	}
-
-	//printf("For str [%s] advance = %f, urx = %f, llx = %f\n",str, ftFont->Advance(str, len),urx,llx);
-	//return urx;
-
+  return result;
 }
 
-float TextFTGL::LineHeight(const wchar_t* str, const int len) {
-	static float result = -1000;
-	if(result == -1000) {
-		FTBBox box = ftFont->BBox(TextFTGL::langHeightText.c_str());
-		result = box.Upper().Yf()- box.Lower().Yf();
-		if(result == 0) {
-			result = ftFont->LineHeight();
-		}
-		//printf("ftFont->BBox(''yW'')%f\n",result);
-	}
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error trying to get lineheight, #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
+void TextFTGL::Render(const wchar_t *str, const int len) {
+  /*
+    FTGL renders the whole string when len == 0
+    but we don't want any text rendered then.
+  */
+  if (len != 0) {
+    ftFont->Render(str, len);
 
-	return result;
+    if (ftFont->Error()) {
+      char szBuf[8096] = "";
+      snprintf(szBuf, 8096, "FTGL: error trying to render, #%d",
+               ftFont->Error());
+      throw megaglest_runtime_error(szBuf);
+    }
+  }
 }
 
-void TextFTGL::Render(const wchar_t* str, const int len) {
-	/*
-	  FTGL renders the whole string when len == 0
-	  but we don't want any text rendered then.
-	*/
-	if(len != 0) {
-		ftFont->Render(str, len);
+float TextFTGL::Advance(const wchar_t *str, const int len) {
+  float result = ftFont->Advance(str, len);
+  if (ftFont->Error()) {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096, "FTGL: error trying to advance(c), #%d",
+             ftFont->Error());
+    throw megaglest_runtime_error(szBuf);
+  }
 
-		if(ftFont->Error())	{
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"FTGL: error trying to render, #%d",ftFont->Error());
-			throw megaglest_runtime_error(szBuf);
-		}
-	}
+  return result;
 }
 
-float TextFTGL::Advance(const wchar_t* str, const int len) {
-	float result = ftFont->Advance(str, len);
-	if(ftFont->Error())	{
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"FTGL: error trying to advance(c), #%d",ftFont->Error());
-		throw megaglest_runtime_error(szBuf);
-	}
-
-	return result;
-}
-
-}}}//end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif // USE_FTGL

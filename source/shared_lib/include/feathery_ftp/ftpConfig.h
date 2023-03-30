@@ -30,17 +30,17 @@
 /**
  * @brief max. possible user accounts
  */
-#define MAX_USERS		10
+#define MAX_USERS 10
 
 /**
  * @brief max. length of a user account name
  */
-#define MAXLEN_USERNAME	40
+#define MAXLEN_USERNAME 40
 
 /**
  * @brief max. length of a user account password
  */
-#define MAXLEN_PASSWORD	40
+#define MAXLEN_PASSWORD 40
 
 /**
  * @brief session timeout in seconds
@@ -50,7 +50,7 @@
 /**
  * @brief maximum length of a complete directory path
  */
-#define MAX_PATH_LEN	1024
+#define MAX_PATH_LEN 1024
 
 /**
  * @brief Size of the scratch buffer
@@ -58,29 +58,30 @@
  * The scratch buffer is used for
  *  send / receive of files and directory listings
  */
-#define LEN_SCRATCHBUF	1024
+#define LEN_SCRATCHBUF 1024
 
 /**
  * @brief Size of the receive buffer for ftp commands
  *
  * Buffer must be big enough to hold a complete ftp command.
- * command (4) + space (1) + path (MAX_PATH_LEN) + quotes (2) + CRLF (2) + end of string (1)
+ * command (4) + space (1) + path (MAX_PATH_LEN) + quotes (2) + CRLF (2) + end
+ * of string (1)
  */
-#define LEN_RXBUF		(MAX_PATH_LEN + 10)
+#define LEN_RXBUF (MAX_PATH_LEN + 10)
 
 /**
  * @brief activates ftp extentions according to RFC 3659
  */
-#define RFC3659			1
+#define RFC3659 1
 
 /**
  * @brief set to 1 to activate debug messages on stdout
  */
-//#define DBG_LOG			1
+// #define DBG_LOG			1
 
 /**
  * @brief set to 1 if target-plattform supports ANSI-C file-IO functions
  */
-#define ANSI_FILE_IO	1
+#define ANSI_FILE_IO 1
 
 #endif /* FTPCONFIG_H_ */

@@ -3,63 +3,64 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHARED_GRAPHICS_TEXTUREMANAGER_H_
 #define _SHARED_GRAPHICS_TEXTUREMANAGER_H_
 
-#include <vector>
-#include "texture.h"
 #include "leak_dumper.h"
+#include "texture.h"
+#include <vector>
 
 using std::vector;
 
-namespace Shared{ namespace Graphics{
+namespace Shared {
+namespace Graphics {
 
 // =====================================================
 //	class TextureManager
 // =====================================================
-typedef vector<Texture*> TextureContainer;
+typedef vector<Texture *> TextureContainer;
 
-//manages textures, creation on request and deletion on destruction
-class TextureManager{
-	
+// manages textures, creation on request and deletion on destruction
+class TextureManager {
+
 protected:
-	TextureContainer textures;
-	
-	Texture::Filter textureFilter;
-	int maxAnisotropy;
+  TextureContainer textures;
+
+  Texture::Filter textureFilter;
+  int maxAnisotropy;
 
 public:
-	TextureManager();
-	~TextureManager();
-	void init(bool forceInit=false);
-	void end();
+  TextureManager();
+  ~TextureManager();
+  void init(bool forceInit = false);
+  void end();
 
-	void setFilter(Texture::Filter textureFilter);
-	void setMaxAnisotropy(int maxAnisotropy);
-	void initTexture(Texture *texture);
-	void endTexture(Texture *texture,bool mustExistInList=false);
-	void endLastTexture(bool mustExistInList=false);
-	void reinitTextures();
+  void setFilter(Texture::Filter textureFilter);
+  void setMaxAnisotropy(int maxAnisotropy);
+  void initTexture(Texture *texture);
+  void endTexture(Texture *texture, bool mustExistInList = false);
+  void endLastTexture(bool mustExistInList = false);
+  void reinitTextures();
 
-	Texture::Filter getTextureFilter() const {return textureFilter;}
-	int getMaxAnisotropy() const {return maxAnisotropy;}
+  Texture::Filter getTextureFilter() const { return textureFilter; }
+  int getMaxAnisotropy() const { return maxAnisotropy; }
 
-	Texture *getTexture(const string &path);
-	Texture1D *newTexture1D();
-	Texture2D *newTexture2D();
-	Texture3D *newTexture3D();
-	TextureCube *newTextureCube();
+  Texture *getTexture(const string &path);
+  Texture1D *newTexture1D();
+  Texture2D *newTexture2D();
+  Texture3D *newTexture3D();
+  TextureCube *newTextureCube();
 
-	const TextureContainer &getTextures() const {return textures;}
+  const TextureContainer &getTextures() const { return textures; }
 };
 
-
-}}//end namespace
+} // namespace Graphics
+} // namespace Shared
 
 #endif

@@ -3,43 +3,43 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHARED_SOUND_SOUNDINTERFACE_H_
 #define _SHARED_SOUND_SOUNDINTERFACE_H_
 
-#include "sound_factory.h"
 #include "leak_dumper.h"
+#include "sound_factory.h"
 
-namespace Shared{ namespace Sound{
+namespace Shared {
+namespace Sound {
 
 // =====================================================
 //	class SoundInterface
 // =====================================================
 
-class SoundInterface{
+class SoundInterface {
 private:
-	SoundFactory *soundFactory;
+  SoundFactory *soundFactory;
 
 private:
-	SoundInterface() {
-		soundFactory = 0;
-	}
-	SoundInterface(SoundInterface &);
-	void operator=(SoundInterface &);
+  SoundInterface() { soundFactory = 0; }
+  SoundInterface(SoundInterface &);
+  void operator=(SoundInterface &);
 
 public:
-	static SoundInterface &getInstance();
+  static SoundInterface &getInstance();
 
-	void setFactory(SoundFactory *soundFactory);
+  void setFactory(SoundFactory *soundFactory);
 
-	SoundPlayer *newSoundPlayer();
+  SoundPlayer *newSoundPlayer();
 };
 
-}}//end namespace
+} // namespace Sound
+} // namespace Shared
 
 #endif

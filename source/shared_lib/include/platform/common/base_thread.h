@@ -14,153 +14,141 @@
 
 #include "leak_dumper.h"
 #include "thread.h"
-#include <string>
 #include <map>
+#include <string>
 
 using namespace Shared::Platform;
 using namespace std;
 
-namespace Shared { namespace PlatformCommon {
+namespace Shared {
+namespace PlatformCommon {
 
 // =====================================================
 //	class BaseThread
 // =====================================================
 
-class BaseThread : public Thread
-{
+class BaseThread : public Thread {
 protected:
-	Mutex *mutexRunning;
-	Mutex *mutexQuit;
-	Mutex *mutexBeginExecution;
-	Mutex *mutexDeleteSelfOnExecutionDone;
+  Mutex *mutexRunning;
+  Mutex *mutexQuit;
+  Mutex *mutexBeginExecution;
+  Mutex *mutexDeleteSelfOnExecutionDone;
 
-    Mutex *mutexThreadObjectAccessor;
+  Mutex *mutexThreadObjectAccessor;
 
-    bool threadOwnerValid;
-    Mutex *mutexThreadOwnerValid;
+  bool threadOwnerValid;
+  Mutex *mutexThreadOwnerValid;
 
-	Mutex *mutexExecutingTask;
-	bool executingTask;
+  Mutex *mutexExecutingTask;
+  bool executingTask;
 
-	void *ptr;
-	static Mutex mutexMasterThreadList;
-	static std::map<void *,int> masterThreadList;
+  void *ptr;
+  static Mutex mutexMasterThreadList;
+  static std::map<void *, int> masterThreadList;
 
-	bool quit;
-	bool running;
-	string uniqueID;
-	bool hasBeginExecution;
-	bool deleteSelfOnExecutionDone;
+  bool quit;
+  bool running;
+  string uniqueID;
+  bool hasBeginExecution;
+  bool deleteSelfOnExecutionDone;
 
-	Mutex *mutexStarted;
-	bool started;
+  Mutex *mutexStarted;
+  bool started;
 
-	virtual void setQuitStatus(bool value);
-	void deleteSelfIfRequired();
+  virtual void setQuitStatus(bool value);
+  void deleteSelfIfRequired();
 
-	void *genericData;
-
+  void *genericData;
 
 public:
-	BaseThread();
-	virtual ~BaseThread();
-	virtual void execute()=0;
+  BaseThread();
+  virtual ~BaseThread();
+  virtual void execute() = 0;
 
-	virtual void signalQuit();
-	virtual bool getQuitStatus();
-	virtual bool getRunningStatus();
+  virtual void signalQuit();
+  virtual bool getQuitStatus();
+  virtual bool getRunningStatus();
 
-	virtual bool getStarted();
-	virtual void setStarted(bool value);
+  virtual bool getStarted();
+  virtual void setStarted(bool value);
 
-	virtual bool getHasBeginExecution();
-	virtual void setHasBeginExecution(bool value);
+  virtual bool getHasBeginExecution();
+  virtual void setHasBeginExecution(bool value);
 
-    static bool shutdownAndWait(BaseThread *ppThread);
-    virtual bool shutdownAndWait();
-    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+  static bool shutdownAndWait(BaseThread *ppThread);
+  virtual bool shutdownAndWait();
+  virtual bool canShutdown(bool deleteSelfIfShutdownDelayed = false);
 
-    virtual bool getDeleteSelfOnExecutionDone();
-	virtual void setDeleteSelfOnExecutionDone(bool value);
+  virtual bool getDeleteSelfOnExecutionDone();
+  virtual void setDeleteSelfOnExecutionDone(bool value);
 
-    void setUniqueID(string value) { uniqueID = value; }
-    string getUniqueID() { return uniqueID; }
+  void setUniqueID(string value) { uniqueID = value; }
+  string getUniqueID() { return uniqueID; }
 
-    virtual void setRunningStatus(bool value);
+  virtual void setRunningStatus(bool value);
 
-    void setExecutingTask(bool value);
-    bool getExecutingTask();
+  void setExecutingTask(bool value);
+  bool getExecutingTask();
 
+  void setThreadOwnerValid(bool value);
+  bool getThreadOwnerValid();
+  Mutex *getMutexThreadOwnerValid();
 
-    void setThreadOwnerValid(bool value);
-    bool getThreadOwnerValid();
-    Mutex * getMutexThreadOwnerValid();
+  Mutex *getMutexThreadObjectAccessor();
 
-    Mutex * getMutexThreadObjectAccessor();
+  template <typename T> T *getGenericData() { return genericData; }
+  template <typename T> void setGenericData(T *value) { genericData = value; }
 
-	template <typename T>
-	T * getGenericData() { 
-		return genericData; 
-	}
-	template <typename T>
-	void setGenericData(T *value) { 
-		genericData = value; 
-	}
-
-    static bool isThreadDeleted(void *ptr);
+  static bool isThreadDeleted(void *ptr);
 };
 
 class RunningStatusSafeWrapper {
 protected:
-	BaseThread *thread;
+  BaseThread *thread;
+
 public:
+  RunningStatusSafeWrapper(BaseThread *thread) {
+    this->thread = thread;
+    Enable();
+  }
+  ~RunningStatusSafeWrapper() { Disable(); }
 
-	RunningStatusSafeWrapper(BaseThread *thread) {
-		this->thread = thread;
-		Enable();
-	}
-	~RunningStatusSafeWrapper() {
-		Disable();
-	}
-
-	void Enable() {
-		if(this->thread != NULL) {
-			this->thread->setRunningStatus(true);
-		}
-	}
-	void Disable() {
-		if(this->thread != NULL) {
-		    this->thread->setRunningStatus(false);
-		}
-	}
+  void Enable() {
+    if (this->thread != NULL) {
+      this->thread->setRunningStatus(true);
+    }
+  }
+  void Disable() {
+    if (this->thread != NULL) {
+      this->thread->setRunningStatus(false);
+    }
+  }
 };
 
 class ExecutingTaskSafeWrapper {
 protected:
-	BaseThread *thread;
+  BaseThread *thread;
+
 public:
+  ExecutingTaskSafeWrapper(BaseThread *thread) {
+    this->thread = thread;
+    Enable();
+  }
+  ~ExecutingTaskSafeWrapper() { Disable(); }
 
-	ExecutingTaskSafeWrapper(BaseThread *thread) {
-		this->thread = thread;
-		Enable();
-	}
-	~ExecutingTaskSafeWrapper() {
-		Disable();
-	}
-
-	void Enable() {
-		if(this->thread != NULL) {
-			this->thread->setExecutingTask(true);
-		}
-	}
-	void Disable() {
-		if(this->thread != NULL) {
-		    this->thread->setExecutingTask(false);
-		}
-	}
+  void Enable() {
+    if (this->thread != NULL) {
+      this->thread->setExecutingTask(true);
+    }
+  }
+  void Disable() {
+    if (this->thread != NULL) {
+      this->thread->setExecutingTask(false);
+    }
+  }
 };
 
-
-}}//end namespace
+} // namespace PlatformCommon
+} // namespace Shared
 
 #endif

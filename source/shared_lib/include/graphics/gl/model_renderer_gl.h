@@ -3,49 +3,57 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHARED_GRAPHICS_GL_MODELRENDERERGL_H_
 #define _SHARED_GRAPHICS_GL_MODELRENDERERGL_H_
 
-#include "model_renderer.h"
-#include "model.h"
-#include "opengl.h"
 #include "leak_dumper.h"
+#include "model.h"
+#include "model_renderer.h"
+#include "opengl.h"
 
-namespace Shared { namespace Graphics { namespace Gl {
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 // =====================================================
 //	class ModelRendererGl
 // =====================================================
 
-class ModelRendererGl: public ModelRenderer {
+class ModelRendererGl : public ModelRenderer {
 private:
-	bool rendering;
-	bool duplicateTexCoords;
-	int secondaryTexCoordUnit;
-	GLuint lastTexture;
+  bool rendering;
+  bool duplicateTexCoords;
+  int secondaryTexCoordUnit;
+  GLuint lastTexture;
 
 public:
-	ModelRendererGl();
-	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, bool colorPickingMode, MeshCallback *meshCallback);
-	virtual void end();
-	virtual void render(Model *model,int renderMode=rmNormal);
-	virtual void renderNormalsOnly(Model *model);
+  ModelRendererGl();
+  virtual void begin(bool renderNormals, bool renderTextures, bool renderColors,
+                     bool colorPickingMode, MeshCallback *meshCallback);
+  virtual void end();
+  virtual void render(Model *model, int renderMode = rmNormal);
+  virtual void renderNormalsOnly(Model *model);
 
-	void setDuplicateTexCoords(bool duplicateTexCoords)			{this->duplicateTexCoords= duplicateTexCoords;}
-	void setSecondaryTexCoordUnit(int secondaryTexCoordUnit)	{this->secondaryTexCoordUnit= secondaryTexCoordUnit;}
+  void setDuplicateTexCoords(bool duplicateTexCoords) {
+    this->duplicateTexCoords = duplicateTexCoords;
+  }
+  void setSecondaryTexCoordUnit(int secondaryTexCoordUnit) {
+    this->secondaryTexCoordUnit = secondaryTexCoordUnit;
+  }
 
 private:
-	
-	void renderMesh(Mesh *mesh,int renderMode=rmNormal);
-	void renderMeshNormals(Mesh *mesh);
+  void renderMesh(Mesh *mesh, int renderMode = rmNormal);
+  void renderMeshNormals(Mesh *mesh);
 };
 
-}}}//end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

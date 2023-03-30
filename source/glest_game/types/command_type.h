@@ -13,20 +13,21 @@
 #define _GLEST_GAME_COMMANDTYPE_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
 #include "element_type.h"
-#include "resource_type.h"
-#include "lang.h"
-#include "skill_type.h"
 #include "factory.h"
-#include "xml_parser.h"
-#include "sound_container.h"
+#include "lang.h"
 #include "leak_dumper.h"
+#include "resource_type.h"
+#include "skill_type.h"
+#include "sound_container.h"
+#include "xml_parser.h"
 
-namespace Glest { namespace Game {
+namespace Glest {
+namespace Game {
 
 using Shared::Util::MultiFactory;
 
@@ -37,34 +38,26 @@ class TechTree;
 class FactionType;
 
 enum CommandClass {
-	ccStop,
-	ccMove,
-	ccAttack,
-	ccAttackStopped,
-	ccBuild,
-	ccHarvest,
-	ccRepair,
-	ccProduce,
-	ccUpgrade,
-	ccMorph,
-	ccSwitchTeam,
-	ccHarvestEmergencyReturn,
+  ccStop,
+  ccMove,
+  ccAttack,
+  ccAttackStopped,
+  ccBuild,
+  ccHarvest,
+  ccRepair,
+  ccProduce,
+  ccUpgrade,
+  ccMorph,
+  ccSwitchTeam,
+  ccHarvestEmergencyReturn,
 
-	ccCount,
-	ccNull
+  ccCount,
+  ccNull
 };
 
-enum Clicks {
-	cOne,
-	cTwo
-};
+enum Clicks { cOne, cTwo };
 
-enum Queueability {
-	qNever,
-	qOnRequest,
-	qOnlyLast,
-	qAlways
-};
+enum Queueability { qNever, qOnRequest, qOnlyLast, qAlways };
 
 // =====================================================
 // 	class CommandType
@@ -72,406 +65,469 @@ enum Queueability {
 ///	A complex action performed by a unit, composed by skills
 // =====================================================
 
-class CommandType: public RequirableType {
+class CommandType : public RequirableType {
 protected:
-    Clicks clicks;
-	int id;
+  Clicks clicks;
+  int id;
 
-	std::map<string,bool> fogOfWarSkillAttachments;
-	const FogOfWarSkillType* fogOfWarSkillType;
-
-public:
-	static const int invalidId= -1;
-    CommandClass commandTypeClass;
+  std::map<string, bool> fogOfWarSkillAttachments;
+  const FogOfWarSkillType *fogOfWarSkillType;
 
 public:
-	CommandType() {
-	    commandTypeClass 	= ccNull;
-	    clicks 				= cOne;
-		id 					= -1;
-		fogOfWarSkillType	= NULL;
-		fogOfWarSkillAttachments.clear();
-	}
-    virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const= 0;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const= 0;
-	virtual string toString(bool translatedValue) const= 0;
-	virtual const ProducibleType *getProduced() const	{return NULL;}
-	virtual Queueability isQueuable() const						{return qOnRequest;}
-	bool isQueuable(bool tryQueue) const {
-		Queueability q = isQueuable();
-		return (q == qAlways) || ((q == qOnRequest || q == qOnlyLast) && tryQueue);
-	}
-	bool isQueueAppendable() const {
-		Queueability q = isQueuable();
-		return (q != qNever) && (q != qOnlyLast);
-	}
-	//Priority: commands of higher priority will cancel commands of lower priority
-	virtual int getTypePriority() const {return 10;}
-	virtual bool usesPathfinder() const= 0;
+  static const int invalidId = -1;
+  CommandClass commandTypeClass;
 
-    //get
-    CommandClass getClass() const;
-	Clicks getClicks() const		{return clicks;}
-	int getId() const				{return id;}
+public:
+  CommandType() {
+    commandTypeClass = ccNull;
+    clicks = cOne;
+    id = -1;
+    fogOfWarSkillType = NULL;
+    fogOfWarSkillAttachments.clear();
+  }
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const = 0;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const = 0;
+  virtual string toString(bool translatedValue) const = 0;
+  virtual const ProducibleType *getProduced() const { return NULL; }
+  virtual Queueability isQueuable() const { return qOnRequest; }
+  bool isQueuable(bool tryQueue) const {
+    Queueability q = isQueuable();
+    return (q == qAlways) || ((q == qOnRequest || q == qOnlyLast) && tryQueue);
+  }
+  bool isQueueAppendable() const {
+    Queueability q = isQueuable();
+    return (q != qNever) && (q != qOnlyLast);
+  }
+  // Priority: commands of higher priority will cancel commands of lower
+  // priority
+  virtual int getTypePriority() const { return 10; }
+  virtual bool usesPathfinder() const = 0;
 
-	const FogOfWarSkillType *getFogOfWarSkillType() const	{return fogOfWarSkillType;};
+  // get
+  CommandClass getClass() const;
+  Clicks getClicks() const { return clicks; }
+  int getId() const { return id; }
 
-	bool hasFogOfWarSkillType(string name) const;
+  const FogOfWarSkillType *getFogOfWarSkillType() const {
+    return fogOfWarSkillType;
+  };
+
+  bool hasFogOfWarSkillType(string name) const;
 };
 
 // ===============================
 // 	class StopCommandType
 // ===============================
 
-class StopCommandType: public CommandType {
+class StopCommandType : public CommandType {
 private:
-    const StopSkillType* stopSkillType;
+  const StopSkillType *stopSkillType;
 
 public:
-    StopCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
-    		const FactionType *ft, const UnitType &ut, std::map<string,vector<pair<string, string> > > &loadedFileList,
-    		string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
-	virtual Queueability isQueuable() const						{return qNever;}
-	virtual int getTypePriority() const							{return 100000;}
-    //get
-	const StopSkillType *getStopSkillType() const	{return stopSkillType;};
+  StopCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
+  virtual Queueability isQueuable() const { return qNever; }
+  virtual int getTypePriority() const { return 100000; }
+  // get
+  const StopSkillType *getStopSkillType() const { return stopSkillType; };
 
-	virtual bool usesPathfinder() const { return false; }
+  virtual bool usesPathfinder() const { return false; }
 };
-
 
 // ===============================
 // 	class MoveCommandType
 // ===============================
 
-class MoveCommandType: public CommandType {
+class MoveCommandType : public CommandType {
 private:
-    const MoveSkillType *moveSkillType;
+  const MoveSkillType *moveSkillType;
 
 public:
-    MoveCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
+  MoveCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
 
-    //get
-	const MoveSkillType *getMoveSkillType() const	{return moveSkillType;};
+  // get
+  const MoveSkillType *getMoveSkillType() const { return moveSkillType; };
 
-	virtual bool usesPathfinder() const { return true; }
+  virtual bool usesPathfinder() const { return true; }
 };
-
 
 // ===============================
 // 	class AttackCommandType
 // ===============================
 
-class AttackCommandType: public CommandType {
+class AttackCommandType : public CommandType {
 private:
-    const MoveSkillType* moveSkillType;
-    const AttackSkillType* attackSkillType;
+  const MoveSkillType *moveSkillType;
+  const AttackSkillType *attackSkillType;
 
 public:
-    AttackCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
+  AttackCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
 
+  // get
+  const MoveSkillType *getMoveSkillType() const { return moveSkillType; }
+  const AttackSkillType *getAttackSkillType() const { return attackSkillType; }
 
-    //get
-	const MoveSkillType * getMoveSkillType() const			{return moveSkillType;}
-	const AttackSkillType * getAttackSkillType() const		{return attackSkillType;}
-
-	virtual bool usesPathfinder() const { return true; }
+  virtual bool usesPathfinder() const { return true; }
 };
 
 // =======================================
 // 	class AttackStoppedCommandType
 // =======================================
 
-class AttackStoppedCommandType: public CommandType {
+class AttackStoppedCommandType : public CommandType {
 private:
-    const StopSkillType* stopSkillType;
-    const AttackSkillType* attackSkillType;
+  const StopSkillType *stopSkillType;
+  const AttackSkillType *attackSkillType;
 
 public:
-    AttackStoppedCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
+  AttackStoppedCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
 
-    //get
-	const StopSkillType * getStopSkillType() const		{return stopSkillType;}
-	const AttackSkillType * getAttackSkillType() const	{return attackSkillType;}
+  // get
+  const StopSkillType *getStopSkillType() const { return stopSkillType; }
+  const AttackSkillType *getAttackSkillType() const { return attackSkillType; }
 
-	virtual bool usesPathfinder() const { return false; }
+  virtual bool usesPathfinder() const { return false; }
 };
-
 
 // ===============================
 // 	class BuildCommandType
 // ===============================
 
-class BuildCommandType: public CommandType {
+class BuildCommandType : public CommandType {
 private:
-    const MoveSkillType* moveSkillType;
-    const BuildSkillType* buildSkillType;
-	vector<const UnitType*> buildings;
-    SoundContainer startSounds;
-    SoundContainer builtSounds;
+  const MoveSkillType *moveSkillType;
+  const BuildSkillType *buildSkillType;
+  vector<const UnitType *> buildings;
+  SoundContainer startSounds;
+  SoundContainer builtSounds;
 
 public:
-    BuildCommandType();
-    ~BuildCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
+  BuildCommandType();
+  ~BuildCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
 
-    //get
-	const MoveSkillType *getMoveSkillType() const	{return moveSkillType;}
-	const BuildSkillType *getBuildSkillType() const	{return buildSkillType;}
-	int getBuildingCount() const					{return (int)buildings.size();}
-	const UnitType * getBuilding(int i) const		{return buildings[i];}
-	StaticSound *getStartSound() const				{return startSounds.getRandSound();}
-	StaticSound *getBuiltSound() const				{return builtSounds.getRandSound();}
+  // get
+  const MoveSkillType *getMoveSkillType() const { return moveSkillType; }
+  const BuildSkillType *getBuildSkillType() const { return buildSkillType; }
+  int getBuildingCount() const { return (int)buildings.size(); }
+  const UnitType *getBuilding(int i) const { return buildings[i]; }
+  StaticSound *getStartSound() const { return startSounds.getRandSound(); }
+  StaticSound *getBuiltSound() const { return builtSounds.getRandSound(); }
 
-	virtual bool usesPathfinder() const { return true; }
+  virtual bool usesPathfinder() const { return true; }
 };
-
 
 // ===============================
 // 	class HarvestCommandType
 // ===============================
 
-class HarvestCommandType: public CommandType {
+class HarvestCommandType : public CommandType {
 private:
-    const MoveSkillType *moveSkillType;
-    const MoveSkillType *moveLoadedSkillType;
-    const HarvestSkillType *harvestSkillType;
-    const StopSkillType *stopLoadedSkillType;
-	vector<const ResourceType*> harvestedResources;
-	int maxLoad;
-    int hitsPerUnit;
+  const MoveSkillType *moveSkillType;
+  const MoveSkillType *moveLoadedSkillType;
+  const HarvestSkillType *harvestSkillType;
+  const StopSkillType *stopLoadedSkillType;
+  vector<const ResourceType *> harvestedResources;
+  int maxLoad;
+  int hitsPerUnit;
 
 public:
-    HarvestCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
-	virtual Queueability isQueuable() const						{return qOnRequest;}
+  HarvestCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
+  virtual Queueability isQueuable() const { return qOnRequest; }
 
-    //get
-	const MoveSkillType *getMoveSkillType() const			{return moveSkillType;}
-	const MoveSkillType *getMoveLoadedSkillType() const		{return moveLoadedSkillType;}
-	const HarvestSkillType *getHarvestSkillType() const		{return harvestSkillType;}
-	const StopSkillType *getStopLoadedSkillType() const		{return stopLoadedSkillType;}
-	int getMaxLoad() const									{return maxLoad;}
-	int getHitsPerUnit() const								{return hitsPerUnit;}
-	int getHarvestedResourceCount() const					{return (int)harvestedResources.size();}
-	const ResourceType* getHarvestedResource(int i) const	{return harvestedResources[i];}
-	bool canHarvest(const ResourceType *resourceType) const;
+  // get
+  const MoveSkillType *getMoveSkillType() const { return moveSkillType; }
+  const MoveSkillType *getMoveLoadedSkillType() const {
+    return moveLoadedSkillType;
+  }
+  const HarvestSkillType *getHarvestSkillType() const {
+    return harvestSkillType;
+  }
+  const StopSkillType *getStopLoadedSkillType() const {
+    return stopLoadedSkillType;
+  }
+  int getMaxLoad() const { return maxLoad; }
+  int getHitsPerUnit() const { return hitsPerUnit; }
+  int getHarvestedResourceCount() const {
+    return (int)harvestedResources.size();
+  }
+  const ResourceType *getHarvestedResource(int i) const {
+    return harvestedResources[i];
+  }
+  bool canHarvest(const ResourceType *resourceType) const;
 
-	virtual bool usesPathfinder() const { return true; }
+  virtual bool usesPathfinder() const { return true; }
 };
 
 // ===============================
 // 	class HarvestEmergencyReturnCommandType
 // ===============================
 
-class HarvestEmergencyReturnCommandType: public CommandType {
+class HarvestEmergencyReturnCommandType : public CommandType {
 private:
-
 public:
-    HarvestEmergencyReturnCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
-	virtual Queueability isQueuable() const						{return qOnRequest;}
+  HarvestEmergencyReturnCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
+  virtual Queueability isQueuable() const { return qOnRequest; }
 
-    //get
-	virtual bool usesPathfinder() const { return true; }
+  // get
+  virtual bool usesPathfinder() const { return true; }
 };
-
 
 // ===============================
 // 	class RepairCommandType
 // ===============================
 
-class RepairCommandType: public CommandType {
+class RepairCommandType : public CommandType {
 private:
-    const MoveSkillType* moveSkillType;
-    const RepairSkillType* repairSkillType;
-    vector<const UnitType*>  repairableUnits;
+  const MoveSkillType *moveSkillType;
+  const RepairSkillType *repairSkillType;
+  vector<const UnitType *> repairableUnits;
 
 public:
-    RepairCommandType();
-    ~RepairCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
+  RepairCommandType();
+  ~RepairCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
 
-    //get
-	const MoveSkillType *getMoveSkillType() const			{return moveSkillType;};
-	const RepairSkillType *getRepairSkillType() const		{return repairSkillType;};
-    bool isRepairableUnitType(const UnitType *unitType) const;
+  // get
+  const MoveSkillType *getMoveSkillType() const { return moveSkillType; };
+  const RepairSkillType *getRepairSkillType() const { return repairSkillType; };
+  bool isRepairableUnitType(const UnitType *unitType) const;
 
-	int getRepairCount() const					{return (int)repairableUnits.size();}
-	const UnitType * getRepair(int i) const		{return repairableUnits[i];}
+  int getRepairCount() const { return (int)repairableUnits.size(); }
+  const UnitType *getRepair(int i) const { return repairableUnits[i]; }
 
-	virtual bool usesPathfinder() const { return true; }
+  virtual bool usesPathfinder() const { return true; }
 };
-
 
 // ===============================
 // 	class ProduceCommandType
 // ===============================
 
-class ProduceCommandType: public CommandType {
+class ProduceCommandType : public CommandType {
 private:
-    const ProduceSkillType* produceSkillType;
-	const UnitType *producedUnit;
+  const ProduceSkillType *produceSkillType;
+  const UnitType *producedUnit;
 
 public:
-    ProduceCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-    virtual string getReqDesc(bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
-	virtual const ProducibleType *getProduced() const;
-	virtual Queueability isQueuable() const						{return qAlways;}
-	virtual int getTypePriority() const {return 15;}
+  ProduceCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string getReqDesc(bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
+  virtual const ProducibleType *getProduced() const;
+  virtual Queueability isQueuable() const { return qAlways; }
+  virtual int getTypePriority() const { return 15; }
 
-    //get
-	const ProduceSkillType *getProduceSkillType() const	{return produceSkillType;}
-	const UnitType *getProducedUnit() const				{return producedUnit;}
+  // get
+  const ProduceSkillType *getProduceSkillType() const {
+    return produceSkillType;
+  }
+  const UnitType *getProducedUnit() const { return producedUnit; }
 
-	virtual bool usesPathfinder() const { return false; }
+  virtual bool usesPathfinder() const { return false; }
 };
-
 
 // ===============================
 // 	class UpgradeCommandType
 // ===============================
 
-class UpgradeCommandType: public CommandType {
+class UpgradeCommandType : public CommandType {
 private:
-    const UpgradeSkillType* upgradeSkillType;
-    const UpgradeType* producedUpgrade;
+  const UpgradeSkillType *upgradeSkillType;
+  const UpgradeType *producedUpgrade;
 
 public:
-    UpgradeCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
-	virtual string getReqDesc(bool translatedValue) const;
-	virtual const ProducibleType *getProduced() const;
-	virtual Queueability isQueuable() const						{return qAlways;}
-	virtual int getTypePriority() const {return 15;}
+  UpgradeCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
+  virtual string getReqDesc(bool translatedValue) const;
+  virtual const ProducibleType *getProduced() const;
+  virtual Queueability isQueuable() const { return qAlways; }
+  virtual int getTypePriority() const { return 15; }
 
-    //get
-	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}
-	const UpgradeType *getProducedUpgrade() const			{return producedUpgrade;}
+  // get
+  const UpgradeSkillType *getUpgradeSkillType() const {
+    return upgradeSkillType;
+  }
+  const UpgradeType *getProducedUpgrade() const { return producedUpgrade; }
 
-	virtual bool usesPathfinder() const { return false; }
+  virtual bool usesPathfinder() const { return false; }
 };
 
 // ===============================
 // 	class MorphCommandType
 // ===============================
 
-class MorphCommandType: public CommandType {
+class MorphCommandType : public CommandType {
 private:
-    const MorphSkillType* morphSkillType;
-    const UnitType* morphUnit;
-	int discount;
-	bool ignoreResourceRequirements;
+  const MorphSkillType *morphSkillType;
+  const UnitType *morphUnit;
+  int discount;
+  bool ignoreResourceRequirements;
 
 public:
-    MorphCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
-	virtual string getReqDesc(bool translatedValue) const;
-	virtual const ProducibleType *getProduced() const;
-	Queueability isQueuable() const						{return qOnlyLast;} //After morph anything can happen
+  MorphCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
+  virtual string getReqDesc(bool translatedValue) const;
+  virtual const ProducibleType *getProduced() const;
+  Queueability isQueuable() const {
+    return qOnlyLast;
+  } // After morph anything can happen
 
-    //get
-	const MorphSkillType *getMorphSkillType() const		{return morphSkillType;}
-	const UnitType *getMorphUnit() const				{return morphUnit;}
-	int getDiscount() const								{return discount;}
-	bool getIgnoreResourceRequirements() const			{return ignoreResourceRequirements;}
+  // get
+  const MorphSkillType *getMorphSkillType() const { return morphSkillType; }
+  const UnitType *getMorphUnit() const { return morphUnit; }
+  int getDiscount() const { return discount; }
+  bool getIgnoreResourceRequirements() const {
+    return ignoreResourceRequirements;
+  }
 
-	virtual bool usesPathfinder() const { return false; }
+  virtual bool usesPathfinder() const { return false; }
 };
 
 // ===============================
 // 	class SwitchTeamCommandType
 // ===============================
 
-class SwitchTeamCommandType: public CommandType {
+class SwitchTeamCommandType : public CommandType {
 private:
-
-
 public:
-	SwitchTeamCommandType();
-	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
-    virtual void load(int id, const XmlNode *n, const string &dir,
-    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString(bool translatedValue) const;
+  SwitchTeamCommandType();
+  virtual void update(UnitUpdater *unitUpdater, Unit *unit,
+                      int frameIndex) const;
+  virtual void
+  load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
+       const FactionType *ft, const UnitType &ut,
+       std::map<string, vector<pair<string, string>>> &loadedFileList,
+       string parentLoader);
+  virtual string getDesc(const TotalUpgrade *totalUpgrade,
+                         bool translatedValue) const;
+  virtual string toString(bool translatedValue) const;
 
-	virtual bool usesPathfinder() const { return false; }
+  virtual bool usesPathfinder() const { return false; }
 };
 
 // ===============================
 // 	class CommandFactory
 // ===============================
 
-class CommandTypeFactory: public MultiFactory<CommandType>{
+class CommandTypeFactory : public MultiFactory<CommandType> {
 private:
-	CommandTypeFactory();
+  CommandTypeFactory();
 
 public:
-	static CommandTypeFactory &getInstance();
+  static CommandTypeFactory &getInstance();
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

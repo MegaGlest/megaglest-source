@@ -13,18 +13,19 @@
 #define _GLEST_GAME_TECHTREE_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <set>
-#include "util.h"
-#include "resource_type.h"
-#include "faction_type.h"
 #include "damage_multiplier.h"
+#include "faction_type.h"
 #include "leak_dumper.h"
+#include "resource_type.h"
+#include "util.h"
+#include <set>
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 // 	class TechTree
@@ -32,88 +33,95 @@ namespace Glest{ namespace Game{
 ///	A set of factions and resources
 // =====================================================
 
-class TechTree{
+class TechTree {
 private:
-	typedef vector<ResourceType> ResourceTypes;
-	typedef vector<FactionType> FactionTypes;
-	typedef vector<ArmorType> ArmorTypes;
-	typedef vector<AttackType> AttackTypes;
+  typedef vector<ResourceType> ResourceTypes;
+  typedef vector<FactionType> FactionTypes;
+  typedef vector<ArmorType> ArmorTypes;
+  typedef vector<AttackType> AttackTypes;
 
 private:
+  string name;
+  // string desc;
+  string treePath;
+  vector<string> pathList;
 
-	string name;
-    //string desc;
-	string treePath;
-	vector<string> pathList;
+  ResourceTypes resourceTypes;
+  FactionTypes factionTypes;
+  ArmorTypes armorTypes;
+  AttackTypes attackTypes;
+  DamageMultiplierTable damageMultiplierTable;
+  Checksum checksumValue;
 
-    ResourceTypes resourceTypes;
-    FactionTypes factionTypes;
-	ArmorTypes armorTypes;
-	AttackTypes attackTypes;
-	DamageMultiplierTable damageMultiplierTable;
-	Checksum checksumValue;
-
-	string languageUsedForCache;
-	std::map<string,string> translatedTechNames;
-	std::map<string,std::map<string,string> > translatedTechFactionNames;
-	bool isValidationModeEnabled;
+  string languageUsedForCache;
+  std::map<string, string> translatedTechNames;
+  std::map<string, std::map<string, string>> translatedTechFactionNames;
+  bool isValidationModeEnabled;
 
 public:
-    Checksum loadTech(const string &techName,
-    		set<string> &factions, Checksum* checksum,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList,
-    		bool validationMode=false);
-    void load(const string &dir, set<string> &factions, Checksum* checksum,
-    		Checksum *techtreeChecksum,
-    		std::map<string,vector<pair<string, string> > > &loadedFileList,
-    		bool validationMode=false);
-    string findPath(const string &techName) const;
+  Checksum
+  loadTech(const string &techName, set<string> &factions, Checksum *checksum,
+           std::map<string, vector<pair<string, string>>> &loadedFileList,
+           bool validationMode = false);
+  void load(const string &dir, set<string> &factions, Checksum *checksum,
+            Checksum *techtreeChecksum,
+            std::map<string, vector<pair<string, string>>> &loadedFileList,
+            bool validationMode = false);
+  string findPath(const string &techName) const;
 
-    static string findPath(const string &techName, const vector<string> &pathTechList);
-    static bool exists(const string &techName, const vector<string> &pathTechList);
+  static string findPath(const string &techName,
+                         const vector<string> &pathTechList);
+  static bool exists(const string &techName,
+                     const vector<string> &pathTechList);
 
-    explicit TechTree(const vector<string> pathList);
-    ~TechTree();
-    Checksum * getChecksumValue() { return &checksumValue; }
+  explicit TechTree(const vector<string> pathList);
+  ~TechTree();
+  Checksum *getChecksumValue() { return &checksumValue; }
 
-    //get
-	int getResourceTypeCount() const							{return (int)resourceTypes.size();}
-	int getTypeCount() const									{return (int)factionTypes.size();}
-	const FactionType *getType(int i) const						{return &factionTypes[i];}
-	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
-	string getName(bool translatedValue=false);
-	string getNameUntranslated() const;
+  // get
+  int getResourceTypeCount() const { return (int)resourceTypes.size(); }
+  int getTypeCount() const { return (int)factionTypes.size(); }
+  const FactionType *getType(int i) const { return &factionTypes[i]; }
+  const ResourceType *getResourceType(int i) const { return &resourceTypes[i]; }
+  string getName(bool translatedValue = false);
+  string getNameUntranslated() const;
 
-	string getTranslatedName(string techName, bool forceLoad=false, bool forceTechtreeActiveFile=false);
-	string getTranslatedFactionName(string techName, string factionName);
+  string getTranslatedName(string techName, bool forceLoad = false,
+                           bool forceTechtreeActiveFile = false);
+  string getTranslatedFactionName(string techName, string factionName);
 
-	vector<string> getPathList() const					{return pathList;}
-    //const string &getDesc() const								{return desc;}
+  vector<string> getPathList() const { return pathList; }
+  // const string &getDesc() const
+  // {return desc;}
 
-	const string getPath() const								{return treePath;}
+  const string getPath() const { return treePath; }
 
-	const FactionType *getType(const string &name) const;
-	FactionType *getTypeByName(const string &name);
-	const ResourceType *getResourceType(const string &name) const;
-    const ResourceType *getTechResourceType(int i) const;
-    const ResourceType *getFirstTechResourceType() const;
+  const FactionType *getType(const string &name) const;
+  FactionType *getTypeByName(const string &name);
+  const ResourceType *getResourceType(const string &name) const;
+  const ResourceType *getTechResourceType(int i) const;
+  const ResourceType *getFirstTechResourceType() const;
 
-    const ArmorType *getArmorType(const string &name) const;
-	const AttackType *getAttackType(const string &name) const;
+  const ArmorType *getArmorType(const string &name) const;
+  const AttackType *getAttackType(const string &name) const;
 
-    int getArmorTypeCount() const { return (int)armorTypes.size(); }
-    const ArmorType * getArmorTypeByIndex(int index) const { return &armorTypes[index]; }
-	int getAttackTypeCount() const { return (int)attackTypes.size(); }
-	const AttackType * getAttackTypeByIndex(int index) const { return &attackTypes[index]; }
+  int getArmorTypeCount() const { return (int)armorTypes.size(); }
+  const ArmorType *getArmorTypeByIndex(int index) const {
+    return &armorTypes[index];
+  }
+  int getAttackTypeCount() const { return (int)attackTypes.size(); }
+  const AttackType *getAttackTypeByIndex(int index) const {
+    return &attackTypes[index];
+  }
 
-	double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
-	std::vector<std::string> validateFactionTypes();
-	std::vector<std::string> validateResourceTypes();
+  double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
+  std::vector<std::string> validateFactionTypes();
+  std::vector<std::string> validateResourceTypes();
 
-	void saveGame(XmlNode *rootNode);
-
+  void saveGame(XmlNode *rootNode);
 };
 
-}} //end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

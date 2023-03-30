@@ -9,32 +9,32 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-// This file is based on example3.c - Demonstrates how to use miniz.c's deflate()
-// and inflate() functions for simple file compression.
-// Public domain, May 15 2011, Rich Geldreich, richgel99@gmail.com. See "unlicense"
-// statement at the end of tinfl.c.
-// For simplicity, this example is limited to files smaller than 4GB, but this
-// is not a limitation of miniz.c.
+// This file is based on example3.c - Demonstrates how to use miniz.c's
+// deflate() and inflate() functions for simple file compression. Public domain,
+// May 15 2011, Rich Geldreich, richgel99@gmail.com. See "unlicense" statement
+// at the end of tinfl.c. For simplicity, this example is limited to files
+// smaller than 4GB, but this is not a limitation of miniz.c.
 
 #include "compression_utils.h"
+#include "conversion.h"
 #include "miniz/miniz.c"
+#include "platform_util.h"
+#include "util.h"
 #include <limits.h>
 #include <string>
 #include <vector>
-#include "conversion.h"
-#include "platform_util.h"
-#include "util.h"
 
 using namespace Shared::Util;
 
-namespace Shared{ namespace CompressionUtil{
+namespace Shared {
+namespace CompressionUtil {
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint;
 
-#define my_max(a,b) (((a) > (b)) ? (a) : (b))
-#define my_min(a,b) (((a) < (b)) ? (a) : (b))
+#define my_max(a, b) (((a) > (b)) ? (a) : (b))
+#define my_min(a, b) (((a) < (b)) ? (a) : (b))
 
 #define BUF_SIZE (1024 * 1024)
 static uint8 s_inbuf[BUF_SIZE];
@@ -42,8 +42,7 @@ static uint8 s_outbuf[BUF_SIZE];
 
 int zipfile_tool(int argc, const char *argv[]) {
   const char *pMode = NULL;
-  FILE *pInfile = NULL,
-	   *pOutfile = NULL;
+  FILE *pInfile = NULL, *pOutfile = NULL;
   uint infile_size = 0;
   int level = Z_BEST_COMPRESSION;
   z_stream stream;
@@ -52,65 +51,73 @@ int zipfile_tool(int argc, const char *argv[]) {
   const char *pDst_filename = NULL;
   long file_loc = 0;
 
-  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("miniz.c version: %s\n", MZ_VERSION);
+  if (SystemFlags::VERBOSE_MODE_ENABLED)
+    printf("miniz.c version: %s\n", MZ_VERSION);
 
   if (argc < 4) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) {
-			printf("Usage: example3 [options] [mode:c or d] infile outfile\n");
-			printf("\nModes:\n");
-			printf("c - Compresses file infile to a zlib stream in file outfile\n");
-			printf("d - Decompress zlib stream in file infile to file outfile\n");
-			printf("\nOptions:\n");
-			printf("-l[0-10] - Compression level, higher values are slower.\n");
-	  }
-	  return EXIT_FAILURE;
+    if (SystemFlags::VERBOSE_MODE_ENABLED) {
+      printf("Usage: example3 [options] [mode:c or d] infile outfile\n");
+      printf("\nModes:\n");
+      printf("c - Compresses file infile to a zlib stream in file outfile\n");
+      printf("d - Decompress zlib stream in file infile to file outfile\n");
+      printf("\nOptions:\n");
+      printf("-l[0-10] - Compression level, higher values are slower.\n");
+    }
+    return EXIT_FAILURE;
   }
 
   while ((p < argc) && (argv[p][0] == '-')) {
     switch (argv[p][1]) {
-      case 'l':
-      {
-        level = atoi(&argv[1][2]);
-        if ((level < 0) || (level > 10)) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Invalid level!\n");
-        	return EXIT_FAILURE;
-        }
-        break;
+    case 'l': {
+      level = atoi(&argv[1][2]);
+      if ((level < 0) || (level > 10)) {
+        if (SystemFlags::VERBOSE_MODE_ENABLED)
+          printf("Invalid level!\n");
+        return EXIT_FAILURE;
       }
-      default:
-      {
-    	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Invalid option: %s\n", argv[p]);
-    	  return EXIT_FAILURE;
-      }
+      break;
+    }
+    default: {
+      if (SystemFlags::VERBOSE_MODE_ENABLED)
+        printf("Invalid option: %s\n", argv[p]);
+      return EXIT_FAILURE;
+    }
     }
     p++;
   }
 
   if ((argc - p) < 3) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Must specify mode, input filename, and output filename after options!\n");
-	  return EXIT_FAILURE;
-  }
-  else if ((argc - p) > 3) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Too many filenames!\n");
-	  return EXIT_FAILURE;
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("Must specify mode, input filename, and output filename after "
+             "options!\n");
+    return EXIT_FAILURE;
+  } else if ((argc - p) > 3) {
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("Too many filenames!\n");
+    return EXIT_FAILURE;
   }
 
   pMode = argv[p++];
   if (!strchr("cCdD", pMode[0])) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Invalid mode!\n");
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) return EXIT_FAILURE;
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("Invalid mode!\n");
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      return EXIT_FAILURE;
   }
 
   pSrc_filename = argv[p++];
   pDst_filename = argv[p++];
 
-  if(SystemFlags::VERBOSE_MODE_ENABLED)printf("Mode: %c, Level: %d\nInput File: \"%s\"\nOutput File: \"%s\"\n", pMode[0], level, pSrc_filename, pDst_filename);
+  if (SystemFlags::VERBOSE_MODE_ENABLED)
+    printf("Mode: %c, Level: %d\nInput File: \"%s\"\nOutput File: \"%s\"\n",
+           pMode[0], level, pSrc_filename, pDst_filename);
 
   // Open input file.
   pInfile = fopen(pSrc_filename, "rb");
   if (!pInfile) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed opening input file!\n");
-	  return EXIT_FAILURE;
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("Failed opening input file!\n");
+    return EXIT_FAILURE;
   }
 
   // Determine input file's size.
@@ -119,11 +126,11 @@ int zipfile_tool(int argc, const char *argv[]) {
   fseek(pInfile, 0, SEEK_SET);
 
   if ((file_loc < 0) || (file_loc > INT_MAX)) {
-     // This is not a limitation of miniz or tinfl, but this example.
-	  printf("File is too large to be processed by this example.\n");
+    // This is not a limitation of miniz or tinfl, but this example.
+    printf("File is too large to be processed by this example.\n");
 
-	  fclose(pInfile);
-      return EXIT_FAILURE;
+    fclose(pInfile);
+    return EXIT_FAILURE;
   }
 
   infile_size = (uint)file_loc;
@@ -131,13 +138,14 @@ int zipfile_tool(int argc, const char *argv[]) {
   // Open output file.
   pOutfile = fopen(pDst_filename, "wb");
   if (!pOutfile) {
-	  printf("Failed opening output file!\n");
+    printf("Failed opening output file!\n");
 
-	  fclose(pInfile);
-	  return EXIT_FAILURE;
+    fclose(pInfile);
+    return EXIT_FAILURE;
   }
 
-  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Input file size: %u\n", infile_size);
+  if (SystemFlags::VERBOSE_MODE_ENABLED)
+    printf("Input file size: %u\n", infile_size);
 
   // Init the z_stream
   memset(&stream, 0, sizeof(stream));
@@ -151,45 +159,53 @@ int zipfile_tool(int argc, const char *argv[]) {
     uint infile_remaining = infile_size;
 
     if (deflateInit(&stream, level) != Z_OK) {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflateInit() failed!\n");
+      if (SystemFlags::VERBOSE_MODE_ENABLED)
+        printf("deflateInit() failed!\n");
 
-    	if(pInfile) fclose(pInfile);
-  	    if(pOutfile) fclose(pOutfile);
-    	return EXIT_FAILURE;
+      if (pInfile)
+        fclose(pInfile);
+      if (pOutfile)
+        fclose(pOutfile);
+      return EXIT_FAILURE;
     }
 
-    for ( ; ; ) {
+    for (;;) {
       int status;
       if (!stream.avail_in) {
         // Input buffer is empty, so read more bytes from input file.
         uint n = my_min(BUF_SIZE, infile_remaining);
 
         if (fread(s_inbuf, 1, n, pInfile) != n) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
+          if (SystemFlags::VERBOSE_MODE_ENABLED)
+            printf("Failed reading from input file!\n");
 
-        	fclose(pInfile);
-      	    if(pOutfile) fclose(pOutfile);
-        	return EXIT_FAILURE;
+          fclose(pInfile);
+          if (pOutfile)
+            fclose(pOutfile);
+          return EXIT_FAILURE;
         }
 
         stream.next_in = s_inbuf;
         stream.avail_in = n;
 
         infile_remaining -= n;
-        //printf("Input bytes remaining: %u\n", infile_remaining);
+        // printf("Input bytes remaining: %u\n", infile_remaining);
       }
 
       status = deflate(&stream, infile_remaining ? Z_NO_FLUSH : Z_FINISH);
 
       if ((status == Z_STREAM_END) || (!stream.avail_out)) {
-        // Output buffer is full, or compression is done, so write buffer to output file.
+        // Output buffer is full, or compression is done, so write buffer to
+        // output file.
         uint n = BUF_SIZE - stream.avail_out;
         if (fwrite(s_outbuf, 1, n, pOutfile) != n) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
+          if (SystemFlags::VERBOSE_MODE_ENABLED)
+            printf("Failed writing to output file!\n");
 
-        	if(pInfile) fclose(pInfile);
-      	    fclose(pOutfile);
-        	return EXIT_FAILURE;
+          if (pInfile)
+            fclose(pInfile);
+          fclose(pOutfile);
+          return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;
         stream.avail_out = BUF_SIZE;
@@ -197,48 +213,57 @@ int zipfile_tool(int argc, const char *argv[]) {
 
       if (status == Z_STREAM_END) {
         break;
-      }
-      else if (status != Z_OK) {
-    	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflate() failed with status %i!\n", status);
+      } else if (status != Z_OK) {
+        if (SystemFlags::VERBOSE_MODE_ENABLED)
+          printf("deflate() failed with status %i!\n", status);
 
-    	  if(pInfile) fclose(pInfile);
-    	  if(pOutfile) fclose(pOutfile);
-    	  return EXIT_FAILURE;
+        if (pInfile)
+          fclose(pInfile);
+        if (pOutfile)
+          fclose(pOutfile);
+        return EXIT_FAILURE;
       }
     }
 
     if (deflateEnd(&stream) != Z_OK) {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflateEnd() failed!\n");
+      if (SystemFlags::VERBOSE_MODE_ENABLED)
+        printf("deflateEnd() failed!\n");
 
-    	if(pInfile) fclose(pInfile);
-  	    if(pOutfile) fclose(pOutfile);
-    	return EXIT_FAILURE;
+      if (pInfile)
+        fclose(pInfile);
+      if (pOutfile)
+        fclose(pOutfile);
+      return EXIT_FAILURE;
     }
-  }
-  else if ((pMode[0] == 'd') || (pMode[0] == 'D')) {
+  } else if ((pMode[0] == 'd') || (pMode[0] == 'D')) {
     // Decompression.
     uint infile_remaining = infile_size;
 
     if (inflateInit(&stream)) {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflateInit() failed!\n");
+      if (SystemFlags::VERBOSE_MODE_ENABLED)
+        printf("inflateInit() failed!\n");
 
-    	if(pInfile) fclose(pInfile);
-    	if(pOutfile) fclose(pOutfile);
-    	return EXIT_FAILURE;
+      if (pInfile)
+        fclose(pInfile);
+      if (pOutfile)
+        fclose(pOutfile);
+      return EXIT_FAILURE;
     }
 
-    for ( ; ; ) {
+    for (;;) {
       int status;
       if (!stream.avail_in) {
         // Input buffer is empty, so read more bytes from input file.
         uint n = my_min(BUF_SIZE, infile_remaining);
 
         if (fread(s_inbuf, 1, n, pInfile) != n) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
+          if (SystemFlags::VERBOSE_MODE_ENABLED)
+            printf("Failed reading from input file!\n");
 
-        	fclose(pInfile);
-        	if(pOutfile) fclose(pOutfile);
-        	return EXIT_FAILURE;
+          fclose(pInfile);
+          if (pOutfile)
+            fclose(pOutfile);
+          return EXIT_FAILURE;
         }
 
         stream.next_in = s_inbuf;
@@ -250,14 +275,17 @@ int zipfile_tool(int argc, const char *argv[]) {
       status = inflate(&stream, Z_SYNC_FLUSH);
 
       if ((status == Z_STREAM_END) || (!stream.avail_out)) {
-        // Output buffer is full, or decompression is done, so write buffer to output file.
+        // Output buffer is full, or decompression is done, so write buffer to
+        // output file.
         uint n = BUF_SIZE - stream.avail_out;
         if (fwrite(s_outbuf, 1, n, pOutfile) != n) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
+          if (SystemFlags::VERBOSE_MODE_ENABLED)
+            printf("Failed writing to output file!\n");
 
-      	    if(pInfile) fclose(pInfile);
-      	    fclose(pOutfile);
-        	return EXIT_FAILURE;
+          if (pInfile)
+            fclose(pInfile);
+          fclose(pOutfile);
+          return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;
         stream.avail_out = BUF_SIZE;
@@ -265,112 +293,136 @@ int zipfile_tool(int argc, const char *argv[]) {
 
       if (status == Z_STREAM_END) {
         break;
-      }
-      else if (status != Z_OK) {
-    	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflate() failed with status %i!\n", status);
+      } else if (status != Z_OK) {
+        if (SystemFlags::VERBOSE_MODE_ENABLED)
+          printf("inflate() failed with status %i!\n", status);
 
-    	  if(pInfile) fclose(pInfile);
-    	  if(pOutfile) fclose(pOutfile);
-    	  return EXIT_FAILURE;
+        if (pInfile)
+          fclose(pInfile);
+        if (pOutfile)
+          fclose(pOutfile);
+        return EXIT_FAILURE;
       }
     }
 
     if (inflateEnd(&stream) != Z_OK) {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflateEnd() failed!\n");
+      if (SystemFlags::VERBOSE_MODE_ENABLED)
+        printf("inflateEnd() failed!\n");
 
-    	if(pInfile) fclose(pInfile);
-  	    if(pOutfile) fclose(pOutfile);
-        return EXIT_FAILURE;
+      if (pInfile)
+        fclose(pInfile);
+      if (pOutfile)
+        fclose(pOutfile);
+      return EXIT_FAILURE;
     }
-  }
-  else {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Invalid mode!\n");
+  } else {
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("Invalid mode!\n");
 
-	  if(pInfile) fclose(pInfile);
-	  if(pOutfile) fclose(pOutfile);
-	  return EXIT_FAILURE;
+    if (pInfile)
+      fclose(pInfile);
+    if (pOutfile)
+      fclose(pOutfile);
+    return EXIT_FAILURE;
   }
 
-  fclose(pInfile); pInfile = 0;
+  fclose(pInfile);
+  pInfile = 0;
   if (EOF == fclose(pOutfile)) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
-	  return EXIT_FAILURE;
+    if (SystemFlags::VERBOSE_MODE_ENABLED)
+      printf("Failed writing to output file!\n");
+    return EXIT_FAILURE;
   }
 
-  if(SystemFlags::VERBOSE_MODE_ENABLED) {
-	  printf("Total input bytes: %u\n", (mz_uint32)stream.total_in);
-	  printf("Total output bytes: %u\n", (mz_uint32)stream.total_out);
-	  printf("Success.\n");
+  if (SystemFlags::VERBOSE_MODE_ENABLED) {
+    printf("Total input bytes: %u\n", (mz_uint32)stream.total_in);
+    printf("Total output bytes: %u\n", (mz_uint32)stream.total_out);
+    printf("Success.\n");
   }
   return EXIT_SUCCESS;
 }
 
-bool compressFileToZIPFile(string inFile, string outFile, int compressionLevel) {
-	string options = "-l" + intToStr(compressionLevel);
-	std::vector<const char *> argv;
-	argv.push_back(options.c_str());
-	argv.push_back("c");
-	argv.push_back(inFile.c_str());
-	argv.push_back(outFile.c_str());
+bool compressFileToZIPFile(string inFile, string outFile,
+                           int compressionLevel) {
+  string options = "-l" + intToStr(compressionLevel);
+  std::vector<const char *> argv;
+  argv.push_back(options.c_str());
+  argv.push_back("c");
+  argv.push_back(inFile.c_str());
+  argv.push_back(outFile.c_str());
 
-	int result = zipfile_tool((int)argv.size(), &argv[0]);
-	return(result == EXIT_SUCCESS ? true : false);
+  int result = zipfile_tool((int)argv.size(), &argv[0]);
+  return (result == EXIT_SUCCESS ? true : false);
 }
 
 bool extractFileFromZIPFile(string inFile, string outFile) {
-	std::vector<const char *> argv;
-	argv.push_back("-l10");
-	argv.push_back("d");
-	argv.push_back(inFile.c_str());
-	argv.push_back(outFile.c_str());
+  std::vector<const char *> argv;
+  argv.push_back("-l10");
+  argv.push_back("d");
+  argv.push_back(inFile.c_str());
+  argv.push_back(outFile.c_str());
 
-	int result = zipfile_tool((int)argv.size(), &argv[0]);
-	return(result == EXIT_SUCCESS ? true : false);
+  int result = zipfile_tool((int)argv.size(), &argv[0]);
+  return (result == EXIT_SUCCESS ? true : false);
 }
 
-std::pair<unsigned char *,unsigned long> compressMemoryToMemory(unsigned char *input, unsigned long input_len, int compressionLevel) {
-	// Like compress() but with more control, level may range from 0 (storing) to 9 (max. compression)
-	unsigned long compressed_buffer_len = input_len + 100;
-	unsigned char *compressed_buffer = new unsigned char[compressed_buffer_len+1];
-	memset(compressed_buffer,0,compressed_buffer_len+1);
+std::pair<unsigned char *, unsigned long>
+compressMemoryToMemory(unsigned char *input, unsigned long input_len,
+                       int compressionLevel) {
+  // Like compress() but with more control, level may range from 0 (storing) to
+  // 9 (max. compression)
+  unsigned long compressed_buffer_len = input_len + 100;
+  unsigned char *compressed_buffer =
+      new unsigned char[compressed_buffer_len + 1];
+  memset(compressed_buffer, 0, compressed_buffer_len + 1);
 
-	unsigned char *decompressed_buffer = new unsigned char[input_len+1];
-	memcpy(decompressed_buffer,input,input_len);
+  unsigned char *decompressed_buffer = new unsigned char[input_len + 1];
+  memcpy(decompressed_buffer, input, input_len);
 
-	//printf("compress2 start size: %lu\n",input_len);
-	int result = compress2(compressed_buffer, &compressed_buffer_len, decompressed_buffer, input_len, compressionLevel);
-	if(result != Z_OK) {
-		string msg = string("Invalid compress2 return value: ") + intToStr(result);
-		throw megaglest_runtime_error(msg.c_str());
-	}
+  // printf("compress2 start size: %lu\n",input_len);
+  int result = compress2(compressed_buffer, &compressed_buffer_len,
+                         decompressed_buffer, input_len, compressionLevel);
+  if (result != Z_OK) {
+    string msg = string("Invalid compress2 return value: ") + intToStr(result);
+    throw megaglest_runtime_error(msg.c_str());
+  }
 
-	//printf("compress2 returned: %d start size: %lu end size: %lu\n",result,input_len,compressed_buffer_len);
-	delete [] decompressed_buffer;
+  // printf("compress2 returned: %d start size: %lu end size:
+  // %lu\n",result,input_len,compressed_buffer_len);
+  delete[] decompressed_buffer;
 
-	return make_pair(compressed_buffer,compressed_buffer_len);
+  return make_pair(compressed_buffer, compressed_buffer_len);
 }
 
-std::pair<unsigned char *,unsigned long> extractMemoryToMemory(unsigned char *input, unsigned long input_len, unsigned long max_output_len) {
-	// Like compress() but with more control, level may range from 0 (storing) to 9 (max. compression)
-	unsigned long decompressed_buffer_len = max_output_len;
-	unsigned char *decompressed_buffer = new unsigned char[decompressed_buffer_len+1];
-	memset(decompressed_buffer,0,decompressed_buffer_len+1);
-	//printf("#1uncompress start size: %lu\n",input_len);
+std::pair<unsigned char *, unsigned long>
+extractMemoryToMemory(unsigned char *input, unsigned long input_len,
+                      unsigned long max_output_len) {
+  // Like compress() but with more control, level may range from 0 (storing) to
+  // 9 (max. compression)
+  unsigned long decompressed_buffer_len = max_output_len;
+  unsigned char *decompressed_buffer =
+      new unsigned char[decompressed_buffer_len + 1];
+  memset(decompressed_buffer, 0, decompressed_buffer_len + 1);
+  // printf("#1uncompress start size: %lu\n",input_len);
 
-	unsigned char *compressed_buffer = new unsigned char[input_len+1];
-	memcpy(compressed_buffer,input,input_len);
+  unsigned char *compressed_buffer = new unsigned char[input_len + 1];
+  memcpy(compressed_buffer, input, input_len);
 
-	//printf("#2uncompress start size: %lu\n",input_len);
-	//int result = uncompress(decompressed_buffer, &decompressed_buffer_len, compressed_buffer, input_len);
-	int result = uncompress(decompressed_buffer, &decompressed_buffer_len, compressed_buffer, input_len);
-	if(result != Z_OK) {
-		string msg = string("Invalid uncompress return value: ") + intToStr(result);
-		throw megaglest_runtime_error(msg.c_str());
-	}
-	//printf("uncompress returned: %d start size: %lu end size: %lu\n",result,input_len,decompressed_buffer_len);
-	delete [] compressed_buffer;
+  // printf("#2uncompress start size: %lu\n",input_len);
+  // int result = uncompress(decompressed_buffer, &decompressed_buffer_len,
+  // compressed_buffer, input_len);
+  int result = uncompress(decompressed_buffer, &decompressed_buffer_len,
+                          compressed_buffer, input_len);
+  if (result != Z_OK) {
+    string msg = string("Invalid uncompress return value: ") + intToStr(result);
+    throw megaglest_runtime_error(msg.c_str());
+  }
+  // printf("uncompress returned: %d start size: %lu end size:
+  // %lu\n",result,input_len,decompressed_buffer_len);
+  delete[] compressed_buffer;
 
-	return make_pair(decompressed_buffer,decompressed_buffer_len);
+  return make_pair(decompressed_buffer, decompressed_buffer_len);
 }
 
-}}
+} // namespace CompressionUtil
+} // namespace Shared

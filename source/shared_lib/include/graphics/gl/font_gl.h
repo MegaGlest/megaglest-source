@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -13,13 +13,15 @@
 #define _SHARED_GRAPHICS_GL_FONTGL_H_
 
 #include "font.h"
+#include "leak_dumper.h"
 #include "opengl.h"
 #include <string>
-#include "leak_dumper.h"
 
 using namespace std;
 
-namespace Shared { namespace Graphics { namespace Gl {
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 // =====================================================
 //	class FontGl
@@ -27,16 +29,14 @@ namespace Shared { namespace Graphics { namespace Gl {
 
 class FontGl {
 protected:
-
-	GLuint handle;
-	static string default_fonttype;
+  GLuint handle;
+  static string default_fonttype;
 
 public:
+  GLuint getHandle() const { return handle; }
 
-	GLuint getHandle() const						{return handle;}
-
-	static string getDefault_fontType() 			{return default_fonttype;}
-	static void setDefault_fontType(string value) 	{default_fonttype = value;}
+  static string getDefault_fontType() { return default_fonttype; }
+  static void setDefault_fontType(string value) { default_fonttype = value; }
 };
 
 // =====================================================
@@ -45,11 +45,10 @@ public:
 ///	OpenGL bitmap font
 // =====================================================
 
-class Font2DGl: public Font2D, public FontGl {
+class Font2DGl : public Font2D, public FontGl {
 public:
-
-	virtual void init();
-	virtual void end();
+  virtual void init();
+  virtual void end();
 };
 
 // =====================================================
@@ -58,13 +57,14 @@ public:
 ///	OpenGL outline font
 // =====================================================
 
-class Font3DGl: public Font3D, public FontGl {
+class Font3DGl : public Font3D, public FontGl {
 public:
-
-	virtual void init();
-	virtual void end();
+  virtual void init();
+  virtual void end();
 };
 
-}}}//end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

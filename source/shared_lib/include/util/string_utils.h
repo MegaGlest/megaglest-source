@@ -18,13 +18,12 @@
 #ifndef _SHARED_UTIL_W_STRING_H__
 #define _SHARED_UTIL_W_STRING_H__
 
-#include <string>
 #include "data_types.h"
+#include <string>
 
 #ifdef __MINGW32__
 typedef unsigned char byte;
 #endif
-
 
 #ifndef WIN32
 using Shared::Platform::byte;
@@ -32,40 +31,42 @@ using Shared::Platform::byte;
 
 using namespace Shared::Platform;
 
-namespace Shared { namespace Util {
+namespace Shared {
+namespace Util {
 
-	/*!
-        ** \brief Convert a string from ASCII to UTF8
-        ** \param s The string to convert
-        ** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
-    */
-    char* ConvertToUTF8(const char* s);
+/*!
+** \brief Convert a string from ASCII to UTF8
+** \param s The string to convert
+** \return A new Null-terminated String (must be deleted with the keyword
+*`delete[]`), even if s is NULL
+*/
+char *ConvertToUTF8(const char *s);
 
-    char* ConvertFromUTF8(const char* str);
+char *ConvertFromUTF8(const char *str);
 
-	/*!
-	** \brief Convert an UTF-8 String into a WideChar String
-	*/
-	struct WString
-	{
-	public:
-		WString(const char* s);
-		WString(const std::string& str);
+/*!
+** \brief Convert an UTF-8 String into a WideChar String
+*/
+struct WString {
+public:
+  WString(const char *s);
+  WString(const std::string &str);
 
-		void fromUtf8(const char* s, size_t length);
-		const wchar_t* cw_str() const {return pBuffer;}
+  void fromUtf8(const char *s, size_t length);
+  const wchar_t *cw_str() const { return pBuffer; }
 
-	private:
-		wchar_t pBuffer[8096];
-	};
+private:
+  wchar_t pBuffer[8096];
+};
 
-	void strrev(char *p);
-	void strrev_utf8(char *p);
-	void strrev_utf8(std::string &p);
-	bool is_string_all_ascii(std::string str);
+void strrev(char *p);
+void strrev_utf8(char *p);
+void strrev_utf8(std::string &p);
+bool is_string_all_ascii(std::string str);
 
-	int getUTF8_Width(const char *str);
+int getUTF8_Width(const char *str);
 
-}}
+} // namespace Util
+} // namespace Shared
 
 #endif // _SHARED_UTIL_W_STRING_H__

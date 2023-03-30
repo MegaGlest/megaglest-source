@@ -1,15 +1,16 @@
 /* Copyright (C) 2008 Tobi Vollebregt
-				 2010 Mark Vejvoda
+                                 2010 Mark Vejvoda
 
-	You can redistribute this code and/or modify it under
-	the terms of the GNU General Public License as published
-	by the Free Software Foundation; either version 2 of the
-	License, or (at your option) any later version
+        You can redistribute this code and/or modify it under
+        the terms of the GNU General Public License as published
+        by the Free Software Foundation; either version 2 of the
+        License, or (at your option) any later version
  ==============================================================
 */
 
 /* Conditionally include streflop depending on STREFLOP_* #defines:
-   If one of those is present, #include "streflop.h", otherwise #include <math.h>
+   If one of those is present, #include "streflop.h", otherwise #include
+   <math.h>
 
    When faced with ambiguous call errors with e.g. fabs, use math::function.
    Add it to math namespace if it doesn't exist there yet. */
@@ -22,52 +23,49 @@
 using namespace streflop;
 
 namespace math {
-	using namespace streflop;
+using namespace streflop;
 }
 #else
 #include <cmath>
 namespace math {
-	using std::fabs;
-	// using std::sqrt;
-	using std::sin;
-	using std::cos;
+using std::fabs;
+// using std::sqrt;
+using std::cos;
+using std::sin;
 
-	using std::sinh;
-	using std::cosh;
-	using std::tan;
-	using std::tanh;
-	using std::asin;
-	using std::acos;
-	using std::atan;
-	using std::atan2;
-	using std::ceil;
-	using std::floor;
-	using std::fmod;
-	using std::pow;
-	using std::log;
-	using std::log10;
-	using std::exp;
-	using std::frexp;
-	using std::ldexp;
+using std::acos;
+using std::asin;
+using std::atan;
+using std::atan2;
+using std::ceil;
+using std::cosh;
+using std::exp;
+using std::floor;
+using std::fmod;
+using std::frexp;
+using std::ldexp;
+using std::log;
+using std::log10;
+using std::pow;
+using std::sinh;
+using std::tan;
+using std::tanh;
 // the following are C99 functions -> not supported by VS C
 #if !defined(_MSC_VER) || _MSC_VER < 1500
-	using std::isnan;
-	using std::isinf;
-	using std::isfinite;
+using std::isfinite;
+using std::isinf;
+using std::isnan;
 #elif __cplusplus
-	template<typename T> inline bool isnan(T value) {
-		return value != value;
-	}
-	// requires include <limits>
-	template<typename T> inline bool isinf(T value) {
-		return std::numeric_limits<T>::has_infinity && value == std::numeric_limits<T>::infinity();
-	}
-	// requires include <limits>
-	template<typename T> inline bool isfinite(T value) {
-		return !isinf<T>(value);
-	}
-#endif
+template <typename T> inline bool isnan(T value) { return value != value; }
+// requires include <limits>
+template <typename T> inline bool isinf(T value) {
+  return std::numeric_limits<T>::has_infinity &&
+         value == std::numeric_limits<T>::infinity();
 }
+// requires include <limits>
+template <typename T> inline bool isfinite(T value) { return !isinf<T>(value); }
+#endif
+} // namespace math
 #endif
 
 #endif // STREFLOP_COND_H

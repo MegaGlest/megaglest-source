@@ -3,22 +3,23 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHARED_GRAPHICS_MODELMANAGER_H_
 #define _SHARED_GRAPHICS_MODELMANAGER_H_
 
+#include "leak_dumper.h"
 #include "model.h"
 #include <vector>
-#include "leak_dumper.h"
 
 using namespace std;
 
-namespace Shared{ namespace Graphics{
+namespace Shared {
+namespace Graphics {
 
 class TextureManager;
 
@@ -26,28 +27,34 @@ class TextureManager;
 //	class ModelManager
 // =====================================================
 
-class ModelManager{
+class ModelManager {
 protected:
-	typedef vector<Model*> ModelContainer;
+  typedef vector<Model *> ModelContainer;
 
 protected:
-	ModelContainer models;
-	TextureManager *textureManager;
+  ModelContainer models;
+  TextureManager *textureManager;
 
 public:
-	ModelManager();
-	virtual ~ModelManager();
+  ModelManager();
+  virtual ~ModelManager();
 
-	Model *newModel(const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader);
+  Model *
+  newModel(const string &path, bool deletePixMapAfterLoad,
+           std::map<string, vector<pair<string, string>>> *loadedFileList,
+           string *sourceLoader);
 
-	void init();
-	void end();
-	void endModel(Model *model,bool mustExistInList=false);
-	void endLastModel(bool mustExistInList=false);
+  void init();
+  void end();
+  void endModel(Model *model, bool mustExistInList = false);
+  void endLastModel(bool mustExistInList = false);
 
-	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}
+  void setTextureManager(TextureManager *textureManager) {
+    this->textureManager = textureManager;
+  }
 };
 
-}}//end namespace
+} // namespace Graphics
+} // namespace Shared
 
 #endif

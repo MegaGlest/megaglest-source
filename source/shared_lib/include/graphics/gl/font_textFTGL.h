@@ -18,42 +18,44 @@
 
 #include "font_text.h"
 
-namespace Shared { namespace Graphics { namespace Gl {
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 /**
  * Use FTGL for rendering text in OpenGL
  */
 //====================================================================
-class TextFTGL : public Text
-{
+class TextFTGL : public Text {
 public:
+  static string langHeightText;
+  static int faceResolution;
 
-	static string langHeightText;
-	static int faceResolution;
+  TextFTGL(FontTextHandlerType type);
+  virtual ~TextFTGL();
+  virtual void init(string fontName, string fontFamilyName, int fontSize);
 
-	TextFTGL(FontTextHandlerType type);
-	virtual ~TextFTGL();
-	virtual void init(string fontName, string fontFamilyName, int fontSize);
+  virtual void SetFaceSize(int);
+  virtual int GetFaceSize();
 
-	virtual void SetFaceSize(int);
-	virtual int GetFaceSize();
+  virtual void Render(const char *, const int = -1);
+  virtual float Advance(const char *, const int = -1);
+  virtual float LineHeight(const char *, const int = -1);
 
-	virtual void Render(const char*, const int = -1);
-	virtual float Advance(const char*, const int = -1);
-	virtual float LineHeight(const char*, const int = -1);
-
-	virtual void Render(const wchar_t*, const int = -1);
-	virtual float Advance(const wchar_t*, const int = -1);
-	virtual float LineHeight(const wchar_t* = L" ", const int = -1);
+  virtual void Render(const wchar_t *, const int = -1);
+  virtual float Advance(const wchar_t *, const int = -1);
+  virtual float LineHeight(const wchar_t * = L" ", const int = -1);
 
 private:
-	FTFont *ftFont;
-	const char* fontFile;
+  FTFont *ftFont;
+  const char *fontFile;
 
-	void cleanupFont();
+  void cleanupFont();
 };
 
-}}}//end namespace
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif // USE_FTGL
 

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -14,10 +14,8 @@
 
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Platform{
-
-
-
-}}//end namespace
+namespace Shared {
+namespace Platform {}
+} // namespace Shared
 
 #endif

@@ -15,7 +15,7 @@
 #include <time.h>
 
 bool AllocInfo::application_binary_initialized = false;
-//static AllocRegistry memoryLeaks = AllocRegistry::getInstance();
+// static AllocRegistry memoryLeaks = AllocRegistry::getInstance();
 
 // =====================================================
 //	class AllocRegistry
@@ -24,56 +24,66 @@ bool AllocInfo::application_binary_initialized = false;
 // ===================== PUBLIC ========================
 
 AllocRegistry::~AllocRegistry() {
-	dump("leak_dump.log");
+  dump("leak_dump.log");
 
-	free(mutex);
-	mutex = NULL;
+  free(mutex);
+  mutex = NULL;
 }
 
 void AllocRegistry::dump(const char *path) {
 
-	int leakCount=0;
-	size_t leakBytes=0;
+  int leakCount = 0;
+  size_t leakBytes = 0;
 
-	//time_t debugTime = time(NULL);
-	//struct tm *loctime = localtime (&debugTime);
-	struct tm loctime = threadsafe_localtime(systemtime_now());
-	char szBuf2[100]="";
-	strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",&loctime);
+  // time_t debugTime = time(NULL);
+  // struct tm *loctime = localtime (&debugTime);
+  struct tm loctime = threadsafe_localtime(systemtime_now());
+  char szBuf2[100] = "";
+  strftime(szBuf2, 100, "%Y-%m-%d %H:%M:%S", &loctime);
 
 #ifdef WIN32
-	FILE* f= _wfopen(utf8_decode(path).c_str(), L"wt");
+  FILE *f = _wfopen(utf8_decode(path).c_str(), L"wt");
 #else
-	FILE *f= fopen(path, "wt");
+  FILE *f = fopen(path, "wt");
 #endif
 
-	if(f) {
-		fprintf(f, "Memory leak dump at: %s\n\n",szBuf2);
+  if (f) {
+    fprintf(f, "Memory leak dump at: %s\n\n", szBuf2);
 
-		for(int index = 0; index < maxAllocs; ++index) {
-			AllocInfo &info = allocs[index];
-			if(info.freetouse == false && info.inuse == true) {
+    for (int index = 0; index < maxAllocs; ++index) {
+      AllocInfo &info = allocs[index];
+      if (info.freetouse == false && info.inuse == true) {
 
-				if(info.line > 0) {
-					leakBytes += info.bytes;
+        if (info.line > 0) {
+          leakBytes += info.bytes;
 
-					//allocs[i].stack = AllocInfo::getStackTrace();
-					fprintf(f, "Leak #%d.\tfile: %s, line: %d, ptr [%p], bytes: " MG_SIZE_T_SPECIFIER ", array: %d, inuse: %d\n%s\n", ++leakCount, info.file, info.line, info.ptr, info.bytes, info.array,info.inuse,info.stack.c_str());
-				}
-			}
-		}
+          // allocs[i].stack = AllocInfo::getStackTrace();
+          fprintf(f,
+                  "Leak #%d.\tfile: %s, line: %d, ptr [%p], "
+                  "bytes: " MG_SIZE_T_SPECIFIER ", array: %d, inuse: %d\n%s\n",
+                  ++leakCount, info.file, info.line, info.ptr, info.bytes,
+                  info.array, info.inuse, info.stack.c_str());
+        }
+      }
+    }
 
-		fprintf(f, "\nTotal leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount, leakBytes);
-		fprintf(f, "Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", allocCount, allocBytes);
-		fprintf(f, "Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", nonMonitoredCount, nonMonitoredBytes);
+    fprintf(f, "\nTotal leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount,
+            leakBytes);
+    fprintf(f, "Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n",
+            allocCount, allocBytes);
+    fprintf(f, "Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n",
+            nonMonitoredCount, nonMonitoredBytes);
 
-		fclose(f);
-	}
+    fclose(f);
+  }
 
-	printf("Memory leak dump summary at: %s\n",szBuf2);
-	printf("Total leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount, leakBytes);
-	printf("Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", allocCount, allocBytes);
-	printf("Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", nonMonitoredCount, nonMonitoredBytes);
+  printf("Memory leak dump summary at: %s\n", szBuf2);
+  printf("Total leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount,
+         leakBytes);
+  printf("Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", allocCount,
+         allocBytes);
+  printf("Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n",
+         nonMonitoredCount, nonMonitoredBytes);
 }
 
 #endif

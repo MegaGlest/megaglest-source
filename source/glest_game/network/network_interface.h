@@ -13,28 +13,29 @@
 #define _GLEST_GAME_NETWORKINTERFACE_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include <string>
-#include <vector>
 #include "checksum.h"
+#include "data_types.h"
+#include "game_settings.h"
+#include "leak_dumper.h"
 #include "network_message.h"
 #include "network_types.h"
-#include "game_settings.h"
 #include "thread.h"
-#include "data_types.h"
+#include <string>
 #include <time.h>
-#include "leak_dumper.h"
+#include <vector>
 
+using Shared::Util::Checksum;
 using std::string;
 using std::vector;
-using Shared::Util::Checksum;
 using namespace Shared::Util;
 using namespace Shared::Platform;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 //	class NetworkInterface
@@ -45,128 +46,125 @@ namespace Glest{ namespace Game{
 //
 class ClientLagCallbackInterface {
 public:
-	virtual bool clientLagHandler(int slotIndex, bool networkPauseGameForLaggedClients) = 0;
+  virtual bool clientLagHandler(int slotIndex,
+                                bool networkPauseGameForLaggedClients) = 0;
 
-	virtual ~ClientLagCallbackInterface() {}
+  virtual ~ClientLagCallbackInterface() {}
 };
-
 
 class ChatMsgInfo {
 
 protected:
+  void copyAll(const ChatMsgInfo &obj) {
+    this->chatText = obj.chatText.c_str();
+    this->chatTeamIndex = obj.chatTeamIndex;
+    this->chatPlayerIndex = obj.chatPlayerIndex;
+    this->targetLanguage = obj.targetLanguage;
+  }
 
-	void copyAll(const ChatMsgInfo &obj) {
-		this->chatText			= obj.chatText.c_str();
-		this->chatTeamIndex		= obj.chatTeamIndex;
-		this->chatPlayerIndex 	= obj.chatPlayerIndex;
-		this->targetLanguage	= obj.targetLanguage;
-	}
 public:
+  ChatMsgInfo() {
+    this->chatText = "";
+    this->chatTeamIndex = -1;
+    this->chatPlayerIndex = -1;
+    this->targetLanguage = "";
+  }
+  ChatMsgInfo(string chatText, int chatTeamIndex, int chatPlayerIndex,
+              string targetLanguage) {
+    this->chatText = chatText;
+    this->chatTeamIndex = chatTeamIndex;
+    this->chatPlayerIndex = chatPlayerIndex;
+    this->targetLanguage = targetLanguage;
+  }
+  ChatMsgInfo(const ChatMsgInfo &obj) { copyAll(obj); }
+  ChatMsgInfo &operator=(const ChatMsgInfo &obj) {
+    copyAll(obj);
+    return *this;
+  }
 
-	ChatMsgInfo() {
-		this->chatText			= "";
-		this->chatTeamIndex		= -1;
-		this->chatPlayerIndex	= -1;
-		this->targetLanguage	= "";
-	}
-	ChatMsgInfo(string chatText, int chatTeamIndex, int chatPlayerIndex,
-			string targetLanguage) {
-		this->chatText		= chatText;
-		this->chatTeamIndex	= chatTeamIndex;
-		this->chatPlayerIndex = chatPlayerIndex;
-		this->targetLanguage = targetLanguage;
-	}
-	ChatMsgInfo(const ChatMsgInfo& obj) {
-		copyAll(obj);
-	}
-	ChatMsgInfo & operator=(const ChatMsgInfo & obj) {
-		copyAll(obj);
-		return *this;
-	}
-
-	string chatText;
-	int chatTeamIndex;
-	int chatPlayerIndex;
-	string targetLanguage;
-
+  string chatText;
+  int chatTeamIndex;
+  int chatPlayerIndex;
+  string targetLanguage;
 };
 
 class MarkedCell {
 protected:
-	Vec2i targetPos;
-	const Faction *faction;
-	int factionIndex;
-	int playerIndex;
-	string note;
-	int aliveCount;
+  Vec2i targetPos;
+  const Faction *faction;
+  int factionIndex;
+  int playerIndex;
+  string note;
+  int aliveCount;
 
 public:
-	static Vec3f static_system_marker_color;
+  static Vec3f static_system_marker_color;
 
-	MarkedCell() {
-		faction = NULL;
-		factionIndex = -1;
-		playerIndex = -1;
-		note = "";
-		aliveCount=200;
-	}
-	MarkedCell(Vec2i targetPos,const Faction *faction,string note, int playerIndex) {
-		this->targetPos = targetPos;
-		this->faction = faction;
-		this->factionIndex = -1;
-		this->playerIndex = playerIndex;
-		this->note = note;
-		aliveCount=200;
-	}
-	MarkedCell(Vec2i targetPos,int factionIndex,string note, int playerIndex) {
-		this->targetPos = targetPos;
-		this->faction = NULL;
-		this->factionIndex = factionIndex;
-		this->playerIndex = playerIndex;
-		this->note = note;
-		aliveCount=200;
-	}
+  MarkedCell() {
+    faction = NULL;
+    factionIndex = -1;
+    playerIndex = -1;
+    note = "";
+    aliveCount = 200;
+  }
+  MarkedCell(Vec2i targetPos, const Faction *faction, string note,
+             int playerIndex) {
+    this->targetPos = targetPos;
+    this->faction = faction;
+    this->factionIndex = -1;
+    this->playerIndex = playerIndex;
+    this->note = note;
+    aliveCount = 200;
+  }
+  MarkedCell(Vec2i targetPos, int factionIndex, string note, int playerIndex) {
+    this->targetPos = targetPos;
+    this->faction = NULL;
+    this->factionIndex = factionIndex;
+    this->playerIndex = playerIndex;
+    this->note = note;
+    aliveCount = 200;
+  }
 
-	Vec2i getTargetPos() const { return targetPos; }
-	const Faction * getFaction() const { return faction; }
-	void setFaction(const Faction *faction) { this->faction = faction; }
-	int getFactionIndex() const { return factionIndex; }
-	string getNote() const { return note; }
-	void decrementAliveCount() { this->aliveCount--; }
-	int getAliveCount() const { return aliveCount; }
-	void setAliveCount(int value) { this->aliveCount = value; }
-	int getPlayerIndex() const { return playerIndex; }
+  Vec2i getTargetPos() const { return targetPos; }
+  const Faction *getFaction() const { return faction; }
+  void setFaction(const Faction *faction) { this->faction = faction; }
+  int getFactionIndex() const { return factionIndex; }
+  string getNote() const { return note; }
+  void decrementAliveCount() { this->aliveCount--; }
+  int getAliveCount() const { return aliveCount; }
+  void setAliveCount(int value) { this->aliveCount = value; }
+  int getPlayerIndex() const { return playerIndex; }
 
-	void setNote(string value) { note = value; }
-	void setPlayerIndex(int value) { playerIndex = value; }
+  void setNote(string value) { note = value; }
+  void setPlayerIndex(int value) { playerIndex = value; }
 };
 
 class UnMarkedCell {
 protected:
-	Vec2i targetPos;
-	const Faction *faction;
-	int factionIndex;
+  Vec2i targetPos;
+  const Faction *faction;
+  int factionIndex;
 
 public:
-	UnMarkedCell() {
-		faction = NULL;
-		factionIndex = -1;
-	}
-	UnMarkedCell(Vec2i targetPos,const Faction *faction) {
-		this->targetPos = targetPos;
-		this->faction = faction;
-		this->factionIndex = -1;
-	}
-	UnMarkedCell(Vec2i targetPos,int factionIndex) {
-		this->targetPos = targetPos;
-		this->faction = NULL;
-		this->factionIndex = factionIndex;
-	}
+  UnMarkedCell() {
+    faction = NULL;
+    factionIndex = -1;
+  }
+  UnMarkedCell(Vec2i targetPos, const Faction *faction) {
+    this->targetPos = targetPos;
+    this->faction = faction;
+    this->factionIndex = -1;
+  }
+  UnMarkedCell(Vec2i targetPos, int factionIndex) {
+    this->targetPos = targetPos;
+    this->faction = NULL;
+    this->factionIndex = factionIndex;
+  }
 
-	Vec2i getTargetPos() const { return targetPos; }
-	const Faction * getFaction() const { return faction; }
-	void setFaction(const Faction *faction) { this->faction = faction; }
-	int getFactionIndex() const { return factionIndex; }
+  Vec2i getTargetPos() const { return targetPos; }
+  const Faction *getFaction() const { return faction; }
+  void setFaction(const Faction *faction) { this->faction = faction; }
+  int getFactionIndex() const { return factionIndex; }
 };
 
 typedef int (*DisplayMessageFunction)(const char *msg, bool exit);
@@ -174,125 +172,154 @@ typedef int (*DisplayMessageFunction)(const char *msg, bool exit);
 class NetworkInterface {
 
 protected:
-    static bool allowGameDataSynchCheck;
-    static bool allowDownloadDataSynch;
-	bool networkGameDataSynchCheckOkMap;
-	bool networkGameDataSynchCheckOkTile;
-	bool networkGameDataSynchCheckOkTech;
-	string networkGameDataSynchCheckTechMismatchReport;
-	bool receivedDataSynchCheck;
+  static bool allowGameDataSynchCheck;
+  static bool allowDownloadDataSynch;
+  bool networkGameDataSynchCheckOkMap;
+  bool networkGameDataSynchCheckOkTile;
+  bool networkGameDataSynchCheckOkTech;
+  string networkGameDataSynchCheckTechMismatchReport;
+  bool receivedDataSynchCheck;
 
-	NetworkMessagePing lastPingInfo;
+  NetworkMessagePing lastPingInfo;
 
-	std::vector<ChatMsgInfo> chatTextList;
-	std::vector<MarkedCell> markedCellList;
-	std::vector<UnMarkedCell> unmarkedCellList;
+  std::vector<ChatMsgInfo> chatTextList;
+  std::vector<MarkedCell> markedCellList;
+  std::vector<UnMarkedCell> unmarkedCellList;
 
-	static DisplayMessageFunction pCB_DisplayMessage;
-	void DisplayErrorMessage(string sErr, bool closeSocket=true);
+  static DisplayMessageFunction pCB_DisplayMessage;
+  void DisplayErrorMessage(string sErr, bool closeSocket = true);
 
-	virtual Mutex * getServerSynchAccessor() = 0;
+  virtual Mutex *getServerSynchAccessor() = 0;
 
-	std::vector<MarkedCell> highlightedCellList;
+  std::vector<MarkedCell> highlightedCellList;
 
-	Mutex *networkAccessMutex;
+  Mutex *networkAccessMutex;
 
-	void init();
+  void init();
 
-	Mutex *networkPlayerFactionCRCMutex;
-	uint32 networkPlayerFactionCRC[GameConstants::maxPlayers];
-
-public:
-	static const int readyWaitTimeout;
-	GameSettings gameSettings;
+  Mutex *networkPlayerFactionCRCMutex;
+  uint32 networkPlayerFactionCRC[GameConstants::maxPlayers];
 
 public:
-	NetworkInterface();
-	virtual ~NetworkInterface();
+  static const int readyWaitTimeout;
+  GameSettings gameSettings;
 
-	NetworkInterface(const NetworkInterface& obj) {
-		init();
-		throw megaglest_runtime_error("class NetworkInterface is NOT safe to copy!");
-	}
-	NetworkInterface & operator=(const NetworkInterface& obj) {
-		init();
-		throw megaglest_runtime_error("class NetworkInterface is NOT safe to assign!");
-	}
+public:
+  NetworkInterface();
+  virtual ~NetworkInterface();
 
-	uint32 getNetworkPlayerFactionCRC(int index);
-	void setNetworkPlayerFactionCRC(int index, uint32 crc);
+  NetworkInterface(const NetworkInterface &obj) {
+    init();
+    throw megaglest_runtime_error(
+        "class NetworkInterface is NOT safe to copy!");
+  }
+  NetworkInterface &operator=(const NetworkInterface &obj) {
+    init();
+    throw megaglest_runtime_error(
+        "class NetworkInterface is NOT safe to assign!");
+  }
 
-	virtual Socket* getSocket(bool mutexLock=true)= 0;
+  uint32 getNetworkPlayerFactionCRC(int index);
+  void setNetworkPlayerFactionCRC(int index, uint32 crc);
 
-	virtual void close()= 0;
-	virtual string getHumanPlayerName(int index=-1) = 0;
-	virtual int getHumanPlayerIndex() const = 0;
+  virtual Socket *getSocket(bool mutexLock = true) = 0;
 
-    static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
-    static DisplayMessageFunction getDisplayMessageFunction() { return pCB_DisplayMessage; }
+  virtual void close() = 0;
+  virtual string getHumanPlayerName(int index = -1) = 0;
+  virtual int getHumanPlayerIndex() const = 0;
 
-    virtual std::string getIpAddress(bool mutexLock=true) = 0;
-	string getIp() const		{return Socket::getIp();}
-	string getHostName() const	{return Socket::getHostName();}
+  static void
+  setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) {
+    pCB_DisplayMessage = pDisplayMessage;
+  }
+  static DisplayMessageFunction getDisplayMessageFunction() {
+    return pCB_DisplayMessage;
+  }
 
-	virtual void sendMessage(NetworkMessage* networkMessage);
-	NetworkMessageType getNextMessageType(int waitMilliseconds=0);
-	bool receiveMessage(NetworkMessage* networkMessage);
-	bool receiveMessage(NetworkMessage* networkMessage, NetworkMessageType type);
+  virtual std::string getIpAddress(bool mutexLock = true) = 0;
+  string getIp() const { return Socket::getIp(); }
+  string getHostName() const { return Socket::getHostName(); }
 
-	virtual bool isConnected();
+  virtual void sendMessage(NetworkMessage *networkMessage);
+  NetworkMessageType getNextMessageType(int waitMilliseconds = 0);
+  bool receiveMessage(NetworkMessage *networkMessage);
+  bool receiveMessage(NetworkMessage *networkMessage, NetworkMessageType type);
 
-	const virtual GameSettings * getGameSettings() { return &gameSettings; }
-	GameSettings * getGameSettingsPtr() { return &gameSettings; }
+  virtual bool isConnected();
 
-	static void setAllowDownloadDataSynch(bool value)          { allowDownloadDataSynch = value; }
-	static bool getAllowDownloadDataSynch()                    { return allowDownloadDataSynch; }
+  const virtual GameSettings *getGameSettings() { return &gameSettings; }
+  GameSettings *getGameSettingsPtr() { return &gameSettings; }
 
-	static void setAllowGameDataSynchCheck(bool value)          { allowGameDataSynchCheck = value; }
-	static bool getAllowGameDataSynchCheck()                    { return allowGameDataSynchCheck; }
+  static void setAllowDownloadDataSynch(bool value) {
+    allowDownloadDataSynch = value;
+  }
+  static bool getAllowDownloadDataSynch() { return allowDownloadDataSynch; }
 
-    virtual bool getNetworkGameDataSynchCheckOk()               { return (networkGameDataSynchCheckOkMap && networkGameDataSynchCheckOkTile && networkGameDataSynchCheckOkTech); }
-    virtual void setNetworkGameDataSynchCheckOkMap(bool value)  { networkGameDataSynchCheckOkMap = value; }
-    virtual void setNetworkGameDataSynchCheckOkTile(bool value) { networkGameDataSynchCheckOkTile = value; }
-    virtual void setNetworkGameDataSynchCheckOkTech(bool value) { networkGameDataSynchCheckOkTech = value; }
-    virtual bool getNetworkGameDataSynchCheckOkMap()            { return networkGameDataSynchCheckOkMap; }
-    virtual bool getNetworkGameDataSynchCheckOkTile()           { return networkGameDataSynchCheckOkTile; }
-    virtual bool getNetworkGameDataSynchCheckOkTech()           { return networkGameDataSynchCheckOkTech; }
+  static void setAllowGameDataSynchCheck(bool value) {
+    allowGameDataSynchCheck = value;
+  }
+  static bool getAllowGameDataSynchCheck() { return allowGameDataSynchCheck; }
 
-    std::vector<ChatMsgInfo> getChatTextList(bool clearList);
-	void clearChatInfo();
-	void addChatInfo(const ChatMsgInfo &msg);
+  virtual bool getNetworkGameDataSynchCheckOk() {
+    return (networkGameDataSynchCheckOkMap && networkGameDataSynchCheckOkTile &&
+            networkGameDataSynchCheckOkTech);
+  }
+  virtual void setNetworkGameDataSynchCheckOkMap(bool value) {
+    networkGameDataSynchCheckOkMap = value;
+  }
+  virtual void setNetworkGameDataSynchCheckOkTile(bool value) {
+    networkGameDataSynchCheckOkTile = value;
+  }
+  virtual void setNetworkGameDataSynchCheckOkTech(bool value) {
+    networkGameDataSynchCheckOkTech = value;
+  }
+  virtual bool getNetworkGameDataSynchCheckOkMap() {
+    return networkGameDataSynchCheckOkMap;
+  }
+  virtual bool getNetworkGameDataSynchCheckOkTile() {
+    return networkGameDataSynchCheckOkTile;
+  }
+  virtual bool getNetworkGameDataSynchCheckOkTech() {
+    return networkGameDataSynchCheckOkTech;
+  }
 
-    std::vector<MarkedCell> getMarkedCellList(bool clearList);
-	void clearMarkedCellList();
-	void addMarkedCell(const MarkedCell &msg);
+  std::vector<ChatMsgInfo> getChatTextList(bool clearList);
+  void clearChatInfo();
+  void addChatInfo(const ChatMsgInfo &msg);
 
-    std::vector<UnMarkedCell> getUnMarkedCellList(bool clearList);
-	void clearUnMarkedCellList();
-	void addUnMarkedCell(const UnMarkedCell &msg);
+  std::vector<MarkedCell> getMarkedCellList(bool clearList);
+  void clearMarkedCellList();
+  void addMarkedCell(const MarkedCell &msg);
 
-    std::vector<MarkedCell> getHighlightedCellList(bool clearList);
-	void clearHighlightedCellList();
-	void setHighlightedCell(const MarkedCell &msg);
+  std::vector<UnMarkedCell> getUnMarkedCellList(bool clearList);
+  void clearUnMarkedCellList();
+  void addUnMarkedCell(const UnMarkedCell &msg);
 
-	virtual bool getConnectHasHandshaked() const= 0;
+  std::vector<MarkedCell> getHighlightedCellList(bool clearList);
+  void clearHighlightedCellList();
+  void setHighlightedCell(const MarkedCell &msg);
 
-	void setLastPingInfo(const NetworkMessagePing &ping);
-	void setLastPingInfoToNow();
-	NetworkMessagePing getLastPingInfo();
-	double getLastPingLag();
+  virtual bool getConnectHasHandshaked() const = 0;
 
-	float getThreadedPingMS(std::string host);
+  void setLastPingInfo(const NetworkMessagePing &ping);
+  void setLastPingInfoToNow();
+  NetworkMessagePing getLastPingInfo();
+  double getLastPingLag();
 
-	string getNetworkGameDataSynchCheckTechMismatchReport() const {return networkGameDataSynchCheckTechMismatchReport;}
-	void setNetworkGameDataSynchCheckTechMismatchReport(string value) {networkGameDataSynchCheckTechMismatchReport = value;}
+  float getThreadedPingMS(std::string host);
 
-	bool getReceivedDataSynchCheck() const {return receivedDataSynchCheck;}
-	void setReceivedDataSynchCheck(bool value) { receivedDataSynchCheck = value; }
+  string getNetworkGameDataSynchCheckTechMismatchReport() const {
+    return networkGameDataSynchCheckTechMismatchReport;
+  }
+  void setNetworkGameDataSynchCheckTechMismatchReport(string value) {
+    networkGameDataSynchCheckTechMismatchReport = value;
+  }
 
-	virtual void saveGame(XmlNode *rootNode) = 0;
-	//static void loadGame(string name);
+  bool getReceivedDataSynchCheck() const { return receivedDataSynchCheck; }
+  void setReceivedDataSynchCheck(bool value) { receivedDataSynchCheck = value; }
 
+  virtual void saveGame(XmlNode *rootNode) = 0;
+  // static void loadGame(string name);
 };
 
 // =====================================================
@@ -302,121 +329,104 @@ public:
 // but not connection slots
 // =====================================================
 
-class GameNetworkInterface: public NetworkInterface {
+class GameNetworkInterface : public NetworkInterface {
 
 protected:
-	typedef vector<NetworkCommand> Commands;
+  typedef vector<NetworkCommand> Commands;
 
-	Commands requestedCommands;	//commands requested by the user
-	Commands pendingCommands;	//commands ready to be given
-	bool quit;
+  Commands requestedCommands; // commands requested by the user
+  Commands pendingCommands;   // commands ready to be given
+  bool quit;
 
 public:
-	GameNetworkInterface();
-	virtual ~GameNetworkInterface(){}
+  GameNetworkInterface();
+  virtual ~GameNetworkInterface() {}
 
-	//message processimg
-	virtual void update()= 0;
-	virtual void updateLobby()= 0;
-	virtual void updateKeyframe(int frameCount)= 0;
-	virtual void setKeyframe(int frameCount)= 0;
-	virtual void waitUntilReady(Checksum* checksum)= 0;
+  // message processimg
+  virtual void update() = 0;
+  virtual void updateLobby() = 0;
+  virtual void updateKeyframe(int frameCount) = 0;
+  virtual void setKeyframe(int frameCount) = 0;
+  virtual void waitUntilReady(Checksum *checksum) = 0;
 
-	//message sending
-	virtual void sendTextMessage(const string &text, int teamIndex,bool echoLocal,
-			string targetLanguage)= 0;
-	virtual void quitGame(bool userManuallyQuit)=0;
+  // message sending
+  virtual void sendTextMessage(const string &text, int teamIndex,
+                               bool echoLocal, string targetLanguage) = 0;
+  virtual void quitGame(bool userManuallyQuit) = 0;
 
-	virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note,int playerIndex) = 0;
-	virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) = 0;
-	virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex) = 0;
+  virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex,
+                                   string note, int playerIndex) = 0;
+  virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex) = 0;
+  virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex) = 0;
 
+  // misc
+  virtual string getNetworkStatus() = 0;
 
-	//misc
-	virtual string getNetworkStatus() = 0;
-
-	//access functions
-	void requestCommand(const NetworkCommand *networkCommand, bool insertAtStart=false);
-	int getPendingCommandCount() const							{return (int)pendingCommands.size();}
-	NetworkCommand* getPendingCommand(int i) 		            {return &pendingCommands[i];}
-	void clearPendingCommands()									{pendingCommands.clear();}
-	bool getQuit() const										{return quit;}
+  // access functions
+  void requestCommand(const NetworkCommand *networkCommand,
+                      bool insertAtStart = false);
+  int getPendingCommandCount() const { return (int)pendingCommands.size(); }
+  NetworkCommand *getPendingCommand(int i) { return &pendingCommands[i]; }
+  void clearPendingCommands() { pendingCommands.clear(); }
+  bool getQuit() const { return quit; }
 };
 
 // =====================================================
 //	class FileTransferSocketThread
 // =====================================================
 
-enum FileTransferHostType
-{
-    eClient,
-    eServer
-};
+enum FileTransferHostType { eClient, eServer };
 
-enum FileTransferOperationType
-{
-    eSend,
-    eReceive
-};
+enum FileTransferOperationType { eSend, eReceive };
 
-class FileTransferInfo
-{
+class FileTransferInfo {
 private:
-
-    void CopyAll(const FileTransferInfo &obj)
-    {
-        hostType    = obj.hostType;
-        serverIP    = obj.serverIP;
-        serverPort  = obj.serverPort;
-        opType      = obj.opType;
-        fileName    = obj.fileName;
-    }
+  void CopyAll(const FileTransferInfo &obj) {
+    hostType = obj.hostType;
+    serverIP = obj.serverIP;
+    serverPort = obj.serverPort;
+    opType = obj.opType;
+    fileName = obj.fileName;
+  }
 
 public:
-    FileTransferInfo()
-    {
-        hostType    = eClient;
-        serverIP    = "";
-        serverPort  = 0;
-        opType      = eSend;
-        fileName    = "";
-    }
-    FileTransferInfo(const FileTransferInfo &obj)
-    {
-        CopyAll(obj);
-    }
-    FileTransferInfo &operator=(const FileTransferInfo &obj)
-    {
-        CopyAll(obj);
-        return *this;
-    }
+  FileTransferInfo() {
+    hostType = eClient;
+    serverIP = "";
+    serverPort = 0;
+    opType = eSend;
+    fileName = "";
+  }
+  FileTransferInfo(const FileTransferInfo &obj) { CopyAll(obj); }
+  FileTransferInfo &operator=(const FileTransferInfo &obj) {
+    CopyAll(obj);
+    return *this;
+  }
 
-    FileTransferHostType hostType;
-    string serverIP;
-    int32  serverPort;
-    FileTransferOperationType opType;
-    string fileName;
+  FileTransferHostType hostType;
+  string serverIP;
+  int32 serverPort;
+  FileTransferOperationType opType;
+  string fileName;
 };
 
-class FileInfo
-{
+class FileInfo {
 public:
-    string fileName;
-    int64 filesize;
-    uint32 filecrc;
+  string fileName;
+  int64 filesize;
+  uint32 filecrc;
 };
 
-class FileTransferSocketThread : public Thread
-{
+class FileTransferSocketThread : public Thread {
 private:
-    FileTransferInfo info;
+  FileTransferInfo info;
 
 public:
-    explicit FileTransferSocketThread(FileTransferInfo fileInfo);
-    virtual void execute();
+  explicit FileTransferSocketThread(FileTransferInfo fileInfo);
+  virtual void execute();
 };
 
-
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

@@ -1,188 +1,210 @@
-//This file is part of Glest Shared Library (www.glest.org)
-//Copyright (C) 2005 Matthias Braun <matze@braunis.de>
+// This file is part of Glest Shared Library (www.glest.org)
+// Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 
-//You can redistribute this code and/or modify it under
-//the terms of the GNU General Public License as published by the Free Software
-//Foundation; either version 2 of the License, or (at your option) any later
-//version.
+// You can redistribute this code and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation; either version 2 of the License, or (at your option) any later
+// version.
 #include "gl_wrap.h"
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <cassert>
 
+#include "noimpl.h"
 #include "opengl.h"
 #include "sdl_private.h"
-#include "noimpl.h"
 #include "util.h"
 #include "window.h"
 #include <vector>
-//#include <SDL_image.h>
-#include "platform_util.h"
+// #include <SDL_image.h>
 #include "leak_dumper.h"
+#include "platform_util.h"
 
 using namespace Shared::Graphics::Gl;
 using namespace Shared::Util;
 
-namespace Shared{ namespace Platform{
+namespace Shared {
+namespace Platform {
 
 // Example values:
 // DEFAULT_CHARSET (English) = 1
 // GB2312_CHARSET (Chinese)  = 134
-//#ifdef WIN32
-//DWORD PlatformContextGl::charSet = DEFAULT_CHARSET;
-//#else
-//int PlatformContextGl::charSet = 1;
-//#endif
+// #ifdef WIN32
+// DWORD PlatformContextGl::charSet = DEFAULT_CHARSET;
+// #else
+// int PlatformContextGl::charSet = 1;
+// #endif
 
 // ======================================
 //	Global Fcs
 // ======================================
 
-int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX *lpelfe,
-							   NEWTEXTMETRICEX *lpntme,
-							   int FontType,
-							   LPARAM lParam) {
-	std::vector<std::string> *systemFontList = (std::vector<std::string> *)lParam;
-	systemFontList->push_back((char *)lpelfe->elfFullName);
-	return 1; // I want to get all fonts
+int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
+                               int FontType, LPARAM lParam) {
+  std::vector<std::string> *systemFontList = (std::vector<std::string> *)lParam;
+  systemFontList->push_back((char *)lpelfe->elfFullName);
+  return 1; // I want to get all fonts
 }
 
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
-							 int charCount, FontMetrics &metrics) {
-	//return;
+                         int charCount, FontMetrics &metrics) {
+  // return;
 
-	// -adecw-screen-medium-r-normal--18-180-75-75-m-160-gb2312.1980-1	 this is a Chinese font
-	
-	std::string useRealFontName = type;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] trying to load useRealFontName [%s], size = %d, width = %d\n",__FILE__,__FUNCTION__,__LINE__,useRealFontName.c_str(),size,width);
-	
-	DWORD dwErrorGL = 0;
-	HDC hDC = 0;
-	static std::vector<std::string> systemFontList;
-	if(systemFontList.empty() == true) {
-		LOGFONT lf;
-		//POSITION pos;
-		//lf.lfCharSet = ANSI_CHARSET;
-		lf.lfCharSet = (BYTE)PlatformContextGl::charSet;
-		lf.lfFaceName[0]='\0';
-		
-		//HGLRC hdRC =wglGetCurrentContext();
-		//DWORD dwErrorGL = GetLastError();
-		//assertGl();
+  // -adecw-screen-medium-r-normal--18-180-75-75-m-160-gb2312.1980-1	 this is
+  // a Chinese font
 
-		hDC = wglGetCurrentDC();
-		dwErrorGL = GetLastError();
-		assertGl();
-		//hDC = CreateCompatibleDC(0);
-		//dwErrorGL = GetLastError();
+  std::string useRealFontName = type;
+  if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                             "In [%s::%s Line: %d] trying to load "
+                             "useRealFontName [%s], size = %d, width = %d\n",
+                             __FILE__, __FUNCTION__, __LINE__,
+                             useRealFontName.c_str(), size, width);
 
-		::EnumFontFamiliesEx(hDC,
-							 &lf,
-							 (FONTENUMPROC) EnumFontFamExProc,
-							 (LPARAM) &systemFontList, 0);
-		
-		for(unsigned int idx = 0; idx < systemFontList.size(); ++idx) {
-			string &fontName = systemFontList[idx];
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found system font [%s]\n",__FILE__,__FUNCTION__,__LINE__,fontName.c_str());
-		}
-	}
-	else {
-		for(unsigned int idx = 0; idx < systemFontList.size(); ++idx) {
-			string &fontName = systemFontList[idx];
-			
-			if(_stricmp(useRealFontName.c_str(),fontName.c_str()) != 0) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switch font name from [%s] to [%s]\n",__FILE__,__FUNCTION__,__LINE__,useRealFontName.c_str(),fontName.c_str());
-				
-				useRealFontName = fontName;
-				break;
-			}
-		}
-	}
+  DWORD dwErrorGL = 0;
+  HDC hDC = 0;
+  static std::vector<std::string> systemFontList;
+  if (systemFontList.empty() == true) {
+    LOGFONT lf;
+    // POSITION pos;
+    // lf.lfCharSet = ANSI_CHARSET;
+    lf.lfCharSet = (BYTE)PlatformContextGl::charSet;
+    lf.lfFaceName[0] = '\0';
 
-	LPWSTR wstr = Ansi2WideString(useRealFontName.c_str());
-	HFONT font= CreateFont(
-						   size, 0, 0, 0, width, FALSE, FALSE, FALSE, PlatformContextGl::charSet,
-						   OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-						   DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), wstr);
-	if(wstr) delete [] wstr;
-	assert(font!=NULL);
+    // HGLRC hdRC =wglGetCurrentContext();
+    // DWORD dwErrorGL = GetLastError();
+    // assertGl();
 
-	HDC dc= wglGetCurrentDC();
-	dwErrorGL = GetLastError();
-	assertGl();
+    hDC = wglGetCurrentDC();
+    dwErrorGL = GetLastError();
+    assertGl();
+    // hDC = CreateCompatibleDC(0);
+    // dwErrorGL = GetLastError();
 
-	SelectObject(dc, font);
-	dwErrorGL = GetLastError();
-	assertGl();
+    ::EnumFontFamiliesEx(hDC, &lf, (FONTENUMPROC)EnumFontFamExProc,
+                         (LPARAM)&systemFontList, 0);
 
-	BOOL err= wglUseFontBitmaps(dc, 0, charCount, base);
-	dwErrorGL = GetLastError();
+    for (unsigned int idx = 0; idx < systemFontList.size(); ++idx) {
+      string &fontName = systemFontList[idx];
+      if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+        SystemFlags::OutputDebug(
+            SystemFlags::debugSystem,
+            "In [%s::%s Line: %d] found system font [%s]\n", __FILE__,
+            __FUNCTION__, __LINE__, fontName.c_str());
+    }
+  } else {
+    for (unsigned int idx = 0; idx < systemFontList.size(); ++idx) {
+      string &fontName = systemFontList[idx];
 
-/*
-	for(int glBugRetry = 0; glBugRetry <= 10; glBugRetry++) {
-		err= wglUseFontBitmaps(dc, 0, charCount, base);
-		dwErrorGL = GetLastError();
-		//assertGl();
-		GLenum error = glGetError();
-		if(error == 0) {
-			break;
-		}
-	}
-*/
-	assertGl();
+      if (_stricmp(useRealFontName.c_str(), fontName.c_str()) != 0) {
+        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+          SystemFlags::OutputDebug(
+              SystemFlags::debugSystem,
+              "In [%s::%s Line: %d] switch font name from [%s] to [%s]\n",
+              __FILE__, __FUNCTION__, __LINE__, useRealFontName.c_str(),
+              fontName.c_str());
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] wglUseFontBitmaps returned = %d, charCount = %d, base = %d\n",__FILE__,__FUNCTION__,__LINE__,err,charCount,base);
+        useRealFontName = fontName;
+        break;
+      }
+    }
+  }
 
-	FIXED one;
-	one.value= 1;
-	one.fract= 0;
+  LPWSTR wstr = Ansi2WideString(useRealFontName.c_str());
+  HFONT font = CreateFont(
+      size, 0, 0, 0, width, FALSE, FALSE, FALSE, PlatformContextGl::charSet,
+      OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+      DEFAULT_PITCH | (useRealFontName.c_str() ? FF_DONTCARE : FF_SWISS), wstr);
+  if (wstr)
+    delete[] wstr;
+  assert(font != NULL);
 
-	FIXED zero;
-	zero.value= 0;
-	zero.fract= 0;
+  HDC dc = wglGetCurrentDC();
+  dwErrorGL = GetLastError();
+  assertGl();
 
-	MAT2 mat2;
-	mat2.eM11= one;
-	mat2.eM12= zero;
-	mat2.eM21= zero;
-	mat2.eM22= one;
+  SelectObject(dc, font);
+  dwErrorGL = GetLastError();
+  assertGl();
 
-	//MAT2 mat2 = {{0,1},{0,0},{0,0},{0,1}};
+  BOOL err = wglUseFontBitmaps(dc, 0, charCount, base);
+  dwErrorGL = GetLastError();
 
+  /*
+          for(int glBugRetry = 0; glBugRetry <= 10; glBugRetry++) {
+                  err= wglUseFontBitmaps(dc, 0, charCount, base);
+                  dwErrorGL = GetLastError();
+                  //assertGl();
+                  GLenum error = glGetError();
+                  if(error == 0) {
+                          break;
+                  }
+          }
+  */
+  assertGl();
 
-	//metrics
-	GLYPHMETRICS glyphMetrics;
-	int errorCode= GetGlyphOutline(dc, 'a', GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
+  if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                             "In [%s::%s Line: %d] wglUseFontBitmaps returned "
+                             "= %d, charCount = %d, base = %d\n",
+                             __FILE__, __FUNCTION__, __LINE__, err, charCount,
+                             base);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] GetGlyphOutline returned = %d\n",__FILE__,__FUNCTION__,__LINE__,errorCode);
+  FIXED one;
+  one.value = 1;
+  one.fract = 0;
 
-	if(errorCode!=GDI_ERROR){
-		metrics.setHeight(static_cast<float>(glyphMetrics.gmBlackBoxY));
-	}
-	for(int i=0; i<charCount; ++i){
-		int errorCode= GetGlyphOutline(dc, i, GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
-		if(errorCode!=GDI_ERROR){
-			metrics.setWidth(i, static_cast<float>(glyphMetrics.gmCellIncX));
-		}
-		else {
-			metrics.setWidth(i, static_cast<float>(6));
-		}
-	}
+  FIXED zero;
+  zero.value = 0;
+  zero.fract = 0;
 
-	DeleteObject(font);
+  MAT2 mat2;
+  mat2.eM11 = one;
+  mat2.eM12 = zero;
+  mat2.eM21 = zero;
+  mat2.eM22 = one;
 
-	//if(hDC != 0) {
-	//	DeleteDC(hDC);
-	//}
+  // MAT2 mat2 = {{0,1},{0,0},{0,0},{0,1}};
 
-	assert(err);
+  // metrics
+  GLYPHMETRICS glyphMetrics;
+  int errorCode =
+      GetGlyphOutline(dc, 'a', GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
+
+  if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+    SystemFlags::OutputDebug(
+        SystemFlags::debugSystem,
+        "In [%s::%s Line: %d] GetGlyphOutline returned = %d\n", __FILE__,
+        __FUNCTION__, __LINE__, errorCode);
+
+  if (errorCode != GDI_ERROR) {
+    metrics.setHeight(static_cast<float>(glyphMetrics.gmBlackBoxY));
+  }
+  for (int i = 0; i < charCount; ++i) {
+    int errorCode =
+        GetGlyphOutline(dc, i, GGO_METRICS, &glyphMetrics, 0, NULL, &mat2);
+    if (errorCode != GDI_ERROR) {
+      metrics.setWidth(i, static_cast<float>(glyphMetrics.gmCellIncX));
+    } else {
+      metrics.setWidth(i, static_cast<float>(6));
+    }
+  }
+
+  DeleteObject(font);
+
+  // if(hDC != 0) {
+  //	DeleteDC(hDC);
+  // }
+
+  assert(err);
 }
-	
+
 void createGlFontOutlines(uint32 &base, const string &type, int width,
-						  float depth, int charCount, FontMetrics &metrics) {
-	NOIMPL;
+                          float depth, int charCount, FontMetrics &metrics) {
+  NOIMPL;
 }
-		
-}}//end namespace
+
+} // namespace Platform
+} // namespace Shared

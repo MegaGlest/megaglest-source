@@ -12,16 +12,17 @@
 #ifndef _GLEST_GAME_NETWORKMANAGER_H_
 #define _GLEST_GAME_NETWORKMANAGER_H_
 
-#include <cassert>
-#include "socket.h"
 #include "checksum.h"
-#include "server_interface.h"
 #include "client_interface.h"
 #include "leak_dumper.h"
+#include "server_interface.h"
+#include "socket.h"
+#include <cassert>
 
 using Shared::Util::Checksum;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // =====================================================
 //	class NetworkManager
@@ -29,30 +30,31 @@ namespace Glest{ namespace Game{
 
 class NetworkManager {
 private:
-	GameNetworkInterface* gameNetworkInterface;
-	NetworkRole networkRole;
+  GameNetworkInterface *gameNetworkInterface;
+  NetworkRole networkRole;
 
 public:
-	static NetworkManager &getInstance();
+  static NetworkManager &getInstance();
 
-	NetworkManager();
-	virtual ~NetworkManager();
+  NetworkManager();
+  virtual ~NetworkManager();
 
-	void init(NetworkRole networkRole,bool publishEnabled=false);
-	void end();
-	void update();
+  void init(NetworkRole networkRole, bool publishEnabled = false);
+  void end();
+  void update();
 
-	bool isNetworkGame();
-	bool isNetworkGameWithConnectedClients();
+  bool isNetworkGame();
+  bool isNetworkGameWithConnectedClients();
 
-	GameNetworkInterface* getGameNetworkInterface(bool throwErrorOnNull=true);
-	ServerInterface* getServerInterface(bool throwErrorOnNull=true);
-	ClientInterface* getClientInterface(bool throwErrorOnNull=true);
-	NetworkRole getNetworkRole() const { return networkRole; }
+  GameNetworkInterface *getGameNetworkInterface(bool throwErrorOnNull = true);
+  ServerInterface *getServerInterface(bool throwErrorOnNull = true);
+  ClientInterface *getClientInterface(bool throwErrorOnNull = true);
+  NetworkRole getNetworkRole() const { return networkRole; }
 
-	void initServerInterfaces(ClientLagCallbackInterface *intf);
+  void initServerInterfaces(ClientLagCallbackInterface *intf);
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

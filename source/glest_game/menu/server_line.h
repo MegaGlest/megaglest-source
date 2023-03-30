@@ -13,18 +13,19 @@
 #define _GLEST_GAME_SERVERLINE_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
-#include "masterserver_info.h"
 #include "components.h"
 #include "lang.h"
+#include "masterserver_info.h"
 #include "world.h"
 
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
 // 	ServerLine
@@ -32,52 +33,53 @@ namespace Glest{ namespace Game{
 
 class ServerLine {
 private:
+  MasterServerInfo masterServerInfo;
+  int lineHeight;
+  int baseY;
+  bool compatible;
+  GraphicButton selectButton;
+  GraphicLabel wrongVersionLabel;
 
-	MasterServerInfo masterServerInfo;
-	int lineHeight;
-	int baseY;
-	bool compatible;
-	GraphicButton selectButton;
-	GraphicLabel wrongVersionLabel;
+  // general info:
+  GraphicLabel glestVersionLabel;
+  GraphicLabel platformLabel;
+  // GraphicLabel binaryCompileDateLabel;
 
-	//general info:
-	GraphicLabel glestVersionLabel;
-	GraphicLabel platformLabel;
-	//GraphicLabel binaryCompileDateLabel;
+  // game info:
+  GraphicLabel serverTitleLabel;
+  GraphicLabel ipAddressLabel;
 
-	//game info:
-	GraphicLabel serverTitleLabel;
-	GraphicLabel ipAddressLabel;
+  // game setup info:
+  GraphicLabel techLabel;
+  GraphicLabel mapLabel;
+  GraphicLabel tilesetLabel;
+  GraphicLabel activeSlotsLabel;
 
-	//game setup info:
-	GraphicLabel techLabel;
-	GraphicLabel mapLabel;
-	GraphicLabel tilesetLabel;
-	GraphicLabel activeSlotsLabel;
+  GraphicLabel externalConnectPort;
 
-	GraphicLabel externalConnectPort;
+  GraphicLabel country;
+  GraphicLabel status;
 
-	GraphicLabel country;
-	GraphicLabel status;
+  Texture2D *countryTexture;
 
-	Texture2D *countryTexture;
-
-	const char * containerName;
+  const char *containerName;
 
 public:
-	ServerLine( MasterServerInfo *mServerInfo, int lineIndex, int baseY, int lineHeight, const char *containerName);
-	virtual ~ServerLine();
-	MasterServerInfo *getMasterServerInfo() {return &masterServerInfo;}
-	const int getLineHeight() const	{return lineHeight;}
-	bool buttonMouseClick(int x, int y);
-	bool buttonMouseMove(int x, int y);
-	void setY(int y);
-	//void setIndex(int value);
-	void render();
+  ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY,
+             int lineHeight, const char *containerName);
+  virtual ~ServerLine();
+  MasterServerInfo *getMasterServerInfo() { return &masterServerInfo; }
+  const int getLineHeight() const { return lineHeight; }
+  bool buttonMouseClick(int x, int y);
+  bool buttonMouseMove(int x, int y);
+  void setY(int y);
+  // void setIndex(int value);
+  void render();
 
-	virtual void reloadUI();
+  virtual void reloadUI();
 };
 
-}}//end namespace
+} // namespace Game
+} // namespace Glest
 
 #endif

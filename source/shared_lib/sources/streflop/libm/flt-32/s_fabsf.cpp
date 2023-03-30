@@ -9,7 +9,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -27,16 +27,15 @@ static char rcsid[] = "$NetBSD: s_fabsf.c,v 1.4f 1995/05/10 20:47:15 jtc Exp $";
 
 namespace streflop_libm {
 #ifdef __STDC__
-	Simple __fabsf(Simple x)
+Simple __fabsf(Simple x)
 #else
-	Simple __fabsf(x)
-	Simple x;
+Simple __fabsf(x) Simple x;
 #endif
 {
-	u_int32_t ix;
-	GET_FLOAT_WORD(ix,x);
-	SET_FLOAT_WORD(x,ix&0x7fffffff);
-        return x;
+  u_int32_t ix;
+  GET_FLOAT_WORD(ix, x);
+  SET_FLOAT_WORD(x, ix & 0x7fffffff);
+  return x;
 }
-weak_alias (__fabsf, fabsf)
-}
+weak_alias(__fabsf, fabsf)
+} // namespace streflop_libm
