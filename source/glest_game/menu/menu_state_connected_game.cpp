@@ -4318,19 +4318,20 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 
 			Lang &lang= Lang::getInstance();
 			if(MapPreview::loadMapInfo(file, mapInfo, lang.getString("MaxPlayers"),lang.getString("Size"),true) == true) {
-				for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-					bool visible=i+1 <= mapInfo->players;
-					labelPlayers[i].setVisible(visible);
-					labelPlayerNames[i].setVisible(visible);
-					listBoxControls[i].setVisible(visible);
-					listBoxRMultiplier[i].setVisible(visible);
-					listBoxFactions[i].setVisible(visible);
-					listBoxTeams[i].setVisible(visible);
-					labelNetStatus[i].setVisible(visible);
+				if (doPlayerSetup ){
+					for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+						bool visible=i+1 <= mapInfo->players;
+						labelPlayers[i].setVisible(visible);
+						labelPlayerNames[i].setVisible(visible);
+						listBoxControls[i].setVisible(visible);
+						listBoxRMultiplier[i].setVisible(visible);
+						listBoxFactions[i].setVisible(visible);
+						listBoxTeams[i].setVisible(visible);
+						labelNetStatus[i].setVisible(visible);
+					}
 				}
-
 				// Not painting properly so this is on hold
-				if(loadMapPreview == true) {
+				if(loadMapPreview == true ) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					if(mapPreview.getMapFileLoaded() != file) {
 						mapPreview.loadFromFile(file.c_str());
@@ -5114,7 +5115,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		if(currentMap != gameSettings->getMap()) {// load the setup again
 			currentMap = gameSettings->getMap();
 		}
-		bool mapLoaded = loadMapInfo(Config::getMapPath(currentMap,scenarioDir,false), &mapInfo, true,true);
+		bool mapLoaded = loadMapInfo(Config::getMapPath(currentMap,scenarioDir,false), &mapInfo, !comboBoxMap.isDropDownShowing(),true);
 		if(mapLoaded == false) {
 			// try to get the map via ftp
 			if(ftpClientThread != NULL && (getMissingMapFromFTPServer != currentMap ||
@@ -5156,11 +5157,14 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				console.addLine(Lang::getInstance().getString("HeadlessServerDoesNotHaveMap","",true));
 			}
 		}
-		comboBoxMap.setItems(formattedPlayerSortedMaps[gameSettings->getMapFilter()]);
-
+		if(!comboBoxMap.isDropDownShowing()){
+			comboBoxMap.setItems(formattedPlayerSortedMaps[gameSettings->getMapFilter()]);
+		}
 		//printf("Setting map from game settings map:%s , settingsfilter=%d , boxfilter=%d \n",gameSettings->getMap().c_str(),gameSettings->getMapFilter(),listBoxMapFilter.getSelectedItemIndex());
 		comboBoxMap.setSelectedItem(mapFile);
-		labelMapInfo.setText(mapInfo.desc);
+		if(!comboBoxMap.isDropDownShowing()){
+			labelMapInfo.setText(mapInfo.desc);
+		}
 	}
 
 	// FogOfWar
