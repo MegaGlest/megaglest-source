@@ -1,4 +1,6 @@
 "Installing MegaGlest deps."
+git pull
+.\bootstrap.sh
 .\vcpkg.exe update
 .\vcpkg.exe install --disable-metrics `
     brotli:x64-windows-static `
