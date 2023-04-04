@@ -1,6 +1,6 @@
 "Installing MegaGlest deps."
 git pull
-.\vcpkg\bootstrap-vcpkg.bat
+.\bootstrap-vcpkg.bat
 # Note: if you want to make sure you're updating these packages, you need to delete the <vcpkg_root>/installed/ folder.
 .\vcpkg.exe update
 .\vcpkg.exe install --disable-metrics `
