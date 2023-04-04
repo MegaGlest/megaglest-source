@@ -1,6 +1,7 @@
 "Installing MegaGlest deps."
 git pull
-.\bootstrap.bat
+.\vcpkg\bootstrap-vcpkg.bat
+# Note: if you want to make sure you're updating these packages, you need to delete the <vcpkg_root>/installed/ folder.
 .\vcpkg.exe update
 .\vcpkg.exe install --disable-metrics `
     brotli:x64-windows-static `
