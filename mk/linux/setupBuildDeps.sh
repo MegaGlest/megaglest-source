@@ -240,12 +240,12 @@ case $distribution in
 		esac
 		;;
 
-	ManjaroLinux|Manjarolinux)
+	ManjaroLinux*|Manjarolinux*)
 		if [ "$architecture" = "x86_64" ]; then lib=""; else lib="lib32-"; fi
 		case $release in
 			*)
-				installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 ${lib}wxgtk-common cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient vlc ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
-				unsupported_currently_this_OS="release"
+				installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient vlc ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
+				# unsupported_currently_this_OS="release"
 		esac
 		;;
 
