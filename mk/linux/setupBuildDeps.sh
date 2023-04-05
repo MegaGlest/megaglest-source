@@ -241,7 +241,7 @@ case $distribution in
 		;;
 
 	ManjaroLinux*|Manjarolinux*)
-		if [ "$architecture" = "x86_64" ]; then lib=""; else lib="lib32-"; fi
+		if [ "$architecture" = "x86_64" ] || [ "$architecture" = "aarch64" ]; then lib=""; else lib="lib32-"; fi
 		case $release in
 			*)
 				installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient vlc ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
