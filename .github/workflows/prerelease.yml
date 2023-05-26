@@ -69,6 +69,7 @@ jobs:
         body: "MegaGlest Snapshot Release"
         allowUpdates: true
         prerelease: true
+        removeArtifacts: true
         replacesArtifacts: true
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: True
