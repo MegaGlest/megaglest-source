@@ -15,24 +15,24 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     container: megaglest/megaglest-build-env:bionic
     steps:
-    - uses: actions/checkout@v3
-  
+    - uses: actions/checkout@v4
+
     - name: Git Hash
       run: |
         # Required because docker user is root.
         git config --global safe.directory $GITHUB_WORKSPACE
         echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-    
+
     - name: Build
       run: mk/linux/build-appimage.sh
-    
+
     - name: Pack
       run: |
         cd mk/linux/
         mv g2xml g2xml-$VERSION
         mv xml2g xml2g-$VERSION
         tar cfJ megaglest-$VERSION-x64-appimage.tar.xz *.AppImage g2xml-* xml2g-*
-    
+
     - name: Create MegaGlest Snapshot
       uses: actions/upload-artifact@v3
       with:
@@ -78,7 +78,7 @@ jobs:
         retention-days: 1
         path: |
           *.tar.bz2
-  
+
   transfer-windows-snapshot:
     runs-on: ubuntu-latest
     permissions:
@@ -116,7 +116,7 @@ jobs:
         retention-days: 1
         path: |
           *.zip
-  
+
   on-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
