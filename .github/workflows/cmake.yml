@@ -147,6 +147,7 @@ jobs:
       run: |
         # temp hack fix to make brew work
         brew unlink python@3.11 && brew link --overwrite python@3.11
+        brew unlink node@18 && brew link --overwrite node@18
         mk/macos/setupBuildDeps.sh
 
     - name: Build MegaGlest With Clang Compiler
