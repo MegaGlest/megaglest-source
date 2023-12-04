@@ -146,7 +146,7 @@ jobs:
     - name: Get dependencies
       run: |
         # temp hack fix to make brew work
-        brew link --overwrite python@3.11
+        brew unlink python@3.11 && brew link python@3.11
         mk/macos/setupBuildDeps.sh
 
     - name: Build MegaGlest With Clang Compiler
