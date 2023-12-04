@@ -10,6 +10,7 @@ brew install cmake \
     ftgl \
     glew \
     jpeg-turbo \
+    libnghttp2 \
     libogg \
     libpng \
     libvorbis \
