@@ -16,6 +16,7 @@ brew reinstall cmake \
     libvorbis \
     lua \
     miniupnpc \
+    openldap \
     pkg-config \
     sdl2 \
     wxwidgets \
