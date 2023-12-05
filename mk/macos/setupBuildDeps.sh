@@ -1,6 +1,6 @@
 #!/bin/sh
 brew update && \
-brew install cmake \
+brew reinstall cmake \
     cppunit \
     curl \
     expat \
