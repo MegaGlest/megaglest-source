@@ -149,6 +149,10 @@ jobs:
         brew unlink python@3.11 && brew link --overwrite python@3.11
         brew unlink node@18
         mk/macos/setupBuildDeps.sh
+        # more stupid hacks - these will need removing or changing at some point.
+        cd /usr/local/Cellar/libnghttp2/
+        ln -s 1.58.0 1.57.0
+        cd -
 
     - name: Build MegaGlest With Clang Compiler
       run: |
