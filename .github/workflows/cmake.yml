@@ -156,6 +156,7 @@ jobs:
 
     - name: Build MegaGlest With Clang Compiler
       run: |
+        export HOMEBREW_FORCE_BREWED_CURL=1
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
     
