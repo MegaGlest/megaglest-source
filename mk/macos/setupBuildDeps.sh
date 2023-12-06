@@ -1,6 +1,5 @@
 #!/bin/sh
-brew update && \
-brew upgrade && \
+# Be sure to manually update and upgrade brew if you run into any problems
 brew reinstall cmake \
     cppunit \
     curl \
