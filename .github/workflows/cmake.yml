@@ -147,7 +147,9 @@ jobs:
 
     - name: Get dependencies
       run: |
+        brew cleanup
         brew update
+        brew cleanup
         brew doctor
         brew config
         brew upgrade
