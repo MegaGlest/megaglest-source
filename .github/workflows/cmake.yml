@@ -149,10 +149,7 @@ jobs:
       run: |
         brew untap homebrew/cask
         brew untap homebrew/core
-        brew cleanup
         brew update
-        brew cleanup
-        brew doctor
         brew config
         brew upgrade
         PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
