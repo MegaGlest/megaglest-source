@@ -147,6 +147,7 @@ jobs:
 
     - name: Get dependencies
       run: |
+        brew uninstall bash-completion # when upgrading brew, it seems to exit when installing this package
         brew update
         brew upgrade
         PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
