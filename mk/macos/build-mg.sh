@@ -41,7 +41,7 @@ then
 			export HOMEBREW_CELLAR="/usr/local/Cellar"
 		fi
 		# A method for finding the packages and setting these needs to be added to CMakeLists.txt
-		for f in $HOMEBREW_CELLAR/{zstd,brotli}/*
+		for f in $HOMEBREW_CELLAR/{ldap,zstd,brotli}/*
 		do
 			export PATH="$f/bin:$PATH"
 			export LDFLAGS="-L$f/lib $LDFLAGS"
