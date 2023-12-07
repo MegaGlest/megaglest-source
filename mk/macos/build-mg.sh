@@ -21,35 +21,35 @@ LUA_FORCED_VERSION=0
 COMPILATION_WITHOUT=0
 
 # Some brew things don't appear to link correctly by themselves.
-#if command -v brew &> /dev/null
-#then
-	#echo "Found brew. Adding links. (Note, this assumes system-wide brew install.)"
-	#if [ -d "$HOMEBREW_PREFIX/opt/curl" ]
-	#then
-		#for f in $HOMEBREW_PREFIX/opt/{curl,zstd,brotli}
-		#do
-			#export PATH="$f/bin:$PATH"
-			#export LDFLAGS="-L$f/lib $LDFLAGS"
-			#export CPPFLAGS="-I$f/include $CPPFLAGS"
-			#export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
-		#done
-	#else
-		## Make github happy.
-		## TODO: is there a better way than this?
-		#if ! typeset -p HOMEBREW_CELLAR 2> /dev/null | grep -q '^'
-		#then
-			#export HOMEBREW_CELLAR="/usr/local/Cellar"
-		#fi
-
-		#for f in $HOMEBREW_CELLAR/{curl,zstd,brotli}/*
-		#do
-			#export PATH="$f/bin:$PATH"
-			#export LDFLAGS="-L$f/lib $LDFLAGS"
-			#export CPPFLAGS="-I$f/include $CPPFLAGS"
-			#export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
-		#done
-	#fi
-#fi
+if command -v brew &> /dev/null
+then
+	echo "Found brew. Adding links. (Note, this assumes system-wide brew install.)"
+	if [ -d "$HOMEBREW_PREFIX/opt/curl" ]
+	then
+		for f in $HOMEBREW_PREFIX/opt/{curl,zstd,brotli}
+		do
+			export PATH="$f/bin:$PATH"
+			export LDFLAGS="-L$f/lib $LDFLAGS"
+			export CPPFLAGS="-I$f/include $CPPFLAGS"
+			export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
+		done
+	else
+		# Make github happy.
+		# TODO: is there a better way than this?
+		if ! typeset -p HOMEBREW_CELLAR 2> /dev/null | grep -q '^'
+		then
+			export HOMEBREW_CELLAR="/usr/local/Cellar"
+		fi
+		# A method for finding the packages and setting these needs to be added to CMakeLists.txt
+		for f in $HOMEBREW_CELLAR/{zstd,brotli}/*
+		do
+			export PATH="$f/bin:$PATH"
+			export LDFLAGS="-L$f/lib $LDFLAGS"
+			export CPPFLAGS="-I$f/include $CPPFLAGS"
+			export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
+		done
+	fi
+fi
 
 while getopts "c:defhl:mnwxb" option; do
 	case "${option}" in
