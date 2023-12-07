@@ -154,11 +154,6 @@ jobs:
         brew update
         brew config
         brew upgrade
-        # Probably not needed if a search for zstd is properly added to CMakeLists.txt;
-        # at least, brew doesn't suggest it's needed...
-        # PKG_CONFIG_PATH="/usr/local/Cellar/zstd/lib/pkgconfig":${PKG_CONFIG_PATH}
-        PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
-        PATH="/usr/local/opt/curl/bin:$PATH"
         mk/macos/setupBuildDeps.sh
         # more stupid hacks - these will need removing or changing at some point.
         # cd /usr/local/Cellar/libnghttp2/
@@ -167,6 +162,11 @@ jobs:
 
     - name: Build MegaGlest With Clang Compiler
       run: |
+        # Probably not needed if a search for zstd is properly added to CMakeLists.txt;
+        # at least, brew doesn't suggest it's needed...
+        # PKG_CONFIG_PATH="/usr/local/Cellar/zstd/lib/pkgconfig":${PKG_CONFIG_PATH}
+        PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
+        PATH="/usr/local/opt/curl/bin:$PATH"
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
 
