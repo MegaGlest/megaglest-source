@@ -149,14 +149,13 @@ jobs:
       run: |
         brew untap homebrew/cask
         brew untap homebrew/core
+        brew unlink python@3.11 && brew link --overwrite python@3.11
+        brew unlink node@18
         brew update
         brew config
         brew upgrade
         PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
         PATH="/usr/local/opt/curl/bin:$PATH"
-        # temp hack fix to make brew work
-        # brew unlink python@3.11 && brew link --overwrite python@3.11
-        # brew unlink node@18
         mk/macos/setupBuildDeps.sh
         # more stupid hacks - these will need removing or changing at some point.
         # cd /usr/local/Cellar/libnghttp2/
