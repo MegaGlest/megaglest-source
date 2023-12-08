@@ -26,7 +26,7 @@ then
 	echo "Found brew. Adding links. (Note, this assumes system-wide brew install.)"
 	if [ -d "$HOMEBREW_PREFIX/opt/curl" ]
 	then
-		for f in $HOMEBREW_PREFIX/opt/{curl,zstd,brotli}
+		for f in $HOMEBREW_PREFIX/opt/{openldap,curl,zstd,brotli}
 		do
 			export PATH="$f/bin:$PATH"
 			export LDFLAGS="-L$f/lib $LDFLAGS"
@@ -41,7 +41,10 @@ then
 			export HOMEBREW_CELLAR="/usr/local/Cellar"
 		fi
 
-		for f in $HOMEBREW_CELLAR/{curl,zstd,brotli}/*
+		PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
+    PATH="/usr/local/opt/curl/bin:$PATH"
+
+		for f in $HOMEBREW_CELLAR/{openldap,zstd,brotli}/*
 		do
 			export PATH="$f/bin:$PATH"
 			export LDFLAGS="-L$f/lib $LDFLAGS"
@@ -129,7 +132,7 @@ $list_of_libs2" | sed '/:$/d' | sed '/^$/d' | sort -u )"
 		for dyn_lib in $list_of_libs; do
 		    cp "$dyn_lib" "lib/"
 		done
-		
+
 		if [ "$(find lib -type f -name "libvlc.*")" != "" ]; then
 			LIBVLC_DIR_CHECK="$( echo "$list_of_checked_libs" | tr ' ' '\n' | grep "libvlc\." | sort -u | head -1 )"
 			if [ "$LIBVLC_DIR_CHECK" != "" ]; then

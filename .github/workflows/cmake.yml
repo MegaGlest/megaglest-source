@@ -67,7 +67,7 @@ jobs:
       with:
         path: c:/vcpkg/installed
         key: vcpkg-deps
-    
+
     - name: Install Windows Deps
       run: |
         cd mk\windoze
@@ -97,7 +97,7 @@ jobs:
       with:
         path: c:/vcpkg/installed
         key: vcpkg-deps
-    
+
     - name: Build MegaGlest
       run: |
         cd mk/windoze
@@ -106,7 +106,7 @@ jobs:
     - name: Git Hash
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
-    
+
     - name: Prepare Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
@@ -126,7 +126,7 @@ jobs:
         name: megaglest-x64-windows
         retention-days: 1
         path: mk/windoze/*.zip
-  
+
   on-dockerbuild-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
@@ -140,31 +140,28 @@ jobs:
     strategy:
       fail-fast: false
     runs-on: macos-latest
+    env:
+      HOMEBREW_FORCE_BREWED_CURL: 1
     steps:
     - uses: actions/checkout@v3
 
     - name: Get dependencies
       run: |
-        # temp hack fix to make brew work
+        # temp hack fix to make brew update/upgrade work
         brew unlink python@3.11 && brew link --overwrite python@3.11
         brew unlink node@18
         mk/macos/setupBuildDeps.sh
-        # more stupid hacks - these will need removing or changing at some point.
-        cd /usr/local/Cellar/libnghttp2/
-        ln -s 1.58.0 1.57.0
-        cd -
 
     - name: Build MegaGlest With Clang Compiler
       run: |
-        export HOMEBREW_FORCE_BREWED_CURL=1
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
-    
+
     - name: Git Hash
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
         echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-  
+
     - name: Prepare Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
