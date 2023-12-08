@@ -33,24 +33,6 @@ then
 			export CPPFLAGS="-I$f/include $CPPFLAGS"
 			export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
 		done
-	else
-		# Make github happy.
-		# TODO: is there a better way than this?
-		if ! typeset -p HOMEBREW_CELLAR 2> /dev/null | grep -q '^'
-		then
-			export HOMEBREW_CELLAR="/usr/local/Cellar"
-		fi
-
-		PKG_CONFIG_PATH="/usr/local/opt/curl/lib/pkgconfig":${PKG_CONFIG_PATH}
-    PATH="/usr/local/opt/curl/bin:$PATH"
-
-		for f in $HOMEBREW_CELLAR/{openldap,zstd,brotli}/*
-		do
-			export PATH="$f/bin:$PATH"
-			export LDFLAGS="-L$f/lib $LDFLAGS"
-			export CPPFLAGS="-I$f/include $CPPFLAGS"
-			export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
-		done
 	fi
 fi
 
