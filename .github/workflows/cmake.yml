@@ -147,8 +147,6 @@ jobs:
 
     - name: Get dependencies
       run: |
-        brew untap homebrew/cask
-        brew untap homebrew/core
         # temp hack fix to make brew update/upgrade work
         brew unlink python@3.11 && brew link --overwrite python@3.11
         brew unlink node@18
