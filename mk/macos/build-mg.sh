@@ -48,6 +48,7 @@ then
 			export CPPFLAGS="-I$f/include $CPPFLAGS"
 			export PKG_CONFIG_PATH="$f/lib/pkgconfig:$PKG_CONFIG_PATH"
 		done
+		LDFLAGS="-L/usr/local/opt/ldap/lib ${LDFLAGS}"
 	fi
 fi
 
