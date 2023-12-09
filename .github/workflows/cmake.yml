@@ -139,7 +139,7 @@ jobs:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
-    runs-on: macos-latest
+    runs-on: macos-13
     env:
       HOMEBREW_FORCE_BREWED_CURL: 1
     steps:
