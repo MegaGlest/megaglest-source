@@ -67,7 +67,7 @@ jobs:
       with:
         path: c:/vcpkg/installed
         key: vcpkg-deps
-    
+
     - name: Install Windows Deps
       run: |
         cd mk\windoze
@@ -97,7 +97,7 @@ jobs:
       with:
         path: c:/vcpkg/installed
         key: vcpkg-deps
-    
+
     - name: Build MegaGlest
       run: |
         cd mk/windoze
@@ -106,7 +106,7 @@ jobs:
     - name: Git Hash
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
-    
+
     - name: Prepare Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
@@ -126,7 +126,7 @@ jobs:
         name: megaglest-x64-windows
         retention-days: 1
         path: mk/windoze/*.zip
-  
+
   on-dockerbuild-failure:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
@@ -139,7 +139,7 @@ jobs:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
 
@@ -159,12 +159,12 @@ jobs:
         export HOMEBREW_FORCE_BREWED_CURL=1
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
-    
+
     - name: Git Hash
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
         echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-  
+
     - name: Prepare Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
