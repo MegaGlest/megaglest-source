@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 #if defined(WANT_XERCES)
 
@@ -23,10 +24,12 @@
 #endif
 
 #include "rapidxml/rapidxml.hpp"
+#include "callback.h"
 #include "data_types.h"
 #include "leak_dumper.h"
 
 using namespace rapidxml;
+using namespace Shared::Util;
 using namespace std;
 
 #if defined(WANT_XERCES)
@@ -151,6 +154,7 @@ public:
 	void setSkipUpdatePathClimbingParts(bool value);
 	void init(const string &name);
 	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
+	std::shared_ptr<CallBack<void>> loadAsync(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}
