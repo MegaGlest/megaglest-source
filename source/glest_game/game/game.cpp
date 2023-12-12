@@ -5005,7 +5005,10 @@ void Game::keyUp(SDL_KeyboardEvent key) {
 				gameCamera.setMoveX(0);
 				camRightButtonDown= false;
 				calcCameraMoveX();
+			} else {
+				gui.hotKeyReleased(key);
 			}
+				
 		}
 	}
 	catch(const exception &ex) {
