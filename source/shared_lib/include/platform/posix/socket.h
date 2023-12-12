@@ -171,6 +171,8 @@ public:
 
 	static int getBroadCastPort() 			{ return broadcast_portno; }
 	static void setBroadCastPort(int value) { broadcast_portno = value; }
+	static int getIpStr(struct addrinfo *ptr, char *buf);
+	struct addrinfo *getAddrInfo(const int port);
 	static std::vector<std::string> getLocalIPAddressList();
 
     // Int lookup is socket fd while bool result is whether or not that socket was signalled for reading
