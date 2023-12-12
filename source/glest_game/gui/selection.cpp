@@ -227,7 +227,7 @@ bool Selection::hasUnit(const Unit* unit) const {
 	return find(selectedUnits.begin(), selectedUnits.end(), unit) != selectedUnits.end();
 }
 
-bool Selection::assignGroup(int groupIndex, bool clearGroup,const UnitContainer *pUnits) {
+bool Selection::assignGroup(int groupIndex, bool clearGroup, bool move, const UnitContainer *pUnits) {
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
 		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
 	}
@@ -244,6 +244,11 @@ bool Selection::assignGroup(int groupIndex, bool clearGroup,const UnitContainer 
 	}
 
 	for(unsigned int i = 0; i < addUnits->size(); ++i) {
+		if (move) {
+			for (unsigned int g = 0; g < maxGroups; g++) {
+				removeUnitFromGroup(g,(*addUnits)[i]->getId());
+			}
+		}
 		if(false == addUnitToGroup(groupIndex,(*addUnits)[i])){
 			// don't try to add more, group is maybe full
 			return false;
