@@ -108,8 +108,6 @@ public:
 		Queueability q = isQueuable();
 		return (q != qNever) && (q != qOnlyLast);
 	}
-	//Priority: commands of higher priority will cancel commands of lower priority
-	virtual int getTypePriority() const {return 10;}
 	virtual bool usesPathfinder() const= 0;
 
     //get
@@ -139,7 +137,6 @@ public:
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString(bool translatedValue) const;
 	virtual Queueability isQueuable() const						{return qNever;}
-	virtual int getTypePriority() const							{return 100000;}
     //get
 	const StopSkillType *getStopSkillType() const	{return stopSkillType;};
 
@@ -213,6 +210,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
+	virtual Queueability isQueuable() const	{return qOnlyLast;}
 	virtual string toString(bool translatedValue) const;
 
     //get
@@ -369,7 +367,6 @@ public:
 	virtual string toString(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
-	virtual int getTypePriority() const {return 15;}
 
     //get
 	const ProduceSkillType *getProduceSkillType() const	{return produceSkillType;}
@@ -399,7 +396,6 @@ public:
 	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
-	virtual int getTypePriority() const {return 15;}
 
     //get
 	const UpgradeSkillType *getUpgradeSkillType() const		{return upgradeSkillType;}

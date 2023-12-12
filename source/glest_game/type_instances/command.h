@@ -71,9 +71,6 @@ public:
 	inline const UnitType* getUnitType() const			{return unitType;}
 	inline CardinalDir getFacing() const				{return facing;}
 	
-	//Priority: commands of higher priority will cancel commands of lower priority
-	virtual int getPriority();
-	
     //set 
     void setCommandType(const CommandType *commandType);
     void setPos(const Vec2i &pos);

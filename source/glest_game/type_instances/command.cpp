@@ -76,12 +76,6 @@ Command::Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitTy
 	//}
 }
 
-int Command::getPriority(){
-	if(this->commandType->commandTypeClass==ccAttack && getUnit()==NULL){
-		return 5; // attacks to the ground have low priority
-	}
-	return this->commandType->getTypePriority();
-}
 // =============== set ===============
 
 void Command::setCommandType(const CommandType *commandType) {

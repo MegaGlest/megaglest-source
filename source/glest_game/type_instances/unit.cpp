@@ -1828,8 +1828,6 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
     	throw megaglest_runtime_error("command->getCommandType() == NULL");
     }
 
-    const int command_priority = command->getPriority();
-
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
     //printf("In [%s::%s] Line: %d unit [%d - %s] command [%s] tryQueue = %d command->getCommandType()->isQueuable(tryQueue) = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->getId(),this->getType()->getName().c_str(), command->getCommandType()->getName().c_str(), tryQueue,command->getCommandType()->isQueuable(tryQueue));
@@ -1839,32 +1837,6 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		if(command->getCommandType()->isQueuable() == qAlways && tryQueue){
-			// Its a produce or upgrade command called without queued key
-			// in this case we must NOT delete lower priority commands!
-			// we just queue it!
-
-		}
-		else {
-			//Delete all lower-prioirty commands
-			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
-				if((*i)->getPriority() < command_priority){
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
-						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(*i)->toString(false).c_str());
-
-					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-					MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
-
-					deleteQueuedCommand(*i);
-					i= commands.erase(i);
-
-					safeMutex.ReleaseLock();
-				}
-				else {
-					++i;
-				}
-			}
-		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//cancel current command if it is not queuable
