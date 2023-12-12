@@ -4890,6 +4890,18 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//hotkeys
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] gameCamera.getState() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameCamera.getState());
 
+			for (int i = 0; i < 4; i++) {
+				string keyName = "CameraLocationKey" + intToStr(i+1);
+
+				if (isKeyPressed(configKeys.getSDLKey(keyName.c_str()),key) == true) {
+					if (isKeyDown(vkControl)) {
+						gameCamera.saveLocation(i);
+					} else {
+						gameCamera.restoreLocation(i);
+					}
+				}
+			}
+
 			if(gameCamera.getState() != GameCamera::sFree){
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
 
