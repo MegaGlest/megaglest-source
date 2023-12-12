@@ -2384,13 +2384,13 @@ void Renderer::renderClock() {
 		renderTextShadow3D(
 			str, CoreData::getInstance().getDisplayFontSmall3D(),
 			fontColor,
-			10, metrics.getVirtualH()-160, false);
+			config.getInt("ClockX","10"), config.getInt("ClockY", intToStr(metrics.getVirtualH()-160).c_str()), false);
 	}
 	else {
 		renderTextShadow(
 			str, CoreData::getInstance().getDisplayFontSmall(),
 			fontColor,
-			10, metrics.getVirtualH()-160, false);
+			config.getInt("ClockX","10"), config.getInt("ClockY", intToStr(metrics.getVirtualH()-160).c_str()), false);
 	}
 }
 
