@@ -145,18 +145,10 @@ jobs:
 
     - name: Get dependencies
       run: |
-        # temp hack fix to make brew work
-        brew unlink python && brew link --overwrite python
-        brew unlink node
         mk/macos/setupBuildDeps.sh
-        # more stupid hacks - these will need removing or changing at some point.
-        cd /usr/local/Cellar/libnghttp2/
-        # ln -s 1.58.0 1.57.0
-        cd -
 
     - name: Build MegaGlest With Clang Compiler
       run: |
-        export HOMEBREW_FORCE_BREWED_CURL=1
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
     
