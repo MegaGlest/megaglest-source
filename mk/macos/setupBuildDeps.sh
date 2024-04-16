@@ -1,7 +1,6 @@
 #!/bin/sh
 brew update && \
-brew upgrade && \
-brew reinstall cmake \
+brew install cmake \
     cppunit \
     curl \
     expat \
@@ -11,13 +10,11 @@ brew reinstall cmake \
     ftgl \
     glew \
     jpeg-turbo \
-    libnghttp2 \
     libogg \
     libpng \
     libvorbis \
     lua \
     miniupnpc \
-    openldap \
     pkg-config \
     sdl2 \
     wxwidgets \
