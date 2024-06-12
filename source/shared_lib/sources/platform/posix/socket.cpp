@@ -647,7 +647,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
          //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc?desc:"unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
 		 if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
 			broadCastAddress = dstAddrStr;
-		 }
+		}
       }
 
       if(pAdapterInfo) free(pAdapterInfo);
@@ -661,43 +661,100 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 	return broadCastAddress;
 }
 
-uint32 Socket::getConnectedIPAddress(string IP) {
-	sockaddr_in addr;
-	memset(&addr, 0, sizeof(addr));
+int Socket::getIpStr(struct addrinfo *ptr, char *buf) {
+	void *addr;
+	if (ptr->ai_family == AF_INET) {
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *) ptr->ai_addr;
+		addr = &(ipv4->sin_addr);
+	}
+	else {
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *) ptr->ai_addr;
+		addr = &(ipv6->sin6_addr);
+	}
 
-    addr.sin_family= AF_INET;
-    if(IP == "") {
-        IP = connectedIpAddress;
-    }
-	addr.sin_addr.s_addr= inet_addr(IP.c_str());
-	//addr.sin_port= htons(port);
+	if (inet_ntop(ptr->ai_family, addr, buf, INET6_ADDRSTRLEN) == NULL) {
+		perror("inet_ntop:");
+		return -1;
+	}
 
-	return SockAddrToUint32((struct sockaddr *)&addr);
+	return 0;
 }
 
-std::vector<std::string> Socket::getLocalIPAddressList() {
+uint32 Socket::getConnectedIPAddress(string IP) {
+	unsigned char addr[sizeof(struct in6_addr)];
+	if(IP == "") {
+		IP = connectedIpAddress;
+	}
+	int r = inet_pton(AF_INET, IP.c_str(), addr);
+	if (r != 0) {
+		// handle error
+	}
+	return SockAddrToUint32((struct in_addr *)&addr);;
+}
+
+// TODO: This may be too inefficient because it's called multiple
+// times. It may be adequate to store 'result' and reuse it later. Note
+// that the 4th argument ('&result) of getaddrinfo() is normally
+// malloc'ed and needs to be freed later with freeaddrinfo(). One way to
+// work around that may be to declare it statically.
+//
+// Returns a pointer to a memory-allocated addrinfo struct which must
+// be freed later with freeaddrinfo()
+struct addrinfo *Socket::getAddrInfo(const int port) {
+	struct addrinfo hints, *result;
+
+	/* Obtain address(es) matching host/port */
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = 0;
+	hints.ai_protocol = 0;
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
+
+	char strPort[BUFSIZ];
+	char *portPtr = NULL;
+	if (port != 0)
+	{
+		size_t n = snprintf (strPort, sizeof strPort, "%d", port);
+		if (n >= sizeof strPort) {
+			fprintf (stderr, "strPort truncated. This should not happen.");
+			throw megaglest_runtime_error(strPort);
+		}
+		portPtr = strPort;
+	}
+	int s = getaddrinfo(this->getHostName().c_str(), portPtr, &hints, &result);
+	if (s != 0)
+	{
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+		throw megaglest_runtime_error("");
+	}
+
+	return result;
+}
+
+std::vector<std::string>Socket::getLocalIPAddressList() {
 	std::vector<std::string> ipList;
-	/* get my host name */
-	char myhostname[101]="";
-	gethostname(myhostname,100);
+	Socket tmp;
 
-	struct hostent* myhostent = gethostbyname(myhostname);
-	if(myhostent) {
-		// get all host IP addresses (Except for loopback)
-		char myhostaddr[101] = "";
-		for(int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
-			Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
+	struct addrinfo *result = tmp.getAddrInfo(0);
+	char ipStr[INET6_ADDRSTRLEN];
+	struct addrinfo *ptr = result;
 
-		   //printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
-		   if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] myhostaddr = [%s]\n",__FILE__,__FUNCTION__,__LINE__,myhostaddr);
+	for (ptr; ptr != NULL; ptr = ptr->ai_next)
+	{
+		if (tmp.getIpStr(ptr, ipStr) != 0)
+			throw megaglest_runtime_error("getLocalIPAddressList");
 
-		   if(strlen(myhostaddr) > 0 &&
-			  strncmp(myhostaddr,"127.",4) != 0 &&
-			  strncmp(myhostaddr,"0.",2) != 0) {
-			   ipList.push_back(myhostaddr);
-		   }
+		if(strlen(ipStr) > 0 &&
+			strncmp(ipStr,"127.",4) != 0 &&
+			strncmp(ipStr,"0.",2) != 0) {
+			ipList.push_back(ipStr);
 		}
 	}
+
+	freeaddrinfo(result);
 
 	Socket::getLocalIPAddressListForPlatform(ipList);
 	return ipList;
@@ -905,7 +962,7 @@ Socket::Socket() {
 
 	this->connectedIpAddress = "";
 
-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(isSocketValid() == false) {
 		throwException("Error creating socket");
 	}
@@ -1381,7 +1438,7 @@ int Socket::send(const void *data, int dataSize) {
 		int totalBytesSent = bytesSent;
 		int attemptCount = 0;
 
-		
+
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
 	    		(bytesSent < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN)) &&
@@ -2390,49 +2447,153 @@ bool ServerSocket::isBroadCastThreadRunning() {
 	return isThreadRunning;
 }
 
+// This works and gives the results shown at https://github.com/MegaGlest/megaglest-source/pull/246#issuecomment-1215996778
+// but I believe it won't ultimately handle ipv4 and ipv6 correctly
+
+//void ServerSocket::bind(int port) {
+	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
+	//boundPort = port;
+
+	//struct sockaddr_in6 addr;
+	//memset(&addr, 0, sizeof(addr));
+	//addr.sin6_family = AF_INET6;
+	//addr.sin6_flowinfo = 0;
+	//addr.sin6_port=htons(boundPort);
+	//addr.sin6_addr = in6addr_any;
+
+	//sock = socket(addr.sin6_family, SOCK_STREAM, 0);
+	//if(sock == -1) {
+		//throw megaglest_runtime_error("socket failed");
+	//}
+
+	//setBlock(false);
+	//int val = 1;
+
+//#ifndef WIN32
+//int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+//#else
+//int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+//#endif
+
+	////char ipStr[INET6_ADDRSTRLEN];
+	////if (Socket::getIpStr(ptr, ipStr) != 0) {
+		////throw megaglest_runtime_error("");
+	////}
+
+	////printf("Binding to %s:%d...", ipStr, boundPort);
+
+	//if ((::bind (sock, (struct sockaddr *)&addr, sizeof(struct sockaddr_in6))) < 0) {
+		//puts("fail");
+		//perror("bind");
+		//close(sock);
+		//exit(EXIT_FAILURE);
+	//}
+	//puts("ok");
+
+	//portBound = true;
+//}
+
 void ServerSocket::bind(int port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d START\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
 
 	boundPort = port;
+	char portStr[BUFSIZ];
+	if ((size_t)(snprintf (portStr, sizeof portStr, "%d", boundPort)) >= sizeof portStr) {
+		fprintf (stderr, "portStr truncated. This should not happen.");
+		throw megaglest_runtime_error(portStr);
+	}
 
-	if(isSocketValid() == false) {
-		sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	struct addrinfo hints, *res;
+
+	/* Obtain address(es) matching host/port */
+	memset(&hints, 0, sizeof(struct addrinfo));
+
+	hints.ai_family = AF_UNSPEC;  /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE|AI_ADDRCONFIG|AI_NUMERICSERV;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
+
+	// the first argument must be NULL, otherwise AI_PASSIVE flag will be ignored.
+	// See getaddrinfo man page
+	int s = getaddrinfo(NULL, portStr, &hints, &res);
+	if (s != 0)
+	{
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+		throw megaglest_runtime_error("");
+	}
+
+	struct addrinfo *ptr = res;
+	for (ptr; ptr != NULL; ptr = ptr->ai_next)
+	{
 		if(isSocketValid() == false) {
-			throwException("Error creating socket");
+			sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+			if(isSocketValid() == false) {
+				// throwException("Error creating socket");
+				continue;
+			}
+			setBlock(false);
 		}
-		setBlock(false);
-	}
 
-	//sockaddr structure
-	sockaddr_in addr;
-	addr.sin_family= AF_INET;
-	if(this->bindSpecificAddress != "") {
-		addr.sin_addr.s_addr= inet_addr(this->bindSpecificAddress.c_str());
-	}
-	else {
-		addr.sin_addr.s_addr= INADDR_ANY;
-	}
-	addr.sin_port= htons(port);
-	addr.sin_zero[0] = 0;
+		char buf[BUFSIZ];
+		Socket::getIpStr(ptr, buf);
+		printf("binding %s:%s\n", buf, portStr);
 
-	int val = 1;
+		int val = 1;
+		int v6flag = 0;
 
 #ifndef WIN32
 	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+
+	// see https://stackoverflow.com/questions/70996215/why-i-cannot-bind-to-scoped-ipv6-any-address
+	// for details... I'm not sure if this is necessary, but I keep getting errors when trying to
+	// bind with IPV6
+	opt_result = setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &v6flag, sizeof(v6flag));
+  if (opt_result != 0) {
+    printf("opt error: %d: %s\n", errno, strerror(errno));
+    freeaddrinfo(res);
+    char szBuf[BUFSIZ]="";
+		snprintf(szBuf, 8096,"Error setting sock options = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,opt_result,getLastSocketErrorFormattedText().c_str());
+		close(sock);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 #else
 	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
 
-	int err= ::bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
-	if(err < 0) {
-	    char szBuf[8096]="";
-	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);
-	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
+		printf ("family: %s\n", ptr->ai_family == AF_INET6 ? "INET6" : "INET4");
+		int err = ::bind(sock, ptr->ai_addr, ptr->ai_addrlen);
+		if(err < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
-	    snprintf(szBuf, 8096,"Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
-	    throw megaglest_runtime_error(szBuf);
+			snprintf(szBuf, 8096,"Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
+			throw megaglest_runtime_error(szBuf);
+		}
+		portBound = true;
+		break;
 	}
-	portBound = true;
+
+	freeaddrinfo(res);
+	if(isSocketValid() == false)
+		throwException("Error creating socket");
+
+	//if(this->bindSpecificAddress != "") {
+		//if (inet_pton(af, this->bindSpecificAddress.c_str(), buf) == 1) {
+			//// addr.sin6_addr.in6_addr = buf;
+		//}
+		//else
+			//throwException("Error creating socket");
+	//}
+	//else {
+		//addr.sin6_addr = in6addr_any;
+	//}
+	//addr.sin6_port= htons(port);
+	//addr.sin6_flowinfo = 0;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d port = %d, portBound = %d END\n",__FILE__,__FUNCTION__,__LINE__,port,portBound);
 }
@@ -2449,7 +2610,7 @@ void ServerSocket::listen(int connectionQueueSize) {
 		if(isSocketValid() == false) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			sock = socket(AF_INET, SOCK_STREAM, 0);
 			if(isSocketValid() == false) {
 				throwException("Error creating socket");
 			}
@@ -2992,9 +3153,6 @@ void BroadCastSocketThread::execute() {
     int pn=0;                     // The number of the packet broadcasted.
     const int buffMaxSize=1024;
     char buff[buffMaxSize]="";            // Buffers the data to be broadcasted.
-    char myhostname[100]="";       // hostname of local machine
-    //char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
-    //struct hostent* myhostent=NULL;
 
     for(unsigned int idx = 0; idx < (unsigned int)MAX_NIC_COUNT; idx++) {
     	memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
@@ -3005,9 +3163,6 @@ void BroadCastSocketThread::execute() {
 		bcfd[idx] = -1;
 #endif
     }
-    /* get my host name */
-    gethostname(myhostname,100);
-    //struct hostent*myhostent = gethostbyname(myhostname);
 
     // get all host IP addresses
     std::vector<std::string> ipList = Socket::getLocalIPAddressList();
@@ -3079,13 +3234,14 @@ void BroadCastSocketThread::execute() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	string myhostname = Socket::getHostName();
 	time_t elapsed = 0;
 	for( pn = 1; getQuitStatus() == false; pn++ ) {
 		for(unsigned int idx = 0; getQuitStatus() == false && idx < ipSubnetMaskList.size(); idx++) {
 			if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 				try {
 					// Send this machine's host name and address in hostname:n.n.n.n format
-					snprintf(buff,1024,"%s",myhostname);
+					snprintf(buff,1024,"%s",myhostname.c_str());
 					for(unsigned int idx1 = 0; idx1 < ipList.size(); idx1++) {
 //						strcat(buff,":");
 //						strcat(buff,ipList[idx1].c_str());
