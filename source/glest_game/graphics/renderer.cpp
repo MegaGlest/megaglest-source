@@ -5683,7 +5683,7 @@ void Renderer::renderSelectionEffects(int healthbarMode) {
 				map->clampPos(pos);
 
 				Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
-				renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
+				renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.25f);
 			}
 		}
 	}
@@ -8716,17 +8716,11 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	}
 
 	const int tesselation= 3;
-	const float arrowEndSize= 0.4f;
-	const float maxlen= 25;
-	const float blendDelay= 5.f;
+	const float arrowEndSize= 0.6f;
 
 	Vec3f dir= Vec3f(pos2-pos1);
-	float len= dir.length();
 
-	if(len>maxlen) {
-		return;
-	}
-	float alphaFactor= clamp((maxlen-len)/blendDelay, 0.f, 1.f);
+	float alphaFactor= 0.25;
 
 	dir.normalize();
 	Vec3f normal= dir.cross(Vec3f(0, 1, 0));
@@ -8742,7 +8736,7 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 		float t= static_cast<float>(i)/tesselation;
 		Vec3f a= pos1Left.lerp(t, pos2Left);
 		Vec3f b= pos1Right.lerp(t, pos2Right);
-		Vec4f c= Vec4f(color, t*0.25f*alphaFactor);
+		Vec4f c= Vec4f(color, std::max(0.04f,t*alphaFactor));
 
 		glColor4fv(c.ptr());
 
