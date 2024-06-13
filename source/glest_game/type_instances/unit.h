@@ -653,6 +653,7 @@ public:
 		}
 		return NULL;
 	}
+	const MorphCommandType* getCurrMorphCt() const;
 	void replaceCurrCommand(Command *cmd);
 	int getCountOfProducedUnitsPreExistence(const UnitType *ut) const;
 	unsigned int getCommandSize() const;
@@ -673,7 +674,7 @@ public:
 
     //other
 	void resetHighlight();
-	const CommandType *computeCommandType(const Vec2i &pos, const Unit *targetUnit= NULL) const;
+	const CommandType *computeCommandType(const Vec2i &pos, const Unit *targetUnit= NULL, const UnitType* unitType= NULL) const;
 	string getDesc(bool translatedValue) const;
 	string getDescExtension(bool translatedValue) const;
     bool computeEp();
