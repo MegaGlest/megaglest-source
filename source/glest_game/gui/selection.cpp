@@ -149,6 +149,16 @@ void Selection::select(const UnitContainer &units, bool addToSelection){
 	}
 }
 
+void Selection::selectType(Unit *unit) {
+	UnitContainer units;
+	for (int i = 0; i < (int)selectedUnits.size(); i++) {
+		if (selectedUnits[i]->getType() == unit->getType() && unit->isOperative() == selectedUnits[i]->isOperative() ) {
+			units.push_back(selectedUnits[i]);
+		}
+	}
+	selectedUnits = units;
+}
+
 void Selection::unSelect(const UnitContainer &units) {
 
 	//add units to gui
