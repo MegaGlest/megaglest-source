@@ -398,6 +398,15 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			waterTex->setWrapMode(Texture::wmRepeat);
 		}
 		waterEffects= waterNode->getAttribute("effects")->getBoolValue();
+		//waves
+		if(waterNode->hasAttribute("waves")) {
+			waterWavesConfig.enabled = waterNode->getAttribute("waves")->getBoolValue();
+			if(waterWavesConfig.enabled) {
+				waterWavesConfig.frequency = waterNode->getAttribute("waveFrequency")->getFloatValue();
+				waterWavesConfig.amplitude = waterNode->getAttribute("waveAmplitude")->getFloatValue();
+				waterWavesConfig.speed = waterNode->getAttribute("waveSpeed")->getFloatValue();
+			}
+		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
