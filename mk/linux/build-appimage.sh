@@ -1,23 +1,34 @@
 #!/bin/sh
 
-set -e
+set -ev
 
-# SCRIPTLOC=$(dirname "$0")
-SCRIPTLOC="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+# Set default workspace if not provided
+WORKSPACE=${WORKSPACE:-$(pwd)}
+# Check if the workspace path is absolute
+if [[ "$WORKSPACE" != /* ]]; then
+  echo "The workspace path must be absolute"
+  exit 1
+fi
+test -d "$WORKSPACE"
 
-if [ ! -f $TOOLS_DIR/squashfs-root/AppRun ]; then
-    echo "Please specify the path to the extracted linuxdeploy (squashfs-root) using \$TOOLS_DIR env variable."
-    exit -1
+# Set default source root if not provided
+SOURCE_ROOT=${SOURCE_ROOT:-$WORKSPACE}
+# Check if the source root path is absolute
+if [[ "$SOURCE_ROOT" != /* ]]; then
+  echo "The source root path must be absolute"
+  exit 1
 fi
 
-mkdir -p $SCRIPTLOC/BuildAppImage/game
-cd $SCRIPTLOC/BuildAppImage/game
+mkdir -p $SOURCE_ROOT/BuildAppImage/game
+cd $SOURCE_ROOT/BuildAppImage/game
 
-if [ -d $SCRIPTLOC/BuildAppImage/game/AppDir ]; then
-    rm -r $SCRIPTLOC/BuildAppImage/game/AppDir
+if [ -d $SOURCE_ROOT/BuildAppImage/game/AppDir ]; then
+    rm -r $SOURCE_ROOT/BuildAppImage/game/AppDir
 fi
+ 
+sudo DEBIAN_FRONTEND=noninteractive apt install -y build-essential libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev libbrotli-dev p7zip-full imagemagick
 
-cmake ../../../.. -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
+cmake $SOURCE_ROOT -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
 make DESTDIR=AppDir -j$(nproc) install
 strip AppDir/usr/local/bin/megaglest
 
@@ -36,21 +47,26 @@ fi
 convert AppDir/usr/local/share/megaglest/megaglest.ico megaglest.png
 mv megaglest-2.png megaglest.png
 
-$TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest.desktop \
-  --icon-file=megaglest.png \
-   --icon-filename=megaglest --executable AppDir/usr/local/bin/megaglest --appdir AppDir --output appimage
+LINUXDEPLOY_OUTPUT_VERSION="$VERSION"
 
-mv MegaGlest*.AppImage $SCRIPTLOC
+linuxdeploy -d AppDir/usr/local/share/applications/megaglest.desktop \
+  --icon-file=megaglest.png \
+   --icon-filename=megaglest \
+   --executable AppDir/usr/local/bin/megaglest \
+   --appdir AppDir \
+   --output appimage
+
+mv MegaGlest*.AppImage $WORKSPACE
 
 # MapEditor
-mkdir -p $SCRIPTLOC/BuildAppImage/mapeditor
-cd $SCRIPTLOC/BuildAppImage/mapeditor
+mkdir -p $SOURCE_ROOT/BuildAppImage/mapeditor
+cd $SOURCE_ROOT/BuildAppImage/mapeditor
 
-if [ -d $SCRIPTLOC/BuildAppImage/mapeditor/AppDir ]; then
-    rm -r $SCRIPTLOC/BuildAppImage/mapeditor/AppDir
+if [ -d $SOURCE_ROOT/BuildAppImage/mapeditor/AppDir ]; then
+    rm -r $SOURCE_ROOT/BuildAppImage/mapeditor/AppDir
 fi
 
-cmake ../../../.. -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=ON -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
+cmake $SOURCE_ROOT -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=ON -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF -DINCLUDE_DATA=OFF
 make DESTDIR=AppDir -j$(nproc) install
 strip AppDir/usr/local/bin/megaglest_editor
 
@@ -67,23 +83,21 @@ mv editor-2.png editor.png
 # Another stupid hack to fix icons.
 sed -i 's#Icon=megaglest#Icon=editor#' AppDir/usr/local/share/applications/megaglest_editor.desktop
 
-ln -s $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
-
-$TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_editor.desktop \
+linuxdeploy -d AppDir/usr/local/share/applications/megaglest_editor.desktop \
   --icon-file=editor.png \
    --icon-filename=editor --executable AppDir/usr/local/bin/megaglest_editor --appdir AppDir --plugin gtk --output appimage
 
-mv MegaGlest*.AppImage $SCRIPTLOC
+mv MegaGlest*.AppImage $WORKSPACE
 
 # G3D viewer
-mkdir -p $SCRIPTLOC/BuildAppImage/g3dviewer
-cd $SCRIPTLOC/BuildAppImage/g3dviewer
+mkdir -p $SOURCE_ROOT/BuildAppImage/g3dviewer
+cd $SOURCE_ROOT/BuildAppImage/g3dviewer
 
-if [ -d $SCRIPTLOC/BuildAppImage/g3dviewer/AppDir ]; then
-    rm -r $SCRIPTLOC/BuildAppImage/g3dviewer/AppDir
+if [ -d $SOURCE_ROOT/BuildAppImage/g3dviewer/AppDir ]; then
+    rm -r $SOURCE_ROOT/BuildAppImage/g3dviewer/AppDir
 fi
 
-cmake ../../../.. -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=ON -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
+cmake $SOURCE_ROOT -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=ON -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF -DINCLUDE_DATA=OFF
 make DESTDIR=AppDir -j$(nproc) install
 strip AppDir/usr/local/bin/megaglest_g3dviewer
 
@@ -100,21 +114,19 @@ mv g3dviewer-2.png g3dviewer.png
 # Another stupid hack to fix icons.
 sed -i 's#Icon=megaglest#Icon=g3dviewer#' AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop
 
-ln -s $TOOLS_DIR/linuxdeploy-plugin-gtk.sh .
-
-$TOOLS_DIR/squashfs-root/AppRun -d AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop \
+linuxdeploy -d AppDir/usr/local/share/applications/megaglest_g3dviewer.desktop \
   --icon-file=g3dviewer.png \
    --icon-filename=g3dviewer --executable AppDir/usr/local/bin/megaglest_g3dviewer --appdir AppDir --plugin gtk --output appimage
 
-mv MegaGlest*.AppImage $SCRIPTLOC
+mv MegaGlest*.AppImage $WORKSPACE
 
 # Tools
-mkdir -p $SCRIPTLOC/BuildAppImage/tools
-cd $SCRIPTLOC/BuildAppImage/tools
+mkdir -p $SOURCE_ROOT/BuildAppImage/tools
+cd $SOURCE_ROOT/BuildAppImage/tools
 
-cmake ../../../.. -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
+cmake $SOURCE_ROOT -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
 make -j$(nproc)
 
 strip source/tools/glexemel/g2xml source/tools/glexemel/xml2g
-mv source/tools/glexemel/g2xml $SCRIPTLOC 
-mv source/tools/glexemel/xml2g $SCRIPTLOC 
+mv source/tools/glexemel/g2xml $WORKSPACE 
+mv source/tools/glexemel/xml2g $WORKSPACE 
