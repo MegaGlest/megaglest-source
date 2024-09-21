@@ -1,0 +1,63 @@
+name: Build MG AppImage
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches: develop
+  pull_request:
+    branches: develop
+    path: 
+      - '**appimage.yml'
+env:
+  VERSION: 1
+
+jobs:
+  build-mg-appimage:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+          - linux/arm/v7
+
+    steps:
+      - name: Checkout MegaGlest
+        uses: actions/checkout@v4
+        
+      - if: ${{ ! contains(matrix.platform, 'amd64') }}
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set variables
+        run: |
+          if [ -z "$VERSION" ]; then
+            echo "VERSION=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+
+      - name: Build AppImage
+        run: |
+          docker run -t \
+            --rm \
+            --platform=${{ matrix.platform }} \
+            -e HOSTUID=$(id -u) \
+            -e VERSION \
+            -v $GITHUB_WORKSPACE:/workspace \
+            -w /workspace \
+            andy5995/linuxdeploy:latest mk/linux/build-appimage.sh
+
+      - name: Create sha256sum
+        run: |
+          IMAGE_FILENAME=$(basename `find out/*AppImage`)
+          echo "IMAGE_FILENAME=$IMAGE_FILENAME" >> $GITHUB_ENV
+          cd out
+          sha256sum "$IMAGE_FILENAME" > "$IMAGE_FILENAME.sha256sum"
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IMAGE_FILENAME }}
+          path: ./out/*
+          if-no-files-found: error
