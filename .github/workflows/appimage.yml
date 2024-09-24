@@ -52,7 +52,6 @@ jobs:
         run: |
           IMAGE_FILENAME=$(ls *AppImage)
           echo "IMAGE_FILENAME=$IMAGE_FILENAME" >> $GITHUB_ENV
-          cd out
           sha256sum "$IMAGE_FILENAME" > "$IMAGE_FILENAME.sha256sum"
 
       - name: Upload AppImage
