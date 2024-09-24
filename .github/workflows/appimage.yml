@@ -9,7 +9,7 @@ on:
     branches: develop
   pull_request:
     branches: develop
-    path: 
+    path:
       - '**appimage.yml'
 env:
   VERSION: 1
@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Checkout MegaGlest
         uses: actions/checkout@v4
-        
+
       - if: ${{ ! contains(matrix.platform, 'amd64') }}
         uses: docker/setup-qemu-action@v3
 
@@ -50,7 +50,7 @@ jobs:
 
       - name: Create sha256sum
         run: |
-          IMAGE_FILENAME=$(basename `find out/*AppImage`)
+          IMAGE_FILENAME=$(ls *AppImage)
           echo "IMAGE_FILENAME=$IMAGE_FILENAME" >> $GITHUB_ENV
           cd out
           sha256sum "$IMAGE_FILENAME" > "$IMAGE_FILENAME.sha256sum"
@@ -59,5 +59,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IMAGE_FILENAME }}
-          path: ./out/*
+          path: ./*AppImage*
           if-no-files-found: error
