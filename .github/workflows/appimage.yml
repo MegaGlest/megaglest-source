@@ -9,7 +9,7 @@ on:
     branches: develop
   pull_request:
     branches: develop
-    path:
+    paths:
       - '**appimage.yml'
 env:
   VERSION: 1
@@ -54,9 +54,14 @@ jobs:
             sha256sum "$file" > "$file.sha256sum";
           done
 
+      - name: Artifact Filename
+        run: |
+          PLATFORM=${{ matrix.platform }}
+          echo "ARTIFACT_NAME=AppImages-${PLATFORM//\//-}" >> $GITHUB_ENV
+
       - name: Upload AppImage
         uses: actions/upload-artifact@v4
         with:
-          name: AppImages-${${{ matrix.platform }}//\//-}
+          name: ${{ env.ARTIFACT_NAME }}
           path: ./*AppImage*
           if-no-files-found: error
