@@ -34,7 +34,7 @@ jobs:
         tar cfJ megaglest-$VERSION-x64-appimage.tar.xz *.AppImage g2xml-* xml2g-*
 
     - name: Create MegaGlest Snapshot
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: megaglest-x64-ubuntu
         retention-days: 1
@@ -72,7 +72,7 @@ jobs:
         unzip megaglest-x64-macos.zip
         rm megaglest-x64-macos.zip
     - name: Create MegaGlest MacOS Snapshot
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: megaglest-x64-macos
         retention-days: 1
@@ -110,7 +110,7 @@ jobs:
         unzip megaglest-x64-windows.zip
         rm megaglest-x64-windows.zip
     - name: Create MegaGlest Windows Snapshot
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: megaglest-x64-windows
         retention-days: 1

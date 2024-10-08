@@ -121,7 +121,7 @@ jobs:
 
     - name: Create MegaGlest Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: megaglest-x64-windows
         retention-days: 1
@@ -167,7 +167,7 @@ jobs:
 
     - name: Create MegaGlest Snapshot
       if: ${{ github.ref == 'refs/heads/develop' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: megaglest-x64-macos
         retention-days: 1
