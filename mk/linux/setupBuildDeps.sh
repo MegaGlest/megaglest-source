@@ -168,35 +168,35 @@ Ubuntu)
 		installcommand="apt-get install $APT_OPTIONS
           build-essential
           cmake
-          libcurl4-gnutls-dev
-          libsdl2-dev
-          libopenal-dev
-          liblua5.3-dev
-          libjpeg-dev
-          libpng-dev
-          libfreetype6-dev
-          libwxgtk3.2-dev
+          libbrotli-dev
           libcppunit-dev
+          libcurl4-gnutls-dev
+          libfreetype6-dev
           libfribidi-dev
           libftgl-dev
-          libglew-dev
-          libogg-dev
-          libvorbis-dev
-          libminiupnpc-dev
-          libircclient-dev
-          libxml2-dev
-          libx11-dev
           libgl1-mesa-dev
+          libglew-dev
           libglu1-mesa-dev
-          librtmp-dev
+          libgnutls28-dev
+          libidn2-dev
+          libircclient-dev
+          libjpeg-dev
           libkrb5-dev
           libldap2-dev
-          libidn2-dev
-          libpsl-dev
-          libgnutls28-dev
+          liblua5.3-dev
+          libminiupnpc-dev
           libnghttp2-dev
+          libogg-dev
+          libopenal-dev
+          libpng-dev
+          libpsl-dev
+          librtmp-dev
+          libsdl2-dev
           libssh-dev
-          libbrotli-dev
+          libvorbis-dev
+          libwxgtk3.2-dev
+          libx11-dev
+          libxml2-dev
           libzstd-dev"
 		;;
 	*)
