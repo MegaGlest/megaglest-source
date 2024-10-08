@@ -17,6 +17,10 @@ SCRIPTDIR="$(dirname "$(readlink -f "$0")")"
 # './setupBuildDeps.sh --manually "Debian" "stable"' is for you.
 
 # Load shared functions
+#
+# This uses 'lsb-release' to get the info, so may not
+# work if the distro doesn't have that installed such as might be likely in
+# docker image
 . $SCRIPTDIR/mg_shared.sh
 
 # Got root?
@@ -138,34 +142,50 @@ case $distribution in
 
 	Ubuntu)
 		case $release in
-			14.04.2|14.04.3|14.04.4)
-				# "not so LTS" are those LTS v xD
-				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
-				unsupported_currently_this_OS="release"
-				;;
-			14.04*)
-				#LTS, name > trusty, EoL April 2019
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
-				;;
-			16.04*)
-				#LTS, name > xenial, EoL April 2021
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
-				;;
-			17.04)
-				#name > zesty, EoL January 2018
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
-				;;
-			17.10)
-				#name > zesty, EoL January 2018
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev libidn2-dev libpsl-dev"
-				;;
-			"18.04"|"20.04")
+				20.04)
 				#name > Bionic, Focal Fossa
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev libbrotli-dev"
 				;;
-       "22.04"|"24.04")
-				#name > Jammy Jellyfish, Noble
+       	22.04)
+				#name > Jammy Jellyfish
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev libbrotli-dev libzstd-dev"
+				;;
+       	24.04)
+				#name > Noble
+				installcommand="\
+					apt-get install $APT_OPTIONS /
+					build-essential /
+					cmake /
+					libcurl4-gnutls-dev /
+					libsdl2-dev /
+					libopenal-dev /
+					liblua5.3-dev /
+					libjpeg-dev /
+					libpng-dev /
+					libfreetype6-dev /
+					libwxgtk3.2-dev /
+					libcppunit-dev /
+					libfribidi-dev /
+					libftgl-dev /
+					libglew-dev /
+					libogg-dev /
+					libvorbis-dev /
+					libminiupnpc-dev /
+					libircclient-dev /
+					libxml2-dev /
+					libx11-dev /
+					libgl1-mesa-dev /
+					libglu1-mesa-dev /
+					librtmp-dev /
+					libkrb5-dev /
+					libldap2-dev /
+					libidn2-dev /
+					libpsl-dev /
+					libgnutls28-dev /
+					libnghttp2-dev /
+					libssh-dev /
+					libbrotli-dev /
+					libzstd-dev"
 				;;
 			*)
 				installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
