@@ -13,7 +13,7 @@ PROJECT( MegaGlest )
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
-# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS). 
+# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS).
 # MSBuild requires using vcpkg and installing required libs.
 # Script works with Windows, Linux and Mac.
 #
@@ -193,8 +193,13 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
 #                ENDIF()
     ENDIF()
 
-	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
-    #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+# Before merging, there needs to be checks to see if these flags are supported
+# the compiler
+# See https://github.com/MegaGlest/megaglest-source/issues/275
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto=4 -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing")
+
+#MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
 
 	OPTION(FORCE_STREFLOP_SOFTWRAPPER "Set the streflop library to be forced to use the software emulator" OFF)
     IF(NOT FORCE_MAX_SSE_LEVEL AND NOT FORCE_STREFLOP_SOFTWRAPPER)
@@ -248,7 +253,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	ELSE()
 		message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
 	ENDIF()
-	
+
 	IF(NOT MSVC)
 		# Debug compiler flags
 		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
@@ -288,7 +293,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 		include(FindGit)
 
 		IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-            SET(HAS_GIT "TRUE") 
+            SET(HAS_GIT "TRUE")
             MESSAGE(STATUS "Found GIT and using GIT version stamping...")
 
             # Get the current commit SHA1
@@ -378,7 +383,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	ENDIF()
 	SET(CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}} ${CUSTOM_INSTALL_PATHS_VALUES}")
 
-	# We do some funky character escaping to get the right stuff written out to 
+	# We do some funky character escaping to get the right stuff written out to
 	# the final Makefile so we get the GIT Global Revsion #
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}}")
 
