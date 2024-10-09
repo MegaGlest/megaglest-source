@@ -201,23 +201,23 @@ if(DEFINED ENV{CXXFLAGS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{CXXFLAGS}")
 endif()
 
+# Include the necessary modules to check compiler flags
 include(CheckCXXCompilerFlag)
 include(CheckCCompilerFlag)
 
-set(WERROR_FLAG "-Werror=")
+# Define your extra flags in a list
+set(EXTRA_FLAGS
+    "-Werror=odr"
+    "-Werror=lto-type-mismatch"
+    "-Werror=strict-aliasing"
+)
 
-set(FLAG_PARTS
-	"odr"
-	"lto-type-mismatch"
-	"strict-aliasing")
-
-# Loop through each flag part and check for both C++ and C compilers
-foreach(part ${FLAG_PARTS})
-    set(flag "${WERROR_FLAG}${part}")
+# Loop through each flag and check for both C++ and C compilers
+foreach(flag ${EXTRA_FLAGS})
 
     # Check for C++ compiler
-    check_cxx_compiler_flag(${flag} CXX_SUPPORTS_${part})
-    if(CXX_SUPPORTS_${part})
+    check_cxx_compiler_flag(${flag} CXX_SUPPORTS_${flag})
+    if(CXX_SUPPORTS_${flag})
         message(STATUS "C++ compiler supports flag ${flag}")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
     else()
@@ -225,13 +225,14 @@ foreach(part ${FLAG_PARTS})
     endif()
 
     # Check for C compiler
-    check_c_compiler_flag(${flag} C_SUPPORTS_${part})
-    if(C_SUPPORTS_${part})
+    check_c_compiler_flag(${flag} C_SUPPORTS_${flag})
+    if(C_SUPPORTS_${flag})
         message(STATUS "C compiler supports flag ${flag}")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
     else()
         message(STATUS "C compiler does not support flag ${flag}")
     endif()
+
 endforeach()
 
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
