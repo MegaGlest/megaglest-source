@@ -38,7 +38,7 @@ jobs:
         if [ "${MATRIX_COMPILER}" = "clang" ]; then
           EXTRA_OPTS="-f"
         else
-          ADD_FLAGS="-flto=$(nproc)"
+          ADD_FLAGS="-flto=auto"
           export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
         fi
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
