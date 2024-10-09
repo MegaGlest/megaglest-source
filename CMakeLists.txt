@@ -13,7 +13,7 @@ PROJECT( MegaGlest )
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
-# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS). 
+# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS).
 # MSBuild requires using vcpkg and installing required libs.
 # Script works with Windows, Linux and Mac.
 #
@@ -201,6 +201,39 @@ if(DEFINED ENV{CXXFLAGS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{CXXFLAGS}")
 endif()
 
+include(CheckCXXCompilerFlag)
+include(CheckCCompilerFlag)
+
+set(WERROR_FLAG "-Werror=")
+
+set(FLAG_PARTS
+	"odr"
+	"lto-type-mismatch"
+	"strict-aliasing")
+
+# Loop through each flag part and check for both C++ and C compilers
+foreach(part ${FLAG_PARTS})
+    set(flag "${WERROR_FLAG}${part}")
+
+    # Check for C++ compiler
+    check_cxx_compiler_flag(${flag} CXX_SUPPORTS_${part})
+    if(CXX_SUPPORTS_${part})
+        message(STATUS "C++ compiler supports flag ${flag}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+    else()
+        message(STATUS "C++ compiler does not support flag ${flag}")
+    endif()
+
+    # Check for C compiler
+    check_c_compiler_flag(${flag} C_SUPPORTS_${part})
+    if(C_SUPPORTS_${part})
+        message(STATUS "C compiler supports flag ${flag}")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
+    else()
+        message(STATUS "C compiler does not support flag ${flag}")
+    endif()
+endforeach()
+
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
 
@@ -256,7 +289,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	ELSE()
 		message(STATUS "**WARNING DID NOT Find GCC backtrace lib")
 	ENDIF()
-	
+
 	IF(NOT MSVC)
 		# Debug compiler flags
 		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
@@ -296,7 +329,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 		include(FindGit)
 
 		IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-            SET(HAS_GIT "TRUE") 
+            SET(HAS_GIT "TRUE")
             MESSAGE(STATUS "Found GIT and using GIT version stamping...")
 
             # Get the current commit SHA1
@@ -386,7 +419,7 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	ENDIF()
 	SET(CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}} ${CUSTOM_INSTALL_PATHS_VALUES}")
 
-	# We do some funky character escaping to get the right stuff written out to 
+	# We do some funky character escaping to get the right stuff written out to
 	# the final Makefile so we get the GIT Global Revsion #
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}}")
 

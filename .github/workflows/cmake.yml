@@ -33,7 +33,7 @@ jobs:
         echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
         sudo apt-get update && sudo apt-get upgrade
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            ADD_FLAGS="-flto=$(nproc) -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing"
+            ADD_FLAGS="-flto=$(nproc)"
             export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
         fi
         sudo mk/linux/setupBuildDeps.sh
