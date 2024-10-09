@@ -235,6 +235,18 @@ foreach(flag ${EXTRA_FLAGS})
 
 endforeach()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT result OUTPUT output)
+
+    if(result)
+        message(STATUS "IPO (LTO) is supported: enabling for Release build.")
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(STATUS "IPO (LTO) is not supported: ${output}")
+    endif()
+endif()
+
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
 
