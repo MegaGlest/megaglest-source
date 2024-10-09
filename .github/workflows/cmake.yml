@@ -37,10 +37,9 @@ jobs:
       run:  |
         if [ "${MATRIX_COMPILER}" = "clang" ]; then
           EXTRA_OPTS="-f"
-        fi
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            ADD_FLAGS="-flto=$(nproc)"
-            export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
+        else
+          ADD_FLAGS="-flto=$(nproc)"
+          export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
         fi
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
         make -C mk/linux/build -j$(nproc) VERBOSE=1
