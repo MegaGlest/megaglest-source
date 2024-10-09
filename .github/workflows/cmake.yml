@@ -32,15 +32,15 @@ jobs:
       run: |
         echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
         sudo apt-get update && sudo apt-get upgrade
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-            ADD_FLAGS="-flto=$(nproc)"
-            export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
-        fi
         sudo mk/linux/setupBuildDeps.sh
     - name: Build
       run:  |
         if [ "${MATRIX_COMPILER}" = "clang" ]; then
           EXTRA_OPTS="-f"
+        fi
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            ADD_FLAGS="-flto=$(nproc)"
+            export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
         fi
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
         make -C mk/linux/build -j$(nproc) VERBOSE=1
