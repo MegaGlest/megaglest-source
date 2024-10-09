@@ -21,7 +21,7 @@
 
 namespace Glest { namespace Game {
 
-enum FTPMessageType {
+enum FTPMessageTypeMods {
     ftpmsg_None,
 	ftpmsg_GetMap,
 	ftpmsg_GetTileset,
@@ -58,7 +58,7 @@ private:
 	GraphicLine lineVerticalReturn;
 
 	GraphicMessageBox mainMessageBox;
-	FTPMessageType mainMessageBoxState;
+	FTPMessageTypeMods mainMessageBoxState;
 
 	int techInfoXPos;
 	int mapInfoXPos;
