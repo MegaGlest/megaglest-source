@@ -1,0 +1,39 @@
+name: Meson
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ develop ]
+    paths:
+    - 'source/**/**'
+    - '**meson.build'
+    - '**/meson.yml'
+  pull_request:
+    branches: [ develop ]
+    paths:
+    - 'source/**/**'
+    - '**meson.build'
+    - '**/meson.yml'
+
+jobs:
+  meson:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get dependencies
+      run: |
+        sudo apt-get -y update && sudo apt-get -y upgrade
+        sudo mk/linux/setupBuildDeps.sh
+        sudo apt-get install -y meson
+        # Using pip is only required if a newer version of meson is required
+        # sudo apt-get install -y python3-pip python3-setuptools # required for pip
+        # sudo -H python3 -m pip install meson ninja # version included w
+    - name: Build
+      run:  |
+        meson setup builddir
+        cd builddir
+        meson compile -v
