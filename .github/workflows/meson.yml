@@ -19,19 +19,16 @@ on:
 
 jobs:
   meson:
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get dependencies
       run: |
-        sudo apt-get -y update && sudo apt-get -y upgrade
         sudo mk/linux/setupBuildDeps.sh
-        sudo apt-get install -y meson
+        sudo apt install -y meson
         # Using pip is only required if a newer version of meson is required
         # sudo apt-get install -y python3-pip python3-setuptools # required for pip
-        # sudo -H python3 -m pip install meson ninja # version included w
+        # sudo -H python3 -m pip install meson ninja
     - name: Build
       run:  |
         meson setup builddir
