@@ -97,19 +97,18 @@ includes = [
   # '../../include/streflop/libm_flt32_source',
 ]
 
-# add_project_arguments(
-#   [
-#     '-DSTREFLOP_SOFT',
-#     '-DLIBM_COMPILING_FLT32',
-#     '-DN_SPECIALIZED=32',
-#   ],
-#   language: 'cpp'
-# )
+add_cpp_args = [
+  '-DUSE_STREFLOP',
+  '-DSTREFLOP_SSE',
+  '-DSTREFLOP_RANDOM_GEN_SIZE=32',
+  '-DLIBM_COMPILING_FLT32',
+  '-DN_SPECIALIZED=32',
+]
 
 lib_streflop = static_library(
   'streflop',
   src,
-  # c_args : ['-DSTREFLOP_SOFT'],
+  cpp_args : add_cpp_args,
   include_directories : includes,
 #   dependencies: [dep_curl, dep_sdl]
   )

@@ -1,4 +1,4 @@
-# subdir('sources/streflop')
+subdir('sources/streflop')
 # subdir('sources/util')
 subdir('sources/feathery_ftp')
 
@@ -211,6 +211,7 @@ lib_megaglest = static_library(
     dep_ircclient,
     dep_miniupnpc,
     dep_ftgl,
+    dep_streflop
   ]
   )
 
