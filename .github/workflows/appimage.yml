@@ -28,6 +28,13 @@ jobs:
       - name: Checkout MegaGlest
         uses: actions/checkout@v4
 
+      - name: Checkout Data
+        uses: actions/checkout@v4
+        with:
+          repository: "megaglest/megaglest-data"
+          path: "data/glest_game"
+
+
       - if: ${{ ! contains(matrix.platform, 'amd64') }}
         uses: docker/setup-qemu-action@v3
 
