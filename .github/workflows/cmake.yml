@@ -31,9 +31,9 @@ jobs:
     - name: Get dependencies
       run: |
         echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
-        # If GitHub has updates the runner often enough, updating and upgrading
-        # should not be necessary.
-        # sudo apt-get update && sudo apt-get upgrade
+        sudo apt update
+        sudo apt remove -y firefox # save some time during upgrade
+        sudo apt upgrade -y
         sudo mk/linux/setupBuildDeps.sh
     - name: Build
       run:  |
