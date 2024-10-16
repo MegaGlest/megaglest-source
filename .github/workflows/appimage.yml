@@ -5,18 +5,23 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'version number'
+        required: false
+        type: string
   push:
     branches: develop
   pull_request:
     branches: develop
     paths:
       - '**appimage.yml'
-env:
-  VERSION: 1
 
 jobs:
   build-mg-appimage:
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
     strategy:
       matrix:
         platform:
@@ -41,7 +46,7 @@ jobs:
       - name: Set variables
         run: |
           if [ -z "$VERSION" ]; then
-            echo "VERSION=${{ github.sha }}" >> $GITHUB_ENV
+            echo "VERSION=snapshot" >> $GITHUB_ENV
           fi
 
       - name: Build AppImage
