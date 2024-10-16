@@ -1,5 +1,16 @@
 #!/bin/sh
 
+# To test this script locally, you can use something like:
+# docker run -it --rm -e HOSTUID=$(id -u) -e \
+# -v $PWD:/workspace -w /workspace --entrypoint=bash andy5995/linuxdeploy:v2-focal
+#
+# Changing entrypoint above will give you a shell when the container starts.
+# Then: 'su - builder' (preserve some environmental variables with '-')
+# 'bash'
+# 'export VERSION=snapshot'
+# 'cd /workspace'
+# 'mk/linux/build-appimage.sh'
+
 set -ev
 
 if [ -z "$VERSION" ]; then
@@ -34,114 +45,118 @@ INST_PREFIX="usr"
   #rm -rf $APPIMAGE_BUILD_DIR
 #fi
 
-GAME_BUILD_DIR="$APPIMAGE_BUILD_DIR/game"
-MAP_EDITOR_BUILD_DIR="$APPIMAGE_BUILD_DIR/mapeditor"
-G3DVIEWER_BUILD_DIR="$APPIMAGE_BUILD_DIR/g3dviewer"
-for dir in "$GAME_BUILD_DIR" "$MAP_EDITOR_BUILD_DIR" "$G3DVIEWER_BUILD_DIR"; do
-  if [ ! -d "$dir" ]; then
-    mkdir -p "$dir"
-  fi
-  if [ -d "$dir/AppDir" ]; then
-    rm -rf "$dir/AppDir"
-  fi
-done
+if [ ! -d "$APPIMAGE_BUILD_DIR" ]; then
+  mkdir -p "$APPIMAGE_BUILD_DIR"
+fi
 
 sudo DEBIAN_FRONTEND=noninteractive -i sh -c \
   "apt update &&
   apt upgrade -y &&
-  apt install -y build-essential libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev libbrotli-dev p7zip-full imagemagick"
+  apt install -y
+  build-essential
+    libcurl4-gnutls-dev
+    libsdl2-dev
+    libopenal-dev
+    liblua5.3-dev
+    libjpeg-dev
+    libpng-dev
+    libfreetype6-dev
+    libwxgtk3.0-gtk3-dev
+    libcppunit-dev
+    libfribidi-dev
+    libftgl-dev
+    libglew-dev
+    libogg-dev
+    libvorbis-dev
+    libminiupnpc-dev
+    libircclient-dev
+    libxml2-dev
+    libx11-dev
+    libgl1-mesa-dev
+    libglu1-mesa-dev
+    librtmp-dev
+    libkrb5-dev
+    libldap2-dev
+    libidn2-dev
+    libpsl-dev
+    libgnutls28-dev
+    libnghttp2-dev
+    libssh-dev
+    libbrotli-dev
+    p7zip-full
+    imagemagick"
 
-cd "$GAME_BUILD_DIR"
-cmake $SOURCE_ROOT -DCMAKE_INSTALL_PREFIX=/$INST_PREFIX -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
-make DESTDIR=$GAME_BUILD_DIR/AppDir -j$(nproc) install
+cd "$APPIMAGE_BUILD_DIR"
+cmake $SOURCE_ROOT \
+  -DCMAKE_INSTALL_PREFIX=/$INST_PREFIX \
+  -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
+make DESTDIR=$APPIMAGE_BUILD_DIR/AppDir -j$(nproc) install
 # This is done by linuxdeploy
 # strip AppDir/$INST_PREFIX/local/bin/megaglest
 
-cp $(whereis 7z | awk -F ' ' '{print $2;}') $GAME_BUILD_DIR/AppDir/$INST_PREFIX/bin/
+cp $(whereis 7z | awk -F ' ' '{print $2;}') $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/bin/
 # Hacky workaround to use internal 7z.
 sed -i 's#=7z#=$APPLICATIONPATH/7z#' AppDir/$INST_PREFIX/share/megaglest/glest.ini
 
-GAME_DESKTOP_DEST="$GAME_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
+GAME_DESKTOP_DEST="$APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
 
 if [ ! -d "$GAME_DESKTOP_DEST" ]; then
   mkdir -p "$GAME_DESKTOP_DEST"
 fi
 
 if [ ! -f "$GAME_DESKTOP_DEST/megaglest.desktop" ]; then
-  curl -Lo $GAME_DESKTOP_DEST/megaglest.desktop https://raw.githubusercontent.com/MegaGlest/megaglest-data/develop/others/desktop/megaglest.desktop
+  cp "$SOURCE_ROOT/data/glest_game/others/desktop/megaglest.desktop" "$GAME_DESKTOP_DEST"
 fi
 
-convert $GAME_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/megaglest.ico megaglest.png
+convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/megaglest.ico megaglest.png
 mv megaglest-2.png megaglest.png
 
-linuxdeploy -d $GAME_DESKTOP_DEST/megaglest.desktop \
-  --icon-file=megaglest.png \
-   --icon-filename=megaglest \
-   --executable AppDir/$INST_PREFIX/bin/megaglest \
-   --appdir AppDir \
-   --output appimage
-
-mv MegaGlest*.AppImage $WORKSPACE
-
-cd $MAP_EDITOR_BUILD_DIR
-cmake $SOURCE_ROOT -DCMAKE_INSTALL_PREFIX=/$INST_PREFIX -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=ON -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF -DINCLUDE_DATA=OFF
-make DESTDIR=$MAP_EDITOR_BUILD_DIR/AppDir -j$(nproc) install
-
-MAP_EDITOR_DESKTOP_DEST="$MAP_EDITOR_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
+MAP_EDITOR_DESKTOP_DEST="$APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
 if [ ! -d "$MAP_EDITOR_DESKTOP_DEST" ]; then
   mkdir -p "$MAP_EDITOR_DESKTOP_DEST"
 fi
 
 if [ ! -f "$MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop" ]; then
-  curl -Lo "$MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop" https://raw.githubusercontent.com/MegaGlest/megaglest-data/develop/others/desktop/megaglest_editor.desktop
+  cp "$SOURCE_ROOT/data/glest_game/others/desktop/megaglest_editor.desktop" "$MAP_EDITOR_DESKTOP_DEST"
   # Another stupid hack to fix icons.
   sed -i 's#Icon=megaglest#Icon=editor#' $MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop
 fi
 
-convert $MAP_EDITOR_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/editor.ico editor.png
-mv editor-2.png editor.png
+#convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/editor.ico editor.png
+#mv editor-2.png editor.png
 
-linuxdeploy -d $MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop \
-  --icon-file=editor.png \
-   --icon-filename=editor \
-   --executable AppDir/$INST_PREFIX/bin/megaglest_editor \
-   --appdir AppDir --plugin gtk --output appimage
-
-mv MegaGlest*.AppImage $WORKSPACE
-
-cd $G3DVIEWER_BUILD_DIR
-cmake $SOURCE_ROOT -DCMAKE_INSTALL_PREFIX=/$INST_PREFIX -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=ON -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF -DINCLUDE_DATA=OFF
-make DESTDIR=$G3DVIEWER_BUILD_DIR/AppDir -j$(nproc) install
-
-G3DVIEWER_DESKTOP_DEST="$G3DVIEWER_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
+G3DVIEWER_DESKTOP_DEST="$APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
 if [ ! -d "$G3DVIEWER_DESKTOP_DEST" ]; then
   mkdir -p "$G3DVIEWER_DESKTOP_DEST"
 fi
 
 if [ ! -f "$G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop" ]; then
-  curl -Lo "$G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop" https://raw.githubusercontent.com/MegaGlest/megaglest-data/develop/others/desktop/megaglest_g3dviewer.desktop
+  cp "$SOURCE_ROOT/data/glest_game/others/desktop/megaglest_g3dviewer.desktop" "$G3DVIEWER_DESKTOP_DEST"
   # Another stupid hack to fix icons.
   sed -i 's#Icon=megaglest#Icon=g3dviewer#' $G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop
 fi
 
-convert $G3DVIEWER_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/g3dviewer.ico g3dviewer.png
-mv g3dviewer-2.png g3dviewer.png
+#convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/g3dviewer.ico g3dviewer.png
+#mv g3dviewer-2.png g3dviewer.png
 
-linuxdeploy -d $G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop \
-  --icon-file=g3dviewer.png \
-   --icon-filename=g3dviewer \
-   --executable AppDir/$INST_PREFIX/bin/megaglest_g3dviewer \
-   --appdir AppDir --plugin gtk --output appimage
+linuxdeploy -d $GAME_DESKTOP_DEST/megaglest.desktop \
+  --icon-file=megaglest.png \
+  --icon-filename=megaglest \
+  --custom-apprun="$SOURCE_ROOT/mk/linux/AppRun" \
+  --executable AppDir/$INST_PREFIX/bin/megaglest \
+  --appdir AppDir \
+  --plugin gtk \
+  --output appimage
 
 mv MegaGlest*.AppImage $WORKSPACE
 
 # Tools
-mkdir -p $APPIMAGE_BUILD_DIR/tools
-cd $APPIMAGE_BUILD_DIR/tools
+#mkdir -p $APPIMAGE_BUILD_DIR/tools
+#cd $APPIMAGE_BUILD_DIR/tools
 
-cmake $SOURCE_ROOT -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
-make -j$(nproc)
+#cmake $SOURCE_ROOT -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
+#make -j$(nproc)
 
-strip source/tools/glexemel/g2xml source/tools/glexemel/xml2g
-mv source/tools/glexemel/g2xml $WORKSPACE
-mv source/tools/glexemel/xml2g $WORKSPACE
+#strip source/tools/glexemel/g2xml source/tools/glexemel/xml2g
+#mv source/tools/glexemel/g2xml $WORKSPACE
+#mv source/tools/glexemel/xml2g $WORKSPACE
