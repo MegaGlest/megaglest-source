@@ -53,7 +53,7 @@ jobs:
             -e VERSION \
             -v $GITHUB_WORKSPACE:/workspace \
             -w /workspace \
-            andy5995/linuxdeploy:v2 mk/linux/build-appimage.sh
+            andy5995/linuxdeploy:v2-focal mk/linux/build-appimage.sh
 
       - name: Create sha256sum
         run: |
