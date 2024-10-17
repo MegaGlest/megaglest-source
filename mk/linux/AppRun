@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+set -e
+
+HERE="$(readlink -f "$(dirname "$0")")"
+
+BINARY_NAME="megaglest"
+
+if [ "$MG_BIN" = "editor" ]; then
+  BINARY_NAME="megaglest_editor"
+elif [ "$MG_BIN" = "viewer" ]; then
+  BINARY_NAME="megaglest_g3dviewer"
+fi
+
+echo "To invoke the map editor:"
+echo "MG_BIN=editor $0"
+echo ""
+echo "To invoke the g3d model viewer:"
+echo "MG_BIN=viewer $0"
+echo ""
+
+exec "$HERE/usr/bin/$BINARY_NAME" "$@"
