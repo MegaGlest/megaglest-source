@@ -1,10 +1,17 @@
 #!/bin/sh
 
-# To test this script locally, you can use something like:
-# docker run -it --rm -e HOSTUID=$(id -u) -e \
-# -v $PWD:/workspace -w /workspace --entrypoint=bash andy5995/linuxdeploy:v2-focal
+# To test this script locally, from the source root directory,
+# you can use:
 #
-# Changing entrypoint above will give you a shell when the container starts.
+# docker run -it --rm -e HOSTUID=$(id -u) -e \
+# -v $PWD:/workspace -w /workspace andy5995/linuxdeploy:v2-focal bash
+#
+# Normally 'bash' can be replaced with the /path/to/script but starting
+# the container from a shell means you can run the script manually in the
+# container and then fix any problems, then re-run the script (hint: the
+# dependencies will be installed the first time, and not have to be installed
+# on subsequent attempts).
+#
 # Then: 'su - builder' (preserve some environmental variables with '-')
 # 'bash'
 # 'export VERSION=snapshot'
@@ -143,6 +150,7 @@ linuxdeploy -d $GAME_DESKTOP_DEST/megaglest.desktop \
   --icon-file=megaglest.png \
   --icon-filename=megaglest \
   --custom-apprun="$SOURCE_ROOT/mk/linux/AppRun" \
+  --library="SOURCE_ROOT/$APPIMAGE_BUILD_DIR/source/shared_lib/liblibmegaglest.so" \
   --executable AppDir/$INST_PREFIX/bin/megaglest \
   --appdir AppDir \
   --plugin gtk \
