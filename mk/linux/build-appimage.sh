@@ -25,8 +25,6 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-# Set default workspace if not provided
-WORKSPACE=${WORKSPACE:-$(pwd)}
 # Check if the workspace path is absolute
 if [[ "$WORKSPACE" != /* ]]; then
   echo "The workspace path must be absolute"
