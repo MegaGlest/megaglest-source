@@ -34,18 +34,10 @@ if [[ "$WORKSPACE" != /* ]]; then
 fi
 test -d "$WORKSPACE"
 
-# Set default source root if not provided
-SOURCE_ROOT=${SOURCE_ROOT:-$WORKSPACE}
-# Check if the source root path is absolute
-if [[ "$SOURCE_ROOT" != /* ]]; then
-  echo "The source root path must be absolute"
-  exit 1
-fi
-
 # Used by linuxdeploy when it sets the filename
 export LINUXDEPLOY_OUTPUT_VERSION="$VERSION"
 
-APPIMAGE_BUILD_DIR="$SOURCE_ROOT/_build_appimage"
+APPIMAGE_BUILD_DIR="$WORKSPACE/_build_appimage"
 INST_PREFIX="usr"
 
 #if [ -n "$DO_CLEAN_BUILD" ] && [ -d $APPIMAGE_BUILD_DIR ]; then
@@ -94,7 +86,7 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c \
     imagemagick"
 
 cd "$APPIMAGE_BUILD_DIR"
-cmake $SOURCE_ROOT \
+cmake $WORKSPACE \
   -DCMAKE_INSTALL_PREFIX=/$INST_PREFIX \
   -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
 make DESTDIR=$APPIMAGE_BUILD_DIR/AppDir -j$(nproc) install
@@ -112,7 +104,7 @@ if [ ! -d "$GAME_DESKTOP_DEST" ]; then
 fi
 
 if [ ! -f "$GAME_DESKTOP_DEST/megaglest.desktop" ]; then
-  cp "$SOURCE_ROOT/data/glest_game/others/desktop/megaglest.desktop" "$GAME_DESKTOP_DEST"
+  cp "$WORKSPACE/data/glest_game/others/desktop/megaglest.desktop" "$GAME_DESKTOP_DEST"
 fi
 
 convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/megaglest.ico megaglest.png
@@ -124,7 +116,7 @@ if [ ! -d "$MAP_EDITOR_DESKTOP_DEST" ]; then
 fi
 
 if [ ! -f "$MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop" ]; then
-  cp "$SOURCE_ROOT/data/glest_game/others/desktop/megaglest_editor.desktop" "$MAP_EDITOR_DESKTOP_DEST"
+  cp "$WORKSPACE/data/glest_game/others/desktop/megaglest_editor.desktop" "$MAP_EDITOR_DESKTOP_DEST"
   # Another stupid hack to fix icons.
   sed -i 's#Icon=megaglest#Icon=editor#' $MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop
 fi
@@ -138,7 +130,7 @@ if [ ! -d "$G3DVIEWER_DESKTOP_DEST" ]; then
 fi
 
 if [ ! -f "$G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop" ]; then
-  cp "$SOURCE_ROOT/data/glest_game/others/desktop/megaglest_g3dviewer.desktop" "$G3DVIEWER_DESKTOP_DEST"
+  cp "$WORKSPACE/data/glest_game/others/desktop/megaglest_g3dviewer.desktop" "$G3DVIEWER_DESKTOP_DEST"
   # Another stupid hack to fix icons.
   sed -i 's#Icon=megaglest#Icon=g3dviewer#' $G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop
 fi
@@ -149,20 +141,19 @@ fi
 linuxdeploy -d $GAME_DESKTOP_DEST/megaglest.desktop \
   --icon-file=megaglest.png \
   --icon-filename=megaglest \
-  --custom-apprun="$SOURCE_ROOT/mk/linux/AppRun" \
-  --library="SOURCE_ROOT/$APPIMAGE_BUILD_DIR/source/shared_lib/liblibmegaglest.so" \
+  --custom-apprun="$WORKSPACE/mk/linux/AppRun" \
   --executable AppDir/$INST_PREFIX/bin/megaglest \
   --appdir AppDir \
   --plugin gtk \
   --output appimage
 
-mv MegaGlest*.AppImage $WORKSPACE
+mv MegaGlest*.AppImage "$WORKSPACE"
 
 # Tools
 #mkdir -p $APPIMAGE_BUILD_DIR/tools
 #cd $APPIMAGE_BUILD_DIR/tools
 
-#cmake $SOURCE_ROOT -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
+#cmake $WORKSPACE -DBUILD_MEGAGLEST=OFF -DBUILD_MEGAGLEST_MODEL_VIEWER=OFF -DBUILD_MEGAGLEST_MAP_EDITOR=OFF -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=ON
 #make -j$(nproc)
 
 #strip source/tools/glexemel/g2xml source/tools/glexemel/xml2g
