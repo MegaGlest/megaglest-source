@@ -5,9 +5,13 @@ services:
       HOSTGID: ${HOSTGID}
       VERSION: ${VERSION}
     image: andy5995/linuxdeploy:v2-focal
-    platform: ${PLATFORM:-linux/amd64}
-    entrypoint: $ENTRYPOINT
+    platform: "${PLATFORM:-linux/amd64}"
+    entrypoint: "${ENTRYPOINT:-/entrypoint.sh}"
     volumes:
+      # Note WORKSPACE and SCRIPT is not used by the container, therefore
+      # is not included within the 'environment' section above
       - $PWD:$WORKSPACE
     working_dir: $WORKSPACE
-    command: $SCRIPT
+    # Absolute path or Relative to workspace
+    # e.g. $WORKSPACE/path/to/script
+    command: "${SCRIPT:-mk/linux/build-appimage.sh}"
