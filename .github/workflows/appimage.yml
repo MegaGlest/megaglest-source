@@ -51,14 +51,10 @@ jobs:
 
       - name: Build AppImage
         run: |
-          docker run -t \
-            --rm \
-            --platform=${{ matrix.platform }} \
-            -e HOSTUID=$(id -u) \
-            -e VERSION \
-            -v $GITHUB_WORKSPACE:/workspace \
-            -w /workspace \
-            andy5995/linuxdeploy:v2-focal mk/linux/build-appimage.sh
+          export HOSTUID=$(id -u) HOSTGID=$(id -g)
+          docker compose -f mk/linux/docker/docker-compose.yml run --rm build
+        env:
+          PLATFORM: ${{ matrix.platform }}
 
       - name: Create sha256sum
         run: |
