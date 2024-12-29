@@ -49,8 +49,8 @@ fi
 sudo DEBIAN_FRONTEND=noninteractive -i sh -c \
   "apt update &&
   apt upgrade -y &&
-  apt install -y
-  build-essential
+  apt install --no-install-recommends -y
+    build-essential
     libcurl4-gnutls-dev
     libsdl2-dev
     libopenal-dev
