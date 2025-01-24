@@ -40,7 +40,7 @@ jobs:
 
 
       - if: ${{ ! contains(matrix.platform, 'amd64') }}
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v3.2.0
 
       - name: Set variables
         run: |
