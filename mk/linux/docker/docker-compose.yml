@@ -7,7 +7,7 @@ services:
       WORKSPACE: ${WORKSPACE}
       CC: "${CC:-gcc}"
       CXX: "${CXX:-g++}"
-    image: andy5995/linuxdeploy:v3-focal
+    image: andy5995/linuxdeploy:v3-jammy
     platform: ${PLATFORM}
     volumes:
       - ${PWD}:${WORKSPACE}
