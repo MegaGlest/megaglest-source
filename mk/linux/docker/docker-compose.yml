@@ -3,8 +3,10 @@ services:
     environment:
       HOSTUID: ${HOSTUID}
       HOSTGID: ${HOSTGID}
-      VERSION: ${VERSION}
+      VERSION: ${VERSION:-snapshot}
       WORKSPACE: ${WORKSPACE}
+      CC: "${CC:-gcc}"
+      CXX: "${CXX:-g++}"
     image: andy5995/linuxdeploy:v3-focal
     platform: ${PLATFORM}
     volumes:

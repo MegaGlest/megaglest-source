@@ -51,6 +51,7 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c \
   apt upgrade -y &&
   apt install --no-install-recommends -y
     build-essential
+    $CC
     libcurl4-gnutls-dev
     libsdl2-dev
     libopenal-dev
