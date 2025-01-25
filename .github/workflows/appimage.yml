@@ -19,14 +19,14 @@ on:
 
 jobs:
   build-mg-appimage:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     env:
       VERSION: ${{ inputs.version }}
     strategy:
       matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
+        os:
+          - ubuntu-24.04-arm
+          - ubuntu-24.04
 
     steps:
       - name: Checkout MegaGlest
@@ -38,18 +38,10 @@ jobs:
           repository: "megaglest/megaglest-data"
           path: "data/glest_game"
 
-
-      - if: ${{ ! contains(matrix.platform, 'amd64') }}
-        uses: docker/setup-qemu-action@v3
-
       - name: Build AppImage
         run: |
           export HOSTUID=$(id -u) HOSTGID=$(id -g)
           docker compose -f mk/linux/docker/docker-compose.yml run --rm build
-        env:
-          PLATFORM: ${{ matrix.platform }}
-          CC: clang
-          CXX: clang++
 
       - name: Create sha256sum
         run: |
@@ -59,7 +51,7 @@ jobs:
 
       - name: Artifact Filename
         run: |
-          PLATFORM=${{ matrix.platform }}
+          PLATFORM=$(uname -m)
           echo "ARTIFACT_NAME=AppImages-${PLATFORM//\//-}" >> $GITHUB_ENV
 
       - name: Upload AppImage
