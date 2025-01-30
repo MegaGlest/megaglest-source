@@ -8,7 +8,7 @@ on:
     types: [completed]
     branches: [develop]
 
-# The artifact only runs on the same distro that it was built on.
+# The artifact only runs on the same distro upon which it was built.
 jobs:
   release:
     runs-on: ubuntu-latest
