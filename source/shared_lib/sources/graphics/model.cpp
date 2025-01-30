@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cassert>
 #include <stdexcept>
+#include <cstring>
 
 #include "interpolation.h"
 #include "conversion.h"

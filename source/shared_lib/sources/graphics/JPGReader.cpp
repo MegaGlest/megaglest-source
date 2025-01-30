@@ -14,6 +14,7 @@
 
 #include "data_types.h"
 #include "pixmap.h"
+#include <cstring>
 #include <stdexcept>
 #include <jpeglib.h>
 #include <setjmp.h>

@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cassert>
+#include <cstring>
 
 #include "util.h"
 #include "math_util.h"

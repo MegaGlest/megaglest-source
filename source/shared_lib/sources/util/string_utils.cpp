@@ -19,6 +19,7 @@
 #include "string_utils.h"
 
 #include <algorithm>
+#include <cstring>
 #include <assert.h>
 
 namespace Shared { namespace Util {

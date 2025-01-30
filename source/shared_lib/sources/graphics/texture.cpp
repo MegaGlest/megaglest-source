@@ -15,6 +15,8 @@
 #include "platform_util.h"
 #include "leak_dumper.h"
 
+#include <cstring>
+
 using namespace Shared::Util;
 using namespace Shared::Platform;
 

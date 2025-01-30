@@ -18,6 +18,7 @@
 #endif
 
 #include <string>
+#include <cstring>
 #include "data_types.h"
 #include "vec.h"
 #include "command.h"

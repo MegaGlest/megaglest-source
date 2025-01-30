@@ -15,6 +15,7 @@
 
 #include <map>
 #include <string>
+#include <cstring>
 #include <SDL.h>
 #include <cassert>
 #include "data_types.h"

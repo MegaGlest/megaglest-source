@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include "platform_common.h"
 #include <sstream>
 #include <iostream>

@@ -11,6 +11,8 @@
 
 #include "sound_file_loader.h"
 
+#include <cstring>
+
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 

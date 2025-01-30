@@ -13,6 +13,7 @@
 
 #include "data_types.h"
 #include "pixmap.h"
+#include <cstring>
 #include <stdexcept>
 #include <png.h>
 #include <setjmp.h>

@@ -11,6 +11,8 @@
 
 #include "core_data.h"
 
+#include <cstring>
+
 #include "logger.h"
 #include "renderer.h"
 #include "graphics_interface.h"

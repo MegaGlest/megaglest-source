@@ -14,6 +14,7 @@
 
 #include "math_wrapper.h"
 #include <cstdlib>
+#include <cstring>
 #include <stdexcept>
 #include <set>
 #include <iterator>

@@ -12,6 +12,7 @@
 #include "opengl.h"
 
 #include <stdexcept>
+#include <cstring>
 
 #include "graphics_interface.h"
 #include "context_gl.h"
