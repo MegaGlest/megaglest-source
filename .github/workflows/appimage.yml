@@ -14,8 +14,6 @@ on:
     branches: develop
   pull_request:
     branches: develop
-    paths:
-      - '**appimage.yml'
 
 jobs:
   build-mg-appimage:
@@ -54,9 +52,24 @@ jobs:
           PLATFORM=$(uname -m)
           echo "ARTIFACT_NAME=AppImages-${PLATFORM//\//-}" >> $GITHUB_ENV
 
-      - name: Upload AppImage
+      - if: ${{ github.ref != 'refs/heads/develop' }}
+        name: Upload AppImage
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ./*AppImage*
           if-no-files-found: error
+
+      - if: ${{ github.ref == 'refs/heads/develop' }}
+        name: 'Prerelease'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./*AppImage*"
+          body: "MegaGlest Snapshot Release"
+          allowUpdates: true
+          prerelease: true
+          removeArtifacts: false
+          replacesArtifacts: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          tag: snapshot

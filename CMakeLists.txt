@@ -208,6 +208,7 @@ include(CheckCCompilerFlag)
 
 # Define your extra flags in a list
 set(EXTRA_FLAGS
+	# https://github.com/MegaGlest/megaglest-source/issues/275
     "-Werror=odr"
     "-Werror=lto-type-mismatch"
     "-Werror=strict-aliasing"
