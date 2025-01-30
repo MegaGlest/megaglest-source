@@ -1,0 +1,75 @@
+name: Build MG AppImage
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'version number'
+        required: false
+        type: string
+  push:
+    branches: develop
+  pull_request:
+    branches: develop
+
+jobs:
+  build-mg-appimage:
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ inputs.version }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04-arm
+          - ubuntu-24.04
+
+    steps:
+      - name: Checkout MegaGlest
+        uses: actions/checkout@v4
+
+      - name: Checkout Data
+        uses: actions/checkout@v4
+        with:
+          repository: "megaglest/megaglest-data"
+          path: "data/glest_game"
+
+      - name: Build AppImage
+        run: |
+          export HOSTUID=$(id -u) HOSTGID=$(id -g)
+          docker compose -f mk/linux/docker/docker-compose.yml run --rm build
+
+      - name: Create sha256sum
+        run: |
+          for file in *.AppImage; do
+            sha256sum "$file" > "$file.sha256sum";
+          done
+
+      - name: Artifact Filename
+        run: |
+          PLATFORM=$(uname -m)
+          echo "ARTIFACT_NAME=AppImages-${PLATFORM//\//-}" >> $GITHUB_ENV
+
+      - if: ${{ github.ref != 'refs/heads/develop' }}
+        name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ./*AppImage*
+          if-no-files-found: error
+
+      - if: ${{ github.ref == 'refs/heads/develop' }}
+        name: 'Prerelease'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./*AppImage*"
+          body: "MegaGlest Snapshot Release"
+          allowUpdates: true
+          prerelease: true
+          removeArtifacts: false
+          replacesArtifacts: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          tag: snapshot

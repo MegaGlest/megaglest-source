@@ -1,0 +1,21 @@
+services:
+  build:
+    environment:
+      HOSTUID: ${HOSTUID}
+      HOSTGID: ${HOSTGID}
+      VERSION: ${VERSION:-snapshot}
+      WORKSPACE: ${WORKSPACE}
+      CC: "${CC:-gcc}"
+      CXX: "${CXX:-g++}"
+    image: andy5995/linuxdeploy:v3-jammy
+    platform: ${PLATFORM}
+    volumes:
+      - ${PWD}:${WORKSPACE}
+    working_dir: ${WORKSPACE}
+
+    # Note that SCRIPT is not used by the container, therefore
+    # is not included within the 'environment' section above
+    #
+    # Absolute path or Relative to workspace
+    # e.g. $WORKSPACE/path/to/script
+    command: "${SCRIPT:-mk/linux/build-appimage.sh}"

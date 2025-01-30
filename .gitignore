@@ -13,6 +13,14 @@ Session.vim
 # Emacs
 \#*\#
 
+# AppImage
+CMakeFiles/
+_build_appimage/
+
+# These are output to the source root when the appimage script is run:
+#/xml2g
+#/g2xml
+
 ## macOS
 *.DS_Store
 Icon

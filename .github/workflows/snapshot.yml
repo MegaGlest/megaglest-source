@@ -10,38 +10,7 @@ on:
 
 # The artifact only runs on the same distro that it was built on.
 jobs:
-  appimage-snapshot:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    container: megaglest/megaglest-build-env:bionic
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Git Hash
-      run: |
-        # Required because docker user is root.
-        git config --global safe.directory $GITHUB_WORKSPACE
-        echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-    - name: Build
-      run: mk/linux/build-appimage.sh
-
-    - name: Pack
-      run: |
-        cd mk/linux/
-        mv g2xml g2xml-$VERSION
-        mv xml2g xml2g-$VERSION
-        tar cfJ megaglest-$VERSION-x64-appimage.tar.xz *.AppImage g2xml-* xml2g-*
-
-    - name: Create MegaGlest Snapshot
-      uses: actions/upload-artifact@v4
-      with:
-        name: megaglest-x64-ubuntu
-        retention-days: 1
-        path: |
-          mk/linux/*.tar.xz
-
-  transfer-macos-snapshot:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -67,55 +36,37 @@ jobs:
           });
           let fs = require('fs');
           fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-macos.zip`, Buffer.from(download.data));
-    - name: 'Prepare artifacts'
-      run: |
-        unzip megaglest-x64-macos.zip
-        rm megaglest-x64-macos.zip
-    - name: Create MegaGlest MacOS Snapshot
-      uses: actions/upload-artifact@v4
-      with:
-        name: megaglest-x64-macos
-        retention-days: 1
-        path: |
-          *.tar.bz2
 
-  transfer-windows-snapshot:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-    - name: 'Download artifact'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-          });
-          let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-            return artifact.name == "megaglest-x64-windows"
+          matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "megaglest-x64-windows-archive"
           })[0];
-          let download = await github.rest.actions.downloadArtifact({
+          download = await github.rest.actions.downloadArtifact({
               owner: context.repo.owner,
               repo: context.repo.repo,
               artifact_id: matchArtifact.id,
               archive_format: 'zip',
           });
-          let fs = require('fs');
-          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows.zip`, Buffer.from(download.data));
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows-archive.zip`, Buffer.from(download.data));
+
     - name: 'Prepare artifacts'
       run: |
-        unzip megaglest-x64-windows.zip
-        rm megaglest-x64-windows.zip
-    - name: Create MegaGlest Windows Snapshot
-      uses: actions/upload-artifact@v4
+        unzip megaglest-x64-windows-archive.zip
+        unzip megaglest-x64-macos.zip
+        rm megaglest-x64-windows-archive.zip megaglest-x64-macos.zip
+        
+    - name: 'Prerelease'
+      uses: ncipollo/release-action@v1
       with:
-        name: megaglest-x64-windows
-        retention-days: 1
-        path: |
-          *.zip
+        artifacts: "*.zip,*.tar.bz2"
+        body: "MegaGlest Snapshot Release"
+        allowUpdates: true
+        prerelease: true
+        removeArtifacts: false
+        replacesArtifacts: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        tag: snapshot
+  
 
   on-failure:
     runs-on: ubuntu-latest
