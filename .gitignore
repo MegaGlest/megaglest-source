@@ -2,6 +2,7 @@
 .*
 *~
 *.AppImage
+*.AppImage.zsync
 # Gimp
 *.xcf
 # Vim

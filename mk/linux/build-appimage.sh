@@ -36,6 +36,7 @@ test -d "$WORKSPACE"
 export LINUXDEPLOY_OUTPUT_VERSION="$VERSION"
 
 APPIMAGE_BUILD_DIR="$WORKSPACE/_build_appimage"
+APPDIR="$APPIMAGE_BUILD_DIR/AppDir"
 INST_PREFIX="usr"
 
 #if [ -n "$DO_CLEAN_BUILD" ] && [ -d $APPIMAGE_BUILD_DIR ]; then
@@ -88,15 +89,15 @@ cd "$APPIMAGE_BUILD_DIR"
 cmake $WORKSPACE \
   -DCMAKE_INSTALL_PREFIX=/$INST_PREFIX \
   -DBUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS=OFF
-make DESTDIR=$APPIMAGE_BUILD_DIR/AppDir -j$(nproc) install
+make DESTDIR=$APPDIR -j$(nproc) install
 # This is done by linuxdeploy
 # strip AppDir/$INST_PREFIX/local/bin/megaglest
 
-cp $(whereis 7z | awk -F ' ' '{print $2;}') $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/bin/
+cp $(whereis 7z | awk -F ' ' '{print $2;}') $APPDIR/$INST_PREFIX/bin/
 # Hacky workaround to use internal 7z.
 sed -i 's#=7z#=$APPLICATIONPATH/7z#' AppDir/$INST_PREFIX/share/megaglest/glest.ini
 
-GAME_DESKTOP_DEST="$APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
+GAME_DESKTOP_DEST="$APPDIR/$INST_PREFIX/share/applications"
 
 if [ ! -d "$GAME_DESKTOP_DEST" ]; then
   mkdir -p "$GAME_DESKTOP_DEST"
@@ -106,10 +107,10 @@ if [ ! -f "$GAME_DESKTOP_DEST/megaglest.desktop" ]; then
   cp "$WORKSPACE/data/glest_game/others/desktop/megaglest.desktop" "$GAME_DESKTOP_DEST"
 fi
 
-convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/megaglest.ico megaglest.png
+convert $APPDIR/$INST_PREFIX/share/megaglest/megaglest.ico megaglest.png
 mv megaglest-2.png megaglest.png
 
-MAP_EDITOR_DESKTOP_DEST="$APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
+MAP_EDITOR_DESKTOP_DEST="$APPDIR/$INST_PREFIX/share/applications"
 if [ ! -d "$MAP_EDITOR_DESKTOP_DEST" ]; then
   mkdir -p "$MAP_EDITOR_DESKTOP_DEST"
 fi
@@ -120,10 +121,10 @@ if [ ! -f "$MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop" ]; then
   sed -i 's#Icon=megaglest#Icon=editor#' $MAP_EDITOR_DESKTOP_DEST/megaglest_editor.desktop
 fi
 
-#convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/editor.ico editor.png
+#convert $APPDIR/$INST_PREFIX/share/megaglest/editor.ico editor.png
 #mv editor-2.png editor.png
 
-G3DVIEWER_DESKTOP_DEST="$APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/applications"
+G3DVIEWER_DESKTOP_DEST="$APPDIR/$INST_PREFIX/share/applications"
 if [ ! -d "$G3DVIEWER_DESKTOP_DEST" ]; then
   mkdir -p "$G3DVIEWER_DESKTOP_DEST"
 fi
@@ -134,7 +135,7 @@ if [ ! -f "$G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop" ]; then
   sed -i 's#Icon=megaglest#Icon=g3dviewer#' $G3DVIEWER_DESKTOP_DEST/megaglest_g3dviewer.desktop
 fi
 
-#convert $APPIMAGE_BUILD_DIR/AppDir/$INST_PREFIX/share/megaglest/g3dviewer.ico g3dviewer.png
+#convert $APPDIR/$INST_PREFIX/share/megaglest/g3dviewer.ico g3dviewer.png
 #mv g3dviewer-2.png g3dviewer.png
 
 linuxdeploy -d $GAME_DESKTOP_DEST/megaglest.desktop \
@@ -144,9 +145,23 @@ linuxdeploy -d $GAME_DESKTOP_DEST/megaglest.desktop \
   --executable AppDir/$INST_PREFIX/bin/megaglest \
   --appdir AppDir \
   --plugin gtk \
-  --output appimage
 
-mv MegaGlest*.AppImage "$WORKSPACE"
+ARCH=$(uname -m)
+REPO="megaglest-source"
+TAG="snapshot"
+GITHUB_REPOSITORY_OWNER="${GITHUB_REPOSITORY_OWNER:-megaglest}"
+UPINFO="gh-releases-zsync|$GITHUB_REPOSITORY_OWNER|$REPO|$TAG|*$ARCH.AppImage.zsync"
+OUT_APPIMAGE="MegaGlest-snapshot-$ARCH.AppImage"
+
+appimagetool --comp zstd \
+  --mksquashfs-opt \
+  -Xcompression-level \
+  --mksquashfs-opt 20 \
+  -u "$UPINFO" \
+  "$APPDIR" "$OUT_APPIMAGE"
+
+mv "$OUT_APPIMAGE" "$WORKSPACE"
+mv "$OUT_APPIMAGE.zsync" "$WORKSPACE"
 
 # Tools
 #mkdir -p $APPIMAGE_BUILD_DIR/tools
