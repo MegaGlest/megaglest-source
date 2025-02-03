@@ -187,21 +187,6 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR MSVC)
         ADD_DEFINITIONS("-DUNICODE")
 	ENDIF()
 
-    # CLang specific Compiler Options
-    IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?Clang")
-
-	ELSEIF(MSVC)
-
-    # GCC specific Compiler Options
-    ELSE()
-        ADD_DEFINITIONS("-frounding-math -fsignaling-nans")
-
-#                IF(NOT MINGW)
-#                        set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -rdynamic")
-#                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic")
-#                ENDIF()
-    ENDIF()
-
 if(DEFINED ENV{CFLAGS})
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} $ENV{CFLAGS}")
 endif()
@@ -220,6 +205,8 @@ set(EXTRA_FLAGS
     "-Werror=odr"
     "-Werror=lto-type-mismatch"
     "-Werror=strict-aliasing"
+    "-frounding-math"
+    "-fsignaling-nans"
 )
 
 # Loop through each flag and check for both C++ and C compilers
