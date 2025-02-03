@@ -10,6 +10,14 @@ ENDIF()
 
 PROJECT( MegaGlest )
 
+# This helps prevent certain errors such as what's mentioned in
+# https://github.com/MegaGlest/megaglest-source/pull/300
+# and also some consider it good practice to specify a standard
+#
+# https://cmake.org/cmake/help/v3.7/prop_tgt/CXX_STANDARD.html?highlight=cxx_standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
