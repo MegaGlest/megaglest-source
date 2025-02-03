@@ -6,8 +6,13 @@ concurrency:
 on:
   push:
     branches: [ develop ]
+    paths-ignore:
+      - '**/appimage.yml'
+
   pull_request:
     branches: [ develop ]
+    paths-ignore:
+      - '**/appimage.yml'
 
 jobs:
   build-linux:
@@ -162,4 +167,4 @@ jobs:
         name: megaglest-x64-macos
         retention-days: 1
         path: release/*.tar.bz2
-        
+

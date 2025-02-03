@@ -14,6 +14,12 @@ on:
     branches: develop
   pull_request:
     branches: develop
+    paths:
+    - '**/appimage.yml'
+    - '**/docker-compose.yml'
+    - '**/build-appimage.sh'
+    - '**/AppRun'
+    - '**/.env'
 
 jobs:
   build-mg-appimage:
