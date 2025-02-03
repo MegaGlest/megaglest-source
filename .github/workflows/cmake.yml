@@ -144,6 +144,7 @@ jobs:
 
     - name: Build MegaGlest With Clang Compiler
       run: |
+        export CXXFLAGS=-std=c++11
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
 
