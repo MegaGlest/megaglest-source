@@ -4,10 +4,10 @@
 #
 # Copyright (c) 2013-2016 MegaGlest Team under GNU GPL v3.0+
 
-function detect_system {
+detect_system() {
 # Determine distro title, release, codename
 #
-# Input: 
+# Input:
 #   -/-
 #
 # Output:

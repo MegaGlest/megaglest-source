@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Use this script to build MegaGlest using cmake
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
@@ -133,7 +133,19 @@ EXTRA_CMAKE_OPTIONS=
 
 # Build threads
 # By default we use all physical CPU cores to build.
-NUMCORES=`lscpu -p | grep -cv '^#'`
+# Detect number of CPU cores for Linux, macOS, and BSD-based systems
+
+if command -v lscpu >/dev/null 2>&1; then
+    # Linux-specific (using lscpu)
+    NUMCORES=$(lscpu -p | grep -cv '^#')
+elif uname | grep -iq bsd; then
+    # macOS and any BSD-based system (using sysctl)
+    NUMCORES=$(sysctl -n hw.ncpu)
+else
+    # Unsupported OS, set NUMCORES to 1
+    NUMCORES=1
+fi
+
 echo "CPU cores detected: $NUMCORES"
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 if [ $CPU_COUNT != -1 ]; then NUMCORES=$CPU_COUNT; fi
