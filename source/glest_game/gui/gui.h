@@ -139,6 +139,7 @@ private:
 
 	//states
 	bool selectingBuilding;
+	bool hoveringUnitPortrait;
 	bool selectingPos;
 	bool selectingMeetingPoint;
 
@@ -222,6 +223,7 @@ private:
 	int computePosDisplay(int x, int y);
 	void computeDisplay();
 	void resetState();
+	void mouseDownPortrait(int posDisplay);
 	void mouseDownDisplayUnitSkills(int posDisplay);
 	void mouseDownDisplayUnitBuild(int posDisplay);
 	void computeInfoString(int posDisplay);

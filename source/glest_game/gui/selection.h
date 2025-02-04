@@ -69,6 +69,7 @@ public:
 	virtual ~Selection();
 
 	bool select(Unit *unit, bool addToSelection);
+	void selectType(Unit *unit);
 	void select(const UnitContainer &units, bool addToSelection);
 	void unSelect(const UnitContainer &units);
 	void unSelect(int unitIndex);
