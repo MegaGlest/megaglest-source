@@ -1002,7 +1002,7 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
         	curl_easy_setopt(curl, CURLOPT_DIRLISTONLY, 1);
         }
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-        curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, file_progress);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, file_progress);
         curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
 
         // Max 10 minutes to transfer
