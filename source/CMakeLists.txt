@@ -1,0 +1,20 @@
+IF(WIN32)
+	IF(NOT VCPKG_TARGET_TRIPLET)
+    INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
+  ENDIF()
+ENDIF()
+
+FIND_PACKAGE(CURL REQUIRED)
+INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
+
+FIND_PACKAGE(GLEW REQUIRED)
+INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
+
+# More common libs (libs that are required by both the game and the shared library)
+# should be added here
+SET(COMMON_LIBS ${CURL_LIBRARIES} ${GLEW_LIBRARIES})
+ADD_SUBDIRECTORY(shared_lib)
+IF(BUILD_MEGAGLEST)
+	MESSAGE(STATUS "Will try to build MegaGlest game")
+	ADD_SUBDIRECTORY(glest_game)
+ENDIF()
