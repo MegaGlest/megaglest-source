@@ -24,7 +24,7 @@ IF(BUILD_MEGAGLEST)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include)
-				       
+
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
 	ENDIF()
@@ -101,19 +101,6 @@ IF(BUILD_MEGAGLEST)
 		    INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
 		ELSE()
 		    MESSAGE(STATUS "**NOTE: OpenSSL is usually not required.")
-		ENDIF()
-	ENDIF()
-
-	FIND_PACKAGE(CURL REQUIRED)
-	INCLUDE(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/CurlGetConfig.cmake)
-	INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
-	IF(UNIX)
-		IF(NOT OPENSSL_FOUND)
-		    # default
-		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
-		ELSE()
-		    # mageia
-		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
 		ENDIF()
 	ENDIF()
 
@@ -248,7 +235,7 @@ IF(BUILD_MEGAGLEST)
 	ENDIF()
 
 	SET(MG_SOURCE_FILES "")
-	
+
 	FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 		INCLUDE_DIRECTORIES( ${DIR} )
 
@@ -368,18 +355,18 @@ IF(BUILD_MEGAGLEST)
 
     # Requires an install prefix for the items below to work
     IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-        MESSAGE(STATUS "**Source package INSTALL TRIGGERED [${PROJECT_SOURCE_DIR}]")	
+        MESSAGE(STATUS "**Source package INSTALL TRIGGERED [${PROJECT_SOURCE_DIR}]")
 
         # Installation of the program
-        INSTALL(TARGETS 
-	        ${TARGET_NAME} 
+        INSTALL(TARGETS
+	        ${TARGET_NAME}
 	        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
         IF(EXISTS ${HELP2MAN} AND NOT "${MEGAGLEST_MANPAGE_INSTALL_PATH}" STREQUAL "")
-     		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
+     		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")
 
 	        # Installation of the program manpage file
-	        INSTALL(FILES 
+	        INSTALL(FILES
 	          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
 	          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
         ENDIF()
