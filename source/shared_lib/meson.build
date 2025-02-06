@@ -157,7 +157,12 @@ dep_ircclient = dependency('ircclient', required: false)
 if not dep_ircclient.found()
   dep_ircclient = cc.find_library('ircclient', has_headers: 'libircclient.h', required: false)
   if not dep_ircclient.found()
-    inc_ircclient = ['/usr/include', '/usr/include/libircclient']
+    inc_ircclient = ['/usr/include/libircclient']
+    path = '/usr/include/libircclient'
+    result = run_command('test', '-d', path, check: false)
+    if result.returncode() == 0
+      inc_ircclient += path
+    endif
     dep_ircclient = cc.find_library(
       'ircclient',
       has_headers: 'libircclient.h',
