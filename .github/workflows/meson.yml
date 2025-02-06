@@ -46,31 +46,31 @@ jobs:
         usesh: true
         prepare: |
           pkg install -y \
-              bash \
-              meson \
-              cmake \
-              cppunit \
-              curl \
-              freetype2 \
-              fribidi \
-              ftgl \
-              git \
-              glew \
-              jpeg-turbo \
-              libGLU \
-              libircclient \
-              libogg \
-              libvorbis \
-              libX11 \
-              libxml2 \
-              lua53 \
-              mesa-libs \
-              miniupnpc \
-              openal-soft \
-              pkgconf \
-              png \
-              sdl2 \
-              wx30-gtk3
+            bash \
+            meson \
+            cmake \
+            cppunit \
+            curl \
+            freetype2 \
+            fribidi \
+            ftgl \
+            git \
+            glew \
+            jpeg-turbo \
+            libGLU \
+            libircclient \
+            libogg \
+            libvorbis \
+            libX11 \
+            libxml2 \
+            lua53 \
+            mesa-libs \
+            miniupnpc \
+            openal-soft \
+            pkgconf \
+            png \
+            sdl2 \
+            wx30-gtk3
 
         run: |
           git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source

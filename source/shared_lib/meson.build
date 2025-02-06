@@ -137,20 +137,19 @@ dep_openal = dependency('openal')
 dep_ftgl = dependency('ftgl')
 
 # This will get changed to 5.3
-lua_dep = dependency('lua-5.3', required: false)
+lua_dep = dependency('lua-5.3', required: true)
 if not lua_dep.found()
-  lua_dep = cc.find_library('lua', has_headers: 'lua.h', required: false)
-  if not lua_dep.found()
-    # This will use the fallback
-    lua_dep = dependency(
-      'lua-5.3',
-      required: true,
-      fallback: 'lua',
-      default_options: ['default_library=static']
-      )
-  endif
+  lua_dep = cc.find_library('lua', has_headers: 'lua.hpp', required: true)
+#  if not lua_dep.found()
+#    # This will use the fallback
+#    lua_dep = dependency(
+#      'lua-5.3',
+#      required: true,
+#      fallback: 'lua',
+#      default_options: ['default_library=static']
+#      )
+#  endif
 endif
-deps_shared_lib += lua_dep
 
 inc_ircclient = []
 dep_irclient = []
@@ -162,7 +161,7 @@ if not dep_ircclient.found()
     dep_ircclient = cc.find_library(
       'ircclient',
       has_headers: 'libircclient.h',
-      header_include_directories: inc_ircclient
+      header_include_directories: include_directories(inc_ircclient)
     )
   endif
 endif
@@ -210,6 +209,7 @@ lib_megaglest = static_library(
   ],
   dependencies: [
     deps_shared_lib,
+    lua_dep,
     dep_curl,
     dep_sdl,
     dep_openal,
