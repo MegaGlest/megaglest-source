@@ -2,7 +2,7 @@ project(
   'MegaGlest',
   ['c', 'cpp'],
   version: '3.13.0.999',
-  meson_version : '>= 0.53.2',
+  meson_version : '>= 0.55.0',
   default_options: ['warning_level=1', 'buildtype=debugoptimized']
   )
 

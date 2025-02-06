@@ -19,7 +19,7 @@ inc_common = [
 dep_wx = dependency('wxwidgets', version : '>=3.0.0', modules : ['gl', 'core', 'base'])
 dep_glu = dependency('glu')
 
-executable('megaglest_map_editor',
+executable('megaglest_editor',
   src_map_editor,
   include_directories: inc_common,
   dependencies: [
