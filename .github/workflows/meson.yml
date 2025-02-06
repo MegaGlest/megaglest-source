@@ -31,6 +31,45 @@ jobs:
         # sudo -H python3 -m pip install meson ninja
     - name: Build
       run:  |
-        meson setup builddir
-        cd builddir
-        meson compile -v
+        mk/linux/test-meson-build.sh
+
+  freebsd:
+    runs-on: ubuntu-latest
+    name: FreeBSD
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test in FreeBSD
+      id: test
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        prepare: |
+          pkg install -y \
+              bash \
+              meson \
+              cppunit \
+              curl \
+              freetype2 \
+              fribidi \
+              ftgl \
+              git \
+              glew \
+              jpeg-turbo \
+              libGLU \
+              libircclient \
+              libogg \
+              libvorbis \
+              libX11 \
+              libxml2 \
+              lua53 \
+              mesa-libs \
+              miniupnpc \
+              openal-soft \
+              pkgconf \
+              png \
+              sdl2 \
+              wx30-gtk3
+
+        run: |
+          git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
+          mk/linux/test-meson-build.sh
