@@ -153,7 +153,22 @@ dep_vorbis = dependency('vorbisfile')
 dep_glew = dependency('glew')
 dep_png = dependency('libpng')
 dep_jpeg = dependency('libjpeg')
-dep_fontconfig = dependency('fontconfig')
+
+dep_fontconfig = dependency('fontconfig', required: false)
+if not dep_fontconfig.found()
+  phyfs_dep = cc.find_library('fontconfig', has_headers: 'fontconfig.h', required: false)
+  if not dep_fontconfig.found()
+    # This will use the fallback
+    dep_fontconfig = dependency(
+      'fontconfig',
+      required: true,
+      fallback: 'fontconfig',
+      default_options: ['default_library=static']
+      )
+  endif
+endif
+#deps += dep_fontconfig
+
 dep_ftgl = dependency('ftgl')
 dep_freetype = dependency('freetype2')
 dep_math = cxx.find_library('m')
