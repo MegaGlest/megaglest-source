@@ -3,7 +3,7 @@ project(
   ['c', 'cpp'],
   version: '3.13.0.999',
   meson_version : '>= 0.53.2',
-  default_options: ['warning_level=1', 'buildtype=release']
+  default_options: ['warning_level=1', 'buildtype=debugoptimized']
   )
 
 # Setup compiler.
