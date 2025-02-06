@@ -88,8 +88,8 @@ src_game = [
 	'facilities/game_util.cpp',
 	'facilities/logger.cpp',
 	]
- 
-	
+
+
 inc_game = [
     'types',
     'ai',
@@ -109,32 +109,37 @@ inc_game = [
 ]
 
 inc_common = [
-  '../shared_lib/include/platform',
-  '../shared_lib/include/platform/posix',
-  '../shared_lib/include/platform/common',
-  '../shared_lib/include/platform/win32',
-#   '../shared_lib/include/platform/miniupnpc',
-  '../shared_lib/include/platform/sdl',
-  '../shared_lib/include/util',
-  '../shared_lib/include/util/utf8',
-  '../shared_lib/include/map',
-  '../shared_lib/include/compression',
-  '../shared_lib/include/feathery_ftp',
-#   '../shared_lib/include/libircclient',
-#   '../shared_lib/include/libircclient/include',
-#   '../shared_lib/include/streflop',
-#   '../shared_lib/include/streflop/softfloat',
-#   '../shared_lib/include/streflop/libm',
-#   '../shared_lib/include/streflop/libm/headers',
-#   '../shared_lib/include/streflop/libm/flt-32',
-  '../shared_lib/include/lua',
-  '../shared_lib/include/xml',
-  '../shared_lib/include/xml/rapidxml',
-  '../shared_lib/include/sound',
-  '../shared_lib/include/sound/openal',
-  '../shared_lib/include/graphics',
-  '../shared_lib/include/graphics/gl',
+  'platform',
+  'platform/posix',
+  'platform/common',
+  'platform/win32',
+#   'platform/miniupnpc',
+  'platform/sdl',
+  'util',
+  'util/utf8',
+  'map',
+  'compression',
+  'feathery_ftp',
+#   'libircclient',
+#   'libircclient/include',
+#   'streflop',
+#   'streflop/softfloat',
+#   'streflop/libm',
+#   'streflop/libm/headers',
+#   'streflop/libm/flt-32',
+  'lua',
+  'xml',
+  'xml/rapidxml',
+  'sound',
+  'sound/openal',
+  'graphics',
+  'graphics/gl',
   ]
+
+inc_shared_lib = []
+foreach dir : inc_common
+  inc_shared_lib += [join_paths('..', 'shared_lib', 'include', dir)]
+endforeach
 
 dep_cppunit = dependency('cppunit')
 dep_fribidi = dependency('fribidi')
@@ -155,7 +160,7 @@ dep_math = cxx.find_library('m')
 
 executable('megaglest',
   src_game,
-  include_directories: [inc_game, inc_common],
+  include_directories: [inc_game, inc_shared_lib],
   dependencies: [dep_libmegaglest,
   	dep_sdl,
 	dep_lua,
@@ -188,5 +193,5 @@ executable('megaglest',
 		# '-lSDL2main',
 		# '-Wl,-Bdynamic',
 	# ]
-		
+
   )
