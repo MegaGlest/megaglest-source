@@ -129,23 +129,28 @@ foreach file : src_shared_lib_misc
     src += [join_paths('sources', file)]
 endforeach
 
+deps_shared_lib = []
+
 dep_curl = dependency('libcurl')
 dep_sdl = dependency('sdl2')
 dep_openal = dependency('openal')
 dep_ftgl = dependency('ftgl')
 
-# Using simply 'lua' doesn't work on all Linux distributions
-# See https://github.com/mesonbuild/meson/issues/4553 for more info
-foreach name : ['lua', 'lua5.3', 'lua-5.3', 'lua53']
-    dep_lua = dependency(name, version: '>=5.3', required: false)
-    if dep_lua.found()
-        break
-    endif
-endforeach
-
-if not dep_lua.found()
-    error('Lua could not be found!')
+# This will get changed to 5.3
+lua_dep = dependency('lua-5.3', required: false)
+if not lua_dep.found()
+  lua_dep = cc.find_library('lua', has_headers: 'lua.h', required: false)
+  if not lua_dep.found()
+    # This will use the fallback
+    lua_dep = dependency(
+      'lua-5.3',
+      required: true,
+      fallback: 'lua',
+      default_options: ['default_library=static']
+      )
+  endif
 endif
+deps_shared_lib += lua_dep
 
 inc_ircclient = []
 dep_irclient = []
@@ -153,14 +158,15 @@ dep_ircclient = dependency('ircclient', required: false)
 if not dep_ircclient.found()
   dep_ircclient = cc.find_library('ircclient', has_headers: 'libircclient.h', required: false)
   if not dep_ircclient.found()
-    inc_ircclient = '/usr/include/libircclient'
+    inc_ircclient = ['/usr/include', '/usr/include/libircclient']
     dep_ircclient = cc.find_library(
       'ircclient',
       has_headers: 'libircclient.h',
-      header_include_directories: include_directories(inc_ircclient)
+      header_include_directories: inc_ircclient
     )
   endif
 endif
+deps_shared_lib += dep_ircclient
 
 inc_miniupnpc = ['include/platform/miniupnpc']
 dep_miniupnpc = []
@@ -203,12 +209,11 @@ lib_megaglest = static_library(
     inc_miniupnpc,
   ],
   dependencies: [
+    deps_shared_lib,
     dep_curl,
     dep_sdl,
     dep_openal,
-    dep_lua,
     dep_feathery_ftp,
-    dep_ircclient,
     dep_miniupnpc,
     dep_ftgl,
     dep_streflop

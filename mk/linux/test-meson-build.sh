@@ -16,7 +16,7 @@ cd "$HERE"
 meson compile -C "$BUILD_DIR"
 
 GAME_BIN="$BUILD_DIR/source/glest_game/megaglest"
-EDITOR_BIN="$BUILD_DIR/source/glest_map_editor/megaglest_map_editor"
+EDITOR_BIN="$BUILD_DIR/source/glest_map_editor/megaglest_editor"
 VIEWER_BIN="$BUILD_DIR/source/g3d_viewer/megaglest_g3d_viewer"
 
 for bin in "$GAME_BIN" "$EDITOR_BIN" "$VIEWER_BIN"; do

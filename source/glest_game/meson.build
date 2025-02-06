@@ -141,6 +141,8 @@ foreach dir : inc_common
   inc_shared_lib += [join_paths('..', 'shared_lib', 'include', dir)]
 endforeach
 
+deps = []
+
 dep_cppunit = dependency('cppunit')
 dep_fribidi = dependency('fribidi')
 dep_glib = dependency('glib-2.0')
@@ -167,7 +169,7 @@ if not dep_fontconfig.found()
       )
   endif
 endif
-#deps += dep_fontconfig
+deps += dep_fontconfig
 
 dep_ftgl = dependency('ftgl')
 dep_freetype = dependency('freetype2')
@@ -177,8 +179,8 @@ executable('megaglest',
   src_game,
   include_directories: [inc_game, inc_shared_lib],
   dependencies: [dep_libmegaglest,
+  	deps,
   	dep_sdl,
-	dep_lua,
 	dep_cppunit,
 	dep_fribidi,
 	dep_glib,
@@ -192,7 +194,6 @@ executable('megaglest',
 	dep_glew,
 	dep_png,
 	dep_jpeg,
-	# dep_fontconfig,
 	dep_ftgl,
 	dep_freetype,
 	dep_math,
