@@ -149,13 +149,13 @@ endif
 
 inc_ircclient = []
 dep_irclient = []
-dep_ircclient = dependency('libircclient', required: false)
+dep_ircclient = dependency('ircclient', required: false)
 if not dep_ircclient.found()
-  dep_ircclient = cc.find_library('libircclient', has_headers: 'libircclient.h', required: false)
+  dep_ircclient = cc.find_library('ircclient', has_headers: 'libircclient.h', required: false)
   if not dep_ircclient.found()
     inc_ircclient = '/usr/include/libircclient'
     dep_ircclient = cc.find_library(
-      'libircclient',
+      'ircclient',
       has_headers: 'libircclient.h',
       header_include_directories: include_directories(inc_ircclient)
     )
