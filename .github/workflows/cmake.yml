@@ -55,7 +55,7 @@ jobs:
         run: |
           git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
           cd mk/linux
-          ./build-mg.sh -f -d
+          ./build-mg.sh -f
 
   build-linux:
     strategy:
