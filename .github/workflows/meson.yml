@@ -19,13 +19,14 @@ on:
 
 jobs:
   meson:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: Get dependencies
       run: |
+        sudo apt update && sudo apt upgrade -y
         sudo mk/linux/setupBuildDeps.sh
-        sudo apt install -y meson
+        sudo apt install -y --no-install-recommends meson
         # Using pip is only required if a newer version of meson is required
         # sudo apt-get install -y python3-pip python3-setuptools # required for pip
         # sudo -H python3 -m pip install meson ninja
