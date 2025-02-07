@@ -32,7 +32,6 @@ foreach file : src_basename
 endforeach
 
 src_basename = [
-  'ircclient.cpp',
   'miniftpclient.cpp',
   'miniftpserver.cpp',
   'socket.cpp',
@@ -129,9 +128,6 @@ foreach file : src_shared_lib_misc
     src += [join_paths('sources', file)]
 endforeach
 
-deps_shared_lib = []
-
-dep_curl = dependency('libcurl')
 dep_sdl = dependency('sdl2')
 dep_openal = dependency('openal')
 dep_ftgl = dependency('ftgl')
@@ -139,7 +135,7 @@ dep_ftgl = dependency('ftgl')
 # This will get changed to 5.3
 lua_dep = dependency('lua-5.3', required: true)
 if not lua_dep.found()
-  lua_dep = cc.find_library('lua', has_headers: 'lua.hpp', required: true)
+  lua_dep = cc.find_library('lua', has_headers: 'lua.h', required: true)
 #  if not lua_dep.found()
 #    # This will use the fallback
 #    lua_dep = dependency(
@@ -150,28 +146,6 @@ if not lua_dep.found()
 #      )
 #  endif
 endif
-
-inc_ircclient = []
-dep_irclient = []
-dep_ircclient = dependency('ircclient', required: false)
-if not dep_ircclient.found()
-  dep_ircclient = cc.find_library('ircclient', has_headers: 'libircclient.h', required: false)
-  if not dep_ircclient.found()
-    inc_ircclient = ['/usr/include', '/usr/local/include']
-    path = '/usr/include/libircclient'
-    result = run_command('test', '-d', path, check: false)
-    if result.returncode() == 0
-      inc_ircclient += path
-    endif
-    dep_ircclient = cc.find_library(
-      'ircclient',
-      dirs: '/usr/local/lib',
-      has_headers: 'libircclient.h',
-      header_include_directories: include_directories(inc_ircclient)
-    )
-  endif
-endif
-deps_shared_lib += dep_ircclient
 
 inc_miniupnpc = ['include/platform/miniupnpc']
 dep_miniupnpc = []
@@ -210,13 +184,11 @@ lib_megaglest = static_library(
   include_directories : [
     inc_shared_lib_misc,
     'sources', # for miniz
-    inc_ircclient,
     inc_miniupnpc,
   ],
   dependencies: [
-    deps_shared_lib,
+    shared_lib_game_deps,
     lua_dep,
-    dep_curl,
     dep_sdl,
     dep_openal,
     dep_feathery_ftp,

@@ -120,8 +120,6 @@ inc_common = [
   'map',
   'compression',
   'feathery_ftp',
-#   'libircclient',
-#   'libircclient/include',
 #   'streflop',
 #   'streflop/softfloat',
 #   'streflop/libm',
@@ -136,12 +134,31 @@ inc_common = [
   'graphics/gl',
   ]
 
+inc_ircclient = []
+irclient_dep = []
+ircclient_dep = dependency('ircclient', required: false)
+if not ircclient_dep.found()
+  ircclient_dep = cc.find_library('ircclient', has_headers: 'libircclient.h', required: false)
+  if not ircclient_dep.found()
+    inc_ircclient = ['/usr/include', '/usr/local/include']
+    path = '/usr/include/libircclient'
+    result = run_command('test', '-d', path, check: false)
+    if result.returncode() == 0
+      inc_ircclient += path
+    endif
+    ircclient_dep = cc.find_library(
+      'ircclient',
+      dirs: '/usr/local/lib',
+      has_headers: 'libircclient.h',
+      header_include_directories: include_directories(inc_ircclient)
+    )
+  endif
+endif
+
 inc_shared_lib = []
 foreach dir : inc_common
   inc_shared_lib += [join_paths('..', 'shared_lib', 'include', dir)]
 endforeach
-
-deps = []
 
 dep_cppunit = dependency('cppunit')
 dep_fribidi = dependency('fribidi')
@@ -160,10 +177,11 @@ dep_freetype = dependency('freetype2')
 dep_math = cxx.find_library('m')
 
 executable('megaglest',
-  src_game,
-  include_directories: [inc_game, inc_shared_lib],
+  [src_game, '../shared_lib/sources/platform/posix/ircclient.cpp'],
+  include_directories: [inc_ircclient, inc_game, inc_shared_lib],
   dependencies: [dep_libmegaglest,
-  	deps,
+	shared_lib_game_deps,
+	ircclient_dep,
 	lua_dep,
   	dep_sdl,
 	dep_cppunit,
@@ -175,7 +193,6 @@ executable('megaglest',
 	dep_x11,
 	# dep_ogg,
 	dep_vorbis,
-	dep_curl,
 	dep_glew,
 	dep_png,
 	dep_jpeg,

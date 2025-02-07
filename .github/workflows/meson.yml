@@ -32,7 +32,7 @@ jobs:
         # sudo -H python3 -m pip install meson ninja
     - name: Build
       run:  |
-        mk/linux/test-meson-build.sh
+        mk/test-meson-build.sh
 
   freebsd:
     runs-on: ubuntu-latest
@@ -74,7 +74,7 @@ jobs:
 
         run: |
           git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
-          mk/linux/test-meson-build.sh
+          mk/test-meson-build.sh
 
   build-macos:
     runs-on: macos-latest
@@ -87,4 +87,4 @@ jobs:
 
     - name: Build MegaGlest With Clang Compiler
       run: |
-        mk/linux/test-meson-build.sh
+        mk/test-meson-build.sh

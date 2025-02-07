@@ -23,8 +23,4 @@ extra_flags = [
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
 add_project_arguments(cxx.get_supported_arguments(extra_flags), language: 'cpp')
 
-subdir('source/shared_lib')
-subdir('source/glest_game')
-subdir('source/glest_map_editor')
-subdir('source/g3d_viewer')
-subdir('source/tools/glexemel')
+subdir('source')
