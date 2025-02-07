@@ -19,5 +19,6 @@ brew install cmake \
     pkg-config \
     sdl2 \
     wxwidgets \
+    xinit \
     xorg-server \
     zstd
