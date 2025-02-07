@@ -10,63 +10,18 @@ project(
 cxx = meson.get_compiler('cpp')
 cc = meson.get_compiler('c')
 
-add_global_arguments(['-DUSE_FTGL'], language: 'cpp')
-
-inc_common = [
-  'platform',
-  'platform/posix',
-  'platform/common',
-  'platform/win32',
-#  ' platform/miniupnpc',
-  'platform/sdl',
-  'util',
-  'util/utf8',
-  'map',
-  'compression',
-  'feathery_ftp',
-#  ' libircclient',
-#  ' libircclient/include',
-#  ' streflop',
-#  ' streflop/softfloat',
-#  ' streflop/libm',
-#  ' streflop/libm/headers',
-#  ' streflop/libm/flt-32',
-  'lua',
-  'xml',
-  'xml/rapidxml',
-  'sound',
-  'sound/openal',
-  'graphics',
-  'graphics/gl',
-  ]
-
-inc_shared_lib = []
-foreach dir : inc_common
-  inc_shared_lib += [join_paths('../../source/shared_lib/include', dir)]
-endforeach
-
-inc_game = [
-    'types',
-    'ai',
-    'menu',
-    'steam',
-    'facilities',
-    'main',
-    'steamshim',
-    'network',
-    'world',
-    'global',
-    'type_instances',
-    'gui',
-    'sound',
-    'graphics',
-    'game',
+extra_flags = [
+  '-fno-common',
+  '-Werror=odr',
+  '-Werror=lto-type-mismatch',
+#  '-Werror=strict-aliasing',
+  '-frounding-math',
+  '-fsignaling-nans',
+  '-DUSE_FTGL'
 ]
 
-game_includes = []
-foreach dir : inc_game
-  game_includes += [join_paths('../../source/glest_game', dir)]
-endforeach
+add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
+add_project_arguments(cxx.get_supported_arguments(extra_flags), language: 'cpp')
 
 subdir('source/shared_lib')
 subdir('source/glest_game')
