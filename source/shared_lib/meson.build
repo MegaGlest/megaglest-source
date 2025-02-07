@@ -165,6 +165,7 @@ if not dep_ircclient.found()
     endif
     dep_ircclient = cc.find_library(
       'ircclient',
+      dirs: '/usr/local/lib',
       has_headers: 'libircclient.h',
       header_include_directories: include_directories(inc_ircclient)
     )
