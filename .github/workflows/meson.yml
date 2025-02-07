@@ -74,6 +74,9 @@ jobs:
 
         run: |
           git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
+          cd /usr/local/bin
+          ln -s wxgtk3u-3.0-config wx-config
+          cd -
           mk/test-meson-build.sh
 
   build-macos:
