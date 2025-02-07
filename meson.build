@@ -17,7 +17,9 @@ extra_flags = [
 #  '-Werror=strict-aliasing',
   '-frounding-math',
   '-fsignaling-nans',
-  '-DUSE_FTGL'
+  '-DUSE_FTGL',
+  '-DUSE_STREFLOP',
+  '-DSTREFLOP_SSE',
 ]
 
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
