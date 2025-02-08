@@ -22,20 +22,21 @@ inc_common = [
     '../glest_game/sound',
 ]
 
-executable('megaglest_g3d_viewer',
-  src_g3d_viewer,
-  include_directories: inc_common,
-  dependencies: [
-    dep_libmegaglest,
-    dep_wx,
-    dep_sdl,
-    dep_gl,
-    dep_x11,
-    dep_jpeg,
-    dep_png,
-    dep_glew,
-  ],
-#   cpp_args: [
-#     '-DNDEBUG',
-#     ]
+executable(
+    'megaglest_g3d_viewer',
+    src_g3d_viewer,
+    include_directories: inc_common,
+    dependencies: [
+        dep_libmegaglest,
+        dep_wx,
+        dep_sdl,
+        dep_gl,
+        dep_x11,
+        dep_jpeg,
+        dep_png,
+        dep_glew,
+    ],
+    #   cpp_args: [
+    #     '-DNDEBUG',
+    #     ]
 )
