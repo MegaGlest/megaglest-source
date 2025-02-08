@@ -20,6 +20,11 @@ extra_flags = [
   '-DUSE_FTGL',
   '-DUSE_STREFLOP',
   '-DSTREFLOP_SSE',
+  '-DSTREFLOP_RANDOM_GEN_SIZE=32',
+  '-DLIBM_COMPILING_FLT32',
+  '-DN_SPECIALIZED=32',
+  '-mfpmath=sse',
+  '-msse'
 ]
 
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')

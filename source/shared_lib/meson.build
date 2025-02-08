@@ -187,6 +187,7 @@ lib_megaglest = static_library(
     inc_miniupnpc,
   ],
   dependencies: [
+    dep_streflop,
     shared_lib_game_deps,
     lua_dep,
     dep_sdl,
@@ -194,7 +195,6 @@ lib_megaglest = static_library(
     dep_feathery_ftp,
     dep_miniupnpc,
     dep_ftgl,
-    dep_streflop
   ]
   )
 
