@@ -1,4 +1,3 @@
-subdir('sources/streflop')
 # subdir('sources/util')
 subdir('sources/feathery_ftp')
 
@@ -147,6 +146,13 @@ if not lua_dep.found()
 #  endif
 endif
 
+streflop_dep = dependency(
+  'streflop',
+  required: true,
+  fallback: 'streflop',
+  default_options: ['default_library=static']
+  )
+
 inc_miniupnpc = ['include/platform/miniupnpc']
 dep_miniupnpc = []
 dep_miniupnpc = dependency('miniupnpc')
@@ -187,7 +193,7 @@ lib_megaglest = static_library(
     inc_miniupnpc,
   ],
   dependencies: [
-    dep_streflop,
+    streflop_dep,
     shared_lib_game_deps,
     lua_dep,
     dep_sdl,
@@ -198,4 +204,7 @@ lib_megaglest = static_library(
   ]
   )
 
-dep_libmegaglest = declare_dependency(link_with: lib_megaglest)
+dep_libmegaglest = declare_dependency(
+  link_with: lib_megaglest,
+  include_directories: 'include/streflop'
+  )
