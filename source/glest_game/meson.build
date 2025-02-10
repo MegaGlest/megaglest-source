@@ -113,7 +113,6 @@ inc_common = [
     'platform/posix',
     'platform/common',
     'platform/win32',
-    #   'platform/miniupnpc',
     'platform/sdl',
     'util',
     'util/utf8',
@@ -178,7 +177,6 @@ dep_png = dependency('libpng')
 dep_jpeg = dependency('libjpeg')
 dep_ftgl = dependency('ftgl')
 dep_freetype = dependency('freetype2')
-dep_math = cxx.find_library('m')
 
 executable(
     'megaglest',
@@ -204,7 +202,6 @@ executable(
         dep_jpeg,
         dep_ftgl,
         dep_freetype,
-        dep_math,
     ],
     cpp_args: ['-DGITVERSION="HELPME"'],
     # link_args: ['-lm',
