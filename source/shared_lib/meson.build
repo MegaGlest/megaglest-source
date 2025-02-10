@@ -142,12 +142,20 @@ if not lua_dep.found()
     #  endif
 endif
 
-streflop_dep = dependency(
+# By default, meson will look in the repo roots 'subproject' directory # Note
+# changing a default options might not be enough to trigger meson to rerun
+# setup. In the build directory, you can change the option manually
+# Example: meson configure -Dstreflop:fpu=soft (where the value preceding the
+# colon is the subproject name) and then rebuild.
+streflop_subproj = subproject(
     'streflop',
-    required: true,
-    fallback: 'streflop',
-    default_options: ['default_library=static'],
+    default_options: ['default_library=static', 'fpu=sse', 'no_denormals=true'],
 )
+# TODO: The binaries don't need the dep object, but they do need the includes.
+# Get them from the dep object instead of hard-coding them in the three
+# binary meson builds.
+streflop_dep = streflop_subproj.get_variable('streflop_dep')
+streflop_includes = streflop_dep.partial_dependency(includes: true)
 
 inc_miniupnpc = ['include/platform/miniupnpc']
 dep_miniupnpc = []
@@ -156,6 +164,10 @@ if not dep_miniupnpc.found()  # TODO: review/test for if the library isn't insta
     dep_miniupnpc = cxx.find_library('miniupnpc', required: false)
     inc_miniupnpc += '/usr/include/miniupnpc'
 endif
+# if miniupnpc isn't installed, add these flags. Check existing cmake in
+# shared_lib to see about other platforms
+#c_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
+#  cpp_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
 
 inc_shared_lib_misc_basename = [
     'graphics',
@@ -198,9 +210,10 @@ lib_megaglest = static_library(
         dep_miniupnpc,
         dep_ftgl,
     ],
+    pic: true,
 )
 
 dep_libmegaglest = declare_dependency(
     link_with: lib_megaglest,
-    include_directories: 'include/streflop',
+    dependencies: streflop_includes,
 )

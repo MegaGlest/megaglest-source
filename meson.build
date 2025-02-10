@@ -18,14 +18,10 @@ extra_flags = [
     '-fno-common',
     '-Werror=odr',
     '-Werror=lto-type-mismatch',
-   # '-Werror=strict-aliasing',
-    '-frounding-math',
-    '-fsignaling-nans',
+    # '-Werror=strict-aliasing',
     '-DUSE_FTGL',
     '-DUSE_STREFLOP',
     '-DSTREFLOP_SSE',
-    '-mfpmath=sse',
-    '-msse',
 ]
 
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')

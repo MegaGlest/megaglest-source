@@ -14,8 +14,8 @@
    When faced with ambiguous call errors with e.g. fabs, use math::function.
    Add it to math namespace if it doesn't exist there yet. */
 
-#ifndef STREFLOP_COND_H
-#define STREFLOP_COND_H
+#ifndef _STREFLOP_COND_H
+#define _STREFLOP_COND_H
 
 #if defined(STREFLOP_X87) || defined(STREFLOP_SSE) || defined(STREFLOP_SOFT)
 #include <streflop.h>
