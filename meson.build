@@ -20,6 +20,7 @@ extra_flags = [
     '-Werror=lto-type-mismatch',
     # '-Werror=strict-aliasing',
     '-DUSE_FTGL',
+    '-U_GLIBCXX_ASSERTIONS',
 ]
 
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
