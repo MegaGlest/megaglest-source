@@ -1,0 +1,9 @@
+[wrap-git]
+directory = streflop-ng
+url = https://github.com/andy5995/streflop-ng
+revision = add-meson
+
+[provide]
+streflop-ng = streflop_dep
+streflop = streflop_dep
+
