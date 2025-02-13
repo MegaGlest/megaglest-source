@@ -49,7 +49,7 @@ wx_dep = dependency(
 # Example: meson configure -Dstreflop:fpu=soft (where the value preceding the
 # colon is the subproject name) and then rebuild.
 streflop_subproj = subproject(
-    'streflop',
+    'streflop-ng',
     default_options: ['default_library=static', 'fpu=sse', 'denormals=false'],
 )
 # TODO: The binaries don't need the dep object, but they do need the includes.
@@ -59,7 +59,7 @@ streflop_dep = streflop_subproj.get_variable('streflop_dep')
 
 # Only the include paths, not the whole dep object is required to
 # build the game
-streflop_includes = streflop_dep[0].partial_dependency(includes: true)
+streflop_includes = streflop_dep.partial_dependency(includes: true)
 
 subdir('shared_lib')
 subdir('glest_game')
