@@ -28,13 +28,13 @@ executable(
     include_directories: inc_common,
     dependencies: [
         dep_libmegaglest,
-        dep_wx,
-        dep_sdl,
+        wx_dep,
         dep_gl,
         dep_x11,
         dep_jpeg,
         dep_png,
         dep_glew,
+        sdl_dep,
     ],
     #   cpp_args: [
     #     '-DNDEBUG',

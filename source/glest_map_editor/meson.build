@@ -12,17 +12,12 @@ inc_common = [
     '../glest_game/facilities',
 ]
 
-dep_wx = dependency(
-    'wxwidgets',
-    version: '>=3.0.0',
-    modules: ['gl', 'core', 'base'],
-)
 dep_glu = dependency('glu')
 
 executable(
     'megaglest_editor',
     src_map_editor,
     include_directories: inc_common,
-    dependencies: [dep_libmegaglest, dep_wx, dep_sdl, dep_gl, dep_glu],
+    dependencies: [dep_libmegaglest, wx_dep, dep_gl, dep_glu, sdl_dep],
     cpp_args: ['-DNDEBUG'],
 )
