@@ -28,8 +28,6 @@ extra_flags = [
     '-DUSE_STREFLOP',
     '-DSTREFLOP_SSE',
     '-DSTREFLOP_RANDOM_GEN_SIZE=32',
-    '-DNDEBUG',
-    '-DHAS_GCC_BACKTRACE',
     '-msse',
     '-mfpmath=sse',
     '-U_GLIBCXX_ASSERTIONS',
