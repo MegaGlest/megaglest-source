@@ -7,6 +7,7 @@ shared_lib_game_common = [
   'ftgl',
   'lua',
   'openal',
+  'fribidi',
 ]
 
 foreach dep : shared_lib_game_common
@@ -14,7 +15,7 @@ foreach dep : shared_lib_game_common
 endforeach
 
 # This will get changed to 5.3
-lua_dep = dependency('lua-5.3', required: true)
+lua_dep = dependency('lua', required: false)
 if not lua_dep.found()
     lua_dep = cc.find_library('lua', has_headers: 'lua.h', required: true)
     #  if not lua_dep.found()

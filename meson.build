@@ -4,7 +4,7 @@ project(
     version: '3.13.0.999',
     meson_version: '>= 0.55.0',
     default_options: [
-        'warning_level=0',
+        'warning_level=1',
         'buildtype=debugoptimized',
         'cpp_std=c++11',
     ],
@@ -18,8 +18,20 @@ extra_flags = [
     '-fno-common',
     '-Werror=odr',
     '-Werror=lto-type-mismatch',
+    '-fno-strict-aliasing',
     # '-Werror=strict-aliasing',
     '-DUSE_FTGL',
+    '-DX11_AVAILABLE',
+    '-DHAVE_SYS_IOCTL_H',
+    '-DHAVE_FRIBIDI',
+    # '-DHAVE_FONTCONFIG'  This didn't fix the freezing issue
+    '-DUSE_STREFLOP',
+    '-DSTREFLOP_SSE',
+    '-DSTREFLOP_RANDOM_GEN_SIZE=32',
+    '-DNDEBUG',
+    '-DHAS_GCC_BACKTRACE',
+    '-msse',
+    '-mfpmath=sse',
     '-U_GLIBCXX_ASSERTIONS',
 ]
 

@@ -164,7 +164,6 @@ foreach dir : inc_common
 endforeach
 
 dep_cppunit = dependency('cppunit')
-dep_fribidi = dependency('fribidi')
 dep_glib = dependency('glib-2.0')
 dep_pthread = dependency('threads')
 dep_gl = dependency('gl')
@@ -182,11 +181,10 @@ executable(
     include_directories: [inc_ircclient, inc_game, inc_shared_lib],
     dependencies: [
         dep_libmegaglest,
-        lua_dep.partial_dependency(compile_args: true),
+        lua_dep,
         shared_lib_game_deps,
         ircclient_dep,
         dep_cppunit,
-        dep_fribidi,
         dep_glib,
         dep_pthread,
         sdl_dep,
