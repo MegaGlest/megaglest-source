@@ -12,9 +12,11 @@ BUILD_DIR="${BUILD_DIR:-$HERE/_build}"
 # Detect OS type
 OS_TYPE="$(uname -s)"
 
+cd "$SOURCE_ROOT"
 if [ ! -d "$BUILD_DIR" ]; then
-  cd "$SOURCE_ROOT"
   meson setup "$BUILD_DIR" "$@"
+else
+  meson setup --reconfigure "$BUILD_DIR" "$@"
 fi
 
 cd "$HERE"

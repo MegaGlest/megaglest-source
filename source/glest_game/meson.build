@@ -168,14 +168,12 @@ dep_fribidi = dependency('fribidi')
 dep_glib = dependency('glib-2.0')
 dep_pthread = dependency('threads')
 dep_gl = dependency('gl')
-dep_openal = dependency('openal')
 dep_x11 = dependency('x11')
 # dep_ogg = dependency('ogg')
 dep_vorbis = dependency('vorbisfile')
 dep_glew = dependency('glew')
 dep_png = dependency('libpng')
 dep_jpeg = dependency('libjpeg')
-dep_ftgl = dependency('ftgl')
 dep_freetype = dependency('freetype2')
 
 executable(
@@ -184,23 +182,19 @@ executable(
     include_directories: [inc_ircclient, inc_game, inc_shared_lib],
     dependencies: [
         dep_libmegaglest,
+        lua_dep.partial_dependency(compile_args: true),
         shared_lib_game_deps,
         ircclient_dep,
-        lua_dep,
-        dep_sdl,
         dep_cppunit,
         dep_fribidi,
         dep_glib,
         dep_pthread,
-        # dep_gl,
-        dep_openal,
+        sdl_dep,
         dep_x11,
-        # dep_ogg,
         dep_vorbis,
         dep_glew,
         dep_png,
         dep_jpeg,
-        dep_ftgl,
         dep_freetype,
     ],
     cpp_args: ['-DGITVERSION="HELPME"'],

@@ -123,40 +123,6 @@ foreach file : src_shared_lib_misc
     src += [join_paths('sources', file)]
 endforeach
 
-dep_sdl = dependency('sdl2')
-dep_openal = dependency('openal')
-dep_ftgl = dependency('ftgl')
-
-# This will get changed to 5.3
-lua_dep = dependency('lua-5.3', required: true)
-if not lua_dep.found()
-    lua_dep = cc.find_library('lua', has_headers: 'lua.h', required: true)
-    #  if not lua_dep.found()
-    #    # This will use the fallback
-    #    lua_dep = dependency(
-    #      'lua-5.3',
-    #      required: true,
-    #      fallback: 'lua',
-    #      default_options: ['default_library=static']
-    #      )
-    #  endif
-endif
-
-# By default, meson will look in the repo roots 'subproject' directory # Note
-# changing a default options might not be enough to trigger meson to rerun
-# setup. In the build directory, you can change the option manually
-# Example: meson configure -Dstreflop:fpu=soft (where the value preceding the
-# colon is the subproject name) and then rebuild.
-streflop_subproj = subproject(
-    'streflop',
-    default_options: ['default_library=static', 'fpu=sse', 'no_denormals=true'],
-)
-# TODO: The binaries don't need the dep object, but they do need the includes.
-# Get them from the dep object instead of hard-coding them in the three
-# binary meson builds.
-streflop_dep = streflop_subproj.get_variable('streflop_dep')
-streflop_includes = streflop_dep.partial_dependency(includes: true)
-
 inc_miniupnpc = ['include/platform/miniupnpc']
 dep_miniupnpc = []
 dep_miniupnpc = dependency('miniupnpc')
@@ -203,17 +169,15 @@ lib_megaglest = static_library(
     dependencies: [
         streflop_dep,
         shared_lib_game_deps,
-        lua_dep,
-        dep_sdl,
-        dep_openal,
         dep_feathery_ftp,
         dep_miniupnpc,
-        dep_ftgl,
+        sdl_dep,
     ],
     pic: true,
+    cpp_args: ['-DUSE_STREFLOP','-DSTREFLOP_SSE'],
 )
 
 dep_libmegaglest = declare_dependency(
     link_with: lib_megaglest,
-    dependencies: streflop_includes,
+    dependencies: [streflop_includes],
 )
