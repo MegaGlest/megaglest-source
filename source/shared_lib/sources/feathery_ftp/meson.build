@@ -20,7 +20,6 @@ lib_featheryftp = static_library(
     #	dep_curl,
     #	dep_sdl, dep_x11, dep_openal, dep_lua,
     #	dep_cppunit,
-    #	dep_fribidi,
     #	dep_glib
     #	]
 )
