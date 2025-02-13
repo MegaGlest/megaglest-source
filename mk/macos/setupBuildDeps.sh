@@ -13,7 +13,7 @@ brew install cmake \
     libogg \
     libpng \
     libvorbis \
-    lua@5.3 \
+    lua \
     meson \
     miniupnpc \
     pkg-config \
