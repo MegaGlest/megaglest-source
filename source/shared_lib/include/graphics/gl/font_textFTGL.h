@@ -12,6 +12,8 @@
 #ifndef TextFTGL_h
 #define TextFTGL_h
 
+#include "config_whole.h"
+
 #ifdef USE_FTGL
 
 #include <FTGL/ftgl.h>

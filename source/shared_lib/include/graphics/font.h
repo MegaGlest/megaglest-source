@@ -14,6 +14,7 @@
 
 #include <string>
 #include <vector>
+#include "config_whole.h"
 #include "font_text.h"
 #include "leak_dumper.h"
 

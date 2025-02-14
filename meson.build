@@ -20,19 +20,25 @@ extra_flags = [
     '-Werror=lto-type-mismatch',
     '-fno-strict-aliasing',
     # '-Werror=strict-aliasing',
-    '-DUSE_FTGL',
-    '-DX11_AVAILABLE',
     '-DHAVE_SYS_IOCTL_H',
-    '-DHAVE_FRIBIDI',
-    # '-DHAVE_FONTCONFIG'  This didn't fix the freezing issue
-    '-DUSE_STREFLOP',
     '-DSTREFLOP_SSE',
     '-DSTREFLOP_RANDOM_GEN_SIZE=32',
     '-msse',
     '-mfpmath=sse',
 ]
 
+# Defined in cmake but I didn't find references in the source code
+# '-DX11_AVAILABLE'
+# -DHAVE_FONTCONFIG'
+
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
 add_project_arguments(cxx.get_supported_arguments(extra_flags), language: 'cpp')
 
+# Macros can be written to config.h (see below) using conf.set()
+conf = configuration_data()
+
 subdir('source')
+
+# The config.h file finally is output here, all the data assigned by
+# conf.set() will be written to it.
+config_h = configure_file(output : 'config_whole.h', configuration : conf)
