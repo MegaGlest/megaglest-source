@@ -12,11 +12,16 @@ BUILD_DIR="${BUILD_DIR:-$HERE/_build}"
 # Detect OS type
 OS_TYPE="$(uname -s)"
 
+SETUP_OPTS="${BUILD_DIR} -Db_ndebug=true ${@}"
+# -Db_ndebug=true | Disable assertions.
+# Normally meson will add _GLIBCXX_ASSERTIONS to the build flags. When that's
+# added, multiplayer network games will crash after starting.
+
 cd "$SOURCE_ROOT"
 if [ ! -d "$BUILD_DIR" ]; then
-  meson setup "$BUILD_DIR" "$@"
+  meson setup ${SETUP_OPTS}
 else
-  meson setup --reconfigure "$BUILD_DIR" "$@"
+  meson setup --reconfigure "$SETUP_OPTS"
 fi
 
 cd "$HERE"

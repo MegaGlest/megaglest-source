@@ -30,7 +30,6 @@ extra_flags = [
     '-DSTREFLOP_RANDOM_GEN_SIZE=32',
     '-msse',
     '-mfpmath=sse',
-    '-U_GLIBCXX_ASSERTIONS',
 ]
 
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
