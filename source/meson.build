@@ -14,6 +14,10 @@ foreach dep : shared_lib_game_common
     shared_lib_game_deps += dependency(dep)
 endforeach
 
+conf.set('USE_FTGL', 1)
+# will output '#define USE_FTGL 1' to config.h
+conf.set('HAVE_FRIBIDI', 1)
+
 # This will get changed to 5.3
 lua_dep = dependency('lua', required: false)
 if not lua_dep.found()
@@ -60,6 +64,7 @@ streflop_dep = streflop_subproj.get_variable('streflop_dep')
 # Only the include paths, not the whole dep object is required to
 # build the game
 streflop_includes = streflop_dep.partial_dependency(includes: true)
+conf.set('USE_STREFLOP', 1)
 
 subdir('shared_lib')
 subdir('glest_game')

@@ -9,6 +9,8 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include "config_whole.h"
+
 #ifdef USE_FTGL
 
 //#include "gettext.h"

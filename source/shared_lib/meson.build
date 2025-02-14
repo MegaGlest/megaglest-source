@@ -158,10 +158,29 @@ foreach file : inc_shared_lib_misc_basename
     inc_shared_lib_misc += [join_paths('include', file)]
 endforeach
 
+# Note on includes
+#
+# You should not do that but use relative paths instead, for
+# directories that are part of your project.
+#
+# To get include path to any directory relative to the current dir do
+#
+# incdir = include_directories(dirname)
+#
+# After this incdir will contain both the current source dir as well as the
+# corresponding build dir. It can then be used in any subdirectory and
+# Meson will take care of all the busywork to make paths work.
+#
+# Dirname can even be '.' to mark the current directory. Though you should
+# remember that the current source and build directories are always
+# put in the include directories by default so you only need to do
+# include_directories('.') if you intend to use the result in a
+# different subdirectory.
 lib_megaglest = static_library(
     'megaglest',
     src,
     include_directories: [
+        include_directories('../..'), # for config.h
         inc_shared_lib_misc,
         'sources',  # for miniz
         inc_miniupnpc,
@@ -174,10 +193,11 @@ lib_megaglest = static_library(
         sdl_dep,
     ],
     pic: true,
-    cpp_args: ['-DUSE_STREFLOP','-DSTREFLOP_SSE'],
+    cpp_args: ['-DSTREFLOP_SSE'],
 )
 
 dep_libmegaglest = declare_dependency(
     link_with: lib_megaglest,
     dependencies: [streflop_includes],
+    include_directories: include_directories('../..'), # for config.h
 )
