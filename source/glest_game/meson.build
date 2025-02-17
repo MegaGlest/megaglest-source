@@ -89,7 +89,6 @@ src_game = [
   'facilities/logger.cpp',
 ]
 
-
 inc_game = [
   'types',
   'ai',
@@ -106,26 +105,6 @@ inc_game = [
   'sound',
   'graphics',
   'game',
-]
-
-inc_common = [
-  'platform',
-  'platform/posix',
-  'platform/common',
-  'platform/win32',
-  'platform/sdl',
-  'util',
-  'util/utf8',
-  'map',
-  'compression',
-  'feathery_ftp',
-  'lua',
-  'xml',
-  'xml/rapidxml',
-  'sound',
-  'sound/openal',
-  'graphics',
-  'graphics/gl',
 ]
 
 inc_ircclient = []
@@ -153,16 +132,10 @@ if not ircclient_dep.found()
   endif
 endif
 
-inc_shared_lib = []
-foreach dir : inc_common
-  inc_shared_lib += [join_paths('..', 'shared_lib', 'include', dir)]
-endforeach
-
 dep_cppunit = dependency('cppunit')
 dep_glib = dependency('glib-2.0')
 dep_pthread = dependency('threads')
 dep_gl = dependency('gl')
-dep_x11 = dependency('x11')
 # dep_ogg = dependency('ogg')
 dep_vorbis = dependency('vorbisfile')
 dep_glew = dependency('glew')

@@ -6,15 +6,9 @@ src_g3d_viewer = [
   '../glest_game/graphics/particle_type.cpp',
 ]
 
-inc_common = [
-  '../shared_lib/include/graphics',
-  '../shared_lib/include/platform/sdl',
-  '../shared_lib/include/platform/common',
-  '../shared_lib/include/util',
-  '../shared_lib/include/xml',
-  '../shared_lib/include/map',
-  '../shared_lib/include/graphics/gl',
-  '../shared_lib/include/sound',
+# Some includes from the game are required for the viewer.
+# Other required includes are imported from the dep_libmegaglest object
+inc_viewer = [
   '../glest_game/global',
   '../glest_game/game',
   '../glest_game/graphics',
@@ -25,7 +19,7 @@ inc_common = [
 executable(
   'megaglest_g3d_viewer',
   src_g3d_viewer,
-  include_directories: inc_common,
+  include_directories: inc_viewer,
   dependencies: [
     dep_libmegaglest,
     wx_dep,
@@ -35,7 +29,4 @@ executable(
     dep_png,
     dep_glew,
   ],
-  #   cpp_args: [
-  #     '-DNDEBUG',
-  #     ]
 )

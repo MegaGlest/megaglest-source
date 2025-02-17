@@ -135,27 +135,33 @@ endif
 #c_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
 #  cpp_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
 
-inc_shared_lib_misc_basename = [
+inc_shared_lib_basename = [
+  'compression',
+  'feathery_ftp',
   'graphics',
+  'graphics/gl',
+  'lua',
   'map',
-  'xml',
-  'sound',
-  'sound/openal',
+  'platform',
   'platform/common',
   'platform/posix',
   'platform/sdl',
-  'graphics',
-  'graphics/gl',
-  'util/',
+  'sound',
+  'sound/openal',
+  'util',
   'util/utf8',
-  'compression',
-  'lua',
+  'xml',
+  'xml/rapidxml',
 ]
 
-inc_shared_lib_misc = []
+if host_system == 'windows'
+  inc_shared_lib_basename += 'platform/win32'
+endif
 
-foreach file : inc_shared_lib_misc_basename
-  inc_shared_lib_misc += [join_paths('include', file)]
+inc_shared_lib = []
+
+foreach file : inc_shared_lib_basename
+  inc_shared_lib += include_directories(join_paths('include', file))
 endforeach
 
 # Note on includes
@@ -181,7 +187,7 @@ lib_megaglest = static_library(
   src,
   include_directories: [
     include_directories('../..'),  # for config.h
-    inc_shared_lib_misc,
+    inc_shared_lib,
     'sources',  # for miniz
     inc_miniupnpc,
   ],
@@ -199,5 +205,5 @@ lib_megaglest = static_library(
 dep_libmegaglest = declare_dependency(
   link_with: lib_megaglest,
   dependencies: [sdl_dep, streflop_dep],
-  include_directories: include_directories('../..'),  # for config.h
+  include_directories: [include_directories(['../..']), inc_shared_lib],  # for config.h
 )
