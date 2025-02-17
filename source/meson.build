@@ -64,6 +64,7 @@ endif
 
 subdir('shared_lib')
 if build_game
+  subdir('shared_lib/sources/feathery_ftp')
   subdir('glest_game')
 endif
 if build_editor

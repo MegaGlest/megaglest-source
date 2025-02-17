@@ -1,4 +1,4 @@
-src_g3d_viewer = [
+src_viewer = [
   'main.cpp',
   'renderer.cpp',
   '../glest_game/global/config.cpp',
@@ -18,7 +18,7 @@ inc_viewer = [
 
 executable(
   'megaglest_g3d_viewer',
-  src_g3d_viewer,
+  src_viewer,
   include_directories: inc_viewer,
   dependencies: [
     dep_libmegaglest,
