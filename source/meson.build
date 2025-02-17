@@ -4,6 +4,11 @@ build_viewer = get_option('build_viewer')
 #required by all
 sdl_dep = dependency('sdl2')
 
+#required for the game and the viewer
+if build_game or build_viewer
+  dep_x11 = dependency('x11')
+endif
+
 # required to build both the game and the shared library, but not
 # the editor or viewer
 shared_lib_game_deps = []

@@ -1,12 +1,8 @@
 src_map_editor = ['program.cpp', 'main.cpp', '../glest_game/global/config.cpp']
 
-inc_common = [
-  '../shared_lib/include/map',
-  '../shared_lib/include/util',
-  '../shared_lib/include/graphics',
-  '../shared_lib/include/graphics/gl',
-  '../shared_lib/include/platform/sdl',
-  '../shared_lib/include/platform/common',
+# Some includes from the game are required for the editor.
+# Other required includes are imported from the dep_libmegaglest object
+inc_editor = [
   '../glest_game/global',
   '../glest_game/game',
   '../glest_game/facilities',
@@ -17,7 +13,6 @@ dep_glu = dependency('glu')
 executable(
   'megaglest_editor',
   src_map_editor,
-  include_directories: inc_common,
+  include_directories: inc_editor,
   dependencies: [dep_libmegaglest, wx_dep, dep_gl, dep_glu],
-  cpp_args: ['-DNDEBUG'],
 )

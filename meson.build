@@ -22,6 +22,7 @@ cc = meson.get_compiler('c')
 #https://mesonbuild.com/Reference-tables.html#operating-system-names
 #
 # s_posix = host_machine.system() not in ['windows', 'emscripten', 'android']
+host_system = host_machine.system()
 
 # Compiler id reference chart
 # https://mesonbuild.com/Reference-tables.html#compiler-ids
