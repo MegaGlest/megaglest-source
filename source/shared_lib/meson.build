@@ -198,6 +198,6 @@ lib_megaglest = static_library(
 
 dep_libmegaglest = declare_dependency(
     link_with: lib_megaglest,
-    dependencies: [streflop_includes],
+    dependencies: [sdl_dep, streflop_dep],
     include_directories: include_directories('../..'), # for config.h
 )

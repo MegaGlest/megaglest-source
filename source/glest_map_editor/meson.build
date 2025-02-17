@@ -18,6 +18,6 @@ executable(
     'megaglest_editor',
     src_map_editor,
     include_directories: inc_common,
-    dependencies: [dep_libmegaglest, wx_dep, dep_gl, dep_glu, sdl_dep],
+    dependencies: [dep_libmegaglest, wx_dep, dep_gl, dep_glu],
     cpp_args: ['-DNDEBUG'],
 )

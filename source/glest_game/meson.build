@@ -119,11 +119,6 @@ inc_common = [
     'map',
     'compression',
     'feathery_ftp',
-    #   'streflop',
-    #   'streflop/softfloat',
-    #   'streflop/libm',
-    #   'streflop/libm/headers',
-    #   'streflop/libm/flt-32',
     'lua',
     'xml',
     'xml/rapidxml',
@@ -175,19 +170,26 @@ dep_png = dependency('libpng')
 dep_jpeg = dependency('libjpeg')
 dep_freetype = dependency('freetype2')
 
+git = find_program('git')
+git_version = 'unversioned'
+if git.found()
+    git_version = run_command([git, 'rev-parse', '--short', 'HEAD'], capture: true, check: true)
+endif
+
+conf.set_quoted('GITVERSION', git_version.stdout().strip())
+
 executable(
     'megaglest',
     [src_game, '../shared_lib/sources/platform/posix/ircclient.cpp'],
     include_directories: [inc_ircclient, inc_game, inc_shared_lib],
     dependencies: [
         dep_libmegaglest,
-        lua_dep,
         shared_lib_game_deps,
+        lua_dep,
         ircclient_dep,
         dep_cppunit,
         dep_glib,
         dep_pthread,
-        sdl_dep,
         dep_x11,
         dep_vorbis,
         dep_glew,
@@ -195,15 +197,4 @@ executable(
         dep_jpeg,
         dep_freetype,
     ],
-    cpp_args: ['-DGITVERSION="HELPME"'],
-    # link_args: ['-lm',
-    #  		'-lSM',
-    # 		'-lICE',
-    # '-lGLU',
-    # '-ldl',
-    # '-lXext',
-    # '-Wl,-Bstatic',
-    # '-lSDL2main',
-    # '-Wl,-Bdynamic',
-    # ]
 )

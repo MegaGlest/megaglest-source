@@ -7,12 +7,26 @@ project(
         'warning_level=1',
         'buildtype=debugoptimized',
         'cpp_std=c++11',
+        'b_ndebug=true',
     ],
 )
+# -Db_ndebug=true | Disable assertions.
+# Normally meson will add _GLIBCXX_ASSERTIONS to the build flags. When that's
+# added, multiplayer network games will crash after starting.
 
 # Setup compiler.
 cxx = meson.get_compiler('cpp')
 cc = meson.get_compiler('c')
+
+# OS name reference chart
+#https://mesonbuild.com/Reference-tables.html#operating-system-names
+#
+# s_posix = host_machine.system() not in ['windows', 'emscripten', 'android']
+
+# Compiler id reference chart
+# https://mesonbuild.com/Reference-tables.html#compiler-ids
+#
+#if cxx.get_id() == 'msvc'
 
 extra_flags = [
     '-fno-common',
@@ -21,10 +35,6 @@ extra_flags = [
     '-fno-strict-aliasing',
     # '-Werror=strict-aliasing',
     '-DHAVE_SYS_IOCTL_H',
-    '-DSTREFLOP_SSE',
-    '-DSTREFLOP_RANDOM_GEN_SIZE=32',
-    '-msse',
-    '-mfpmath=sse',
 ]
 
 # Defined in cmake but I didn't find references in the source code

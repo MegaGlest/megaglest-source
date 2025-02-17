@@ -1,7 +1,12 @@
+build_game = get_option('build_game')
+build_editor = get_option('build_editor')
+build_viewer = get_option('build_viewer')
+#required by all
+sdl_dep = dependency('sdl2')
+
 # required to build both the game and the shared library, but not
 # the editor or viewer
 shared_lib_game_deps = []
-
 shared_lib_game_common = [
   'libcurl',
   'ftgl',
@@ -32,23 +37,13 @@ if not lua_dep.found()
     #      )
     #  endif
 endif
-
 shared_lib_game_deps += lua_dep
-
-# required by all
-sdl_dep = dependency('sdl2')
-
-# required by map editor and viewer
-wx_dep = dependency(
-    'wxwidgets',
-    version: '>=3.0.0',
-    modules: ['gl', 'core', 'base'],
-)
 
 # streflop
 #
-# By default, meson will look in the repo roots 'subproject' directory # Note
-# changing a default options might not be enough to trigger meson to rerun
+# By default, meson will look in the repo root's 'subproject' directory
+#
+# Note changing a default options might not be enough to trigger meson to rerun
 # setup. In the build directory, you can change the option manually
 # Example: meson configure -Dstreflop:fpu=soft (where the value preceding the
 # colon is the subproject name) and then rebuild.
@@ -56,18 +51,26 @@ streflop_subproj = subproject(
     'streflop-ng',
     default_options: ['default_library=static', 'fpu=sse', 'denormals=false'],
 )
-# TODO: The binaries don't need the dep object, but they do need the includes.
-# Get them from the dep object instead of hard-coding them in the three
-# binary meson builds.
 streflop_dep = streflop_subproj.get_variable('streflop_dep')
-
-# Only the include paths, not the whole dep object is required to
-# build the game
-streflop_includes = streflop_dep.partial_dependency(includes: true)
 conf.set('USE_STREFLOP', 1)
 
+# required by map editor and viewer
+if build_editor or build_viewer
+  wx_dep = dependency(
+      'wxwidgets',
+      version: '>=3.0.0',
+      modules: ['gl', 'core', 'base'],
+  )
+endif
+
 subdir('shared_lib')
-subdir('glest_game')
-subdir('glest_map_editor')
-subdir('g3d_viewer')
+if get_option('build_game')
+  subdir('glest_game')
+endif
+if get_option('build_editor')
+  subdir('glest_map_editor')
+endif
+if get_option('build_viewer')
+  subdir('g3d_viewer')
+endif
 subdir('tools/glexemel')

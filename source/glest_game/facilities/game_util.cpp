@@ -9,6 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include "config_whole.h"
 #include "game_util.h"
 
 #include "util.h"
