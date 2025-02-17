@@ -170,18 +170,6 @@ dep_png = dependency('libpng')
 dep_jpeg = dependency('libjpeg')
 dep_freetype = dependency('freetype2')
 
-git = find_program('git')
-git_version = 'unversioned'
-if git.found()
-  git_version = run_command(
-    [git, 'rev-parse', '--short', 'HEAD'],
-    capture: true,
-    check: true,
-  )
-endif
-
-conf.set_quoted('GITVERSION', git_version.stdout().strip())
-
 executable(
   'megaglest',
   [src_game, '../shared_lib/sources/platform/posix/ircclient.cpp'],

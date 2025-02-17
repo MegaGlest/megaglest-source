@@ -58,13 +58,13 @@ if build_editor or build_viewer
 endif
 
 subdir('shared_lib')
-if get_option('build_game')
+if build_game
   subdir('glest_game')
 endif
-if get_option('build_editor')
+if build_editor
   subdir('glest_map_editor')
 endif
-if get_option('build_viewer')
+if build_viewer
   subdir('g3d_viewer')
 endif
 subdir('tools/glexemel')
