@@ -34,7 +34,6 @@ executable(
         dep_jpeg,
         dep_png,
         dep_glew,
-        sdl_dep,
     ],
     #   cpp_args: [
     #     '-DNDEBUG',
