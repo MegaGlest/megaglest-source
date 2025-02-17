@@ -9,7 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#include "config_whole.h"
+#include "gitversion.h"
 #include "game_util.h"
 
 #include "util.h"
@@ -36,9 +36,11 @@ const char *mailString				= " http://bugs.megaglest.org";
 const string glestVersionString 	= "v3.13-dev";
 const string lastCompatibleSaveGameVersionString 	= "v3.11.1";
 
+// This won't be needed after the cmake build is deprecated
 #if defined(GITVERSIONHEADER)
 	#include "gitversion.h"
 #endif
+
 #if defined(GITVERSION) || defined(GITVERSIONHEADER)
 	const string GIT_RawRev		= string(GITVERSION);
 #else

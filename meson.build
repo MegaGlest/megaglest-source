@@ -44,6 +44,19 @@ extra_flags = [
 add_project_arguments(cc.get_supported_arguments(extra_flags), language: 'c')
 add_project_arguments(cxx.get_supported_arguments(extra_flags), language: 'cpp')
 
+git = find_program('git')
+git_version = 'unversioned'
+if git.found()
+  git_version = run_command(
+    [git, 'rev-parse', '--short', 'HEAD'],
+    capture: true,
+    check: true,
+  )
+endif
+gitver = configuration_data()
+gitver.set_quoted('GITVERSION', git_version.stdout().strip())
+gitversion_h = configure_file(output: 'gitversion.h', configuration: gitver)
+
 # Macros can be written to config.h (see below) using conf.set()
 conf = configuration_data()
 
