@@ -1,4 +1,4 @@
-src_map_editor = ['program.cpp', 'main.cpp', '../glest_game/global/config.cpp']
+src_editor = ['program.cpp', 'main.cpp', '../glest_game/global/config.cpp']
 
 # Some includes from the game are required for the editor.
 # Other required includes are imported from the dep_libmegaglest object
@@ -12,7 +12,7 @@ dep_glu = dependency('glu')
 
 executable(
   'megaglest_editor',
-  src_map_editor,
+  src_editor,
   include_directories: inc_editor,
   dependencies: [dep_libmegaglest, wx_dep, dep_gl, dep_glu],
 )

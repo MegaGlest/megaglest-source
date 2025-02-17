@@ -1,8 +1,5 @@
 # subdir('sources/util')
-subdir('sources/feathery_ftp')
-
-src = []
-
+src_shared_lib = []
 src_basename = [
   'string_utils.cpp',
   'util.cpp',
@@ -15,7 +12,7 @@ src_basename = [
 ]
 
 foreach file : src_basename
-  src += [join_paths('sources/util', file)]
+  src_shared_lib += [join_paths('sources/util', file)]
 endforeach
 
 src_basename = [
@@ -27,13 +24,7 @@ src_basename = [
 ]
 
 foreach file : src_basename
-  src += [join_paths('sources/platform/common', file)]
-endforeach
-
-src_basename = ['miniftpclient.cpp', 'miniftpserver.cpp', 'socket.cpp']
-
-foreach file : src_basename
-  src += [join_paths('sources/platform/posix', file)]
+  src_shared_lib += [join_paths('sources/platform/common', file)]
 endforeach
 
 src_basename = [
@@ -46,7 +37,7 @@ src_basename = [
 ]
 
 foreach file : src_basename
-  src += [join_paths('sources/platform/sdl', file)]
+  src_shared_lib += [join_paths('sources/platform/sdl', file)]
 endforeach
 
 src_basename = [
@@ -77,7 +68,7 @@ src_basename = [
 ]
 
 foreach file : src_basename
-  src += [join_paths('sources/graphics', file)]
+  src_shared_lib += [join_paths('sources/graphics', file)]
 endforeach
 
 src_basename = [
@@ -95,7 +86,7 @@ src_basename = [
 ]
 
 foreach file : src_basename
-  src += [join_paths('sources/graphics/gl', file)]
+  src_shared_lib += [join_paths('sources/graphics/gl', file)]
 endforeach
 
 src_basename = [
@@ -106,7 +97,7 @@ src_basename = [
 ]
 
 foreach file : src_basename
-  src += [join_paths('sources/sound', file)]
+  src_shared_lib += [join_paths('sources/sound', file)]
 endforeach
 
 src_shared_lib_misc = [
@@ -120,24 +111,11 @@ src_shared_lib_misc = [
 ]
 
 foreach file : src_shared_lib_misc
-  src += [join_paths('sources', file)]
+  src_shared_lib += [join_paths('sources', file)]
 endforeach
-
-inc_miniupnpc = ['include/platform/miniupnpc']
-dep_miniupnpc = []
-dep_miniupnpc = dependency('miniupnpc')
-if not dep_miniupnpc.found()  # TODO: review/test for if the library isn't installed.
-  dep_miniupnpc = cxx.find_library('miniupnpc', required: false)
-  inc_miniupnpc += '/usr/include/miniupnpc'
-endif
-# if miniupnpc isn't installed, add these flags. Check existing cmake in
-# shared_lib to see about other platforms
-#c_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
-#  cpp_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
 
 inc_shared_lib_basename = [
   'compression',
-  'feathery_ftp',
   'graphics',
   'graphics/gl',
   'lua',
@@ -153,13 +131,10 @@ inc_shared_lib_basename = [
   'xml',
   'xml/rapidxml',
 ]
-
 if host_system == 'windows'
   inc_shared_lib_basename += 'platform/win32'
 endif
-
 inc_shared_lib = []
-
 foreach file : inc_shared_lib_basename
   inc_shared_lib += include_directories(join_paths('include', file))
 endforeach
@@ -184,22 +159,14 @@ endforeach
 # different subdirectory.
 lib_megaglest = static_library(
   'megaglest',
-  src,
+  src_shared_lib,
   include_directories: [
     include_directories('../..'),  # for config.h
     inc_shared_lib,
     'sources',  # for miniz
-    inc_miniupnpc,
   ],
-  dependencies: [
-    streflop_dep,
-    shared_lib_game_deps,
-    dep_feathery_ftp,
-    dep_miniupnpc,
-    sdl_dep,
-  ],
+  dependencies: [streflop_dep, shared_lib_game_deps, sdl_dep],
   pic: true,
-  cpp_args: ['-DSTREFLOP_SSE'],
 )
 
 dep_libmegaglest = declare_dependency(

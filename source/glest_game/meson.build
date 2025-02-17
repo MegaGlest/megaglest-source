@@ -143,10 +143,33 @@ dep_png = dependency('libpng')
 dep_jpeg = dependency('libjpeg')
 dep_freetype = dependency('freetype2')
 
+inc_miniupnpc = ['../shared_lib/include/platform/miniupnpc']
+miniupnpc_dep = []
+miniupnpc_dep = dependency('miniupnpc')
+if not miniupnpc_dep.found()  # TODO: review/test for if the library isn't installed.
+  miniupnpc_dep = cxx.find_library('miniupnpc', required: false)
+  inc_miniupnpc += '/usr/include/miniupnpc'
+endif
+# if miniupnpc isn't installed, add these flags. Check existing cmake in
+# shared_lib to see about other platforms
+#c_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
+#  cpp_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
+
+src_net_basename = [
+  'miniftpclient.cpp',
+  'miniftpserver.cpp',
+  'socket.cpp',
+  'ircclient.cpp',
+]
+
+foreach file : src_net_basename
+  src_game += [join_paths('../shared_lib/sources/platform/posix', file)]
+endforeach
+
 executable(
   'megaglest',
-  [src_game, '../shared_lib/sources/platform/posix/ircclient.cpp'],
-  include_directories: [inc_ircclient, inc_game, inc_shared_lib],
+  [src_game],
+  include_directories: [inc_ircclient, inc_game, inc_shared_lib, inc_miniupnpc],
   dependencies: [
     dep_libmegaglest,
     shared_lib_game_deps,
@@ -154,6 +177,8 @@ executable(
     ircclient_dep,
     dep_cppunit,
     dep_glib,
+    miniupnpc_dep,
+    feathery_ftp_dep,
     dep_pthread,
     dep_x11,
     dep_vorbis,
