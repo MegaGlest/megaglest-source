@@ -9,7 +9,11 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+// This condition can be removed after the cmake build is deprecated
+#ifdef MESON_BUILD
 #include "gitversion.h"
+#endif
+
 #include "game_util.h"
 
 #include "util.h"

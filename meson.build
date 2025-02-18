@@ -58,8 +58,9 @@ gitver = configuration_data()
 gitver.set_quoted('GITVERSION', git_version.stdout().strip())
 gitversion_h = configure_file(output: 'gitversion.h', configuration: gitver)
 
-# Macros can be written to config.h (see below) using conf.set()
+# Macros will be written to config.h later when configure_file() runs
 conf = configuration_data()
+conf.set('MESON_BUILD', 1)
 
 subdir('source')
 
