@@ -14,5 +14,5 @@ executable(
   'megaglest_editor',
   src_editor,
   include_directories: inc_editor,
-  dependencies: [dep_libmegaglest, wx_dep, dep_gl, dep_glu],
+  dependencies: [dep_libmegaglest, wx_dep, gl_dep, dep_glu],
 )
