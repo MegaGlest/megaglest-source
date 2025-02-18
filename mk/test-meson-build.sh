@@ -38,5 +38,7 @@ fi
 
 # Move binaries to the correct directory
 for bin in "$GAME_BIN" "$EDITOR_BIN" "$VIEWER_BIN"; do
-  mv -vf "$bin" "$TARGET_DIR"
+  if [ -f "$bin" ]; then
+    mv -vf "$bin" "$TARGET_DIR"
+  fi
 done
