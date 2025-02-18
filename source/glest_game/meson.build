@@ -107,6 +107,8 @@ inc_game = [
   'game',
 ]
 
+game_deps = []
+
 inc_ircclient = []
 irclient_dep = []
 ircclient_dep = dependency('ircclient', required: false)
@@ -132,16 +134,19 @@ if not ircclient_dep.found()
   endif
 endif
 
-dep_cppunit = dependency('cppunit')
-dep_glib = dependency('glib-2.0')
-dep_pthread = dependency('threads')
-dep_gl = dependency('gl')
-# dep_ogg = dependency('ogg')
-dep_vorbis = dependency('vorbisfile')
-dep_glew = dependency('glew')
-dep_png = dependency('libpng')
-dep_jpeg = dependency('libjpeg')
-dep_freetype = dependency('freetype2')
+game_deps += ircclient_dep
+
+game_deps_required = [
+  'cppunit',
+  'glib-2.0',
+  'threads',
+  'vorbisfile',
+  'freetype2',
+]
+
+foreach dep : game_deps_required
+  game_deps += dependency(dep)
+endforeach
 
 inc_miniupnpc = ['../shared_lib/include/platform/miniupnpc']
 miniupnpc_dep = []
@@ -150,6 +155,7 @@ if not miniupnpc_dep.found()  # TODO: review/test for if the library isn't insta
   miniupnpc_dep = cxx.find_library('miniupnpc', required: false)
   inc_miniupnpc += '/usr/include/miniupnpc'
 endif
+game_deps += miniupnpc_dep
 # if miniupnpc isn't installed, add these flags. Check existing cmake in
 # shared_lib to see about other platforms
 #c_args: ['-DMINIUPNPC_SET_SOCKET_TIMEOUT', '-D_BSD_SOURCE'],
@@ -173,18 +179,13 @@ executable(
   dependencies: [
     dep_libmegaglest,
     shared_lib_game_deps,
+    gl_dep,
+    game_deps,
     lua_dep,
-    ircclient_dep,
-    dep_cppunit,
-    dep_glib,
-    miniupnpc_dep,
+    jpeg_dep,
+    png_dep,
+    glew_dep,
     feathery_ftp_dep,
-    dep_pthread,
-    dep_x11,
-    dep_vorbis,
-    dep_glew,
-    dep_png,
-    dep_jpeg,
-    dep_freetype,
+    x11_dep,
   ],
 )

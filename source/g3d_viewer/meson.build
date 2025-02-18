@@ -23,10 +23,10 @@ executable(
   dependencies: [
     dep_libmegaglest,
     wx_dep,
-    dep_gl,
-    dep_x11,
-    dep_jpeg,
-    dep_png,
-    dep_glew,
+    gl_dep,
+    x11_dep,
+    jpeg_dep,
+    png_dep,
+    glew_dep,
   ],
 )
