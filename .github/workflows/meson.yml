@@ -18,7 +18,7 @@ on:
     - '**/meson.yml'
 
 jobs:
-  meson:
+  linux:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
@@ -79,7 +79,7 @@ jobs:
           cd -
           mk/test-meson-build.sh
 
-  build-macos:
+  macos:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
