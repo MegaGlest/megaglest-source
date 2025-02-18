@@ -4,18 +4,15 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_run:
-    workflows: [Meson]
-    types: [completed]
-  #push:
-    #branches: [ develop ]
-    #paths-ignore:
-      #- '**/appimage.yml'
+  push:
+    branches: [ develop ]
+    paths-ignore:
+      - '**/appimage.yml'
 
-  #pull_request:
-    #branches: [ develop ]
-    #paths-ignore:
-      #- '**/appimage.yml'
+  pull_request:
+    branches: [ develop ]
+    paths-ignore:
+      - '**/appimage.yml'
 
 jobs:
   freebsd:
