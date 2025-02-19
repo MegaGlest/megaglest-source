@@ -445,6 +445,8 @@ Checksum World::loadTileset(const vector<string> pathList, const string &tileset
 	timeFlow.init(&tileset);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	waterWavesAnim.assign(tileset.getWaterWaves().size(), 0.f);
+
 	return tilsetChecksum;
 }
 
@@ -853,6 +855,13 @@ void World::update() {
 
 	//water effects
 	waterEffects.update(1.0f);
+	//water waves
+	for(vector<float>::size_type i = 0; i < waterWavesAnim.size(); i++) {
+		waterWavesAnim[i] += tileset.getWaterWaves()[i].speed/GameConstants::updateFps;
+		if(waterWavesAnim[i] >= pi*2){
+			waterWavesAnim[i] = 0.0f;
+		}
+	}
 	// attack effects
 	attackEffects.update(0.25f);
 

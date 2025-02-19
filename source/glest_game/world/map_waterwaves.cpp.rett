@@ -1,3 +1,16 @@
+// for renderer.cpp
+
+
+			/*double ampliTcn1 = tcn1 ? (double) tcn1->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tcn1->getHeight())) : 0;
+            float waveTcn1 = tcn1 ? std::sin(static_cast<float>(-1*(i+j-1))*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude*(ampliTcn1/100)*4 : 1;
+
+			double ampliTc0 = (double) tc0->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc0->getHeight()));
+            float waveTc0 = std::sin(static_cast<float>(-1*(i+j))*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude*(ampliTc0/100)*4;
+
+			double ampliTc1 = (double) tc1->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc1->getHeight()));
+            float waveTc1 = std::sin(static_cast<float>(-1*(i+j+1))*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude*(ampliTc1/100)*4;*/
+
+
 // ==============================================================
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
@@ -1764,25 +1777,33 @@ void Map::computeNearSubmerged(){
 }
 
 void Map::computeWaterWaveAmplitude() {
+
 	for(int i=0; i<surfaceW; ++i){
 		for(int j=0; j<surfaceH; ++j){
 			Vec2i pos = Vec2i(i, j);
 			if(isInsideSurface(pos) && isInsideSurface(toSurfCoords(pos))) {
 				if(getSubmerged(getSurfaceCell(pos))) {
+					printf("Found Water\n");
 					// Send rays in all directions until they hit land
-					// then count the length of the rays to compute score of the wave heigth
-					vector<double> rays = {};
+					// then count the length of the rays to compute wave heigth
+					// apply to all tiles with lower wave size that the rays hit
+					std::vector<double> rays = {};
+					std::vector<SurfaceCell*> discoveredCells = {};
 					int length;
 					Vec2d rayDirection;
-					for(double phi=0; phi<=2*M_PI; phi += 0.02) {
+					for(double phi=0; phi<=2*M_PI; phi += 0.01) {
 						rayDirection.x = std::cos(phi);
 						rayDirection.y = std::sin(phi);
 						if(std::abs(rayDirection.x) + std::abs(rayDirection.y) < 0.9) {
-							throw megaglest_runtime_error("Invalid ray direction in water waves computation");
+							printf("Error Dir: %f %f Phi %f\n", rayDirection.x, rayDirection.y, phi);
+							throw megaglest_runtime_error("Sin + Cos nicht 1");
 						}
 						length = 0;
 						Vec2i rayTip = pos;
 						while(length < 100 && isInsideSurface(rayTip) && isInsideSurface(toSurfCoords(rayTip)) && getSubmerged(getSurfaceCell(rayTip))) {
+							//printf("Extend Ray %d %d", rayTip.x, rayTip.y);
+							//printf(" Dir: %f %f Length %d\n", rayDirection.x, rayDirection.y, length);
+							discoveredCells.push_back(getSurfaceCell(rayTip));
 							length++;
 							rayTip = pos + (Vec2i)(rayDirection*length);
 						}
@@ -1792,17 +1813,41 @@ void Map::computeWaterWaveAmplitude() {
 						rays.push_back(length);
 					}
 					float score = 0;
-					sort(rays.begin(),rays.end());
-					for(vector<double>::size_type i = rays.size()/2; i<rays.size(); i++) {
+					for(int i = 0; i<rays.size(); i++) {
 						score += rays[i];
 					}
-					score /= rays.size()/2;
-					score = score > 80 ? 80 : score; //cap score at 80
+					score /= rays.size();
 					score /= 100;
-					getSurfaceCell(pos)->setWaterWaveAmplitude(score);
+					/*sort(rays.begin(),rays.end());
+					for(int i = 3*rays.size()/4; i<rays.size(); i++) {
+						score += rays[i];
+					}
+					score /= rays.size()/4;
+					score -= 10;
+					score = score < 0 ? 0 : score;
+					score = score > 60 ? 60 : score;
+					score /= 100;*/
+					printf("Discovered %d cells\n", discoveredCells.size());
+					for(int i=0; i<discoveredCells.size(); i++) {
+						if(discoveredCells[i]->getWaterWaveAmplitude() < score) {
+							discoveredCells[i]->setWaterWaveAmplitude(score);
+						}
+					}
+					//getSurfaceCell(pos)->setWaterWaveAmplitude(score);
 				}
 			}
 		}
+	}
+
+	//DEBUG
+	printf("Water Level %f \n",waterLevel);
+	for(int i=0; i<surfaceH; i=i+2){
+		for(int j=0; j<surfaceW; j=j+2){
+			Vec2i pos = Vec2i(j, i);
+			double ampli = 100 * (double) getSurfaceCell(pos)->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - getSurfaceCell(pos)->getHeight()));
+			printf("%3d",(int)ampli);
+		}
+		printf("\n");
 	}
 }
 

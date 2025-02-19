@@ -64,6 +64,7 @@ public:
 private:
 	WaterSplashes waterSplashes;
 	float anim;
+	float waveAnim;
 		
 public:
 	WaterEffects();
@@ -71,6 +72,7 @@ public:
 	void update(float speed);
 
 	float getAmin() const	{return anim;}
+	float getWaveAnim() const  {return waveAnim;}
 
 	void addWaterSplash(const Vec2f &pos, int size);
 	int getWaterSplashCount() const					{return (int)waterSplashes.size();}

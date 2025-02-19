@@ -137,6 +137,7 @@ private:
 	//cache
 	bool nearSubmerged;
 	bool cellChangedFromOriginalMapLoad;
+	float waterWaveAmplitude;
 
 public:
 	SurfaceCell();
@@ -155,6 +156,7 @@ public:
 	inline const Vec2f &getFowTexCoord() const			{return fowTexCoord;}
 	inline const Vec2f &getSurfTexCoord() const		{return surfTexCoord;}
 	inline bool getNearSubmerged() const				{return nearSubmerged;}
+	inline float getWaterWaveAmplitude() const			{return waterWaveAmplitude;}
 
 	inline bool isVisible(int teamIndex) const		{return visible[teamIndex];}
 	inline bool isExplored(int teamIndex) const		{return explored[teamIndex];}
@@ -174,6 +176,7 @@ public:
 	void setExplored(int teamIndex, bool explored);
     void setVisible(int teamIndex, bool visible);
     inline void setNearSubmerged(bool nearSubmerged)	{this->nearSubmerged= nearSubmerged;}
+	inline void setWaterWaveAmplitude(float waterWaveAmplitude)	{this->waterWaveAmplitude = waterWaveAmplitude;}
 
 	//misc
 	void deleteResource();
@@ -624,6 +627,7 @@ private:
 	void smoothSurface(Tileset *tileset);
 	void computeNearSubmerged();
 	void computeCellColors();
+	void computeWaterWaveAmplitude();
     void putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, bool isMorph, bool threaded);
 };
 

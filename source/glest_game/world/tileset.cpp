@@ -399,23 +399,24 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		}
 		waterEffects= waterNode->getAttribute("effects")->getBoolValue();
 		//waves
-		if(waterNode->hasAttribute("waves")) {
-			waterWavesConfig.enabled = waterNode->getAttribute("waves")->getBoolValue();
-			if(waterWavesConfig.enabled) {
-				waterWavesConfig.frequency = waterNode->getAttribute("waveFrequency")->getFloatValue();
-				waterWavesConfig.amplitude = waterNode->getAttribute("waveAmplitude")->getFloatValue();
-				waterWavesConfig.speed = waterNode->getAttribute("waveSpeed")->getFloatValue();
-			}
+		vector<XmlNode *> wavesChildList = waterNode->getChildList("wave");
+		for(vector<XmlNode *>::size_type i = 0; i < wavesChildList.size(); i++) {
+			waterWave wt = waterWave {	wavesChildList[i]->getAttribute("amplitude")->getFloatValue(),
+										wavesChildList[i]->getAttribute("frequency")->getFloatValue(),
+										wavesChildList[i]->getAttribute("speed")->getFloatValue(),
+										wavesChildList[i]->getAttribute("angle")->getFloatValue() * pi / 180 // convert Deg to Rad
+									};
+			waterWaves.push_back(wt);
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		int waterFrameCount= (int)waterNode->getChildCount();
+		std::vector<XmlNode*> waterFrameNodes= waterNode->getChildList("texture");
 		if(waterTex) {
-			waterTex->getPixmap()->init(waterFrameCount, 4);
+			waterTex->getPixmap()->init(waterFrameNodes.size(), 4);
 		}
-		for(int i=0; i<waterFrameCount; ++i){
-			const XmlNode *waterFrameNode= waterNode->getChild("texture", i);
+		for(std::vector<XmlNode*>::size_type i=0; i<waterFrameNodes.size(); ++i){
+			const XmlNode *waterFrameNode = waterFrameNodes[i];
 			if(waterTex) {
 				waterTex->getPixmap()->loadSlice(waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath), i);
 			}

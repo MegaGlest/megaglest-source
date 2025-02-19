@@ -4993,6 +4993,72 @@ void Renderer::renderObjects(const int renderFps) {
 	assertGl();
 }
 
+Vec2f Renderer::getWaveHeight(int x, int y) {
+	const World *world= game->getWorld();
+	const Map *map= world->getMap();
+	const std::vector<waterWave>& waterWaves = world->getTileset()->getWaterWaves();
+	int frameCount = world->getFrameCount();
+
+	if(waterWaves.empty())  return Vec2f(0,0);
+
+	if(waterWaveCache.empty() || map->getSurfaceH()*map->getSurfaceW() != (int) waterWaveCache.size()) {
+		waterWaveCache.assign(map->getSurfaceH()*map->getSurfaceW(),Vec3f(-1,-1,-1));
+	}
+
+	if(waterWaveCache[y*map->getSurfaceW() + x].z != frameCount) {
+		Vec2f k = computeWaterWaveCell(x,y);
+		waterWaveCache[y*map->getSurfaceW() + x] = Vec3f(k.x,k.y,frameCount);
+	}
+	return Vec2f(waterWaveCache[y*map->getSurfaceW() + x].x,waterWaveCache[y*map->getSurfaceW() + x].y);
+}
+
+Vec2f Renderer::computeWaterWaveCell(int i, int j) {
+	const World *world= game->getWorld();
+	const Map *map= world->getMap();
+
+	const std::vector<waterWave>& waterWaves = world->getTileset()->getWaterWaves();
+	const vector<float>& waterWavesAnim = world->getWaterWavesAnim();
+	float waterLevel= world->getMap()->getWaterLevel();
+	SurfaceCell *tcn1= j == 0 ? NULL : map->getSurfaceCell(i, j-1);
+	SurfaceCell *tc0= map->getSurfaceCell(i, j);
+	SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
+
+	float topWave = 0.f;
+	float botWave = 0.f;
+
+	if(!waterWaves.empty())  {
+		float wavesTcn1 = 0;
+		float wavesTc0 = 0;
+		float wavesTc1 = 0;
+
+		for(vector<waterWave>::size_type k = 0; k < waterWaves.size(); k++) {
+			const waterWave &wt = waterWaves[k];
+			float xDirection = std::sin(wt.angleRad);
+			float yDirection = std::cos(wt.angleRad);
+			float ampliTcn1 = tcn1 ? tcn1->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tcn1->getHeight())) : 0;
+			float waveTcn1 = tcn1 ? std::sin((xDirection*i+yDirection*(j-1))*wt.frequency+waterWavesAnim[k])*wt.amplitude*(ampliTcn1)*4 : 1;
+
+			float ampliTc0 = tc0->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc0->getHeight()));
+			float waveTc0 = std::sin((xDirection*i+yDirection*j)*wt.frequency+waterWavesAnim[k])*wt.amplitude*(ampliTc0)*4;
+
+			float ampliTc1 = tc1->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc1->getHeight()));
+			float waveTc1 = std::sin((xDirection*i+yDirection*(j+1))*wt.frequency+waterWavesAnim[k])*wt.amplitude*(ampliTc1)*4;
+
+			wavesTcn1 += waveTcn1;
+			wavesTc0 += waveTc0;
+			wavesTc1 += waveTc1;
+		}
+
+		wavesTcn1 /= waterWaves.size();
+		wavesTc0 /= waterWaves.size();
+		wavesTc1 /= waterWaves.size();
+
+		topWave = (wavesTcn1+wavesTc0)/2;
+		botWave = (wavesTc0+wavesTc1)/2;
+		return Vec2f(topWave,botWave);
+	}
+}
+
 void Renderer::renderWater() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
@@ -5053,11 +5119,6 @@ void Renderer::renderWater() {
 	scaledRect.clamp(0, 0, map->getSurfaceW()-1, map->getSurfaceH()-1);
 
 	float waterLevel= world->getMap()->getWaterLevel();
-	waterWaves waterWaves = world->getTileset()->getWaterWaves();
-	waterWavesAnim += waterWaves.speed;
-	if(waterWavesAnim >= pi*2){
-		waterWavesAnim = 0.0f;
-	}
 
 	for(int j=scaledRect.p[0].y; j<scaledRect.p[1].y; ++j){
         glBegin(GL_TRIANGLE_STRIP);
@@ -5076,7 +5137,7 @@ void Renderer::renderWater() {
                 cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
             }
 
-            float wave = std::sin(static_cast<float>(i)*waterWaves.frequency+waterWavesAnim)*waterWaves.amplitude;
+			Vec2f waveHeight = getWaveHeight(i,j);
 
 			if(cellExplored == true && tc0->getNearSubmerged()) {
 				glNormal3f(0.f, 1.f, 0.f);
@@ -5093,7 +5154,7 @@ void Renderer::renderWater() {
                 glTexCoord3f(i, 1.f, waterAnim);
 				glVertex3f(
 					static_cast<float>(i)*Map::mapScale,
-					waterLevel + wave,
+					waterLevel + waveHeight.y,
 					static_cast<float>(j+1)*Map::mapScale);
 
                 //vertex 2
@@ -5104,7 +5165,7 @@ void Renderer::renderWater() {
                 glTexCoord3f(i, 0.f, waterAnim);
                 glVertex3f(
 					static_cast<float>(i)*Map::mapScale,
-					waterLevel + wave,
+					waterLevel + waveHeight.x,
 					static_cast<float>(j)*Map::mapScale);
 
             }
@@ -5120,7 +5181,7 @@ void Renderer::renderWater() {
 					glTexCoord3f(i, 1.f, waterAnim);
 					glVertex3f(
 						static_cast<float>(i)*Map::mapScale,
-						waterLevel + wave,
+						waterLevel + waveHeight.y,
 						static_cast<float>(j+1)*Map::mapScale);
 
 					//vertex 2
@@ -5131,7 +5192,7 @@ void Renderer::renderWater() {
 					glTexCoord3f(i, 0.f, waterAnim);
 					glVertex3f(
 						static_cast<float>(i)*Map::mapScale,
-						waterLevel + wave,
+						waterLevel + waveHeight.x,
 						static_cast<float>(j)*Map::mapScale);
 
 					glEnd();

@@ -52,11 +52,11 @@ enum Weather{
 	wSnowy
 };
 
-struct waterWaves {
-	bool enabled;
+struct waterWave {
 	float amplitude;
 	float frequency;
 	float speed;
+	float angleRad;
 };
 
 class Renderer;
@@ -156,7 +156,7 @@ private:
 	float shadowIntensity;
 	Weather weather;
 	float airHeight;
-	waterWaves waterWavesConfig;
+	std::vector<waterWave> waterWaves;
 
 	AmbientSounds ambientSounds;
 	Checksum checksumValue;
@@ -167,10 +167,6 @@ public:
 	Tileset() {
 		waterTex = NULL;
 	    waterEffects = false;
-	    waterWavesConfig.enabled = false;
-	    waterWavesConfig.amplitude = 0;
-	    waterWavesConfig.frequency = 0;
-	    waterWavesConfig.speed = 0;
 	    fog = false;
 	    fogMode = 0;
 		fogDensity = 0.0f;
@@ -196,7 +192,7 @@ public:
 	float getSurfProb(int surf, int var) const		{return surfProbs[surf][var];}
 	Texture3D *getWaterTex() const					{return waterTex;}
 	bool getWaterEffects() const					{return waterEffects;}
-	const waterWaves &getWaterWaves() const				{return waterWavesConfig;}
+	const std::vector<waterWave> &getWaterWaves() const		{return waterWaves;}
 	bool getFog() const								{return fog;}
 	int getFogMode() const							{return fogMode;}
 	float getFogDensity() const						{return fogDensity;}

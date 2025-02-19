@@ -91,6 +91,7 @@ private:
 
 	UnitUpdater unitUpdater;
     WaterEffects waterEffects;
+	vector<float> waterWavesAnim;
     WaterEffects attackEffects; // onMiniMap
 	Minimap minimap;
     Stats stats;	//BattleEnd will delete this object
@@ -187,6 +188,7 @@ public:
 	inline Stats *getStats()								{return &stats;};
 
 	inline const WaterEffects *getWaterEffects() const		{return &waterEffects;}
+	inline const vector<float> &getWaterWavesAnim() const 					{return waterWavesAnim;}
 	inline const WaterEffects *getAttackEffects() const		{return &attackEffects;}
 	int getNextUnitId(Faction *faction);
 	int getNextCommandGroupId();
