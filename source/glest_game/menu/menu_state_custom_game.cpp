@@ -2124,6 +2124,13 @@ void MenuStateCustomGame::eventMouseWheel(int x, int y,int zDelta) {
 	}
 	comboBoxMap.eventMouseWheel(x,y,zDelta);
 	comboBoxLoadSetup.eventMouseWheel(x,y,zDelta);
+	if (comboBoxMap.isDropDownShowing()) {
+		if (lastPreviewedMapFile != getPreselectedMapFile()) {
+			loadMapInfo(Config::getMapPath(getPreselectedMapFile(), "", false), &mapInfo, true, false);
+			labelMapInfo.setText(mapInfo.desc);
+			lastPreviewedMapFile = getPreselectedMapFile();
+		}
+	}
 }
 
 void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {

@@ -261,6 +261,7 @@ private:
 	int elementCount;
 	int visibleSize;
 	int visibleStart;
+	float partialscroll;
 
 	// position on component for renderer
 	int visibleCompPosStart;
