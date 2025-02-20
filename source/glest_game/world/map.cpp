@@ -1768,7 +1768,7 @@ void Map::computeWaterWaveAmplitude() {
 		for(int j=0; j<surfaceH; ++j){
 			Vec2i pos = Vec2i(i, j);
 			if(isInsideSurface(pos) && isInsideSurface(toSurfCoords(pos))) {
-				if(getSubmerged(getSurfaceCell(pos))) {
+				if(getSurfaceCell(pos)->getNearSubmerged()) {
 					// Send rays in all directions until they hit land
 					// then count the length of the rays to compute score of the wave heigth
 					vector<double> rays = {};
@@ -1782,7 +1782,7 @@ void Map::computeWaterWaveAmplitude() {
 						}
 						length = 0;
 						Vec2i rayTip = pos;
-						while(length < 100 && isInsideSurface(rayTip) && isInsideSurface(toSurfCoords(rayTip)) && getSubmerged(getSurfaceCell(rayTip))) {
+						while(length < 100 && isInsideSurface(rayTip) && isInsideSurface(toSurfCoords(rayTip)) && (getSubmerged(getSurfaceCell(rayTip)) || rayTip == pos)) {
 							length++;
 							rayTip = pos + (Vec2i)(rayDirection*length);
 						}

@@ -277,7 +277,7 @@ private:
 	Vec4f nearestLightPos;
 	VisibleQuadContainerCache quadCache;
 	VisibleQuadContainerCache quadCacheSelection;
-	vector<Vec3f> waterWaveCache;
+	vector<Vec2f> waterWaveCache;
 
 	//renderers
 	ModelRenderer *modelRenderer;
@@ -324,7 +324,7 @@ private:
 
 	int lastRenderFps;
 	float smoothedRenderFps;
-	bool shadowsOffDueToMinRender;
+	bool effectsOffDueToMinRender;
 
 	std::vector<std::pair<ParticleSystem *, ResourceScope> > deferredParticleSystems;
 
@@ -677,8 +677,9 @@ private:
 		const float waterFactor= 1.5f;
 		return Vec4f(1.f, 1.f, 1.f, clamp((waterLevel-cellHeight) * waterFactor, 0.f, 1.f));
 	}
-	Vec2f computeWaterWaveCell(int i, int j);
-	Vec2f getWaveHeight(int x, int y);
+	float computeWaterWaveCell(int i, int j);
+	Vec2f computeWaveHeight(int x, int y);
+	float getRawWaveHeight(int x, int y);
 	void checkExtension(const string &extension, const string &msg);
 
 	//selection render

@@ -71,7 +71,7 @@ public:
 
 	void update(float speed);
 
-	float getAmin() const	{return anim;}
+	float getAnim() const	{return anim;}
 	float getWaveAnim() const  {return waveAnim;}
 
 	void addWaterSplash(const Vec2f &pos, int size);

@@ -202,7 +202,7 @@ Renderer::Renderer() : BaseRenderer(), saveScreenShotThreadAccessor(new Mutex(CO
 	quadCache.clearFrustumData();
 
 	lastRenderFps=MIN_FPS_NORMAL_RENDERING;
-	shadowsOffDueToMinRender=false;
+	effectsOffDueToMinRender=false;
 	shadowMapHandle=0;
 	shadowMapHandleValid=false;
 
@@ -4500,7 +4500,7 @@ void Renderer::renderSurface(const int renderFps) {
 		fowTex->getPixmapConst()->getW(), fowTex->getPixmapConst()->getH(),
 		GL_ALPHA, GL_UNSIGNED_BYTE, fowTex->getPixmapConst()->getPixels());
 
-	if(shadowsOffDueToMinRender == false) {
+	if(effectsOffDueToMinRender == false) {
 		//shadow texture
 		if(shadows == sProjected || shadows == sShadowMapping) {
 			glActiveTexture(shadowTexUnit);
@@ -4924,7 +4924,7 @@ void Renderer::renderObjects(const int renderFps) {
 
 			glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 
-			if(shadowsOffDueToMinRender == false &&
+			if(effectsOffDueToMinRender == false &&
 				shadows == sShadowMapping) {
 				glActiveTexture(shadowTexUnit);
 				glEnable(GL_TEXTURE_2D);
@@ -4993,69 +4993,65 @@ void Renderer::renderObjects(const int renderFps) {
 	assertGl();
 }
 
-Vec2f Renderer::getWaveHeight(int x, int y) {
-	const World *world= game->getWorld();
-	const Map *map= world->getMap();
-	const std::vector<waterWave>& waterWaves = world->getTileset()->getWaterWaves();
-	int frameCount = world->getFrameCount();
+Vec2f Renderer::computeWaveHeight(int x, int y) {
+		const World *world= game->getWorld();
+		const std::vector<waterWave>& waterWaves = world->getTileset()->getWaterWaves();
 
-	if(waterWaves.empty())  return Vec2f(0,0);
+		if(waterWaves.empty() || effectsOffDueToMinRender)  return Vec2f(0,0);
 
-	if(waterWaveCache.empty() || map->getSurfaceH()*map->getSurfaceW() != (int) waterWaveCache.size()) {
-		waterWaveCache.assign(map->getSurfaceH()*map->getSurfaceW(),Vec3f(-1,-1,-1));
-	}
+		float waveTop = getRawWaveHeight(x,y-1);
+		float waveCurrent = getRawWaveHeight(x,y);
+		float waveBottom = getRawWaveHeight(x,y+1);
 
-	if(waterWaveCache[y*map->getSurfaceW() + x].z != frameCount) {
-		Vec2f k = computeWaterWaveCell(x,y);
-		waterWaveCache[y*map->getSurfaceW() + x] = Vec3f(k.x,k.y,frameCount);
-	}
-	return Vec2f(waterWaveCache[y*map->getSurfaceW() + x].x,waterWaveCache[y*map->getSurfaceW() + x].y);
+		float topWave = (waveTop+waveCurrent)/2;
+		float botWave = (waveCurrent+waveBottom)/2;
+		return Vec2f(topWave,botWave);
 }
 
-Vec2f Renderer::computeWaterWaveCell(int i, int j) {
+float Renderer::getRawWaveHeight(int x, int y) {
+	const World *world= game->getWorld();
+	const Map *map= world->getMap();
+	int frameCount = world->getFrameCount();
+
+	if(waterWaveCache.empty() || map->getSurfaceH()*map->getSurfaceW() != (int) waterWaveCache.size()) {
+		waterWaveCache.assign(map->getSurfaceH()*map->getSurfaceW(),Vec2f(-1.f,-1.f));
+	}
+
+	if(y < 0 || y > map->getSurfaceH()) {
+		return 0.f;
+	}
+
+	if(waterWaveCache[y*map->getSurfaceW() + x].y != frameCount) {
+		float k = computeWaterWaveCell(x,y);
+		waterWaveCache[y*map->getSurfaceW() + x] = Vec2f(k,frameCount);
+	}
+	return waterWaveCache[y*map->getSurfaceW() + x].x;
+}
+
+float Renderer::computeWaterWaveCell(int i, int j) {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
 	const std::vector<waterWave>& waterWaves = world->getTileset()->getWaterWaves();
 	const vector<float>& waterWavesAnim = world->getWaterWavesAnim();
 	float waterLevel= world->getMap()->getWaterLevel();
-	SurfaceCell *tcn1= j == 0 ? NULL : map->getSurfaceCell(i, j-1);
 	SurfaceCell *tc0= map->getSurfaceCell(i, j);
-	SurfaceCell *tc1= map->getSurfaceCell(i, j+1);
-
-	float topWave = 0.f;
-	float botWave = 0.f;
 
 	if(!waterWaves.empty())  {
-		float wavesTcn1 = 0;
-		float wavesTc0 = 0;
-		float wavesTc1 = 0;
+		float cellWavesHeigth = 0;
 
 		for(vector<waterWave>::size_type k = 0; k < waterWaves.size(); k++) {
 			const waterWave &wt = waterWaves[k];
 			float xDirection = std::sin(wt.angleRad);
 			float yDirection = std::cos(wt.angleRad);
-			float ampliTcn1 = tcn1 ? tcn1->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tcn1->getHeight())) : 0;
-			float waveTcn1 = tcn1 ? std::sin((xDirection*i+yDirection*(j-1))*wt.frequency+waterWavesAnim[k])*wt.amplitude*(ampliTcn1)*4 : 1;
 
-			float ampliTc0 = tc0->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc0->getHeight()));
-			float waveTc0 = std::sin((xDirection*i+yDirection*j)*wt.frequency+waterWavesAnim[k])*wt.amplitude*(ampliTc0)*4;
+			float amplitude = tc0->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc0->getHeight()));
+			float currentCellWaveHeigth = std::sin((xDirection*i+yDirection*j)*wt.frequency+waterWavesAnim[k])*wt.amplitude*(amplitude);
 
-			float ampliTc1 = tc1->getWaterWaveAmplitude() * (1 + 0.5f * std::abs(waterLevel - tc1->getHeight()));
-			float waveTc1 = std::sin((xDirection*i+yDirection*(j+1))*wt.frequency+waterWavesAnim[k])*wt.amplitude*(ampliTc1)*4;
-
-			wavesTcn1 += waveTcn1;
-			wavesTc0 += waveTc0;
-			wavesTc1 += waveTc1;
+			cellWavesHeigth += currentCellWaveHeigth;
 		}
-
-		wavesTcn1 /= waterWaves.size();
-		wavesTc0 /= waterWaves.size();
-		wavesTc1 /= waterWaves.size();
-
-		topWave = (wavesTcn1+wavesTc0)/2;
-		botWave = (wavesTc0+wavesTc1)/2;
-		return Vec2f(topWave,botWave);
+		cellWavesHeigth /= waterWaves.size();
+		return cellWavesHeigth;
 	}
 }
 
@@ -5072,7 +5068,7 @@ void Renderer::renderWater() {
 		return;
 	}
 
-	float waterAnim= world->getWaterEffects()->getAmin();
+	float waterAnim= world->getWaterEffects()->getAnim();
 
 	//assert
     assertGl();
@@ -5137,7 +5133,7 @@ void Renderer::renderWater() {
                 cellExplored = (tc0->isExplored(thisTeamIndex) || tc1->isExplored(thisTeamIndex));
             }
 
-			Vec2f waveHeight = getWaveHeight(i,j);
+			Vec2f waveHeight = computeWaveHeight(i,j);
 
 			if(cellExplored == true && tc0->getNearSubmerged()) {
 				glNormal3f(0.f, 1.f, 0.f);
@@ -5411,7 +5407,7 @@ void Renderer::renderUnits(bool airUnits, const int renderFps) {
 				glPushAttrib(GL_ENABLE_BIT | GL_FOG_BIT | GL_LIGHTING_BIT | GL_TEXTURE_BIT);
 				glEnable(GL_COLOR_MATERIAL);
 
-				if(!shadowsOffDueToMinRender) {
+				if(!effectsOffDueToMinRender) {
 					if(shadows == sShadowMapping) {
 						glActiveTexture(shadowTexUnit);
 						glEnable(GL_TEXTURE_2D);
@@ -7422,7 +7418,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 		return;
 	}
 
-	if(shadowsOffDueToMinRender == false &&
+	if(effectsOffDueToMinRender == false &&
 		(shadows == sProjected || shadows == sShadowMapping)) {
 
 		shadowMapFrame= (shadowMapFrame + 1) % (shadowFrameSkip + 1);
@@ -9894,16 +9890,16 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 	assertGl();
 }
 
-// setLastRenderFps and calculate shadowsOffDueToMinRender
+// setLastRenderFps and calculate effectsOffDueToMinRender
 void Renderer::setLastRenderFps(int value) {
 	 	lastRenderFps = value;
 	 	smoothedRenderFps=(MIN_FPS_NORMAL_RENDERING*smoothedRenderFps+lastRenderFps)/(MIN_FPS_NORMAL_RENDERING+1.0f);
 
 		if(smoothedRenderFps>=MIN_FPS_NORMAL_RENDERING_TOP_THRESHOLD){
-			shadowsOffDueToMinRender=false;
+			effectsOffDueToMinRender=false;
 		}
 		if(smoothedRenderFps<=MIN_FPS_NORMAL_RENDERING){
-			 shadowsOffDueToMinRender=true;
+			 effectsOffDueToMinRender=true;
 		}
 }
 
