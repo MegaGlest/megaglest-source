@@ -120,17 +120,27 @@ if not ircclient_dep.found()
   )
   if not ircclient_dep.found()
     inc_ircclient = ['/usr/include', '/usr/local/include']
-    path = '/usr/include/libircclient'
-    result = run_command('test', '-d', path, check: false)
-    if result.returncode() == 0
-      inc_ircclient += path
-    endif
+#    path = '/usr/include/libircclient' # location on Arch-based systems
+#    result = run_command('test', '-d', path, check: false)
+#    if result.returncode() == 0
+#      inc_ircclient += path
+#    endif
     ircclient_dep = cc.find_library(
       'ircclient',
       dirs: '/usr/local/lib',
       has_headers: 'libircclient.h',
       header_include_directories: include_directories(inc_ircclient),
+      required: false,
     )
+    if not ircclient_dep.found()
+      # This will use the fallback
+      ircclient_dep = dependency(
+        'ircclient',
+        required: true,
+        fallback: 'ircclient',
+        default_options: ['default_library=static']
+        )
+    endif
   endif
 endif
 

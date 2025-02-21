@@ -2,7 +2,7 @@ project(
   'MegaGlest',
   ['c', 'cpp'],
   version: '3.13.0.999',
-  meson_version: '>= 0.55.0',
+  meson_version: '>= 0.57.0',
   default_options: [
     'warning_level=1',
     'buildtype=debugoptimized',
@@ -17,6 +17,11 @@ project(
 # Setup compiler.
 cxx = meson.get_compiler('cpp')
 cc = meson.get_compiler('c')
+
+# cross compiling for Windows on Linux
+# On Manjaro, install
+#  mingw-w64-gcc, wine-mono
+#meson setup --cross-file /path/to/x86_64-w64-mingw32.txt build-mingw
 
 # OS name reference chart
 #https://mesonbuild.com/Reference-tables.html#operating-system-names
