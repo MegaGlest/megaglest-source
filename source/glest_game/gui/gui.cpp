@@ -1152,6 +1152,7 @@ int Gui::computePosDisplay(int x, int y){
     }
 
 	//printf("computePosDisplay returning = %d\n",posDisplay);
+	hoveringUnitPortrait = false;
 	if (posDisplay == invalidPos) {
 		posDisplay = display.computeUpIndex(x, y);
 		if (posDisplay != invalidPos) {

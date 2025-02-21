@@ -156,7 +156,8 @@ void Selection::selectType(Unit *unit) {
 			units.push_back(selectedUnits[i]);
 		}
 	}
-	selectedUnits = units;
+	clear();
+	select(units,false);
 }
 
 void Selection::unSelect(const UnitContainer &units) {
