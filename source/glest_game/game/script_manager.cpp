@@ -400,9 +400,13 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getFactionPlayerType, "getFactionPlayerType");
 
 	//load code
-	for(int i= 0; i<scenario->getScriptCount(); ++i){
-		const Script* script= scenario->getScript(i);
-		luaScript.loadCode("function " + script->getName() + "()" + script->getCode() + "end\n", script->getName());
+	if(scenario->getExternalScript().second.empty()) {
+		for(int i= 0; i<scenario->getScriptCount(); ++i){
+			const Script* script= scenario->getScript(i);
+			luaScript.loadCode("function " + script->getName() + "()" + script->getCode() + "end\n", script->getName());
+		}
+	} else {
+		luaScript.loadCode(scenario->getExternalScript().second, scenario->getExternalScript().first);
 	}
 
 

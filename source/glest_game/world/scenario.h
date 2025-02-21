@@ -129,6 +129,7 @@ private:
 
 	ScenarioInfo info;
 	Scripts scripts;
+	NameScriptPair externalScript;
 	Checksum checksumValue;
 
 public:
@@ -136,6 +137,7 @@ public:
 	Checksum load(const string &path);
 	Checksum * getChecksumValue() { return &checksumValue; }
 
+	const NameScriptPair& getExternalScript() const	{return externalScript;}
 	int getScriptCount() const				{return (int)scripts.size();}
 	const Script* getScript(int i) const	{return &scripts[i];}
 

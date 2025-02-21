@@ -83,10 +83,26 @@ Checksum Scenario::load(const string &path) {
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
 
-		for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
-			const XmlNode *scriptNode = scriptsNode->getChild(i);
-
-			scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
+		if(scriptsNode->hasAttribute("file")) {
+			const string fileName = scenarioFolder + scriptsNode->getAttribute("file")->getValue();
+			scenarioChecksum.addFile(fileName);
+			checksumValue.addFile(fileName);
+			ifstream luafile(fileName, ios_base::in);
+			if (!luafile.is_open())
+				throw megaglest_runtime_error("Can not open file: [" + fileName + "]",true);
+			else {
+				std::stringstream buffer;
+				buffer << luafile.rdbuf();
+				externalScript.first = scriptsNode->getAttribute("file")->getValue();
+				externalScript.second = buffer.str();
+			}
+		} else {
+			externalScript.first.clear();
+			externalScript.second.clear();
+			for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
+				const XmlNode *scriptNode = scriptsNode->getChild(i);
+				scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
+			}
 		}
 	}
 	//Exception handling (conversions and so on);
