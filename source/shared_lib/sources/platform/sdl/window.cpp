@@ -43,6 +43,7 @@ static Window* global_window = 0;
 static int oldX=0,oldY=0;
 SDL_Window *Window::sdlWindow = 0;
 int64 Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
+bool revertedMousePos = false;
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
 bool Window::isKeyPressedDown = false;
@@ -198,7 +199,11 @@ bool Window::handleEvent() {
 	string codeLocation = "a";
 
 	SDL_Event event;
-	SDL_GetMouseState(&oldX,&oldY);
+	if(revertedMousePos) {
+		revertedMousePos = false;
+	} else {
+		SDL_GetMouseState(&oldX,&oldY);
+	}
 
 	//codeLocation = "b";
 
@@ -501,6 +506,7 @@ bool Window::handleEvent() {
 }
 
 void Window::revertMousePos() {
+	revertedMousePos = true;
 	SDL_WarpMouseInWindow(sdlWindow,oldX, oldY);
 }
 

@@ -4407,8 +4407,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		if (ms->get(mbCenter)) {
 			mouseMoved = true;
 			if(currentCameraFollowUnit == NULL) {
-				float ymult = 0.2f;
-				float xmult = 0.2f;
+				float ymult = 0.1f;
+				float xmult = 0.1f;
 
 				Vec2i oldPos = ::Shared::Platform::Window::getOldMousePos();
 				int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
