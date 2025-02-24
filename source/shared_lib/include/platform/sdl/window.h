@@ -102,6 +102,7 @@ private:
 
     static int64 lastMouseEvent;	/** for use in mouse hover calculations */
     static MouseState mouseState;
+    static bool mouseLockedInPosition;
     static Vec2i mousePos;
     static bool isKeyPressedDown;
 	static bool isFullScreen;
@@ -135,8 +136,8 @@ protected:
 public:
 	static SDL_Window *getSDLWindow();
 	static bool handleEvent();
-	static void revertMousePos();
 	static Vec2i getOldMousePos();
+	static void setMouseLockedInPosition(bool isLocked);
 	static bool isKeyDown() { return isKeyPressedDown; }
 	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
 	static const bool getIsFullScreen() { return isFullScreen; }
