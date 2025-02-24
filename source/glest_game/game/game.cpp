@@ -4407,8 +4407,8 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		if (ms->get(mbCenter)) {
 			mouseMoved = true;
 			if(currentCameraFollowUnit == NULL) {
-				float ymult = 0.2f;
-				float xmult = 0.2f;
+				float ymult = 0.1f;
+				float xmult = 0.1f;
 
 				Vec2i oldPos = ::Shared::Platform::Window::getOldMousePos();
 				int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
@@ -4419,83 +4419,87 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			}
 			mouseX=lastMousePos.x;
 			mouseY=lastMousePos.y;
-			::Shared::Platform::Window::revertMousePos();
+			::Shared::Platform::Window::setMouseLockedInPosition(true);
 
 			return;
 		}
-		else if(currentCameraFollowUnit==NULL) {
-			//if(Window::isKeyDown() == false)
-			if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
-			{
-				if(ms->get(mbLeft) && metrics.isInMinimap(x, y)) {
-					int xm= x - metrics.getMinimapX();
-					int ym= y - metrics.getMinimapY();
+		else
+		{
+			::Shared::Platform::Window::setMouseLockedInPosition(false);
+			if(currentCameraFollowUnit==NULL) {
+				//if(Window::isKeyDown() == false)
+				if(!camLeftButtonDown && !camRightButtonDown && !camUpButtonDown && !camDownButtonDown)
+				{
+					if(ms->get(mbLeft) && metrics.isInMinimap(x, y)) {
+						int xm= x - metrics.getMinimapX();
+						int ym= y - metrics.getMinimapY();
 
-					Map *map= world.getMap();
-					int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
-					int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
+						Map *map= world.getMap();
+						int xCell= static_cast<int>(xm * (static_cast<float>(map->getW()) / metrics.getMinimapW()));
+						int yCell= static_cast<int>(map->getH() - ym * (static_cast<float>(map->getH()) / metrics.getMinimapH()));
 
-					if(map->isInside(xCell, yCell) && map->isInsideSurface(map->toSurfCoords(Vec2i(xCell,yCell)))) {
-						if(gui.isSelectingPos()){
-							gui.mouseDownLeftGraphics(xCell, yCell, true);
+						if(map->isInside(xCell, yCell) && map->isInsideSurface(map->toSurfCoords(Vec2i(xCell,yCell)))) {
+							if(gui.isSelectingPos()){
+								gui.mouseDownLeftGraphics(xCell, yCell, true);
+							}
+							else
+							{
+								if(cameraDragAllowed == true) {
+									gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+								}
+							}
 						}
-						else
-						{
-							if(cameraDragAllowed == true) {
-								gameCamera.setPos(Vec2f(static_cast<float>(xCell), static_cast<float>(yCell)));
+					}
+					else {
+						bool mouseMoveScrollsWorld = Config::getInstance().getBool("MouseMoveScrollsWorld","true");
+						if(mouseMoveScrollsWorld == true) {
+							if (y < 10) {
+								gameCamera.setMoveZ(-scrollSpeed);
+							}
+							else if (y > metrics.getVirtualH() - 10) {
+								gameCamera.setMoveZ(scrollSpeed);
+							}
+							else {
+								gameCamera.setMoveZ(0);
+							}
+
+							if (x < 10) {
+								gameCamera.setMoveX(-scrollSpeed);
+							}
+							else if (x > metrics.getVirtualW() - 10) {
+								gameCamera.setMoveX(scrollSpeed);
+							}
+							else {
+								gameCamera.setMoveX(0);
 							}
 						}
 					}
 				}
-				else {
-					bool mouseMoveScrollsWorld = Config::getInstance().getBool("MouseMoveScrollsWorld","true");
-					if(mouseMoveScrollsWorld == true) {
-						if (y < 10) {
-							gameCamera.setMoveZ(-scrollSpeed);
-						}
-						else if (y > metrics.getVirtualH() - 10) {
-							gameCamera.setMoveZ(scrollSpeed);
-						}
-						else {
-							gameCamera.setMoveZ(0);
-						}
 
-						if (x < 10) {
-							gameCamera.setMoveX(-scrollSpeed);
-						}
-						else if (x > metrics.getVirtualW() - 10) {
-							gameCamera.setMoveX(scrollSpeed);
-						}
-						else {
-							gameCamera.setMoveX(0);
-						}
-					}
+				if(switchTeamConfirmMessageBox.getEnabled() == true) {
+					switchTeamConfirmMessageBox.mouseMove(x,y);
 				}
-			}
 
-			if(switchTeamConfirmMessageBox.getEnabled() == true) {
-				switchTeamConfirmMessageBox.mouseMove(x,y);
-			}
+				if(disconnectPlayerConfirmMessageBox.getEnabled() == true) {
+					disconnectPlayerConfirmMessageBox.mouseMove(x,y);
+				}
 
-			if(disconnectPlayerConfirmMessageBox.getEnabled() == true) {
-				disconnectPlayerConfirmMessageBox.mouseMove(x,y);
+				if (mainMessageBox.getEnabled()) {
+					mainMessageBox.mouseMove(x, y);
+				}
+				if (errorMessageBox.getEnabled()) {
+					errorMessageBox.mouseMove(x, y);
+				}
+				if (scriptManager.getMessageBox()->getEnabled()) {
+					scriptManager.getMessageBox()->mouseMove(x, y);
+				}
+				//else if (saveBox) {
+				//	saveBox->mouseMove(x, y);
+				//} else {
+				//	//graphics
+				gui.mouseMoveGraphics(x, y);
+				//}
 			}
-
-			if (mainMessageBox.getEnabled()) {
-				mainMessageBox.mouseMove(x, y);
-			}
-			if (errorMessageBox.getEnabled()) {
-				errorMessageBox.mouseMove(x, y);
-			}
-			if (scriptManager.getMessageBox()->getEnabled()) {
-				scriptManager.getMessageBox()->mouseMove(x, y);
-			}
-			//else if (saveBox) {
-			//	saveBox->mouseMove(x, y);
-			//} else {
-			//	//graphics
-			gui.mouseMoveGraphics(x, y);
-			//}
 		}
 
 		//display

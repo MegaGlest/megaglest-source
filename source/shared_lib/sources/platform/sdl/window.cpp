@@ -45,6 +45,7 @@ SDL_Window *Window::sdlWindow = 0;
 int64 Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */
 Vec2i Window::mousePos;
 MouseState Window::mouseState;
+bool Window::mouseLockedInPosition = false;
 bool Window::isKeyPressedDown = false;
 bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
@@ -269,6 +270,9 @@ bool Window::handleEvent() {
 
 					if(global_window) {
 						global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);
+					}
+					if(Window::mouseLockedInPosition) {
+						SDL_WarpMouseInWindow(sdlWindow,oldX, oldY);
 					}
 					break;
 				}
@@ -500,8 +504,14 @@ bool Window::handleEvent() {
 	return true;
 }
 
-void Window::revertMousePos() {
-	SDL_WarpMouseInWindow(sdlWindow,oldX, oldY);
+void Window::setMouseLockedInPosition(bool value) {
+	if(value) {
+		if(SDL_GetRelativeMouseMode() == SDL_FALSE) SDL_SetRelativeMouseMode(SDL_TRUE);
+		Window::mouseLockedInPosition = true;
+	} else {
+		if(SDL_GetRelativeMouseMode() == SDL_TRUE) SDL_SetRelativeMouseMode(SDL_FALSE);
+		Window::mouseLockedInPosition = false;
+	}
 }
 
 Vec2i Window::getOldMousePos() {
