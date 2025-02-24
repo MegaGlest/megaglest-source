@@ -5112,6 +5112,8 @@ Stats Game::quitGame() {
 	NetworkManager::getInstance().end();
 	//sleep(0);
 
+	::Shared::Platform::Window::setMouseLockedInPosition(false);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return endStats;
