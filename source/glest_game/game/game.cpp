@@ -3829,6 +3829,7 @@ void Game::mouseDownLeft(int x, int y) {
 				currentUIState = newMenu;
 				Renderer &renderer= Renderer::getInstance();
 				renderer.setCustom3dMenu(newMenu);
+				::Shared::Platform::Window::setMouseLockedInPosition(false);
 				//currentUIState->load();
 				currentUIState->init();
 
