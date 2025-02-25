@@ -264,9 +264,11 @@ bool Window::handleEvent() {
 					//ms.centerMouse = (event.motion.state & SDL_BUTTON_MMASK) != 0;
 					codeLocation = "h";
 
-					setMouseState(mbLeft, (event.motion.state & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK);
-					setMouseState(mbRight, (event.motion.state & SDL_BUTTON_RMASK) == SDL_BUTTON_RMASK);
-					setMouseState(mbCenter, (event.motion.state & SDL_BUTTON_MMASK) == SDL_BUTTON_MMASK);
+					Uint32 currentMouseState = SDL_GetMouseState(NULL,NULL);
+
+					setMouseState(mbLeft, (currentMouseState & SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK);
+					setMouseState(mbRight, (currentMouseState & SDL_BUTTON_RMASK) == SDL_BUTTON_RMASK);
+					setMouseState(mbCenter, (currentMouseState & SDL_BUTTON_MMASK) == SDL_BUTTON_MMASK);
 
 					if(global_window) {
 						global_window->eventMouseMove(event.motion.x, event.motion.y, &getMouseState()); //&ms);

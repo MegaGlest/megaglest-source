@@ -4288,12 +4288,12 @@ void Game::mouseUpCenter(int x, int y) {
 		return;
 	}
 
+	::Shared::Platform::Window::setMouseLockedInPosition(false);
+
 	if(currentUIState != NULL) {
 		currentUIState->mouseUpCenter(x, y);
 		return;
 	}
-
-	::Shared::Platform::Window::setMouseLockedInPosition(false);
 
  	if(mouseMoved == false) {
  		gameCamera.setState(GameCamera::sGame);
