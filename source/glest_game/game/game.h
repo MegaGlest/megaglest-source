@@ -295,6 +295,7 @@ public:
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
+	virtual void mouseDownCenter(int x, int y);
     virtual void mouseUpCenter(int x, int y);
     virtual void mouseUpLeft(int x, int y);
     virtual void mouseDoubleClickLeft(int x, int y);
