@@ -87,7 +87,12 @@ Checksum Scenario::load(const string &path) {
 			const string fileName = scenarioFolder + scriptsNode->getAttribute("file")->getValue();
 			scenarioChecksum.addFile(fileName);
 			checksumValue.addFile(fileName);
-			ifstream luafile(fileName, ios_base::in);
+#if defined(WIN32) && !defined(__MINGW32__)
+			FILE *fp = _wfopen(utf8_decode(fileName).c_str(), L"r");
+			std::ifstream luafile(fp);
+#else
+			std::ifstream luafile(fileName, ios_base::in);
+#endif
 			if (!luafile.is_open())
 				throw megaglest_runtime_error("Can not open file: [" + fileName + "]",true);
 			else {
@@ -96,6 +101,11 @@ Checksum Scenario::load(const string &path) {
 				externalScript.first = scriptsNode->getAttribute("file")->getValue();
 				externalScript.second = buffer.str();
 			}
+#if defined(WIN32) && !defined(__MINGW32__)
+			if(fp) {
+				fclose(fp);
+			}
+#endif
 		} else {
 			externalScript.first.clear();
 			externalScript.second.clear();
