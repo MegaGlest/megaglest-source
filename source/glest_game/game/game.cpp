@@ -3829,7 +3829,7 @@ void Game::mouseDownLeft(int x, int y) {
 				currentUIState = newMenu;
 				Renderer &renderer= Renderer::getInstance();
 				renderer.setCustom3dMenu(newMenu);
-				::Shared::Platform::Window::setMouseLockedInPosition(false);
+				::Shared::Platform::Window::setMouseLockedForCameraMovement(false);
 				//currentUIState->load();
 				currentUIState->init();
 
@@ -4276,7 +4276,7 @@ void Game::mouseDownRight(int x, int y) {
 }
 
 void Game::mouseDownCenter(int x, int y) {
-	::Shared::Platform::Window::setMouseLockedInPosition(true);
+	::Shared::Platform::Window::setMouseLockedForCameraMovement(true);
 }
 
 void Game::mouseUpCenter(int x, int y) {
@@ -4284,11 +4284,11 @@ void Game::mouseUpCenter(int x, int y) {
 		return;
 	}
 
+	::Shared::Platform::Window::setMouseLockedForCameraMovement(false);
+
 	if(gameStarted == false || totalRenderFps <= 0) {
 		return;
 	}
-
-	::Shared::Platform::Window::setMouseLockedInPosition(false);
 
 	if(currentUIState != NULL) {
 		currentUIState->mouseUpCenter(x, y);
@@ -4411,11 +4411,11 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		mouseX = x;
 		mouseY = y;
 
-		if (ms->get(mbCenter)) {
+		if (::Shared::Platform::Window::getMouseLockedForCameraMovement()) {
 			mouseMoved = true;
 			if(currentCameraFollowUnit == NULL) {
-				float ymult = 0.1f;
-				float xmult = 0.1f;
+				float ymult = 0.2f;
+				float xmult = 0.2f;
 
 				Vec2i oldPos = ::Shared::Platform::Window::getOldMousePos();
 				int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
@@ -5114,7 +5114,7 @@ Stats Game::quitGame() {
 	NetworkManager::getInstance().end();
 	//sleep(0);
 
-	::Shared::Platform::Window::setMouseLockedInPosition(false);
+	::Shared::Platform::Window::setMouseLockedForCameraMovement(false);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
