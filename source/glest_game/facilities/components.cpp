@@ -1225,7 +1225,6 @@ GraphicScrollBar::GraphicScrollBar(const std::string &containerName, const std::
 	elementCount = 0;
 	visibleSize = 0;
 	visibleStart = 0;
-	partialscroll = 0.f;
 
 	// position on component for renderer
 	visibleCompPosStart = 0;
@@ -1329,20 +1328,13 @@ bool GraphicScrollBar::eventMouseWheel(int x, int y, int zDelta) {
 
 bool GraphicScrollBar::eventMouseWheel(int x, int y, int zDelta,bool ignorePos) {
 	if(ignorePos|| GraphicComponent::mouseMove(x, y)){
-		partialscroll += (float) zDelta/120;
-		if(partialscroll >= 0.99f || partialscroll <= -0.99f) {
-			int newVisibleStart = this->getVisibleStart() - partialscroll;
-			partialscroll = 0;
-			if (newVisibleStart < 0)
-				newVisibleStart = 0;
-			if (newVisibleStart > this->getLength() - this->getVisibleSize())
-				newVisibleStart = this->getLength() - this->getVisibleSize();
+		int newVisibleStart = this->getVisibleStart() -  zDelta/120;
+		if (newVisibleStart < 0) newVisibleStart = 0;
+		if (newVisibleStart > this->getLength() - this->getVisibleSize())
+			newVisibleStart = this->getLength() - this->getVisibleSize();
 
-			this->setVisibleStart(newVisibleStart);
-			return true;
-		} else {
-			return false;
-		}
+		this->setVisibleStart(newVisibleStart);
+		return true;
 	}
 	return false;
 }
