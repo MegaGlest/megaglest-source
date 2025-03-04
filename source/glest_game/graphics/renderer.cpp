@@ -5052,6 +5052,8 @@ float Renderer::computeWaterWaveCell(int i, int j) {
 		}
 		cellWavesHeigth /= waterWaves.size();
 		return cellWavesHeigth;
+	} else {
+		return 0.f;
 	}
 }
 
