@@ -38,7 +38,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Scenario::~Scenario() {
-
+	if(externalScript) delete externalScript;
 }
 
 Checksum Scenario::load(const string &path) {
@@ -83,8 +83,8 @@ Checksum Scenario::load(const string &path) {
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
 
-		if(scriptsNode->hasAttribute("file")) {
-			const string fileName = scenarioFolder + scriptsNode->getAttribute("file")->getValue();
+		if(scriptsNode->hasAttribute("external") && scriptsNode->getAttribute("external")->getBoolValue() == true) {
+			const string fileName = scenarioFolder + "script.lua";
 			scenarioChecksum.addFile(fileName);
 			checksumValue.addFile(fileName);
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -98,8 +98,8 @@ Checksum Scenario::load(const string &path) {
 			else {
 				std::stringstream buffer;
 				buffer << luafile.rdbuf();
-				externalScript.first = scriptsNode->getAttribute("file")->getValue();
-				externalScript.second = buffer.str();
+				if(externalScript) delete externalScript;
+				externalScript = new Script("script.lua",buffer.str());
 			}
 #if defined(WIN32) && !defined(__MINGW32__)
 			if(fp) {
@@ -107,8 +107,8 @@ Checksum Scenario::load(const string &path) {
 			}
 #endif
 		} else {
-			externalScript.first.clear();
-			externalScript.second.clear();
+			if(externalScript) delete externalScript;
+			externalScript = nullptr;
 			for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
 				const XmlNode *scriptNode = scriptsNode->getChild(i);
 				scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
