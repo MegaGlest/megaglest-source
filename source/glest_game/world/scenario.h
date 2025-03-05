@@ -124,11 +124,11 @@ public:
 
 class Scenario {
 private:
-	typedef pair<string, string> NameScriptPair;
 	typedef vector<Script> Scripts;
 
 	ScenarioInfo info;
 	Scripts scripts;
+	Script* externalScript = nullptr;
 	Checksum checksumValue;
 
 public:
@@ -136,6 +136,7 @@ public:
 	Checksum load(const string &path);
 	Checksum * getChecksumValue() { return &checksumValue; }
 
+	const Script* getExternalScript() const	{return externalScript;}
 	int getScriptCount() const				{return (int)scripts.size();}
 	const Script* getScript(int i) const	{return &scripts[i];}
 

@@ -38,7 +38,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Scenario::~Scenario() {
-
+	if(externalScript) delete externalScript;
 }
 
 Checksum Scenario::load(const string &path) {
@@ -83,10 +83,36 @@ Checksum Scenario::load(const string &path) {
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
 
-		for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
-			const XmlNode *scriptNode = scriptsNode->getChild(i);
-
-			scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
+		if(scriptsNode->hasAttribute("external") && scriptsNode->getAttribute("external")->getBoolValue() == true) {
+			const string fileName = scenarioFolder + "script.lua";
+			scenarioChecksum.addFile(fileName);
+			checksumValue.addFile(fileName);
+#if defined(WIN32) && !defined(__MINGW32__)
+			FILE *fp = _wfopen(utf8_decode(fileName).c_str(), L"r");
+			std::ifstream luafile(fp);
+#else
+			std::ifstream luafile(fileName, ios_base::in);
+#endif
+			if (!luafile.is_open())
+				throw megaglest_runtime_error("Can not open file: [" + fileName + "]",true);
+			else {
+				std::stringstream buffer;
+				buffer << luafile.rdbuf();
+				if(externalScript) delete externalScript;
+				externalScript = new Script("script.lua",buffer.str());
+			}
+#if defined(WIN32) && !defined(__MINGW32__)
+			if(fp) {
+				fclose(fp);
+			}
+#endif
+		} else {
+			if(externalScript) delete externalScript;
+			externalScript = nullptr;
+			for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
+				const XmlNode *scriptNode = scriptsNode->getChild(i);
+				scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
+			}
 		}
 	}
 	//Exception handling (conversions and so on);
