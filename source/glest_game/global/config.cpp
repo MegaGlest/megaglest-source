@@ -199,18 +199,20 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
 
 // Look in standard linux shared paths for ini files
 #if defined(__linux__)
-    if(foundPath == false) {
-    	foundPath = tryCustomPath(cfgType, fileName, "/usr/share/megaglest/");
-    }
-    if(foundPath == false) {
-    	foundPath = tryCustomPath(cfgType, fileName, "/usr/share/games/megaglest/");
-    }
-    if(foundPath == false) {
-    	foundPath = tryCustomPath(cfgType, fileName, "/usr/local/share/megaglest/");
-    }
-    if(foundPath == false) {
-    	foundPath = tryCustomPath(cfgType, fileName, "/usr/local/share/games/megaglest/");
-    }
+	if(!foundPath) {
+		const char *iniSearchPaths[] = {
+			"/usr/share/megaglest/",
+			"/usr/share/games/megaglest/",
+			"/usr/local/share/megaglest/",
+			"/usr/local/share/games/megaglest/",
+			NULL
+		};
+		const char **path = iniSearchPaths;
+		do {
+			foundPath = tryCustomPath(cfgType, fileName, *path);
+			path++;
+		}while (*path != NULL || !foundPath);
+	}
 #endif
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("foundPath = [%d]\n",foundPath);
