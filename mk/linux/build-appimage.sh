@@ -93,10 +93,6 @@ make DESTDIR=$APPDIR -j$(nproc) install
 # This is done by linuxdeploy
 # strip AppDir/$INST_PREFIX/local/bin/megaglest
 
-cp $(whereis 7z | awk -F ' ' '{print $2;}') $APPDIR/$INST_PREFIX/bin/
-# Hacky workaround to use internal 7z.
-sed -i 's#=7z#=$APPLICATIONPATH/7z#' AppDir/$INST_PREFIX/share/megaglest/glest.ini
-
 GAME_DESKTOP_DEST="$APPDIR/$INST_PREFIX/share/applications"
 
 if [ ! -d "$GAME_DESKTOP_DEST" ]; then
