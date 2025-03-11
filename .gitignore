@@ -103,4 +103,5 @@ $RECYCLE.BIN/
 
 # meson
 subprojects/*
+!subprojects/packagefiles
 !subprojects/*.wrap

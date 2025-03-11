@@ -110,7 +110,6 @@ inc_game = [
 game_deps = []
 
 inc_ircclient = []
-irclient_dep = []
 ircclient_dep = dependency('ircclient', required: false)
 if not ircclient_dep.found()
   ircclient_dep = cc.find_library(
@@ -120,7 +119,9 @@ if not ircclient_dep.found()
   )
   if not ircclient_dep.found()
     inc_ircclient = ['/usr/include', '/usr/local/include']
+    # Header location on Arch based systems.
     path = '/usr/include/libircclient'
+    # Check if the directory exists, otherwise meson will throw an error. 
     result = run_command('test', '-d', path, check: false)
     if result.returncode() == 0
       inc_ircclient += path
@@ -130,7 +131,18 @@ if not ircclient_dep.found()
       dirs: '/usr/local/lib',
       has_headers: 'libircclient.h',
       header_include_directories: include_directories(inc_ircclient),
+      required: false,
     )
+    
+    if not ircclient_dep.found()
+      # This will use the fallback.
+      ircclient_dep = dependency(
+        'ircclient',
+        required: true,
+        fallback: 'ircclient',
+        default_options: ['default_library=static']
+      )
+    endif
   endif
 endif
 
