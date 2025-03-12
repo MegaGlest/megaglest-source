@@ -43,7 +43,7 @@ shared_lib_game_deps += lua_dep
 # colon is the subproject name) and then rebuild.
 streflop_subproj = subproject(
   'streflop-ng',
-  default_options: ['default_library=static', 'fpu=sse', 'denormals=false'],
+  default_options: ['default_library=static'],
 )
 streflop_dep = streflop_subproj.get_variable('streflop_dep')
 conf.set('USE_STREFLOP', 1)
