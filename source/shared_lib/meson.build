@@ -1,0 +1,176 @@
+# subdir('sources/util')
+src_shared_lib = []
+src_basename = [
+  'string_utils.cpp',
+  'util.cpp',
+  'properties.cpp',
+  'profiler.cpp',
+  'leak_dumper.cpp',
+  'checksum.cpp',
+  'conversion.cpp',
+  'randomgen.cpp',
+]
+
+foreach file : src_basename
+  src_shared_lib += [join_paths('sources/util', file)]
+endforeach
+
+src_basename = [
+  'base_thread.cpp',
+  'byte_order.cpp',
+  'cache_manager.cpp',
+  'platform_common.cpp',
+  'simple_threads.cpp',
+]
+
+foreach file : src_basename
+  src_shared_lib += [join_paths('sources/platform/common', file)]
+endforeach
+
+src_basename = [
+  'factory_repository.cpp',
+  'gl_wrap.cpp',
+  'platform_util.cpp',
+  'thread.cpp',
+  'window.cpp',
+  'window_gl.cpp',
+]
+
+foreach file : src_basename
+  src_shared_lib += [join_paths('sources/platform/sdl', file)]
+endforeach
+
+src_basename = [
+  'BMPReader.cpp',
+  'graphics_interface.cpp',
+  'quaternion.cpp',
+  'buffer.cpp',
+  'ImageReaders.cpp',
+  'shader.cpp',
+  'camera.cpp',
+  'interpolation.cpp',
+  'shader_manager.cpp',
+  'context.cpp',
+  'JPGReader.cpp',
+  'texture.cpp',
+  'FileReader.cpp',
+  'model.cpp',
+  'texture_manager.cpp',
+  'font.cpp',
+  'model_manager.cpp',
+  'TGAReader.cpp',
+  'font_manager.cpp',
+  'particle.cpp',
+  'video_player.cpp',
+  'font_text.cpp',
+  'pixmap.cpp',
+  'PNGReader.cpp',
+]
+
+foreach file : src_basename
+  src_shared_lib += [join_paths('sources/graphics', file)]
+endforeach
+
+src_basename = [
+  'base_renderer.cpp',
+  'opengl.cpp',
+  'context_gl.cpp',
+  'particle_renderer_gl.cpp',
+  'font_gl.cpp',
+  'shader_gl.cpp',
+  'font_textFTGL.cpp',
+  'text_renderer_gl.cpp',
+  'model_gl.cpp',
+  'texture_gl.cpp',
+  'model_renderer_gl.cpp',
+]
+
+foreach file : src_basename
+  src_shared_lib += [join_paths('sources/graphics/gl', file)]
+endforeach
+
+src_basename = [
+  'sound_file_loader.cpp',
+  'sound_player.cpp',
+  'sound.cpp',
+  'sound_interface.cpp',
+]
+
+foreach file : src_basename
+  src_shared_lib += [join_paths('sources/sound', file)]
+endforeach
+
+src_shared_lib_misc = [
+  'sound/openal/sound_player_openal.cpp',
+  'platform/unix/gl_wrap.cpp',
+  'compression/compression_utils.cpp',
+  'lua/lua_script.cpp',
+  'miniz/miniz.c',
+  'map/map_preview.cpp',
+  'xml/xml_parser.cpp',
+]
+
+foreach file : src_shared_lib_misc
+  src_shared_lib += [join_paths('sources', file)]
+endforeach
+
+inc_shared_lib_basename = [
+  'compression',
+  'graphics',
+  'graphics/gl',
+  'lua',
+  'map',
+  'platform',
+  'platform/common',
+  'platform/posix',
+  'platform/sdl',
+  'sound',
+  'sound/openal',
+  'util',
+  'util/utf8',
+  'xml',
+  'xml/rapidxml',
+]
+if host_system == 'windows'
+  inc_shared_lib_basename += 'platform/win32'
+endif
+inc_shared_lib = []
+foreach file : inc_shared_lib_basename
+  inc_shared_lib += include_directories(join_paths('include', file))
+endforeach
+
+# Note on includes
+#
+# You should not do that but use relative paths instead, for
+# directories that are part of your project.
+#
+# To get include path to any directory relative to the current dir do
+#
+# incdir = include_directories(dirname)
+#
+# After this incdir will contain both the current source dir as well as the
+# corresponding build dir. It can then be used in any subdirectory and
+# Meson will take care of all the busywork to make paths work.
+#
+# Dirname can even be '.' to mark the current directory. Though you should
+# remember that the current source and build directories are always
+# put in the include directories by default so you only need to do
+# include_directories('.') if you intend to use the result in a
+# different subdirectory.
+lib_megaglest = static_library(
+  'megaglest',
+  src_shared_lib,
+  include_directories: [
+    include_directories('../..'),  # for config.h
+    inc_shared_lib,
+    'sources',  # for miniz
+  ],
+  dependencies: [streflop_dep, shared_lib_game_deps, sdl_dep],
+  pic: true,
+)
+
+dep_libmegaglest = declare_dependency(
+  link_with: lib_megaglest,
+  dependencies: [sdl_dep, streflop_dep],
+  include_directories: [include_directories(['../..']), inc_shared_lib],  # for config.h
+)

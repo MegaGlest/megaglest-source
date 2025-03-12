@@ -209,4 +209,3 @@ jobs:
         name: megaglest-x64-macos
         retention-days: 1
         path: release/*.tar.bz2
-

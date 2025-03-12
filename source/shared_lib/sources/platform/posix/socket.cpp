@@ -6,6 +6,7 @@
 //Foundation; either version 2 of the License, or (at your option) any later
 //version.
 
+#include "config_whole.h"
 #include "socket.h"
 
 #include <cstring>
@@ -1385,7 +1386,7 @@ int Socket::send(const void *data, int dataSize) {
 		int totalBytesSent = bytesSent;
 		int attemptCount = 0;
 
-		
+
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
 	    		(bytesSent < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN)) &&

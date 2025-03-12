@@ -14,6 +14,8 @@
 #include <SDL.h>
 #include <iostream>
 #include <GL/glew.h>
+
+#include "config_whole.h"
 #include "leak_dumper.h"
 
 #ifndef WIN32

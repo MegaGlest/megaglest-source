@@ -1,0 +1,7 @@
+# Build options
+option('build_game', type: 'boolean', value: true, description: 'Build editor')
+option('build_editor', type: 'boolean', value: true, description: 'Build the map editor')
+option('build_viewer', type: 'boolean', value: true, description: 'Build the g3d viewer')
+
+#option('docdir', type : 'string', value : 'share/doc/megaglest',
+#       description : 'directory where the documentation should be installed to')

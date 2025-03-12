@@ -12,6 +12,8 @@
 #ifndef _SHARED_PLATFORMCOMMON_MATHWRAPPER_H_
 #define _SHARED_PLATFORMCOMMON_MATHWRAPPER_H_
 
+#include "config_whole.h"
+
 #ifdef USE_STREFLOP
 
 #include <cmath>

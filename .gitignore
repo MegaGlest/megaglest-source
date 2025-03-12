@@ -100,3 +100,8 @@ $RECYCLE.BIN/
 *.msi
 *.pdb
 #
+
+# meson
+subprojects/*
+!subprojects/packagefiles
+!subprojects/*.wrap

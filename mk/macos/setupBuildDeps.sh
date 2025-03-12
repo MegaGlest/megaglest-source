@@ -14,9 +14,11 @@ brew install cmake \
     libpng \
     libvorbis \
     lua \
+    meson \
     miniupnpc \
     pkg-config \
     sdl2 \
     wxwidgets \
+    xinit \
     xorg-server \
     zstd
