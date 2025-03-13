@@ -28,12 +28,13 @@ namespace Glest{ namespace Game{
 
 NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 								int commandTypeId, const Vec2i &pos, int unitTypeId,
-								int targetId, int facing, bool wantQueue,
+								int nextUnitTypeId, int targetId, int facing, bool wantQueue,
 								CommandStateType commandStateType,
 								int commandStateValue, int unitCommandGroupId)
 		: networkCommandType(networkCommandType)
 		, unitId(unitId)
 		, unitTypeId(unitTypeId)
+		, nextUnitTypeId(nextUnitTypeId)
 		, commandTypeId(commandTypeId)
 		, positionX(pos.x)
 		, positionY(pos.y)
@@ -48,43 +49,44 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 	this->targetId = targetId >= 0 ? targetId : facing;
 	this->fromFactionIndex = world->getThisFactionIndex();
 
-    if(this->networkCommandType == nctGiveCommand) {
-        const Unit *unit= world->findUnitById(this->unitId);
+	if(this->networkCommandType == nctGiveCommand) {
+		const Unit *unit= world->findUnitById(this->unitId);
 
-        //validate unit
-        if(unit != NULL) {
-        	this->unitFactionIndex = unit->getFaction()->getIndex();
-        	this->unitFactionUnitCount = unit->getFaction()->getUnitCount();
+		//validate unit
+		if(unit != NULL) {
+			this->unitFactionIndex = unit->getFaction()->getIndex();
+			this->unitFactionUnitCount = unit->getFaction()->getUnitCount();
 
-            //const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), this->unitTypeId);
-            const CommandType *ct   = unit->getType()->findCommandTypeById(this->commandTypeId);
-            if(ct != NULL && ct->getClass() == ccBuild) {
-            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
-                CardinalDir::assertDirValid(facing);
-                assert(targetId == -1);
-            }
-        }
-    }
+			const CommandType *ct= unit->getType()->findCommandTypeById(this->commandTypeId);
+            
+			if(ct != NULL && ct->getClass() == ccBuild) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] 						%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
+				CardinalDir::assertDirValid(facing);
+				assert(targetId == -1);
+			}
+		}
+	}
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Created NetworkCommand as follows:\n%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Created NetworkCommand as follows:\n%s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
 }
 
 void NetworkCommand::preprocessNetworkCommand(World *world) {
-    if(networkCommandType == nctGiveCommand) {
-        const Unit *unit= world->findUnitById(unitId);
+	if(networkCommandType == nctGiveCommand) {
+		const Unit *unit= world->findUnitById(unitId);
 
-        //validate unit
-        if(unit != NULL) {
-            //const UnitType *unitType= world->findUnitTypeById(unit->getFaction()->getType(), unitTypeId);
-            const CommandType *ct   = unit->getType()->findCommandTypeById(commandTypeId);
-            if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
+		//validate unit
+		if(unit != NULL) {
+
+			const CommandType *ct= unit->getType()->findCommandTypeById(commandTypeId);
+
+			if(ct != NULL && ct->getClass() == ccBuild && targetId >= 0) {
 				CardinalDir::assertDirValid(targetId);
-            }
-        }
-        else {
-        	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] (unit == NULL) %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
-        }
-    }
+			}
+		}
+		else {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] (unit == NULL) %s\n",__FILE__,__FUNCTION__,__LINE__,toString().c_str());
+		}
+	}
 }
 
 

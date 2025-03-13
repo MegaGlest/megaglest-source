@@ -197,6 +197,7 @@ public:
 	void mouseDoubleClickLeftGraphics(int x, int y);
 	void groupKey(int groupIndex);
 	void hotKey(SDL_KeyboardEvent key);
+	void hotKeyReleased(SDL_KeyboardEvent key);
 
 	//misc
 	void switchToNextDisplayColor();

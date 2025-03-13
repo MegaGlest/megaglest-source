@@ -453,6 +453,16 @@ void Gui::hotKey(SDL_KeyboardEvent key) {
 	else if(isKeyPressed(configKeys.getSDLKey("HotKeySelectedUnitsStop"),key) == true) {
 		clickCommonCommand(ccStop);
 	}
+	
+	if(isKeyDown(queueCommandKey)) {
+		computeDisplay();
+	}
+}
+
+void Gui::hotKeyReleased(SDL_KeyboardEvent key) {
+	if(!isKeyDown(queueCommandKey)) {
+		computeDisplay();
+	}
 }
 
 void Gui::switchToNextDisplayColor(){
@@ -471,6 +481,8 @@ void Gui::giveOneClickOrders(){
 
 	std::pair<CommandResult,string> result(crFailUndefined,"");
 	bool queueKeyDown = isKeyDown(queueCommandKey);
+	if(activeCommandType && activeCommandType->isQueuable()==qNever && queueKeyDown) return;
+
 	if(selection.isUniform()){
 		result= commander->tryGiveCommand(&selection, activeCommandType, Vec2i(0), (Unit*)NULL,  queueKeyDown);
 	}
@@ -549,7 +561,8 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 	}
 
 	bool queueKeyDown = isKeyDown(queueCommandKey);
-    //give orders to the units of this faction
+	if(activeCommandType && activeCommandType->isQueuable()==qNever && queueKeyDown) return;
+	//give orders to the units of this faction
 	if(selectingBuilding == false) {
 		if(selection.isUniform()) {
 			result= commander->tryGiveCommand(&selection, activeCommandType,
@@ -558,7 +571,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 		else {
 			result= commander->tryGiveCommand(&selection, activeCommandClass,
 											targetPos, targetUnit,queueKeyDown);
-        	}
+		}
 	}
 	else {
 		//selecting building
@@ -724,6 +737,9 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 					if (activeCommandClass  == ccAttack) {
 						ct = selection.getUnitFromCC(ccAttack)->getType()->getFirstCtOfClass(activeCommandClass);
 					}
+					auto mct= unit->getCurrMorphCt();
+					if(mct && isKeyDown(queueCommandKey)) ct= mct->getMorphUnit()->getFirstCtOfClass(activeCommandClass);
+
 					if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 						assert(selection.isUniform());
 						selectingBuilding= true;
@@ -986,6 +1002,10 @@ void Gui::computeDisplay(){
 					//uniform selection
 					if(u->isBuilt()){
 						//printf("u->isBuilt()\n");
+						auto mct = u->getCurrMorphCt();
+						if(mct && isKeyDown(queueCommandKey)) {//Morph Queue
+							ut=mct->getMorphUnit();
+						}//TODO on queueCommandKey presed disable stop cmd
 
 						int morphPos= 8;
 						for(int i= 0; i < ut->getCommandTypeCount(); ++i){
@@ -1006,7 +1026,7 @@ void Gui::computeDisplay(){
 							display.setCommandType(displayPos, ct);
 							display.setCommandClass(displayPos, ct->getClass());
 							bool reqOk=u->getFaction()->reqsOk(ct);
-							display.setDownLighted(displayPos,reqOk);
+							display.setDownLighted(displayPos, reqOk && !(ct->isQueuable()==qNever && isKeyDown(queueCommandKey)));
 
 							if (reqOk && produced != NULL) {
 								if (possibleAmount == 0) {

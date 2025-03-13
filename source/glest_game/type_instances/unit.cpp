@@ -745,6 +745,15 @@ void Unit::cleanupAllParticlesystems() {
 
 }
 
+const MorphCommandType* Unit::getCurrMorphCt() const {
+	auto result = std::find_if(commands.rbegin(), commands.rend(),[](Command *i) 
+	{ return i->getCommandType()->getClass() == ccMorph; });//TODO set CurrMorphCt on push comands instead of looping
+	if(result != commands.rend()) {
+		return static_cast<const MorphCommandType*>((*result)->getCommandType());
+	}
+	else return NULL;
+}
+
 ParticleSystem * Unit::getFire() const	{
 	if(this->fire != NULL &&
 		Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
@@ -1828,8 +1837,6 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
     	throw megaglest_runtime_error("command->getCommandType() == NULL");
     }
 
-    const int command_priority = command->getPriority();
-
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
     //printf("In [%s::%s] Line: %d unit [%d - %s] command [%s] tryQueue = %d command->getCommandType()->isQueuable(tryQueue) = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->getId(),this->getType()->getName().c_str(), command->getCommandType()->getName().c_str(), tryQueue,command->getCommandType()->isQueuable(tryQueue));
@@ -1839,40 +1846,21 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		if(command->getCommandType()->isQueuable() == qAlways && tryQueue){
-			// Its a produce or upgrade command called without queued key
-			// in this case we must NOT delete lower priority commands!
-			// we just queue it!
-
-		}
-		else {
-			//Delete all lower-prioirty commands
-			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
-				if((*i)->getPriority() < command_priority){
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
-						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(*i)->toString(false).c_str());
-
-					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-					MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
-
-					deleteQueuedCommand(*i);
-					i= commands.erase(i);
-
-					safeMutex.ReleaseLock();
-				}
-				else {
-					++i;
-				}
-			}
-		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		//cancel current command if it is not queuable
-		if(commands.empty() == false &&
-          commands.back()->getCommandType()->isQueueAppendable() == false) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString(false).c_str());
+		if(!commands.empty()) {
+			auto lastCt= commands.back()->getCommandType();
+			//cancel current command if it is not queuable
+			if(!lastCt->isQueueAppendable()) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString(false).c_str());
 
-		    cancelCommand();
+				cancelCommand();
+			}
+			else //when last cmd low-priority and current cmd high-priory without queue-key
+				if(lastCt->isQueuable() == qOnRequest &&
+					command->getCommandType()->isQueuable() == qAlways && !tryQueue){
+				clearCommands();
+			}
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2183,8 +2171,9 @@ void Unit::resetHighlight(){
 	highlight= 1.f;
 }
 
-const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *targetUnit) const{
+const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *targetUnit, const UnitType* unitType) const{
 	const CommandType *commandType= NULL;
+	unitType= unitType? unitType: type;
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw megaglest_runtime_error("#6 Invalid path position = " + pos.getString());
@@ -2192,22 +2181,21 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 	SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(pos));
 
-	if(type == NULL) {
+	if(unitType == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unitType == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"));
 	if(targetUnit != NULL) {
 		//attack enemies
 		if(isAlly(targetUnit) == false) {
-			commandType= type->getFirstAttackCommand(targetUnit->getCurrField());
+			commandType= unitType->getFirstAttackCommand(targetUnit->getCurrField());
 		}
 		//repair allies
 		else {
 			if(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true) {
-				commandType= type->getFirstRepairCommand(targetUnit->getType());
+				commandType= unitType->getFirstRepairCommand(targetUnit->getType());
 			}
 
 			//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s] commandType [%p]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"),commandType);
@@ -2223,7 +2211,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 					targetUnit->getType() != NULL &&
 					targetUnit->getType()->getStore(this->getLoadType()) > 0) {
 
-					commandType = type->getFirstHarvestEmergencyReturnCommand();
+					commandType = unitType->getFirstHarvestEmergencyReturnCommand();
 				}
 			}
 		}
@@ -2232,7 +2220,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		//check harvest command
 		Resource *resource= sc->getResource();
 		if(resource != NULL) {
-			commandType= type->getFirstHarvestCommand(resource->getType(),this->getFaction());
+			commandType= unitType->getFirstHarvestCommand(resource->getType(),this->getFaction());
 		}
 	}
 
@@ -2247,7 +2235,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 					(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true)) {
 					const RepairCommandType *rct= this->getType()->getFirstRepairCommand(targetUnit->getType());
 					if(rct != NULL) {
-						commandType= type->getFirstRepairCommand(targetUnit->getType());
+						commandType= unitType->getFirstRepairCommand(targetUnit->getType());
 						//printf("************ Unit will repair building built = %d, repair = %d\n",targetUnit->isBuilt(),targetUnit->isDamaged());
 					}
 				}
@@ -2257,7 +2245,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 	//default command is move command
 	if(commandType == NULL) {
-		commandType= type->getFirstCtOfClass(ccMove);
+		commandType= unitType->getFirstCtOfClass(ccMove);
 	}
 
 	return commandType;
@@ -3848,11 +3836,15 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
        (ignoreCheckCommand == false && this->getFaction()->reqsOk(command->getCommandType()) == false)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
 
+		auto mct = getCurrMorphCt();
 		// Allow self healing if able to heal own unit type
 		if(	command->getUnit() == this &&
 			command->getCommandType()->getClass() == ccRepair &&
 			this->getType()->getFirstRepairCommand(this->getType()) != NULL) {
 
+		}
+		else if(mct && mct->getMorphUnit()->hasCommandType(command->getCommandType())) {
+			// Allow Current Morph Commands
 		}
 		else {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
