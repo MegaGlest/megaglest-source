@@ -2006,7 +2006,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 									int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 									if(result != 0) {
 										char szBuf[8096]="";
-										char *errmsg = strerror(errno);
+										const char *errmsg = strerror(errno);
 										snprintf(szBuf,8096,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 										throw megaglest_runtime_error(szBuf);
 									}
@@ -2466,7 +2466,7 @@ void runTechValidationForPath(string techPath, string techName,
 												int result = rename(duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 												if(result != 0) {
 													char szBuf[8096]="";
-													char *errmsg = strerror(errno);
+													const char *errmsg = strerror(errno);
 													snprintf(szBuf,8096,"!!! Error [%s] Could not rename [%s] to [%s]!",errmsg,duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 													throw megaglest_runtime_error(szBuf);
 												}
@@ -3401,7 +3401,7 @@ void CheckForDuplicateData() {
 			char szBuf[8096]="";
 			int result = rename(oldFile.c_str(),newFile.c_str());
 			if(result != 0) {
-				char *errmsg = strerror(errno);
+				const char *errmsg = strerror(errno);
 				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 				throw megaglest_runtime_error(szBuf,true);
 			}
@@ -3452,7 +3452,7 @@ void CheckForDuplicateData() {
 			char szBuf[8096]="";
 			int result = rename(oldFile.c_str(),newFile.c_str());
 			if(result != 0) {
-				char *errmsg = strerror(errno);
+				const char *errmsg = strerror(errno);
 				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 				throw megaglest_runtime_error(szBuf,true);
 			}
@@ -3466,7 +3466,7 @@ void CheckForDuplicateData() {
 				result = rename(oldFile.c_str(),newFile.c_str());
 
 				if(result != 0) {
-					char *errmsg = strerror(errno);
+					const char *errmsg = strerror(errno);
 					snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 					throw megaglest_runtime_error(szBuf,true);
 				}
@@ -3514,7 +3514,7 @@ void CheckForDuplicateData() {
 			char szBuf[8096]="";
 			int result = rename(oldFile.c_str(),newFile.c_str());
 			if(result != 0) {
-				char *errmsg = strerror(errno);
+				const char *errmsg = strerror(errno);
 				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
 				throw megaglest_runtime_error(szBuf,true);
 			}
