@@ -21,7 +21,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
-# *NOTE: This script has been tested and works with with GCC, Clang and MSbuild (VS).
+# *NOTE: This script has been tested and works with GCC, Clang and MSbuild (VS).
 # MSBuild requires using vcpkg and installing required libs.
 # Script works with Windows, Linux and Mac.
 #
@@ -47,10 +47,10 @@ IF(MSVC)
 	INCLUDE(ProcessorCount)
 	ProcessorCount(N)
 	IF(N GREATER 0)
-		MESSAGE(STATUS "Will build on ${N} cores.")
+		MESSAGE(STATUS "Will build on ${N} core(s).")
 	ELSE()
 		SET(N 1)
-		MESSAGE(STATUS "Could not find number of cores. Will attempt to build on ${N} cores.")
+		MESSAGE(STATUS "Could not find number of cores. Will attempt to build on ${N} core(s).")
 	ENDIF()
 
 	# "MP" is build with all cores.
