@@ -18,6 +18,17 @@ PROJECT( MegaGlest )
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(NOT CMAKE_C_COMPILER_LAUNCHER)
+    find_program(CCACHE_PROGRAM ccache)
+    if(CCACHE_PROGRAM)
+        set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_PROGRAM} CACHE STRING "C Compiler Launcher" FORCE)
+        set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM} CACHE STRING "CXX Compiler Launcher" FORCE)
+        message("ccache found and it will be used for compiling")
+    else()
+        message("ccache not found")
+    endif()
+endif()
+
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 #
