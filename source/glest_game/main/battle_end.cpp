@@ -3,13 +3,13 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
-#include "battle_end.h"	
+#include "battle_end.h"
 
 #include "main_menu.h"
 #include "program.h"
@@ -33,7 +33,7 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 // =====================================================
-// 	class BattleEnd  
+// 	class BattleEnd
 // =====================================================
 
 BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originState) :
@@ -340,7 +340,6 @@ void BattleEnd::initBackgroundVideo() {
 			SDL_Window *window = glCtx->getScreenWindow();
 			SDL_Surface *screen = glCtx->getScreenSurface();
 
-			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 			//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
 			menuBackgroundVideo = new VideoPlayer(
 					&Renderer::getInstance(),
@@ -352,7 +351,6 @@ void BattleEnd::initBackgroundVideo() {
 					screen->h,
 					screen->format->BitsPerPixel,
 					true,
-					vlcPluginsPath,
 					SystemFlags::VERBOSE_MODE_ENABLED);
 			menuBackgroundVideo->initPlayer();
 		}
@@ -419,7 +417,7 @@ void BattleEnd::render() {
 		TextRenderer2D *textRenderer2D	= renderer.getTextRenderer();
 		TextRenderer3D *textRenderer3D	= renderer.getTextRenderer3D();
 		TextRenderer *textRenderer		= NULL;
-	
+
 		if(Renderer::renderText3DEnabled == true) {
 			textRenderer= textRenderer3D;
 		}
@@ -433,7 +431,7 @@ void BattleEnd::render() {
 		renderer.reset3dMenu();
 		renderer.clearZBuffer();
 		renderer.reset2d();
-		
+
 		if(menuBackgroundVideo != NULL) {
 			//printf("Rendering video not null!\n");
 

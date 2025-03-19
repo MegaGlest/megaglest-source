@@ -3220,7 +3220,6 @@ void MenuStateCustomGame::initFactionPreview(const GameSettings *gameSettings) {
 				SDL_Window *window = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreenWindow();
 				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreenSurface();
 
-				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 				//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
 				factionVideo = new VideoPlayer(
 						&Renderer::getInstance(),
@@ -3232,7 +3231,6 @@ void MenuStateCustomGame::initFactionPreview(const GameSettings *gameSettings) {
 						screen->h,
 						screen->format->BitsPerPixel,
 						true,
-						vlcPluginsPath,
 						SystemFlags::VERBOSE_MODE_ENABLED);
 				factionVideo->initPlayer();
 			}

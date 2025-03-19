@@ -129,17 +129,6 @@ $list_of_libs2" | sed '/:$/d' | sed '/^$/d' | sort -u )"
 		for dyn_lib in $list_of_libs; do
 		    cp "$dyn_lib" "lib/"
 		done
-		
-		if [ "$(find lib -type f -name "libvlc.*")" != "" ]; then
-			LIBVLC_DIR_CHECK="$( echo "$list_of_checked_libs" | tr ' ' '\n' | grep "libvlc\." | sort -u | head -1 )"
-			if [ "$LIBVLC_DIR_CHECK" != "" ]; then
-				LIBVLC_DIR="$(cd "$(dirname "$LIBVLC_DIR_CHECK")"; pwd)"
-				if [ -d "$LIBVLC_DIR/vlc/plugins" ]; then
-					mkdir -p "lib/vlc"
-					cp -f -r "$LIBVLC_DIR/vlc/plugins" "lib/vlc/"
-				fi
-			fi
-		fi
 	else
 		echo 'Error: Please run first at least once build-mg.sh script to be ready for prepare directory with dynamic libraries.'
 		# strange method but required for cpack/.dmg
@@ -179,7 +168,7 @@ echo " [ $distribution ] [ $release ] [ $architecture ] [ $xcode_ver ]"
 case $release in
 	*) 	if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then
 			echo 'Turning ON dynamic PNG ...'
-			EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF -DWANT_USE_VLC=OFF -DWANT_USE_OpenSSL=OFF"
+			EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF -DWANT_USE_OpenSSL=OFF"
 		fi;;
 esac
 case $xcode_ver in
