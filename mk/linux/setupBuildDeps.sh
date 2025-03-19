@@ -128,18 +128,18 @@ if [ "$quiet" -eq "1" ]; then
 	ZYPPER_OPTIONS="$ZYPPER_OPTIONS -y"
 fi
 
-packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 
 case $distribution in
 Debian | Raspbian)
 	case $release in
 	oldstable | 8 | 8.*)
 		#name > jessie, EoL May 2020
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
 		;;
 	stable | 9 | 9.*)
 		#name > stretch, EoL ? May 2022
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 		;;
 	testing | unstable | 10 | 10.0 | 11 | 11.0)
 		#name > buster / sid
@@ -222,19 +222,19 @@ LinuxMint | Linuxmint)
 	case $release in
 	2)
 		#LMDE 2, related with Debian ~ 8/jessie
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
 		;;
 	17 | 17.*)
 		#LTS, based on Ubuntu 14.04, EoL April 2019
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libvlccore-dev libcppunit-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libsdl2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxgtk3.0-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev -dev core-dev libcppunit-dev"
 		;;
 	18 | 18.*)
 		#LTS, based on Ubuntu 16.04, EoL April 2021
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 		;;
 	21 | 21.*)
 		#LTS, based on Ubuntu 22.04, EoL April 2027
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev libzstd-dev libssh-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev libzstd-dev libssh-dev"
 		;;
 	*)
 		installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
@@ -246,7 +246,7 @@ LinuxMint | Linuxmint)
 SuSE | SUSE?LINUX | Opensuse* | openSUSE*)
 	case $release in
 	*)
-		installcommand="zypper install $ZYPPER_OPTIONS gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxWidgets-devel lua-devel libjpeg8-devel libpng16-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel libminiupnpc-devel vlc-devel"
+		installcommand="zypper install $ZYPPER_OPTIONS gcc gcc-c++ cmake libSDL2-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxWidgets-devel lua-devel libjpeg8-devel libpng16-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel libminiupnpc-devel"
 		unsupported_currently_this_OS="release"
 		;;
 	esac
@@ -266,7 +266,7 @@ Mageia)
 	static="-static" #static=""
 	case $release in
 	*)
-		installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}sdl2.0-devel ${lib}openal-devel ${lib}lua${static}-devel ${lib}jpeg${static}-devel ${lib}png-devel ${lib}freetype6${static}-devel ${lib}wxgtku3.0-devel ${lib}cppunit-devel ${lib}fribidi${static}-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg${static}-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}vlc-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel ${lib}openssl${static}-devel"
+		installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}sdl2.0-devel ${lib}openal-devel ${lib}lua${static}-devel ${lib}jpeg${static}-devel ${lib}png-devel ${lib}freetype6${static}-devel ${lib}wxgtku3.0-devel ${lib}cppunit-devel ${lib}fribidi${static}-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg${static}-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel ${lib}openssl${static}-devel"
 		unsupported_currently_this_OS="release"
 		;;
 	esac
@@ -276,7 +276,7 @@ ManjaroLinux* | Manjarolinux*)
 	if [ "$architecture" = "x86_64" ] || [ "$architecture" = "aarch64" ]; then lib=""; else lib="lib32-"; fi
 	case $release in
 	*)
-		installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua53 ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient vlc ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
+		installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua53 ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
 		# unsupported_currently_this_OS="release"
 		;;
 	esac

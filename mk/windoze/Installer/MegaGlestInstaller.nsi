@@ -93,7 +93,7 @@ Function un.myGUIInit
   FindWindow $0 '_Nb'
   #EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
 FunctionEnd
-  
+
 Function MUIGUIInit
 
   Call myGUIInit
@@ -101,7 +101,7 @@ Function MUIGUIInit
 # look for known older versions
 
    StrCpy $R2 ${APVER}
-   
+
    ReadRegStr $R0 HKLM Software\${APNAME} "Install_Dir"
    StrCmp $R0 "" +2 0
    ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}" "UninstallString"
@@ -182,7 +182,7 @@ doneInit:
   CreateDirectory "$APPDATA\megaglest\"
   Rename "$R0\glestuser.ini" "$APPDATA\megaglest\glestuser.ini"
   ClearErrors
-  
+
 FunctionEnd
 
 
@@ -196,7 +196,7 @@ Function .onInstSuccess
 
     MessageBox MB_YESNO "Would you like to view our getting started page on megaglest.org?" IDNO noLaunchWebsite
     ExecShell open 'https://megaglest.org/get_started'
-    
+
 noLaunchWebsite:
 
 MessageBox MB_YESNO "Would you like to view the README file? This is heavily recommended." IDNO noViewReadme
@@ -246,14 +246,9 @@ Section "${APNAME} (required)"
   File "..\..\shared\servers.ini"
   File /NONFATAL "..\..\..\data\glest_game\openal32.dll"
   File /NONFATAL "..\openal64.dll"
-  
+
   File "..\NetworkThrottleFix.reg"
-  
-  #File /NONFATAL "..\libvlccore.dll"
-  #File /NONFATAL "..\libvlc.dll"
-  #File /NONFATAL /r /x .gitignore /x .svn /x mydata "..\plugins"
-  #File /NONFATAL /r /x .gitignore /x .svn /x mydata "..\lua"
-  
+
   SetOutPath "$INSTDIR\blender\"
   #File /NONFATAL "..\..\..\data\glest_game\xml2g.exe"
   #File /NONFATAL "..\..\..\data\glest_game\g2xml.exe"
@@ -340,7 +335,7 @@ RequestExecutionLevel none
 Section "Uninstall"
 
   Call un.myGUIInit
-  
+
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APNAME}"
   DeleteRegKey HKLM SOFTWARE\${APNAME}

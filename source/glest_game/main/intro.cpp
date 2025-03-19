@@ -519,7 +519,6 @@ Intro::Intro(Program *program):
 		SDL_Window *window = glCtx->getScreenWindow();
 		SDL_Surface *screen = glCtx->getScreenSurface();
 
-		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
 		::Shared::Graphics::VideoPlayer player(
 				&Renderer::getInstance(),
@@ -531,7 +530,6 @@ Intro::Intro(Program *program):
 				screen->h,
 				screen->format->BitsPerPixel,
 				false,
-				vlcPluginsPath,
 				SystemFlags::VERBOSE_MODE_ENABLED);
 		player.PlayVideo();
 		exitAfterIntroVideo = true;
