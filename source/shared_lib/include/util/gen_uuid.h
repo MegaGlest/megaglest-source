@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "platform_common.h" // for uuid_t (APPLE)
 #include "util.h"  // for gettimeofday()
 
 namespace Shared { namespace Util {
