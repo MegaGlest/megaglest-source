@@ -60,6 +60,7 @@ public:
 	};
 
 private:
+	map <int,Vec2f> locations;
 	Vec3f pos;
 	Vec3f destPos;
 	Vec2f shakeOffset;
@@ -175,6 +176,9 @@ public:
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
 
+	void restoreLocation(int i) { try { setPos(locations.at(i)); } catch (const std::out_of_range& oor) {} }
+	void saveLocation(int i) { locations[i] = Vec2f(getPos().x,getPos().z); }
+
 private:
 	//void setClampBounds(bool value) { clampBounds = value; }
 	void resetPosition();
@@ -185,6 +189,7 @@ private:
 	void moveUp(float dist);
 	void rotateHV(float h, float v);
 	void shakeCamera();
+
 };
 
 }} //end namespace
