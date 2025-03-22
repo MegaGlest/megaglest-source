@@ -13,8 +13,10 @@
 #define _GLEST_GAME_TILESET_H_
 
 #ifdef WIN32
-#include <winsock.h>
+// clang-format off
 #include <winsock2.h>
+#include <winsock.h>
+// clang-format on
 #endif
 
 #include <map>
