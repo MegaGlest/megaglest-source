@@ -13,21 +13,23 @@
 #define _GLEST_GAME_COMMANDER_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
 #include <vector>
-#include "vec.h"
-#include "selection.h"
-#include "command_type.h"
-#include "platform_util.h"
+
 #include "base_thread.h"
+#include "command_type.h"
 #include "leak_dumper.h"
+#include "platform_util.h"
+#include "selection.h"
+#include "vec.h"
 
 using std::vector;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 using Shared::Graphics::Vec2i;
 using Shared::PlatformCommon::Chrono;
@@ -46,61 +48,82 @@ class SwitchTeamVote;
 ///	Gives commands to the units
 // =====================================================
 class Commander {
-private:
-	typedef vector<std::pair<CommandResult,string> > CommandResultContainer;
+ private:
+  typedef vector<std::pair<CommandResult, string> > CommandResultContainer;
 
-private:
-    World *world;
-	Chrono perfTimer;
+ private:
+  World *world;
+  Chrono perfTimer;
 
-	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
+  std::vector<std::pair<int, NetworkCommand> > replayCommandList;
 
-	bool pauseNetworkCommands;
+  bool pauseNetworkCommands;
 
-public:
-    Commander();
-    virtual ~Commander();
+ public:
+  Commander();
+  virtual ~Commander();
 
-    bool getPauseNetworkCommands() const { return this->pauseNetworkCommands; }
-    void setPauseNetworkCommands(bool pause) { this->pauseNetworkCommands = pause; }
+  bool getPauseNetworkCommands() const { return this->pauseNetworkCommands; }
+  void setPauseNetworkCommands(bool pause) {
+    this->pauseNetworkCommands = pause;
+  }
 
-    void signalNetworkUpdate(Game *game);
-    void init(World *world);
-	void updateNetwork(Game *game);
+  void signalNetworkUpdate(Game *game);
+  void init(World *world);
+  void updateNetwork(Game *game);
 
-	void addToReplayCommandList(NetworkCommand &command,int worldFrameCount);
-	bool getReplayCommandListForFrame(int worldFrameCount);
-	bool hasReplayCommandListForFrame() const;
-	int getReplayCommandListForFrameCount() const;
+  void addToReplayCommandList(NetworkCommand &command, int worldFrameCount);
+  bool getReplayCommandListForFrame(int worldFrameCount);
+  bool hasReplayCommandListForFrame() const;
+  int getReplayCommandListForFrameCount() const;
 
-	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, const CommandType *commandType,
-										const Vec2i &pos, const UnitType* unitType,
-										CardinalDir facing, bool tryQueue,Unit *targetUnit=NULL) const;
+  std::pair<CommandResult, string> tryGiveCommand(
+      const Selection *selection, const CommandType *commandType,
+      const Vec2i &pos, const UnitType *unitType, CardinalDir facing,
+      bool tryQueue, Unit *targetUnit = NULL) const;
 
-	std::pair<CommandResult,string> tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false,Unit *targetUnit=NULL,int unitGroupCommandId=-1) const;
-	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
-	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
-	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false, int unitCommandGroupId = -1) const;
-	CommandResult tryCancelCommand(const Selection *selection) const;
-	void trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const;
-	void trySwitchTeam(const Faction* faction, int teamIndex) const;
-	void trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const;
-	void tryDisconnectNetworkPlayer(const Faction* faction, int playerIndex) const;
+  std::pair<CommandResult, string> tryGiveCommand(
+      const Unit *unit, const CommandType *commandType, const Vec2i &pos,
+      const UnitType *unitType, CardinalDir facing, bool tryQueue = false,
+      Unit *targetUnit = NULL, int unitGroupCommandId = -1) const;
+  std::pair<CommandResult, string> tryGiveCommand(const Selection *selection,
+                                                  CommandClass commandClass,
+                                                  const Vec2i &pos = Vec2i(0),
+                                                  const Unit *targetUnit = NULL,
+                                                  bool tryQueue = false) const;
+  std::pair<CommandResult, string> tryGiveCommand(
+      const Selection *selection, const CommandType *commandType,
+      const Vec2i &pos = Vec2i(0), const Unit *targetUnit = NULL,
+      bool tryQueue = false) const;
+  std::pair<CommandResult, string> tryGiveCommand(
+      const Selection *selection, const Vec2i &pos,
+      const Unit *targetUnit = NULL, bool tryQueue = false,
+      int unitCommandGroupId = -1) const;
+  CommandResult tryCancelCommand(const Selection *selection) const;
+  void trySetMeetingPoint(const Unit *unit, const Vec2i &pos) const;
+  void trySwitchTeam(const Faction *faction, int teamIndex) const;
+  void trySwitchTeamVote(const Faction *faction, SwitchTeamVote *vote) const;
+  void tryDisconnectNetworkPlayer(const Faction *faction,
+                                  int playerIndex) const;
 
-	void tryPauseGame(bool joinNetworkGame, bool clearCaches) const;
-	void tryResumeGame(bool joinNetworkGame, bool clearCaches) const;
+  void tryPauseGame(bool joinNetworkGame, bool clearCaches) const;
+  void tryResumeGame(bool joinNetworkGame, bool clearCaches) const;
 
-	void tryNetworkPlayerDisconnected(int factionIndex) const;
+  void tryNetworkPlayerDisconnected(int factionIndex) const;
 
-	Command* buildCommand(const NetworkCommand* networkCommand) const;
+  Command *buildCommand(const NetworkCommand *networkCommand) const;
 
-private:
-	std::pair<CommandResult,string> pushNetworkCommand(const NetworkCommand* networkCommand) const;
-	std::pair<CommandResult,string> computeResult(const CommandResultContainer &results) const;
-	void giveNetworkCommand(NetworkCommand* networkCommand) const;
-	bool canSubmitCommandType(const Unit *unit, const CommandType *commandType) const;
+ private:
+  std::pair<CommandResult, string> pushNetworkCommand(
+      const NetworkCommand *networkCommand) const;
+  std::pair<CommandResult, string> computeResult(
+      const CommandResultContainer &results) const;
+  void giveNetworkCommand(NetworkCommand *networkCommand) const;
+  bool canSubmitCommandType(const Unit *unit,
+                            const CommandType *commandType) const;
 };
 
-}} //end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif

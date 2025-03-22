@@ -12,15 +12,16 @@
 #define _GLEST_GAME_ACHIEVEMENT_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
-    #include <winsock.h>
+#include <winsock.h>
+#include <winsock2.h>
 #endif
 
 #include <string>
+
+#include "leak_dumper.h"
 #include "util.h"
 #include "vec.h"
 #include "xml_parser.h"
-#include "leak_dumper.h"
 
 using Shared::Xml::XmlNode;
 using std::vector;
@@ -36,32 +37,26 @@ class PlayerAchievementsInterface;
 // =====================================================
 
 class AchievementBase {
-private:
-	string name;
-	string description;
-	string pictureName;
+ private:
+  string name;
+  string description;
+  string pictureName;
 
-public:
-	AchievementBase();
-	virtual ~AchievementBase();
-	virtual void load(const XmlNode *node);
+ public:
+  AchievementBase();
+  virtual ~AchievementBase();
+  virtual void load(const XmlNode *node);
 
-	string getDescription() const {
-		return description;
-	}
+  string getDescription() const { return description; }
 
-	string getName() const {
-		return name;
-	}
+  string getName() const { return name; }
 
-	string getPictureName() const {
-		return pictureName;
-	}
+  string getPictureName() const { return pictureName; }
 
-	virtual bool checkAchieved(Game *game, PlayerAchievementsInterface *playerStats) {
-		return false;
-	}
-
+  virtual bool checkAchieved(Game *game,
+                             PlayerAchievementsInterface *playerStats) {
+    return false;
+  }
 };
 
 // =====================================================
@@ -69,26 +64,23 @@ public:
 //	achievements based on counters
 // =====================================================
 
-class CounterBasedAchievement: public AchievementBase{
-private:
-	string counterName;
-	int minCount;
+class CounterBasedAchievement : public AchievementBase {
+ private:
+  string counterName;
+  int minCount;
 
-public:
-	CounterBasedAchievement();
-	~CounterBasedAchievement();
+ public:
+  CounterBasedAchievement();
+  ~CounterBasedAchievement();
 
-	void load(const XmlNode *node);
+  void load(const XmlNode *node);
 
-	string getCounterName() const {
-		return counterName;
-	}
+  string getCounterName() const { return counterName; }
 
-	int getMinCount() const {
-		return minCount;
-	}
+  int getMinCount() const { return minCount; }
 
-	virtual bool checkAchieved(Game *game, PlayerAchievementsInterface *playerStats);
+  virtual bool checkAchieved(Game *game,
+                             PlayerAchievementsInterface *playerStats);
 };
 
 // =====================================================
@@ -96,19 +88,21 @@ public:
 //	a class holding all achievements
 // =====================================================
 
-typedef vector<AchievementBase*> AchievementVector;
+typedef vector<AchievementBase *> AchievementVector;
 
 class Achievements {
-private:
-	AchievementVector achievements;
-	Achievements();
-public:
-	static const   AchievementVector* getAchievements();
-private:
-	 void load(  string xmlFilePath);
+ private:
+  AchievementVector achievements;
+  Achievements();
+
+ public:
+  static const AchievementVector *getAchievements();
+
+ private:
+  void load(string xmlFilePath);
 };
 
-}
-} //end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif
