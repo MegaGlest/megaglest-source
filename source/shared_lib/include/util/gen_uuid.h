@@ -39,9 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__APPLE__)
-#include <sys/time.h>
-#endif
+
 #include "util.h"  // for gettimeofday()
 
 namespace Shared { namespace Util {
