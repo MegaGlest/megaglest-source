@@ -13,9 +13,7 @@
 #define _GLEST_GAME_MINIMAP_H_
 
 #ifdef WIN32
-// clang-format off
 #include <winsock2.h>
-// clang-format on
 #endif
 
 #include "leak_dumper.h"

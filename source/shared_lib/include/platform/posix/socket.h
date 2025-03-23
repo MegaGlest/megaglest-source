@@ -22,12 +22,6 @@
 		#define PLATFORM_SOCKET_FORMAT_TYPE "%d"
 	#endif
 #else
-	#ifndef __APPLE__
-		// This is not required on APPLE, and if included, it also includes
-		// uuid/uuid.h, which causes errors due to ambiguation of uuid_t when
-		// shared_lib/include/util/gen_uuid.h is included
-		#include <unistd.h>
-	#endif
 	#include <sys/socket.h>
 	#include <netinet/in.h>
 	#include <arpa/inet.h>

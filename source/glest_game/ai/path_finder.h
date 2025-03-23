@@ -12,11 +12,9 @@
 #ifndef _GLEST_GAME_PATHFINDER_H_
 #define _GLEST_GAME_PATHFINDER_H_
 
-// clang-format off
 #ifdef WIN32
 #include <winsock2.h>
 #endif
-// clang-format on
 
 #include <map>
 #include <vector>

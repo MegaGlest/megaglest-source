@@ -12,9 +12,7 @@
 #define _GLEST_GAME_ACHIEVEMENT_H_
 
 #ifdef WIN32
-// clang-format off
 #include <winsock2.h>
-// clang-format on
 #endif
 
 #include <string>
