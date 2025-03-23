@@ -14,566 +14,675 @@
 #include <cassert>
 #include <ctime>
 
-#include "logger.h"
-#include "util.h"
-#include "renderer.h"
 #include "game_util.h"
-#include "leak_dumper.h"
-#include "properties.h"
 #include "lang.h"
+#include "leak_dumper.h"
+#include "logger.h"
 #include "platform_util.h"
+#include "properties.h"
+#include "renderer.h"
+#include "util.h"
 
 using namespace Shared::Util;
 using namespace Shared::Xml;
 using namespace Shared::Graphics;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
-const float Tileset::standardAirHeight= 5.0f;
-const float Tileset::standardShadowIntensity= 0.2f;
+const float Tileset::standardAirHeight = 5.0f;
+const float Tileset::standardShadowIntensity = 0.2f;
 // =====================================================
 // 	class AmbientSounds
 // =====================================================
 
-void AmbientSounds::load(const string &dir, const XmlNode *xmlNode,
-		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader) {
-	string path="";
+void AmbientSounds::load(
+    const string &dir, const XmlNode *xmlNode,
+    std::map<string, vector<pair<string, string> > > &loadedFileList,
+    string parentLoader) {
+  string path = "";
 
-	//day
-	const XmlNode *dayNode= xmlNode->getChild("day-sound");
-	enabledDay= dayNode->getAttribute("enabled")->getBoolValue();
-	if(enabledDay) {
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
+  // day
+  const XmlNode *dayNode = xmlNode->getChild("day-sound");
+  enabledDay = dayNode->getAttribute("enabled")->getBoolValue();
+  if (enabledDay) {
+    string currentPath = dir;
+    endPathWithSlash(currentPath);
 
-		path= dayNode->getAttribute("path")->getRestrictedValue(currentPath);
-		day.open(path);
-		loadedFileList[path].push_back(make_pair(parentLoader,dayNode->getAttribute("path")->getRestrictedValue()));
+    path = dayNode->getAttribute("path")->getRestrictedValue(currentPath);
+    day.open(path);
+    loadedFileList[path].push_back(make_pair(
+        parentLoader, dayNode->getAttribute("path")->getRestrictedValue()));
 
-		alwaysPlayDay= dayNode->getAttribute("play-always")->getBoolValue();
-	}
+    alwaysPlayDay = dayNode->getAttribute("play-always")->getBoolValue();
+  }
 
-	//night
-	const XmlNode *nightNode= xmlNode->getChild("night-sound");
-	enabledNight= nightNode->getAttribute("enabled")->getBoolValue();
-	if(enabledNight) {
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
+  // night
+  const XmlNode *nightNode = xmlNode->getChild("night-sound");
+  enabledNight = nightNode->getAttribute("enabled")->getBoolValue();
+  if (enabledNight) {
+    string currentPath = dir;
+    endPathWithSlash(currentPath);
 
-		path= nightNode->getAttribute("path")->getRestrictedValue(currentPath);
-		night.open(path);
-		loadedFileList[path].push_back(make_pair(parentLoader,nightNode->getAttribute("path")->getRestrictedValue()));
+    path = nightNode->getAttribute("path")->getRestrictedValue(currentPath);
+    night.open(path);
+    loadedFileList[path].push_back(make_pair(
+        parentLoader, nightNode->getAttribute("path")->getRestrictedValue()));
 
-		alwaysPlayNight= nightNode->getAttribute("play-always")->getBoolValue();
-	}
+    alwaysPlayNight = nightNode->getAttribute("play-always")->getBoolValue();
+  }
 
-	//rain
-	const XmlNode *rainNode= xmlNode->getChild("rain-sound");
-	enabledRain= rainNode->getAttribute("enabled")->getBoolValue();
-	if(enabledRain) {
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
+  // rain
+  const XmlNode *rainNode = xmlNode->getChild("rain-sound");
+  enabledRain = rainNode->getAttribute("enabled")->getBoolValue();
+  if (enabledRain) {
+    string currentPath = dir;
+    endPathWithSlash(currentPath);
 
-		path= rainNode->getAttribute("path")->getRestrictedValue(currentPath);
-		rain.open(path);
-		loadedFileList[path].push_back(make_pair(parentLoader,rainNode->getAttribute("path")->getRestrictedValue()));
-	}
+    path = rainNode->getAttribute("path")->getRestrictedValue(currentPath);
+    rain.open(path);
+    loadedFileList[path].push_back(make_pair(
+        parentLoader, rainNode->getAttribute("path")->getRestrictedValue()));
+  }
 
-	//snow
-	const XmlNode *snowNode= xmlNode->getChild("snow-sound");
-	enabledSnow= snowNode->getAttribute("enabled")->getBoolValue();
-	if(enabledSnow) {
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
+  // snow
+  const XmlNode *snowNode = xmlNode->getChild("snow-sound");
+  enabledSnow = snowNode->getAttribute("enabled")->getBoolValue();
+  if (enabledSnow) {
+    string currentPath = dir;
+    endPathWithSlash(currentPath);
 
-		path= snowNode->getAttribute("path")->getRestrictedValue(currentPath);
-		snow.open(path);
-		loadedFileList[path].push_back(make_pair(parentLoader,snowNode->getAttribute("path")->getRestrictedValue()));
-	}
+    path = snowNode->getAttribute("path")->getRestrictedValue(currentPath);
+    snow.open(path);
+    loadedFileList[path].push_back(make_pair(
+        parentLoader, snowNode->getAttribute("path")->getRestrictedValue()));
+  }
 
-	//dayStart
-	const XmlNode *dayStartNode= xmlNode->getChild("day-start-sound");
-	enabledDayStart= dayStartNode->getAttribute("enabled")->getBoolValue();
-	if(enabledDayStart) {
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
+  // dayStart
+  const XmlNode *dayStartNode = xmlNode->getChild("day-start-sound");
+  enabledDayStart = dayStartNode->getAttribute("enabled")->getBoolValue();
+  if (enabledDayStart) {
+    string currentPath = dir;
+    endPathWithSlash(currentPath);
 
-		path= dayStartNode->getAttribute("path")->getRestrictedValue(currentPath);
-		dayStart.load(path);
-		loadedFileList[path].push_back(make_pair(parentLoader,dayStartNode->getAttribute("path")->getRestrictedValue()));
-	}
+    path = dayStartNode->getAttribute("path")->getRestrictedValue(currentPath);
+    dayStart.load(path);
+    loadedFileList[path].push_back(
+        make_pair(parentLoader,
+                  dayStartNode->getAttribute("path")->getRestrictedValue()));
+  }
 
-	//nightStart
-	const XmlNode *nightStartNode= xmlNode->getChild("night-start-sound");
-	enabledNightStart= nightStartNode->getAttribute("enabled")->getBoolValue();
-	if(enabledNightStart) {
-		string currentPath = dir;
-		endPathWithSlash(currentPath);
+  // nightStart
+  const XmlNode *nightStartNode = xmlNode->getChild("night-start-sound");
+  enabledNightStart = nightStartNode->getAttribute("enabled")->getBoolValue();
+  if (enabledNightStart) {
+    string currentPath = dir;
+    endPathWithSlash(currentPath);
 
-		path= nightStartNode->getAttribute("path")->getRestrictedValue(currentPath);
-		nightStart.load(path);
-		loadedFileList[path].push_back(make_pair(parentLoader,nightStartNode->getAttribute("path")->getRestrictedValue()));
-	}
+    path =
+        nightStartNode->getAttribute("path")->getRestrictedValue(currentPath);
+    nightStart.load(path);
+    loadedFileList[path].push_back(
+        make_pair(parentLoader,
+                  nightStartNode->getAttribute("path")->getRestrictedValue()));
+  }
 }
 
 // =====================================================
 // 	class Tileset
 // =====================================================
 
-Checksum Tileset::loadTileset(const vector<string> pathList, const string &tilesetName,
-		Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
-    Checksum tilesetChecksum;
+Checksum Tileset::loadTileset(
+    const vector<string> pathList, const string &tilesetName,
+    Checksum *checksum,
+    std::map<string, vector<pair<string, string> > > &loadedFileList) {
+  Checksum tilesetChecksum;
 
-    bool found = false;
-    for(int idx = 0; idx < (int)pathList.size(); idx++) {
-		string currentPath = pathList[idx];
-		endPathWithSlash(currentPath);
-        string path = currentPath + tilesetName;
-        if(isdir(path.c_str()) == true) {
-            load(path, checksum, &tilesetChecksum, loadedFileList);
-            found = true;
-            break;
-        }
+  bool found = false;
+  for (int idx = 0; idx < (int)pathList.size(); idx++) {
+    string currentPath = pathList[idx];
+    endPathWithSlash(currentPath);
+    string path = currentPath + tilesetName;
+    if (isdir(path.c_str()) == true) {
+      load(path, checksum, &tilesetChecksum, loadedFileList);
+      found = true;
+      break;
     }
-    if(found == false) {
-		throw megaglest_runtime_error("Error could not find tileset [" + tilesetName + "]\n",true);
-
-    }
-    return tilesetChecksum;
+  }
+  if (found == false) {
+    throw megaglest_runtime_error(
+        "Error could not find tileset [" + tilesetName + "]\n", true);
+  }
+  return tilesetChecksum;
 }
 
+void Tileset::load(
+    const string &dir, Checksum *checksum, Checksum *tilesetChecksum,
+    std::map<string, vector<pair<string, string> > > &loadedFileList) {
+  if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+    SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n",
+                             __FILE__, __FUNCTION__, __LINE__);
 
-void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetChecksum,
-		std::map<string,vector<pair<string, string> > > &loadedFileList) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+  random.init(time(NULL));
 
-	random.init(time(NULL));
+  if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+    SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n",
+                             __FILE__, __FUNCTION__, __LINE__);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+  string name = lastDir(dir);
+  tileset_name = name;
+  string currentPath = dir;
+  endPathWithSlash(currentPath);
+  string path = currentPath + name + ".xml";
+  string sourceXMLFile = path;
 
-	string name= lastDir(dir);
-	tileset_name = name;
-	string currentPath = dir;
-	endPathWithSlash(currentPath);
-	string path= currentPath + name + ".xml";
-	string sourceXMLFile = path;
+  checksum->addFile(path);
+  tilesetChecksum->addFile(path);
+  checksumValue.addFile(path);
 
-	checksum->addFile(path);
-	tilesetChecksum->addFile(path);
-	checksumValue.addFile(path);
+  try {
+    char szBuf[8096] = "";
+    snprintf(szBuf, 8096,
+             Lang::getInstance()
+                 .getString("LogScreenGameLoadingTileset", "", true)
+                 .c_str(),
+             formatString(name).c_str());
+    Logger::getInstance().add(szBuf, true);
 
-	try {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingTileset","",true).c_str(),formatString(name).c_str());
-		Logger::getInstance().add(szBuf, true);
+    Renderer &renderer = Renderer::getInstance();
 
-		Renderer &renderer= Renderer::getInstance();
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    // printf("About to load tileset [%s]\n",path.c_str());
+    // parse xml
+    XmlTree xmlTree;
+    xmlTree.load(path, Properties::getTagReplacementValues());
+    loadedFileList[path].push_back(make_pair(currentPath, currentPath));
 
-		//printf("About to load tileset [%s]\n",path.c_str());
-		//parse xml
-		XmlTree xmlTree;
-		xmlTree.load(path,Properties::getTagReplacementValues());
-		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    const XmlNode *tilesetNode = xmlTree.getRootNode();
 
-		const XmlNode *tilesetNode= xmlTree.getRootNode();
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    // surfaces
+    const XmlNode *surfacesNode = tilesetNode->getChild("surfaces");
+    int partsize = 0;
+    for (int i = 0; i < surfCount; ++i) {
+      const XmlNode *surfaceNode;
+      if (surfacesNode->hasChildAtIndex("surface", i)) {
+        surfaceNode = surfacesNode->getChild("surface", i);
+      } else {
+        // cliff texture does not exist, use texture 2 instead
+        surfaceNode = surfacesNode->getChild("surface", 2);
+      }
 
-		//surfaces
-		const XmlNode *surfacesNode= tilesetNode->getChild("surfaces");
-		int partsize= 0;
-		for(int i=0; i < surfCount; ++i) {
+      if (surfaceNode->hasAttribute("partsize")) {
+        partsize = surfaceNode->getAttribute("partsize", true)->getIntValue();
+      } else {
+        partsize = 0;
+      }
 
-			const XmlNode *surfaceNode;
-			if(surfacesNode->hasChildAtIndex("surface",i)){
-				surfaceNode= surfacesNode->getChild("surface", i);
-			}
-			else {
-				// cliff texture does not exist, use texture 2 instead
-				surfaceNode= surfacesNode->getChild("surface", 2);
-			}
+      if (partsize == 0) {
+        int childCount = (int)surfaceNode->getChildCount();
+        surfPixmaps[i].resize(childCount);
+        surfProbs[i].resize(childCount);
 
-			if(surfaceNode->hasAttribute("partsize")){
-				partsize=surfaceNode->getAttribute("partsize",true)->getIntValue();
-			}
-			else{
-				partsize=0;
-			}
+        for (int j = 0; j < childCount; ++j) {
+          surfPixmaps[i][j] = NULL;
+        }
 
-			if(partsize==0){
-				int childCount= (int)surfaceNode->getChildCount();
-				surfPixmaps[i].resize(childCount);
-				surfProbs[i].resize(childCount);
+        for (int j = 0; j < childCount; ++j) {
+          const XmlNode *textureNode = surfaceNode->getChild("texture", j);
+          if (GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+            surfPixmaps[i][j] = new Pixmap2D();
+            surfPixmaps[i][j]->init(3);
+            surfPixmaps[i][j]->load(
+                textureNode->getAttribute("path")->getRestrictedValue(
+                    currentPath));
+          }
+          loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(
+                             currentPath)]
+              .push_back(make_pair(
+                  sourceXMLFile,
+                  textureNode->getAttribute("path")->getRestrictedValue()));
 
-				for(int j = 0; j < childCount; ++j) {
-					surfPixmaps[i][j] = NULL;
-				}
+          surfProbs[i][j] = textureNode->getAttribute("prob")->getFloatValue();
+        }
+      } else {
+        // read single big texture and cut it into pieces
+        const XmlNode *textureNode = surfaceNode->getChild("texture", 0);
 
-				for(int j = 0; j < childCount; ++j) {
-					const XmlNode *textureNode= surfaceNode->getChild("texture", j);
-					if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-						surfPixmaps[i][j] = new Pixmap2D();
-						surfPixmaps[i][j]->init(3);
-						surfPixmaps[i][j]->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
-					}
-					loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
+        // There is no way to figure out parts without loading the texture
+        // unfortunately we must load it even for headless server
+        // to get width and height
+        bool switchOffNonGraphicalModeEnabled =
+            GlobalStaticFlags::getIsNonGraphicalModeEnabled();
+        if (GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+          GlobalStaticFlags::setIsNonGraphicalModeEnabled(false);
+        }
 
-					surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();
-				}
-			}
-			else {
-				// read single big texture and cut it into pieces
-				const XmlNode *textureNode= surfaceNode->getChild("texture", 0);
+        string exceptionError = "";
+        Pixmap2D *pixmap = NULL;
+        int width = 0;
+        int height = 0;
 
-				// There is no way to figure out parts without loading the texture
-				// unfortunately we must load it even for headless server
-				// to get width and height
-				bool switchOffNonGraphicalModeEnabled = GlobalStaticFlags::getIsNonGraphicalModeEnabled();
-				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-					GlobalStaticFlags::setIsNonGraphicalModeEnabled(false);
-				}
+        try {
+          pixmap = new Pixmap2D();
+          pixmap->init(3);
+          pixmap->load(textureNode->getAttribute("path")->getRestrictedValue(
+              currentPath));
+          loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(
+                             currentPath)]
+              .push_back(make_pair(
+                  sourceXMLFile,
+                  textureNode->getAttribute("path")->getRestrictedValue()));
 
-				string exceptionError = "";
-				Pixmap2D *pixmap 	= NULL;
-				int width 			= 0;
-				int height 			= 0;
+          width = pixmap->getW();
+          height = pixmap->getW();
+        } catch (megaglest_runtime_error &ex) {
+          SystemFlags::OutputDebug(
+              SystemFlags::debugError, "In [%s::%s Line: %d] Error [%s]\n",
+              extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
+              __LINE__, ex.what());
+          throw megaglest_runtime_error(
+              "Error loading tileset: " + path + "\nMessage: " + ex.what(),
+              !ex.wantStackTrace());
+        } catch (const exception &ex) {
+          SystemFlags::OutputDebug(SystemFlags::debugError,
+                                   "In [%s::%s Line: %d] Error [%s]\n",
+                                   __FILE__, __FUNCTION__, __LINE__, ex.what());
 
-				try {
-					pixmap=new Pixmap2D();
-					pixmap->init(3);
-					pixmap->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
-					loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
+          exceptionError = "Error: " + path + "\n" + ex.what();
+        }
 
-					width  = pixmap->getW();
-					height = pixmap->getW();
-				}
-			    catch(megaglest_runtime_error& ex) {
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-					throw megaglest_runtime_error("Error loading tileset: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
-			    }
-				catch(const exception &ex) {
-					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+        if (switchOffNonGraphicalModeEnabled == true) {
+          GlobalStaticFlags::setIsNonGraphicalModeEnabled(true);
 
-					exceptionError = "Error: " + path + "\n" + ex.what();
-				}
+          delete pixmap;
+          pixmap = NULL;
+        }
 
-				if(switchOffNonGraphicalModeEnabled == true) {
-					GlobalStaticFlags::setIsNonGraphicalModeEnabled(true);
+        if (exceptionError != "") {
+          throw megaglest_runtime_error(exceptionError.c_str());
+        }
 
-					delete pixmap;
-					pixmap = NULL;
-				}
+        if (width != height) {
+          throw megaglest_runtime_error("width != height");
+        }
+        if (width % 64 != 0) {
+          throw megaglest_runtime_error("width % 64 != 0");
+        }
+        if (width % partsize != 0) {
+          throw megaglest_runtime_error("width % partsize != 0");
+        }
 
-				if(exceptionError != "") {
-					throw megaglest_runtime_error(exceptionError.c_str());
-				}
+        int parts = width / partsize;
+        int numberOfPieces = parts * parts;
+        partsArray[i] = parts;
+        surfPixmaps[i].resize(numberOfPieces);
+        surfProbs[i].resize(numberOfPieces);
+        int j = 0;
+        for (int x = 0; x < parts; ++x) {
+          for (int y = 0; y < parts; ++y) {
+            if (GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+              surfPixmaps[i][j] = new Pixmap2D();
+              surfPixmaps[i][j]->init(partsize, partsize, 3);
+              surfPixmaps[i][j]->copyImagePart(x * partsize, y * partsize,
+                                               pixmap);
+            }
+            surfProbs[i][j] = -1;
+            j++;
+          }
+        }
+      }
+    }
 
-				if(width != height) {
-					throw megaglest_runtime_error("width != height");
-				}
-				if(width % 64 != 0) {
-					throw megaglest_runtime_error("width % 64 != 0");
-				}
-				if(width % partsize != 0) {
-					throw megaglest_runtime_error("width % partsize != 0");
-				}
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-				int parts=width/partsize;
-				int numberOfPieces=parts*parts;
-				partsArray[i]=parts;
-				surfPixmaps[i].resize(numberOfPieces);
-				surfProbs[i].resize(numberOfPieces);
-				int j=0;
-				for(int x = 0; x < parts; ++x) {
-					for(int y = 0; y < parts; ++y) {
-						if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-							surfPixmaps[i][j] = new Pixmap2D();
-							surfPixmaps[i][j]->init(partsize,partsize,3);
-							surfPixmaps[i][j]->copyImagePart(x*partsize,y*partsize,pixmap);
-						}
-						surfProbs[i][j]=-1;
-						j++;
-					}
-				}
-			}
-		}
+    // object models
+    const XmlNode *objectsNode = tilesetNode->getChild("objects");
+    for (int i = 0; i < objCount; ++i) {
+      const XmlNode *objectNode = objectsNode->getChild("object", i);
+      int childCount = (int)objectNode->getChildCount();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+      int objectHeight = 0;
+      bool walkable = objectNode->getAttribute("walkable")->getBoolValue();
+      if (walkable == false) {
+        const XmlAttribute *heightAttribute =
+            objectNode->getAttribute("height", false);
+        if (heightAttribute != NULL) {
+          objectHeight = heightAttribute->getIntValue();
+        }
+      }
 
-		//object models
-		const XmlNode *objectsNode= tilesetNode->getChild("objects");
-		for(int i=0; i<objCount; ++i){
-			const XmlNode *objectNode= objectsNode->getChild("object", i);
-			int childCount= (int)objectNode->getChildCount();
+      objectTypes[i].init(childCount, i, walkable, objectHeight);
+      for (int j = 0; j < childCount; ++j) {
+        const XmlNode *modelNode = objectNode->getChild("model", j);
+        const XmlAttribute *pathAttribute = modelNode->getAttribute("path");
+        TilesetModelType *tmt = objectTypes[i].loadModel(
+            pathAttribute->getRestrictedValue(currentPath), &loadedFileList,
+            sourceXMLFile);
+        loadedFileList[pathAttribute->getRestrictedValue(currentPath)]
+            .push_back(
+                make_pair(sourceXMLFile, pathAttribute->getRestrictedValue()));
 
-			int objectHeight = 0;
-			bool walkable = objectNode->getAttribute("walkable")->getBoolValue();
-			if(walkable == false) {
-				const XmlAttribute *heightAttribute = objectNode->getAttribute("height",false);
-				if(heightAttribute != NULL) {
-					objectHeight = heightAttribute->getIntValue();
-				}
-			}
+        if (modelNode->hasAttribute("anim-speed") == true) {
+          int animSpeed = modelNode->getAttribute("anim-speed")->getIntValue();
+          tmt->setAnimSpeed(animSpeed);
+        }
 
-			objectTypes[i].init(childCount, i, walkable,objectHeight);
-			for(int j=0; j<childCount; ++j) {
-				const XmlNode *modelNode= objectNode->getChild("model", j);
-				const XmlAttribute *pathAttribute= modelNode->getAttribute("path");
-				TilesetModelType* tmt=objectTypes[i].loadModel(pathAttribute->getRestrictedValue(currentPath),&loadedFileList, sourceXMLFile);
-				loadedFileList[pathAttribute->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,pathAttribute->getRestrictedValue()));
+        if (modelNode->hasChild("particles")) {
+          const XmlNode *particleNode = modelNode->getChild("particles");
+          bool particleEnabled =
+              particleNode->getAttribute("value")->getBoolValue();
+          if (particleEnabled) {
+            for (int k = 0; k < (int)particleNode->getChildCount(); ++k) {
+              const XmlNode *particleFileNode =
+                  particleNode->getChild("particle-file", k);
+              string path =
+                  particleFileNode->getAttribute("path")->getRestrictedValue();
+              ObjectParticleSystemType *objectParticleSystemType =
+                  new ObjectParticleSystemType();
+              objectParticleSystemType->load(
+                  particleFileNode, dir, currentPath + path,
+                  &Renderer::getInstance(), loadedFileList, sourceXMLFile, "");
+              loadedFileList[currentPath + path].push_back(make_pair(
+                  sourceXMLFile, particleFileNode->getAttribute("path")
+                                     ->getRestrictedValue()));
 
-				if(modelNode->hasAttribute("anim-speed") == true) {
-					int animSpeed= modelNode->getAttribute("anim-speed")->getIntValue();
-					tmt->setAnimSpeed(animSpeed);
-				}
+              tmt->addParticleSystem(objectParticleSystemType);
+            }
+          }
+        }
 
-				if(modelNode->hasChild("particles")){
-					const XmlNode *particleNode= modelNode->getChild("particles");
-					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-					if(particleEnabled){
-						for(int k=0; k < (int)particleNode->getChildCount(); ++k){
-							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
-							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
-							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
-							objectParticleSystemType->load(particleFileNode, dir, currentPath + path,
-									&Renderer::getInstance(), loadedFileList, sourceXMLFile,"");
-							loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
+        // rotationAllowed
+        if (modelNode->hasAttribute("rotationAllowed") == true) {
+          tmt->setRotationAllowed(
+              modelNode->getAttribute("rotationAllowed")->getBoolValue());
+        } else if (modelNode->hasChild("rotationAllowed")) {
+          const XmlNode *rotationAllowedNode =
+              modelNode->getChild("rotationAllowed");
+          tmt->setRotationAllowed(
+              rotationAllowedNode->getAttribute("value")->getBoolValue());
+        } else {
+          tmt->setRotationAllowed(true);
+        }
+        // randomPositionEnabled
+        if (modelNode->hasAttribute("randomPositionEnabled") == true) {
+          tmt->setRandomPositionEnabled(
+              modelNode->getAttribute("randomPositionEnabled")->getBoolValue());
+        } else {
+          tmt->setRandomPositionEnabled(true);
+        }
 
-							tmt->addParticleSystem(objectParticleSystemType);
-						}
-					}
-				}
+        // smoothTwoFrameAnim
+        if (modelNode->hasAttribute("smoothTwoFrameAnim") == true) {
+          tmt->setSmoothTwoFrameAnim(
+              modelNode->getAttribute("smoothTwoFrameAnim")->getBoolValue());
+        } else {
+          tmt->setSmoothTwoFrameAnim(false);
+        }
+      }
+    }
 
-				//rotationAllowed
-				if(modelNode->hasAttribute("rotationAllowed") == true) {
-					tmt->setRotationAllowed(modelNode->getAttribute("rotationAllowed")->getBoolValue());
-				}
-				else if(modelNode->hasChild("rotationAllowed")){
-					const XmlNode *rotationAllowedNode= modelNode->getChild("rotationAllowed");
-					tmt->setRotationAllowed(rotationAllowedNode->getAttribute("value")->getBoolValue());
-				}
-				else{
-					tmt->setRotationAllowed(true);
-				}
-				//randomPositionEnabled
-				if(modelNode->hasAttribute("randomPositionEnabled") == true) {
-					tmt->setRandomPositionEnabled(modelNode->getAttribute("randomPositionEnabled")->getBoolValue());
-				}
-				else{
-					tmt->setRandomPositionEnabled(true);
-				}
+    // Now free up the pixmap memory
+    for (int i = 0; i < objCount; ++i) {
+      objectTypes[i].deletePixels();
+    }
 
-				//smoothTwoFrameAnim
-				if(modelNode->hasAttribute("smoothTwoFrameAnim") == true) {
-					tmt->setSmoothTwoFrameAnim(modelNode->getAttribute("smoothTwoFrameAnim")->getBoolValue());
-				}
-				else{
-					tmt->setSmoothTwoFrameAnim(false);
-				}
-			}
-		}
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		// Now free up the pixmap memory
-		for(int i=0; i<objCount; ++i){
-			objectTypes[i].deletePixels();
-		}
+    // ambient sounds
+    ambientSounds.load(dir, tilesetNode->getChild("ambient-sounds"),
+                       loadedFileList, sourceXMLFile);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    // parameters
+    const XmlNode *parametersNode = tilesetNode->getChild("parameters");
 
-		//ambient sounds
-		ambientSounds.load(dir, tilesetNode->getChild("ambient-sounds"), loadedFileList, sourceXMLFile);
+    // water
+    const XmlNode *waterNode = parametersNode->getChild("water");
+    waterTex = renderer.newTexture3D(rsGame);
+    if (waterTex) {
+      waterTex->setMipmap(false);
+      waterTex->setWrapMode(Texture::wmRepeat);
+    }
+    waterEffects = waterNode->getAttribute("effects")->getBoolValue();
+    // waves
+    vector<XmlNode *> wavesChildList = waterNode->getChildList("wave");
+    for (vector<XmlNode *>::size_type i = 0; i < wavesChildList.size(); i++) {
+      waterWave wt = waterWave{
+          wavesChildList[i]->getAttribute("amplitude")->getFloatValue(),
+          wavesChildList[i]->getAttribute("frequency")->getFloatValue(),
+          wavesChildList[i]->getAttribute("speed")->getFloatValue(),
+          wavesChildList[i]->getAttribute("angle")->getFloatValue() * pi /
+              180  // convert Deg to Rad
+      };
+      waterWaves.push_back(wt);
+    }
 
-		//parameters
-		const XmlNode *parametersNode= tilesetNode->getChild("parameters");
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		//water
-		const XmlNode *waterNode= parametersNode->getChild("water");
-		waterTex= renderer.newTexture3D(rsGame);
-		if(waterTex) {
-			waterTex->setMipmap(false);
-			waterTex->setWrapMode(Texture::wmRepeat);
-		}
-		waterEffects= waterNode->getAttribute("effects")->getBoolValue();
-		//waves
-		vector<XmlNode *> wavesChildList = waterNode->getChildList("wave");
-		for(vector<XmlNode *>::size_type i = 0; i < wavesChildList.size(); i++) {
-			waterWave wt = waterWave {	wavesChildList[i]->getAttribute("amplitude")->getFloatValue(),
-										wavesChildList[i]->getAttribute("frequency")->getFloatValue(),
-										wavesChildList[i]->getAttribute("speed")->getFloatValue(),
-										wavesChildList[i]->getAttribute("angle")->getFloatValue() * pi / 180 // convert Deg to Rad
-									};
-			waterWaves.push_back(wt);
-		}
+    std::vector<XmlNode *> waterFrameNodes = waterNode->getChildList("texture");
+    if (waterTex) {
+      waterTex->getPixmap()->init(waterFrameNodes.size(), 4);
+    }
+    for (std::vector<XmlNode *>::size_type i = 0; i < waterFrameNodes.size();
+         ++i) {
+      const XmlNode *waterFrameNode = waterFrameNodes[i];
+      if (waterTex) {
+        waterTex->getPixmap()->loadSlice(
+            waterFrameNode->getAttribute("path")->getRestrictedValue(
+                currentPath),
+            i);
+      }
+      loadedFileList[waterFrameNode->getAttribute("path")->getRestrictedValue(
+                         currentPath)]
+          .push_back(make_pair(
+              sourceXMLFile,
+              waterFrameNode->getAttribute("path")->getRestrictedValue()));
+    }
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		std::vector<XmlNode*> waterFrameNodes= waterNode->getChildList("texture");
-		if(waterTex) {
-			waterTex->getPixmap()->init(waterFrameNodes.size(), 4);
-		}
-		for(std::vector<XmlNode*>::size_type i=0; i<waterFrameNodes.size(); ++i){
-			const XmlNode *waterFrameNode = waterFrameNodes[i];
-			if(waterTex) {
-				waterTex->getPixmap()->loadSlice(waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath), i);
-			}
-			loadedFileList[waterFrameNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,waterFrameNode->getAttribute("path")->getRestrictedValue()));
-		}
+    // fog
+    const XmlNode *fogNode = parametersNode->getChild("fog");
+    fog = fogNode->getAttribute("enabled")->getBoolValue();
+    if (fog) {
+      fogMode = fogNode->getAttribute("mode")->getIntValue(1, 2);
+      fogDensity = fogNode->getAttribute("density")->getFloatValue();
+      fogColor.x = fogNode->getAttribute("color-red")->getFloatValue(0.f, 1.f);
+      fogColor.y =
+          fogNode->getAttribute("color-green")->getFloatValue(0.f, 1.f);
+      fogColor.z = fogNode->getAttribute("color-blue")->getFloatValue(0.f, 1.f);
+    }
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		//fog
-		const XmlNode *fogNode= parametersNode->getChild("fog");
-		fog= fogNode->getAttribute("enabled")->getBoolValue();
-		if(fog){
-			fogMode= fogNode->getAttribute("mode")->getIntValue(1, 2);
-			fogDensity= fogNode->getAttribute("density")->getFloatValue();
-			fogColor.x= fogNode->getAttribute("color-red")->getFloatValue(0.f, 1.f);
-			fogColor.y= fogNode->getAttribute("color-green")->getFloatValue(0.f, 1.f);
-			fogColor.z= fogNode->getAttribute("color-blue")->getFloatValue(0.f, 1.f);
-		}
+    // sun and moon light colors
+    const XmlNode *sunLightColorNode = parametersNode->getChild("sun-light");
+    sunLightColor.x = sunLightColorNode->getAttribute("red")->getFloatValue();
+    sunLightColor.y = sunLightColorNode->getAttribute("green")->getFloatValue();
+    sunLightColor.z = sunLightColorNode->getAttribute("blue")->getFloatValue();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    const XmlNode *moonLightColorNode = parametersNode->getChild("moon-light");
+    moonLightColor.x = moonLightColorNode->getAttribute("red")->getFloatValue();
+    moonLightColor.y =
+        moonLightColorNode->getAttribute("green")->getFloatValue();
+    moonLightColor.z =
+        moonLightColorNode->getAttribute("blue")->getFloatValue();
 
-		//sun and moon light colors
-		const XmlNode *sunLightColorNode= parametersNode->getChild("sun-light");
-		sunLightColor.x= sunLightColorNode->getAttribute("red")->getFloatValue();
-		sunLightColor.y= sunLightColorNode->getAttribute("green")->getFloatValue();
-		sunLightColor.z= sunLightColorNode->getAttribute("blue")->getFloatValue();
+    if (parametersNode->hasChild("shadow-intensity")) {
+      const XmlNode *shadowIntenseNode =
+          parametersNode->getChild("shadow-intensity");
+      shadowIntensity =
+          shadowIntenseNode->getAttribute("value")->getFloatValue();
+    } else {
+      shadowIntensity = standardShadowIntensity;
+    }
 
-		const XmlNode *moonLightColorNode= parametersNode->getChild("moon-light");
-		moonLightColor.x= moonLightColorNode->getAttribute("red")->getFloatValue();
-		moonLightColor.y= moonLightColorNode->getAttribute("green")->getFloatValue();
-		moonLightColor.z= moonLightColorNode->getAttribute("blue")->getFloatValue();
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		if(parametersNode->hasChild("shadow-intensity")) {
-			const XmlNode *shadowIntenseNode= parametersNode->getChild("shadow-intensity");
-			shadowIntensity= shadowIntenseNode->getAttribute("value")->getFloatValue();
-		} else {
-			shadowIntensity=standardShadowIntensity;
-		}
+    // weather
+    const XmlNode *weatherNode = parametersNode->getChild("weather");
+    float sunnyProb = weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
+    float rainyProb =
+        weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		//weather
-		const XmlNode *weatherNode= parametersNode->getChild("weather");
-		float sunnyProb= weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
-		float rainyProb= weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
 #ifdef USE_STREFLOP
-		float rnd= streflop::fabs(static_cast<streflop::Simple>(random.randRange(-1.f, 1.f)));
+    float rnd = streflop::fabs(
+        static_cast<streflop::Simple>(random.randRange(-1.f, 1.f)));
 #else
-		float rnd= fabs(random.randRange(-1.f, 1.f));
+    float rnd = fabs(random.randRange(-1.f, 1.f));
 #endif
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
 
-		if(rnd < sunnyProb) {
-			weather= wSunny;
-		}
-		else if(rnd < rainyProb) {
-			weather= wRainy;
-		}
-		else {
-			weather= wSnowy;
-		}
-
-		//printf("==> Weather is: %d rnd = %f [sun: %f rainyProb: %f]",weather,rnd,sunnyProb,rainyProb);
-
-		//airHeight
-		if(parametersNode->hasChild("air-height")) {
-			const XmlNode *node= parametersNode->getChild("air-height");
-			airHeight= node->getAttribute("value")->getFloatValue();
-			// airHeight should not be lower than default
-			if( airHeight<Tileset::standardAirHeight){
-				airHeight=standardAirHeight;
-			}
-			// airHeight should not be bigger than 3 x default
-			if( airHeight>3*Tileset::standardAirHeight){
-				airHeight=3*Tileset::standardAirHeight;
-			}
-		}
-
-
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	}
-	//Exception handling (conversions and so on);
-    catch(megaglest_runtime_error& ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-		throw megaglest_runtime_error("Error loading tileset: "+ path + "\nMessage: " + ex.what(),!ex.wantStackTrace() );
+    if (rnd < sunnyProb) {
+      weather = wSunny;
+    } else if (rnd < rainyProb) {
+      weather = wRainy;
+    } else {
+      weather = wSnowy;
     }
-    catch(const exception &e) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
-		throw megaglest_runtime_error("Error: " + path + "\n" + e.what());
-	}
 
-    Lang &lang = Lang::getInstance();
-    lang.loadTilesetStrings(name);
+    // printf("==> Weather is: %d rnd = %f [sun: %f rainyProb:
+    // %f]",weather,rnd,sunnyProb,rainyProb);
+
+    // airHeight
+    if (parametersNode->hasChild("air-height")) {
+      const XmlNode *node = parametersNode->getChild("air-height");
+      airHeight = node->getAttribute("value")->getFloatValue();
+      // airHeight should not be lower than default
+      if (airHeight < Tileset::standardAirHeight) {
+        airHeight = standardAirHeight;
+      }
+      // airHeight should not be bigger than 3 x default
+      if (airHeight > 3 * Tileset::standardAirHeight) {
+        airHeight = 3 * Tileset::standardAirHeight;
+      }
+    }
+
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+      SystemFlags::OutputDebug(SystemFlags::debugSystem,
+                               "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__,
+                               __LINE__);
+
+  }
+  // Exception handling (conversions and so on);
+  catch (megaglest_runtime_error &ex) {
+    SystemFlags::OutputDebug(SystemFlags::debugError,
+                             "In [%s::%s Line: %d] Error [%s]\n",
+                             extractFileFromDirectoryPath(__FILE__).c_str(),
+                             __FUNCTION__, __LINE__, ex.what());
+    throw megaglest_runtime_error(
+        "Error loading tileset: " + path + "\nMessage: " + ex.what(),
+        !ex.wantStackTrace());
+  } catch (const exception &e) {
+    SystemFlags::OutputDebug(SystemFlags::debugError,
+                             "In [%s::%s Line: %d] Error [%s]\n", __FILE__,
+                             __FUNCTION__, __LINE__, e.what());
+    throw megaglest_runtime_error("Error: " + path + "\n" + e.what());
+  }
+
+  Lang &lang = Lang::getInstance();
+  lang.loadTilesetStrings(name);
 }
 
 Tileset::~Tileset() {
-	for(int i = 0; i < surfCount; ++i) {
-		deleteValues(surfPixmaps[i].begin(),surfPixmaps[i].end());
-		surfPixmaps[i].clear();
-	}
+  for (int i = 0; i < surfCount; ++i) {
+    deleteValues(surfPixmaps[i].begin(), surfPixmaps[i].end());
+    surfPixmaps[i].clear();
+  }
 
-	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameUnLoadingTileset","",true), true);
+  Logger::getInstance().add(
+      Lang::getInstance().getString("LogScreenGameUnLoadingTileset", "", true),
+      true);
 }
 
-const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{
-	int vars= (int)surfPixmaps[type].size();
-	return surfPixmaps[type][var % vars];
+const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const {
+  int vars = (int)surfPixmaps[type].size();
+  return surfPixmaps[type][var % vars];
 }
 
-void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture, int mapX, int mapY) {
-	//center textures
-	if(leftUp == rightUp && leftUp == leftDown && leftUp == rightDown) {
-		//texture variation according to probability
-		float r= random.randRange(0.f, 1.f);
-		const Pixmap2D *pixmap = NULL;
+void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown,
+                         Vec2f &coord, const Texture2D *&texture, int mapX,
+                         int mapY) {
+  // center textures
+  if (leftUp == rightUp && leftUp == leftDown && leftUp == rightDown) {
+    // texture variation according to probability
+    float r = random.randRange(0.f, 1.f);
+    const Pixmap2D *pixmap = NULL;
 
-		if(surfProbs[leftUp][0] < 0) {
-			// big textures use coordinates
-			int parts = partsArray[leftUp];
-			pixmap = getSurfPixmap(leftUp, (mapY % parts) * parts + (mapX % parts));
-		}
-		else {
-			float max= 0.f;
-			int var= 0;
-			for(int i=0; i < (int)surfProbs[leftUp].size(); ++i) {
-				max += surfProbs[leftUp][i];
-				if(r <= max) {
-					var= i;
-					break;
-				}
-			}
-			pixmap=getSurfPixmap(leftUp, var);
-		}
-		SurfaceInfo si(pixmap);
-		surfaceAtlas.addSurface(&si);
-		coord= si.getCoord();
-		// only for 512px printf("coord.x=%f coord.y=%f mapX=%d mapY=%d  result=%d\n",coord.x,coord.y,mapX,mapY,(mapY%8)*8+(mapX%8));
-		texture= si.getTexture();
-	}
-	//spatted textures
-	else {
-		int var= random.randRange(0, transitionVars);
+    if (surfProbs[leftUp][0] < 0) {
+      // big textures use coordinates
+      int parts = partsArray[leftUp];
+      pixmap = getSurfPixmap(leftUp, (mapY % parts) * parts + (mapX % parts));
+    } else {
+      float max = 0.f;
+      int var = 0;
+      for (int i = 0; i < (int)surfProbs[leftUp].size(); ++i) {
+        max += surfProbs[leftUp][i];
+        if (r <= max) {
+          var = i;
+          break;
+        }
+      }
+      pixmap = getSurfPixmap(leftUp, var);
+    }
+    SurfaceInfo si(pixmap);
+    surfaceAtlas.addSurface(&si);
+    coord = si.getCoord();
+    // only for 512px printf("coord.x=%f coord.y=%f mapX=%d mapY=%d
+    // result=%d\n",coord.x,coord.y,mapX,mapY,(mapY%8)*8+(mapX%8));
+    texture = si.getTexture();
+  }
+  // spatted textures
+  else {
+    int var = random.randRange(0, transitionVars);
 
-		SurfaceInfo si( getSurfPixmap(leftUp, var),
-						getSurfPixmap(rightUp, var),
-						getSurfPixmap(leftDown, var),
-						getSurfPixmap(rightDown, var));
-		surfaceAtlas.addSurface(&si);
-		coord= si.getCoord();
-		texture= si.getTexture();
-	}
+    SurfaceInfo si(getSurfPixmap(leftUp, var), getSurfPixmap(rightUp, var),
+                   getSurfPixmap(leftDown, var), getSurfPixmap(rightDown, var));
+    surfaceAtlas.addSurface(&si);
+    coord = si.getCoord();
+    texture = si.getTexture();
+  }
 }
 
-}}// end namespace
+}  // namespace Game
+}  // namespace Glest
