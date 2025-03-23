@@ -27,7 +27,9 @@
 		#define PLATFORM_SOCKET_FORMAT_TYPE "%d"
 	#endif
 #else
-	#include <unistd.h>
+	#ifndef __APPLE__
+		#include <unistd.h>
+	#endif
 	#include <sys/socket.h>
 	#include <netinet/in.h>
 	#include <arpa/inet.h>
