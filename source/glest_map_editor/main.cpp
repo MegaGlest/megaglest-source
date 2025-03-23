@@ -712,7 +712,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
 		fileDialog->SetMessage(wxT("Select Glestmap to load"));
 		fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map (*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
 		if (fileDialog->ShowModal() == wxID_OK) {
-#ifdef wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 1)
 			currentFile = fileDialog->GetPath().ToStdString();
 #else
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
@@ -783,7 +783,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 	fd.SetWildcard(wxT("MegaGlest Map (*.mgm)|*.mgm|Glest Map (*.gbm)|*.gbm"));
 	if (fd.ShowModal() == wxID_OK) {
 
-#ifdef wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 1)
 		currentFile = fd.GetPath().ToStdString();
 #else
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
@@ -1057,7 +1057,7 @@ void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
         wxString savedDir=fileDialog->GetDirectory();
         fileDialog->SetDirectory(heightMapDirectory);
         if (fileDialog->ShowModal() == wxID_OK) {
-#ifdef wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 1)
             currentFile = fileDialog->GetPath().ToStdString();
 #else
             const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
@@ -1755,7 +1755,7 @@ bool App::OnInit() {
     //exe_path += path_separator;
 
 	string appPath;
-#ifdef wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 1)
 	appPath = exe_path.ToStdString();
 #else
 	appPath = wxFNCONV(exe_path);
