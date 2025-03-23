@@ -97,7 +97,6 @@ OPTION(INCLUDE_DATA "Include Game Data in build. If true but no data present, da
 OPTION(WANT_SINGLE_INSTALL_DIRECTORY "Use single install directory for everything. It is useful for example for MacOS cpack bundles." OFF)
 OPTION(WANT_APPIMAGE "Enable AppImage compatibility" ON)
 OPTION(WANT_STATIC_LIBS "Builds as many static libs as possible." OFF)
-OPTION(WANT_USE_VLC "Use libVLC to play videos." OFF)
 OPTION(WANT_USE_OpenSSL "Use libOpenSSL during CURL linking." ON)
 OPTION(WANT_USE_FriBiDi "Enable libFriBIDi support." ON)
 OPTION(WANT_USE_GoogleBreakpad "Enable GoogleBreakpad support." ON)

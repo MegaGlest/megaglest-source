@@ -123,7 +123,6 @@ void MainMenu::initBackgroundVideo() {
 		SDL_Window *window = glCtx->getScreenWindow();
 		SDL_Surface *screen = glCtx->getScreenSurface();
 
-		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
 		menuBackgroundVideo = new VideoPlayer(
 				&Renderer::getInstance(),
@@ -135,7 +134,6 @@ void MainMenu::initBackgroundVideo() {
 				screen->h,
 				screen->format->BitsPerPixel,
 				true,
-				vlcPluginsPath,
 				SystemFlags::VERBOSE_MODE_ENABLED);
 		menuBackgroundVideo->initPlayer();
 	}
@@ -361,7 +359,7 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 		degToRad(startRotation.x),
 		degToRad(startRotation.y),
 		degToRad(startRotation.z))));
-		
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

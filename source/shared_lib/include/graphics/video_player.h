@@ -40,7 +40,6 @@ protected:
 	int colorBits;
 
 	bool successLoadingLib;
-	string pluginsPath;
 	bool verboseEnabled;
 
 	bool stop;
@@ -62,7 +61,7 @@ public:
 				 string filenameFallback,
 				 SDL_Window *window, int x, int y,
 				 int width, int height, int colorBits,
-				 bool loop, string pluginsPath,bool verboseEnabled=false);
+				 bool loop, bool verboseEnabled=false);
 	virtual ~VideoPlayer();
 
 	static void setDisabled(bool value) { disabled = value; }

@@ -8080,28 +8080,9 @@ void Game::playStaticVideo(const string &playVideo) {
     tryPauseToggle(true);
     setupRenderForVideo();
 
-    //		Context *c=
-    // GraphicsInterface::getInstance().getCurrentContext();
-    // SDL_Surface *screen =
-    // static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
-    //
-    //		string vlcPluginsPath =
-    // Config::getInstance().getString("VideoPlayerPluginsPath","");
-    //		//printf("screen->w = %d screen->h = %d
-    // screen->format->BitsPerPixel =
-    //%d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-    //		Shared::Graphics::VideoPlayer player(playVideo.c_str(),
-    //							screen,
-    //							0,0,
-    //							screen->w,
-    //							screen->h,
-    //							screen->format->BitsPerPixel,
-    //							vlcPluginsPath,
-    //							SystemFlags::VERBOSE_MODE_ENABLED);
-    //		player.PlayVideo();
-    //}
-    // tryPauseToggle(false);
-
+    // togglePauseGame(true,true);
+    tryPauseToggle(true);
+    setupRenderForVideo();
     playStreamingVideo(playVideo);
     playingStaticVideo = true;
   }
@@ -8116,12 +8097,9 @@ void Game::playStreamingVideo(const string &playVideo) {
       SDL_Window *window = glCtx->getScreenWindow();
       SDL_Surface *screen = glCtx->getScreenSurface();
 
-      string vlcPluginsPath =
-          Config::getInstance().getString("VideoPlayerPluginsPath", "");
-
       videoPlayer = new ::Shared::Graphics::VideoPlayer(
           &Renderer::getInstance(), playVideo, "", window, 0, 0, screen->w,
-          screen->h, screen->format->BitsPerPixel, false, vlcPluginsPath,
+          screen->h, screen->format->BitsPerPixel, false,
           SystemFlags::VERBOSE_MODE_ENABLED);
     }
   } else {
@@ -8137,12 +8115,9 @@ void Game::playStreamingVideo(const string &playVideo) {
         SDL_Window *window = glCtx->getScreenWindow();
         SDL_Surface *screen = glCtx->getScreenSurface();
 
-        string vlcPluginsPath =
-            Config::getInstance().getString("VideoPlayerPluginsPath", "");
-
         videoPlayer = new ::Shared::Graphics::VideoPlayer(
             &Renderer::getInstance(), playVideo, "", window, 0, 0, screen->w,
-            screen->h, screen->format->BitsPerPixel, false, vlcPluginsPath,
+            screen->h, screen->format->BitsPerPixel, false,
             SystemFlags::VERBOSE_MODE_ENABLED);
       }
     }

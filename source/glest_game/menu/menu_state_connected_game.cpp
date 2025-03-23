@@ -5403,7 +5403,6 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 				SDL_Window *window = glCtx->getScreenWindow();
 				SDL_Surface *screen = glCtx->getScreenSurface();
 
-				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 				//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
 				factionVideo = new VideoPlayer(
 						&Renderer::getInstance(),
@@ -5415,7 +5414,6 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 						screen->h,
 						screen->format->BitsPerPixel,
 						true,
-						vlcPluginsPath,
 						SystemFlags::VERBOSE_MODE_ENABLED);
 				factionVideo->initPlayer();
 			}

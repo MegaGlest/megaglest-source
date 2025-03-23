@@ -275,9 +275,7 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     /libGLEW.so.1.10/libGLEW.so.1.[num]/libGLEW.so/|/"
     if [ "$OperatingMode" = "--game" ]; then
     libs_list="$libs_list
-    /libopenal.so.1/libopenal.so/libopenal/|H/
-    /libvlccore.so.7/libvlccore.so/libvlccore/|/
-    /libvlc.so.5/libvlc.so/|/"
+    /libopenal.so.1/libopenal.so/libopenal/|H/"
     else
     libs_list="$libs_list
     /libwx_gtk2u_core-3.0.so.0/libwx_gtk2u_core-3.[num].so/|L/
@@ -325,9 +323,6 @@ if [ "$OperatingMode" != "--tool-buginfo" ]; then
     # exceptions, keep them in sync with listed libraries on 'libs_list'
     if [ "$(echo "$OS_INFO" | grep 'Debian\|Ubuntu\|LinuxMint')" = "" ]; then IfRealLibExist "libSDL2-2.0.so.0" "remove"; fi
     if [ "$OperatingMode" = "--game" ]; then
-    if [ "$(IfRealLibExist "libvlc.so.5"; echo "$?")" -ne "0" ] && [ "$(IfRealLibExist "libvlccore.so.7"; echo "$?")" -ne "0" ] && \
-        [ -d "$LibDir_wP/vlc" ]; then mv -f "$LibDir_wP/vlc" "$LibDirB_wP"; fi
-    else
         if [ "$(IfRealLibExist "libwx_gtk2u_core-3.0.so.0"; echo "$?")" -ne "0" ] || \
         [ "$(IfRealLibExist "libwx_baseu-3.0.so.0"; echo "$?")" -ne "0" ] || \
         [ "$(IfRealLibExist "libwx_gtk2u_gl-3.0.so.0"; echo "$?")" -ne "0" ]; then
@@ -385,8 +380,7 @@ else
 fi
 if [ "$OperatingMode" = "--game" ]; then
     if [ -d "$LibDir_wP" ]; then
-    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${LibDir_wP}"
-    if [ -d "$LibDir_wP/vlc" ]; then export VLC_PLUGIN_PATH="${LibDir_wP}/vlc"; fi
+        export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${LibDir_wP}"
     fi
     "$GAMEDIR/$EXC_BINARY" "$@"
     ExitStatus="$?"

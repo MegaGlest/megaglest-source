@@ -14,7 +14,7 @@ set -e
 # Set libs output directory name
 BASE="lib"
 file="$@"
- 
+
 sync_support_libs(){
 	local d="$1"         	# folder to copy dependencies to
 	local pFILE="$2"        # bin file to scan for dependencies from
@@ -22,7 +22,7 @@ sync_support_libs(){
 	local _cp="/bin/cp"
 	#local skip_deps="libm.so libpthread.so libstdc++.so libgcc_s.so libc.so libdl.so libX11.so libpulse libfusion libdirect libnvidia libXext librt libxcb libICE libSM libXtst libwrap libdbus libXau libXdmcp libnsl libFLAC libGL"
 	local skip_deps=""
-	local keep_deps="libcurl libgnu libgcrypt libnghttp libidn libpsl libunistring librtmp libssh libnettle libicu liblua libjpeg libpng libvorbis libogg libircclient libminiupnpc libwx_ libGLEW libftgl libfreetype libfribidi libvlc libopenal libSDL2-"
+	local keep_deps="libcurl libgnu libgcrypt libnghttp libidn libpsl libunistring librtmp libssh libnettle libicu liblua libjpeg libpng libvorbis libogg libircclient libminiupnpc libwx_ libGLEW libftgl libfreetype libfribidi libopenal libSDL2-"
 	# libwx_ - recommended to keep always just because API/ABI compatibility, huge impact for map editor
 	# libGLEW - most likely safe to keep embedded everywhere, its version matters with tools
 	# libopenal - safe to keep but if any version is available locally then should be replaced
@@ -41,10 +41,10 @@ sync_support_libs(){
 		echo "scanning for deps TO KEEP for '$pFILE'..."
 	fi
 
-	
+
 	# get rid of blanks and (0x00007fff0117f000)
 	files="$(ldd $pFILE |  awk '{ print $3 }' | sed -e '/^$/d' -e '/(*)$/d')"
- 
+
 	for i in $files
 	do
 	  dcc="${i%/*}"	# get dirname only
@@ -81,7 +81,7 @@ sync_support_libs(){
 			${_cp} -f $i ${d}
 		fi
 	done
- 
+
 	# Works with 32 and 64 bit ld-linux
 	#sldl="$(ldd $pFILE | grep 'ld-linux' | awk '{ print $1}')"
 	#sldlsubdir="${sldl%/*}"
@@ -91,30 +91,17 @@ sync_support_libs(){
 	#	${_cp} -f ${sldl} ${d}
 	#fi
 }
- 
+
 usage(){
 	echo "Error: Wrong syntax. Example: $0 megaglest"
 	exit 1
 }
- 
+
 [ $# -eq 0 ] && usage
 if [ ! -d "$BASE" ]; then mkdir -p "$BASE"; fi
- 
+
 # copy all files
 for f in $file
 do
 	sync_support_libs "${BASE}" "${f}"
 done
-
-# copy vlc's plugins if libvlc was copied
-if [ "$(find $BASE -type f -name "libvlc.*")" != "" ]; then
-	LIBVLC_DIR_CHECK="$( ldd "$1" | grep "libvlc\." | sort -u | awk '{print $3}' | head -1 )"
-	if [ "$LIBVLC_DIR_CHECK" != "" ]; then
-		LIBVLC_DIR="$(dirname "$LIBVLC_DIR_CHECK")"
-		if [ -d "$LIBVLC_DIR/vlc/plugins" ]; then
-			mkdir -p "$BASE/vlc"
-			echo "Including plugins directory for VLC from = [$LIBVLC_DIR/vlc]"
-			cp -f -r "$LIBVLC_DIR/vlc/plugins" "$BASE/vlc/"
-		fi
-	fi
-fi
