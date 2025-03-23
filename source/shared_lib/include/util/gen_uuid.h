@@ -39,8 +39,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "platform_common.h" // for uuid_t (APPLE)
+#if defined(__APPLE__)
+#include <sys/time.h>
+#endif
 #include "util.h"  // for gettimeofday()
 
 namespace Shared { namespace Util {
