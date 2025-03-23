@@ -13,12 +13,7 @@
 #define _SHARED_PLATFORM_SOCKET_H_
 
 #ifdef WIN32
-    #ifdef __MINGW32__
-	   #include <winsock2.h>
-    #else
-       #include <winsock2.h>
-       #include <winsock.h>
-    #endif
+    #include <winsock2.h>
 
 	typedef SOCKET PLATFORM_SOCKET;
 	#if defined(_WIN64)

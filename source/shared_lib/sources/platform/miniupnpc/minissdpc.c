@@ -16,7 +16,6 @@
 #include <ws2tcpip.h>
 #include <io.h>
 #include <iphlpapi.h>
-#include <winsock.h>
 #define snprintf _snprintf
 #if !defined(_MSC_VER)
 #include <stdint.h>
