@@ -58,6 +58,20 @@ jobs:
           PLATFORM=$(uname -m)
           echo "ARTIFACT_NAME=AppImages-${PLATFORM//\//-}" >> $GITHUB_ENV
 
+      - name: Test/Validate Data
+        run: |
+          sudo apt install -y \
+            libasound2t64 \
+            libfontconfig \
+            libfribidi0 \
+            libopengl0 \
+            libwayland-client0 \
+            xvfb
+          for file in *.AppImage; do
+            chmod +x $file
+            xvfb-run ./$file --validate-techtrees=megapack
+          done
+
       - if: ${{ github.ref != 'refs/heads/develop' }}
         name: Upload AppImage
         uses: actions/upload-artifact@v4
