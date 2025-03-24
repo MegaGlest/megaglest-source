@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -15,35 +15,36 @@
 #include "main_menu.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
-// 	class MenuStateNewGame  
+// 	class MenuStateNewGame
 // ===============================
 
-class MenuStateNewGame: public MenuState{
-private:
-	GraphicButton buttonCustomGame;
-	GraphicButton buttonScenario;
-	GraphicButton buttonJoinGame;
-	GraphicButton buttonMasterserverGame;
-	GraphicButton buttonTutorial;
-	GraphicButton buttonReturn;
+class MenuStateNewGame : public MenuState {
+ private:
+  GraphicButton buttonCustomGame;
+  GraphicButton buttonScenario;
+  GraphicButton buttonJoinGame;
+  GraphicButton buttonMasterserverGame;
+  GraphicButton buttonTutorial;
+  GraphicButton buttonReturn;
 
-public:
-	MenuStateNewGame(Program *program, MainMenu *mainMenu);
+ public:
+  MenuStateNewGame(Program *program, MainMenu *mainMenu);
 
-	void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
-	void mouseMove(int x, int y, const MouseState *mouseState);
-	void update();
-	void render();
-	virtual void keyDown(SDL_KeyboardEvent key);
+  void mouseClick(int x, int y, MouseButton mouseButton);
+  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+  void mouseMove(int x, int y, const MouseState *mouseState);
+  void update();
+  void render();
+  virtual void keyDown(SDL_KeyboardEvent key);
 
-	void reloadUI();
+  void reloadUI();
 };
 
-
-}}//end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif

@@ -21,132 +21,137 @@
 #include "chat_manager.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
 // 	class MenuStateMasterserver
 // ===============================
-typedef vector<ServerLine*> ServerLines;
-typedef vector<GraphicButton*> UserButtons;
-typedef vector<MasterServerInfo*> MasterServerInfos;
+typedef vector<ServerLine *> ServerLines;
+typedef vector<GraphicButton *> UserButtons;
+typedef vector<MasterServerInfo *> MasterServerInfos;
 
-class MenuStateMasterserver : public MenuState, public SimpleTaskCallbackInterface, public IRCCallbackInterface {
+class MenuStateMasterserver : public MenuState,
+                              public SimpleTaskCallbackInterface,
+                              public IRCCallbackInterface {
+ private:
+  GraphicButton buttonRefresh;
+  GraphicButton buttonReturn;
+  GraphicButton buttonCreateGame;
+  GraphicLabel labelAutoRefresh;
+  GraphicListBox listBoxAutoRefresh;
+  GraphicLabel labelTitle;
 
-private:
+  GraphicLabel announcementLabel;
+  GraphicLabel versionInfoLabel;
 
-	GraphicButton buttonRefresh;
-	GraphicButton buttonReturn;
-	GraphicButton buttonCreateGame;
-	GraphicLabel labelAutoRefresh;
-	GraphicListBox listBoxAutoRefresh;
-	GraphicLabel labelTitle;
+  GraphicLine lines[3];
 
-	GraphicLabel announcementLabel;
-	GraphicLabel versionInfoLabel;
+  GraphicLabel glestVersionLabel;
+  GraphicLabel platformLabel;
+  // GraphicLabel binaryCompileDateLabel;
 
-	GraphicLine lines[3];
+  // game info:
+  GraphicLabel serverTitleLabel;
+  GraphicLabel countryLabel;
+  GraphicLabel statusLabel;
 
-	GraphicLabel glestVersionLabel;
-	GraphicLabel platformLabel;
-	//GraphicLabel binaryCompileDateLabel;
+  GraphicLabel ipAddressLabel;
 
-	//game info:
-	GraphicLabel serverTitleLabel;
-	GraphicLabel countryLabel;
-	GraphicLabel statusLabel;
+  // game setup info:
+  GraphicLabel techLabel;
+  GraphicLabel mapLabel;
+  GraphicLabel tilesetLabel;
+  GraphicLabel activeSlotsLabel;
 
-	GraphicLabel ipAddressLabel;
+  GraphicLabel externalConnectPort;
 
-	//game setup info:
-	GraphicLabel techLabel;
-	GraphicLabel mapLabel;
-	GraphicLabel tilesetLabel;
-	GraphicLabel activeSlotsLabel;
+  GraphicLabel selectButton;
 
-	GraphicLabel externalConnectPort;
+  GraphicMessageBox mainMessageBox;
+  int mainMessageBoxState;
 
-	GraphicLabel selectButton;
+  GraphicLabel ircOnlinePeopleLabel;
+  GraphicLabel ircOnlinePeopleStatusLabel;
 
-	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
+  bool announcementLoaded;
+  bool needUpdateFromServer;
+  int autoRefreshTime;
+  time_t lastRefreshTimer;
+  SimpleTaskThread *updateFromMasterserverThread;
+  bool playServerFoundSound;
+  ServerLines serverLines;
+  string serverInfoString;
+  int serverLinesToRender;
+  int serverLinesYBase;
+  int serverLinesLineHeight;
+  GraphicScrollBar userScrollBar;
+  GraphicScrollBar serverScrollBar;
+  UserButtons userButtons;
+  UserButtons userButtonsToRemove;
+  int userButtonsToRender;
+  int userButtonsYBase;
+  int userButtonsXBase;
+  int userButtonsLineHeight;
+  int userButtonsHeight;
+  int userButtonsWidth;
+  string currentIrcNick;
 
-    GraphicLabel ircOnlinePeopleLabel;
-    GraphicLabel ircOnlinePeopleStatusLabel;
+  // Console console;
 
-	bool announcementLoaded;
-	bool needUpdateFromServer;
-	int autoRefreshTime;
-	time_t lastRefreshTimer;
-	SimpleTaskThread *updateFromMasterserverThread;
-	bool playServerFoundSound;
-	ServerLines serverLines;
-	string serverInfoString;
-	int serverLinesToRender;
-	int serverLinesYBase;
-	int serverLinesLineHeight;
-	GraphicScrollBar userScrollBar;
-	GraphicScrollBar serverScrollBar;
-	UserButtons userButtons;
-	UserButtons userButtonsToRemove;
-	int userButtonsToRender;
-	int userButtonsYBase;
-	int userButtonsXBase;
-	int userButtonsLineHeight;
-	int	userButtonsHeight;
-	int userButtonsWidth;
-	string currentIrcNick;
+  static DisplayMessageFunction pCB_DisplayMessage;
+  std::string threadedErrorMsg;
 
+  std::vector<string> ircArgs;
+  Mutex *mutexIRCClient;
+  IRCThread *ircClient;
+  std::vector<string> oldNickList;
 
-	//Console console;
+  Console consoleIRC;
+  ChatManager chatManager;
 
-	static DisplayMessageFunction pCB_DisplayMessage;
-	std::string threadedErrorMsg;
+  bool masterserverParseErrorShown;
 
-    std::vector<string> ircArgs;
-	Mutex *mutexIRCClient;
-	IRCThread *ircClient;
-	std::vector<string> oldNickList;
+ public:
+  MenuStateMasterserver(Program *program, MainMenu *mainMenu);
+  ~MenuStateMasterserver();
 
-	Console consoleIRC;
-	ChatManager chatManager;
+  void mouseClick(int x, int y, MouseButton mouseButton);
+  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+  void mouseUp(int x, int y, const MouseButton mouseButton);
+  void mouseMove(int x, int y, const MouseState *mouseState);
+  void update();
+  void render();
 
-	bool masterserverParseErrorShown;
+  virtual bool textInput(std::string text);
+  virtual void keyDown(SDL_KeyboardEvent key);
 
-public:
-	MenuStateMasterserver(Program *program, MainMenu *mainMenu);
-	~MenuStateMasterserver();
+  virtual void simpleTask(BaseThread *callingThread, void *userdata);
+  virtual bool isInSpecialKeyCaptureEvent() {
+    return chatManager.getEditEnabled();
+  }
 
-	void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
-	void mouseUp(int x, int y, const MouseButton mouseButton);
-	void mouseMove(int x, int y, const MouseState *mouseState);
-	void update();
-	void render();
+  static void setDisplayMessageFunction(
+      DisplayMessageFunction pDisplayMessage) {
+    pCB_DisplayMessage = pDisplayMessage;
+  }
 
-	virtual bool textInput(std::string text);
-	virtual void keyDown(SDL_KeyboardEvent key);
+  virtual void reloadUI();
 
-	virtual void simpleTask(BaseThread *callingThread,void *userdata);
-	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
-
-	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
-
-	virtual void reloadUI();
-
-private:
-	void showMessageBox(const string &text, const string &header, bool toggle);
-	bool connectToServer(string ipString, int port);
-	//void setConsolePos(int yPos);
-	void setButtonLinePosition(int pos);
-	void clearServerLines();
-	void clearUserButtons();
-	void rebuildServerLines(const string &serverInfo);
-	void cleanup();
-	virtual void IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count);
-
+ private:
+  void showMessageBox(const string &text, const string &header, bool toggle);
+  bool connectToServer(string ipString, int port);
+  // void setConsolePos(int yPos);
+  void setButtonLinePosition(int pos);
+  void clearServerLines();
+  void clearUserButtons();
+  void rebuildServerLines(const string &serverInfo);
+  void cleanup();
+  virtual void IRC_CallbackEvent(IRCEventType evt, const char *origin,
+                                 const char **params, unsigned int count);
 };
 
-
-}}//end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif

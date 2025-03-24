@@ -13,7 +13,7 @@
 #define _GLEST_GAME_CONFIG_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
+#include <winsock2.h>
 #endif
 
 #include "properties.h"
@@ -22,7 +22,8 @@
 #include <SDL.h>
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 using Shared::Util::Properties;
 
@@ -33,98 +34,117 @@ using Shared::Util::Properties;
 // =====================================================
 
 enum ConfigType {
-    cfgMainGame,
-    cfgUserGame,
-    cfgTempGame,
-    cfgMainKeys,
-    cfgUserKeys,
-    cfgTempKeys
+  cfgMainGame,
+  cfgUserGame,
+  cfgTempGame,
+  cfgMainKeys,
+  cfgUserKeys,
+  cfgTempKeys
 };
 
 class Config {
-private:
+ private:
+  std::pair<Properties, Properties> properties;
+  Properties tempProperties;
+  std::pair<ConfigType, ConfigType> cfgType;
+  std::pair<string, string> fileNameParameter;
+  std::pair<string, string> fileName;
+  std::pair<bool, bool> fileLoaded;
+  string custom_path_parameter;
 
-	std::pair<Properties,Properties> properties;
-	Properties tempProperties;
-	std::pair<ConfigType,ConfigType> cfgType;
-	std::pair<string,string> fileNameParameter;
-	std::pair<string,string> fileName;
-	std::pair<bool,bool> fileLoaded;
-	string custom_path_parameter;
+  static map<ConfigType, Config> configList;
 
-	static map<ConfigType,Config> configList;
+  static const char *glest_ini_filename;
+  static const char *glestuser_ini_filename;
 
-    static const char *glest_ini_filename;
-    static const char *glestuser_ini_filename;
+  static map<string, string> customRuntimeProperties;
 
-    static map<string,string> customRuntimeProperties;
+ public:
+  static const char *glestkeys_ini_filename;
+  static const char *glestuserkeys_ini_filename;
 
-public:
+  static const char *ACTIVE_MOD_PROPERTY_NAME;
 
-    static const char *glestkeys_ini_filename;
-    static const char *glestuserkeys_ini_filename;
+  static const char *colorPicking;
+  static const char *selectBufPicking;
+  static const char *frustumPicking;
 
-    static const char *ACTIVE_MOD_PROPERTY_NAME;
+ protected:
+  Config();
+  Config(std::pair<ConfigType, ConfigType> type, std::pair<string, string> file,
+         std::pair<bool, bool> fileMustExist, string custom_path = "");
+  bool tryCustomPath(std::pair<ConfigType, ConfigType> &type,
+                     std::pair<string, string> &file, string custom_path);
+  static void CopyAll(Config *src, Config *dest);
+  vector<pair<string, string> > getPropertiesFromContainer(
+      const Properties &propertiesObj) const;
+  static bool replaceFileWithLocalFile(const vector<string> &dirList,
+                                       string fileNamePart,
+                                       string &resultToReplace);
 
-    static const char *colorPicking;
-    static const char *selectBufPicking;
-    static const char *frustumPicking;
+ public:
+  static Config &getInstance(
+      std::pair<ConfigType, ConfigType> type = std::make_pair(cfgMainGame,
+                                                              cfgUserGame),
+      std::pair<string, string> file = std::make_pair(glest_ini_filename,
+                                                      glestuser_ini_filename),
+      std::pair<bool, bool> fileMustExist = std::make_pair(true, false),
+      string custom_path = "");
+  void save(const string &path = "");
+  void reload();
 
-protected:
+  int getInt(const string &key,
+             const char *defaultValueIfNotFound = NULL) const;
+  bool getBool(const string &key,
+               const char *defaultValueIfNotFound = NULL) const;
+  float getFloat(const string &key,
+                 const char *defaultValueIfNotFound = NULL) const;
+  const string getString(const string &key,
+                         const char *defaultValueIfNotFound = NULL) const;
 
-	Config();
-	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist,string custom_path="");
-	bool tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path);
-	static void CopyAll(Config *src,Config *dest);
-	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
-	static bool replaceFileWithLocalFile(const vector<string> &dirList, string fileNamePart, string &resultToReplace);
+  int getInt(const char *key, const char *defaultValueIfNotFound = NULL) const;
+  bool getBool(const char *key,
+               const char *defaultValueIfNotFound = NULL) const;
+  float getFloat(const char *key,
+                 const char *defaultValueIfNotFound = NULL) const;
+  const string getString(const char *key,
+                         const char *defaultValueIfNotFound = NULL) const;
+  // char getCharKey(const char *key) const;
+  SDL_Keycode getSDLKey(const char *key) const;
 
-public:
+  void setInt(const string &key, int value, bool tempBuffer = false);
+  void setBool(const string &key, bool value, bool tempBuffer = false);
+  void setFloat(const string &key, float value, bool tempBuffer = false);
+  void setString(const string &key, const string &value,
+                 bool tempBuffer = false);
 
-    static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
-				std::pair<string,string> file = std::make_pair(glest_ini_filename,glestuser_ini_filename) ,
-				std::pair<bool,bool> fileMustExist = std::make_pair(true,false),string custom_path="" );
-	void save(const string &path="");
-	void reload();
+  vector<string> getPathListForType(PathType type, string scenarioDir = "");
 
-	int getInt(const string &key,const char *defaultValueIfNotFound=NULL) const;
-	bool getBool(const string &key,const char *defaultValueIfNotFound=NULL) const;
-	float getFloat(const string &key,const char *defaultValueIfNotFound=NULL) const;
-	const string getString(const string &key,const char *defaultValueIfNotFound=NULL) const;
+  vector<pair<string, string> > getMergedProperties() const;
+  vector<pair<string, string> > getMasterProperties() const;
+  vector<pair<string, string> > getUserProperties() const;
+  void setUserProperties(const vector<pair<string, string> > &valueList);
 
-	int getInt(const char *key,const char *defaultValueIfNotFound=NULL) const;
-	bool getBool(const char *key,const char *defaultValueIfNotFound=NULL) const;
-	float getFloat(const char *key,const char *defaultValueIfNotFound=NULL) const;
-	const string getString(const char *key,const char *defaultValueIfNotFound=NULL) const;
-	//char getCharKey(const char *key) const;
-	SDL_Keycode getSDLKey(const char *key) const;
+  string getFileName(bool userFilename) const;
 
-	void setInt(const string &key, int value, bool tempBuffer=false);
-	void setBool(const string &key, bool value, bool tempBuffer=false);
-	void setFloat(const string &key, float value, bool tempBuffer=false);
-	void setString(const string &key, const string &value, bool tempBuffer=false);
+  SDL_Keycode translateStringToSDLKey(const string &value) const;
 
-    vector<string> getPathListForType(PathType type, string scenarioDir = "");
+  string toString();
 
-    vector<pair<string,string> > getMergedProperties() const;
-    vector<pair<string,string> > getMasterProperties() const;
-    vector<pair<string,string> > getUserProperties() const;
-    void setUserProperties(const vector<pair<string,string> > &valueList);
+  static string getCustomRuntimeProperty(string key) {
+    return customRuntimeProperties[key];
+  }
+  static void setCustomRuntimeProperty(string key, string value) {
+    customRuntimeProperties[key] = value;
+  }
 
-    string getFileName(bool userFilename) const;
+  static string findValidLocalFileFromPath(string fileName);
 
-    SDL_Keycode translateStringToSDLKey(const string &value) const;
-
-	string toString();
-
-	static string getCustomRuntimeProperty(string key) 				{ return customRuntimeProperties[key]; }
-	static void setCustomRuntimeProperty(string key, string value) 	{ customRuntimeProperties[key] = value; }
-
-	static string findValidLocalFileFromPath(string fileName);
-
-	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
+  static string getMapPath(const string &mapName, string scenarioDir = "",
+                           bool errorOnNotFound = true);
 };
 
-}}//end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif
