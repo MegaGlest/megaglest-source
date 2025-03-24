@@ -5499,6 +5499,29 @@ int glestMain(int argc, char **argv) {
       }
     }
 
+    else if (hasCommandArgument(
+                 argc, argv, GAME_ARGS[GAME_ARG_SERVER_BIND_ADDRESS]) == true) {
+      int foundParamIndIndex = -1;
+      hasCommandArgument(
+          argc, argv,
+          string(GAME_ARGS[GAME_ARG_SERVER_BIND_ADDRESS]) + string("="),
+          &foundParamIndIndex);
+      if (foundParamIndIndex < 0) {
+        hasCommandArgument(argc, argv,
+                           string(GAME_ARGS[GAME_ARG_SERVER_BIND_ADDRESS]),
+                           &foundParamIndIndex);
+      }
+      string paramValue = argv[foundParamIndIndex];
+      vector<string> paramPartTokens;
+      Tokenize(paramValue, paramPartTokens, "=");
+      if (paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+        string itemName = paramPartTokens[1];
+
+        Config &config = Config::getInstance();
+        config.setString("ServerBindAddress", itemName);
+      }
+    }
+
     if (hasCommandArgument(argc, argv,
                            string(GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS])) ==
         true) {

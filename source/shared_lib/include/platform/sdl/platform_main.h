@@ -34,7 +34,7 @@ const char *GAME_ARGS[] = {"--help",
                            "--headless-server-status",
                            "--server-title",
                            "--use-ports",
-
+                           "--bind-address",
                            "--load-scenario",
                            "--load-mod",
                            "--preview-map",
@@ -100,10 +100,7 @@ const char *GAME_ARGS[] = {"--help",
                            "--steam",
                            "--steam-debug",
                            "--steam-reset-stats",
-
-                           "--verbose"
-
-};
+                           "--verbose"};
 
 enum GAME_ARG_TYPE {
   GAME_ARG_HELP = 0,
@@ -118,7 +115,7 @@ enum GAME_ARG_TYPE {
   GAME_ARG_MASTERSERVER_STATUS,
   GAME_ARG_SERVER_TITLE,
   GAME_ARG_USE_PORTS,
-
+  GAME_ARG_SERVER_BIND_ADDRESS,
   GAME_ARG_LOADSCENARIO,
   GAME_ARG_MOD,
   GAME_ARG_PREVIEW_MAP,
@@ -256,7 +253,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
       "LAN host you may");
   printf("\n\n                     \t    use: %s=auto-connect",
          GAME_ARGS[GAME_ARG_CONNECT]);
-
+  printf("\n\n%s=x  \tBind game server to a specific IP address.\n",
+         GAME_ARGS[GAME_ARG_SERVER_BIND_ADDRESS]);
   printf("\n\n%s=x  \tAuto connect to host server at IP or hostname x.",
          GAME_ARGS[GAME_ARG_CLIENT]);
   printf(
@@ -732,7 +730,6 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
   printf("\n\n%s=x=y  ", GAME_ARGS[GAME_ARG_STEAM]);
   printf("\n\n                     \tRun with Steam Client Integration.");
-
   printf("\n\n%s  \t\tDisplays verbose information in the console.",
          GAME_ARGS[GAME_ARG_VERBOSE_MODE]);
   printf("\n\n");

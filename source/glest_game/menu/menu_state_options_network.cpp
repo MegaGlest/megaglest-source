@@ -52,6 +52,8 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program,
       mainMessageBox("Options_Network", "mainMessageBox"),
 
       labelExternalPort("Options_Network", "labelExternalPort"),
+      labelServerBindIpLabel("Options_Network", "labelServerBindIpLabel"),
+      labelServerBindIpTextInput("Options_Network", "labelServerBindIpTextInput"),
       labelServerPortLabel("Options_Network", "labelServerPortLabel"),
 
       labelPublishServerExternalPort("Options_Network",
@@ -91,6 +93,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program,
     Config &config = Config::getInstance();
     this->parentUI = parentUI;
     this->console.setOnlyChatMessagesInStoredLines(false);
+    this->activeInputLabel = NULL;
 
     int leftLabelStart = 100;
     int leftColumnStart = leftLabelStart + 300;
@@ -152,8 +155,21 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program,
       extPort = "!!! " + extPort + " !!!";
     }
     labelExternalPort.setText(extPort);
-
     currentLine -= lineOffset;
+
+    // Server bind IP
+    labelServerBindIpLabel.init(currentLabelStart, currentLine);
+    labelServerBindIpLabel.setText(lang.getString("ServerBindIP"));
+
+    labelServerBindIpTextInput.init(currentColumnStart, currentLine);
+    labelServerBindIpTextInput.setText(config.getString("ServerBindAddress", ""));
+    labelServerBindIpTextInput.setFont(CoreData::getInstance().getMenuFontBig());
+    labelServerBindIpTextInput.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+    labelServerBindIpTextInput.setEditable(true);
+    labelServerBindIpTextInput.setMaxEditWidth(16);
+    labelServerBindIpTextInput.setMaxEditRenderWidth(200);
+    currentLine -= lineOffset;
+
     // server port
     labelServerPortLabel.init(currentLabelStart, currentLine);
     labelServerPortLabel.setText(lang.getString("ServerPort"));
@@ -292,6 +308,7 @@ void MenuStateOptionsNetwork::reloadUI() {
   }
 
   labelServerPortLabel.setText(lang.getString("ServerPort"));
+  labelServerBindIpLabel.setText(lang.getString("ServerBindAddress"));
   labelPublishServerExternalPort.setText(
       lang.getString("PublishServerExternalPort"));
   labelEnableFTP.setText(lang.getString("EnableFTP"));
@@ -347,6 +364,9 @@ void MenuStateOptionsNetwork::mouseClick(int x, int y,
     }
     mainMenu->setState(new MenuStateRoot(program, mainMenu));
     return;
+  } else if (labelServerBindIpTextInput.mouseClick(x, y) &&
+             (activeInputLabel != &labelServerBindIpTextInput)) {
+    this->setActiveInputLabel(&labelServerBindIpTextInput);
   } else if (buttonAudioSection.mouseClick(x, y)) {
     soundRenderer.playFx(coreData.getClickSoundA());
     mainMenu->setState(new MenuStateOptionsSound(
@@ -422,35 +442,29 @@ void MenuStateOptionsNetwork::mouseMove(int x, int y, const MouseState *ms) {
 }
 
 // bool MenuStateOptionsNetwork::isInSpecialKeyCaptureEvent() {
-//	return (activeInputLabel != NULL);
-// }
-//
-// void MenuStateOptionsNetwork::keyDown(SDL_KeyboardEvent key) {
-//	if(activeInputLabel != NULL) {
-//		keyDownEditLabel(key, &activeInputLabel);
-//	}
-// }
+// return (activeInputLabel != NULL);
+//}
+
+void MenuStateOptionsNetwork::keyDown(SDL_KeyboardEvent key) {
+  if (activeInputLabel != NULL) {
+    keyDownEditLabel(key, &activeInputLabel);
+  }
+}
 
 void MenuStateOptionsNetwork::keyPress(SDL_KeyboardEvent c) {
-  //	if(activeInputLabel != NULL) {
-  //	    //printf("[%d]\n",c); fflush(stdout);
-  //		if( &labelPlayerName 	== activeInputLabel ||
-  //			&labelTransifexUser == activeInputLabel ||
-  //			&labelTransifexPwd == activeInputLabel ||
-  //			&labelTransifexI18N == activeInputLabel) {
-  //			textInputEditLabel(c, &activeInputLabel);
-  //		}
-  //	}
-  //	else {
-  Config &configKeys = Config::getInstance(
-      std::pair<ConfigType, ConfigType>(cfgMainKeys, cfgUserKeys));
-  if (isKeyPressed(configKeys.getSDLKey("SaveGUILayout"), c) == true) {
-    GraphicComponent::saveAllCustomProperties(containerName);
-    // Lang &lang= Lang::getInstance();
-    // console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ?
-    // lang.getString("Yes") : lang.getString("No"))+ "]");
+  if (activeInputLabel != NULL) {
+    keyPressEditLabel(c, &activeInputLabel);
+  } else {
+    Config &configKeys = Config::getInstance(
+        std::pair<ConfigType, ConfigType>(cfgMainKeys, cfgUserKeys));
+    if (isKeyPressed(configKeys.getSDLKey("SaveGUILayout"), c) == true) {
+      GraphicComponent::saveAllCustomProperties(containerName);
+      // Lang &lang= Lang::getInstance();
+      // console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ?
+      // lang.getString("Yes") : lang.getString("No"))+ "]");
+    }
+    //	}
   }
-  //	}
 }
 
 void MenuStateOptionsNetwork::render() {
@@ -467,6 +481,8 @@ void MenuStateOptionsNetwork::render() {
     renderer.renderButton(&buttonMiscSection);
     renderer.renderButton(&buttonNetworkSettings);
     renderer.renderLabel(&labelServerPortLabel);
+    renderer.renderLabel(&labelServerBindIpLabel);
+    renderer.renderLabel(&labelServerBindIpTextInput);
     renderer.renderLabel(&labelExternalPort);
     renderer.renderLabel(&labelPublishServerExternalPort);
     renderer.renderListBox(&listBoxServerPort);
@@ -498,10 +514,11 @@ void MenuStateOptionsNetwork::render() {
 void MenuStateOptionsNetwork::saveConfig() {
   Config &config = Config::getInstance();
   Lang &lang = Lang::getInstance();
-  setActiveInputLable(NULL);
+  this->setActiveInputLabel(NULL);
 
   lang.loadGameStrings(config.getString("Lang"));
 
+  config.setString("ServerBindAddress", labelServerBindIpTextInput.getText());
   config.setString("PortServer", listBoxServerPort.getSelectedItem());
   config.setInt("FTPServerPort", config.getInt("PortServer") + 1);
   config.setBool("EnableFTPXfer", checkBoxEnableFTP.getValue());
@@ -520,7 +537,18 @@ void MenuStateOptionsNetwork::saveConfig() {
   console.addLine(lang.getString("SettingsSaved"));
 }
 
-void MenuStateOptionsNetwork::setActiveInputLable(GraphicLabel *newLable) {}
+bool MenuStateOptionsNetwork::textInput(std::string text) {
+  if (activeInputLabel != NULL) {
+    if (&labelServerBindIpTextInput == activeInputLabel) {
+      return textInputEditLabel(text, &activeInputLabel);
+    }
+  }
+  return false;
+}
+
+void MenuStateOptionsNetwork::setActiveInputLabel(GraphicLabel *newLabel) {
+  MenuState::setActiveInputLabel(newLabel, &activeInputLabel);
+}
 
 }  // namespace Game
 }  // namespace Glest

@@ -37,7 +37,10 @@ class MenuStateOptionsNetwork : public MenuState {
   int mainMessageBoxState;
 
   GraphicLabel labelExternalPort;
+  GraphicLabel labelServerBindIpTextInput;
+  GraphicLabel labelServerBindIpLabel;
   GraphicLabel labelServerPortLabel;
+  GraphicLabel *activeInputLabel;
 
   GraphicLabel labelPublishServerExternalPort;
   GraphicListBox listBoxServerPort;
@@ -73,15 +76,16 @@ class MenuStateOptionsNetwork : public MenuState {
   void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
   void mouseMove(int x, int y, const MouseState *mouseState);
   void render();
-  // virtual void keyDown(SDL_KeyboardEvent key);
+  virtual bool textInput(std::string text);
+  virtual void keyDown(SDL_KeyboardEvent key);
   virtual void keyPress(SDL_KeyboardEvent c);
-  // virtual bool isInSpecialKeyCaptureEvent();
+  //  virtual bool isInSpecialKeyCaptureEvent();
 
   virtual void reloadUI();
 
  private:
   void saveConfig();
-  void setActiveInputLable(GraphicLabel *newLable);
+  void setActiveInputLabel(GraphicLabel *newLabel);
   // void showMessageBox(const string &text, const string &header, bool toggle);
 };
 

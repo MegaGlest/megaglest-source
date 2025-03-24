@@ -281,6 +281,7 @@ class ServerSocket : public Socket, public UPNPInitInterface {
   bool portBound;
   int boundPort;
   string bindSpecificAddress;
+  string bindAddress;
 
   static int externalPort;
   static int ftpServerPort;
@@ -311,6 +312,7 @@ class ServerSocket : public Socket, public UPNPInitInterface {
   void clearBlockedIPAddress();
   bool hasBlockedIPAddresses() const;
 
+  void setBindAddress(string address) { bindAddress = address; }
   void setBindPort(int port) { boundPort = port; }
   int getBindPort() const { return boundPort; }
   bool isPortBound() const { return portBound; }

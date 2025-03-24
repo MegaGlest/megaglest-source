@@ -158,6 +158,8 @@ ServerInterface::ServerInterface(
         extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 
   serverSocket.setBlock(false);
+  serverSocket.setBindAddress(
+      Config::getInstance().getString("ServerBindAddress", ""));
   serverSocket.setBindPort(Config::getInstance().getInt(
       "PortServer", intToStr(GameConstants::serverPort).c_str()));
 

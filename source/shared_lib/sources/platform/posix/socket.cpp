@@ -3100,13 +3100,30 @@ void ServerSocket::bind(int port) {
   }
 
   // sockaddr structure
-  sockaddr_in addr;
+  sockaddr_in addr = {};
   addr.sin_family = AF_INET;
   if (this->bindSpecificAddress != "") {
     addr.sin_addr.s_addr = inet_addr(this->bindSpecificAddress.c_str());
   } else {
-    addr.sin_addr.s_addr = INADDR_ANY;
+    if (this->bindAddress.empty()) {
+      addr.sin_addr.s_addr = INADDR_ANY;
+    } else {
+      int res = inet_pton(AF_INET, this->bindAddress.c_str(), &addr.sin_addr);
+
+      if (res <= 0) {
+        std::string stdBuf;
+        if (res == 0) {
+          stdBuf = this->bindAddress + ": Invalid network address\n";
+        } else {
+          // inet_pton() may return 0 or -1 on error, however, errno
+          // is not set unless -1 is returned.
+          stdBuf = "inet_pton: " + std::string(strerror(errno)) + "\n";
+        }
+        throwException(stdBuf.c_str());
+      }
+    }
   }
+
   addr.sin_port = htons(port);
   addr.sin_zero[0] = 0;
 
@@ -3122,9 +3139,9 @@ void ServerSocket::bind(int port) {
 
   int err = ::bind(sock, reinterpret_cast<sockaddr *>(&addr), sizeof(addr));
   if (err < 0) {
-    char szBuf[8096] = "";
+    char szBuf[BUFSIZ] = {};
     snprintf(
-        szBuf, 8096,
+        szBuf, sizeof szBuf,
         "In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE
         ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",
         __FILE__, __FUNCTION__, sock, this->bindSpecificAddress.c_str(), port,
@@ -3132,7 +3149,7 @@ void ServerSocket::bind(int port) {
     if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
       SystemFlags::OutputDebug(SystemFlags::debugNetwork, "%s", szBuf);
 
-    snprintf(szBuf, 8096,
+    snprintf(szBuf, sizeof szBuf,
              "Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE
              ", address [%s] port = %d err = %d, error = %s\n",
              sock, this->bindSpecificAddress.c_str(), port, err,
