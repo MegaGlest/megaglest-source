@@ -34,7 +34,7 @@ const char *GAME_ARGS[] = {"--help",
                            "--headless-server-status",
                            "--server-title",
                            "--use-ports",
-
+                           "--bind-address",
                            "--load-scenario",
                            "--load-mod",
                            "--preview-map",
@@ -100,10 +100,7 @@ const char *GAME_ARGS[] = {"--help",
                            "--steam",
                            "--steam-debug",
                            "--steam-reset-stats",
-
-                           "--verbose"
-
-};
+                           "--verbose"};
 
 enum GAME_ARG_TYPE {
     GAME_ARG_HELP = 0,

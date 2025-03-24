@@ -373,14 +373,14 @@ void MenuStateOptionsNetwork::mouseMove(int x, int y, const MouseState *ms) {
 }
 
 // bool MenuStateOptionsNetwork::isInSpecialKeyCaptureEvent() {
-//	return (activeInputLabel != NULL);
-// }
-//
-// void MenuStateOptionsNetwork::keyDown(SDL_KeyboardEvent key) {
-//	if(activeInputLabel != NULL) {
-//		keyDownEditLabel(key, &activeInputLabel);
-//	}
-// }
+// return (activeInputLabel != NULL);
+//}
+
+void MenuStateOptionsNetwork::keyDown(SDL_KeyboardEvent key) {
+    if (activeInputLabel != NULL) {
+        keyDownEditLabel(key, &activeInputLabel);
+    }
+}
 
 void MenuStateOptionsNetwork::keyPress(SDL_KeyboardEvent c) {
     //	if(activeInputLabel != NULL) {
@@ -468,7 +468,14 @@ void MenuStateOptionsNetwork::saveConfig() {
     console.addLine(lang.getString("SettingsSaved"));
 }
 
-void MenuStateOptionsNetwork::setActiveInputLable(GraphicLabel *newLable) {}
+bool MenuStateOptionsNetwork::textInput(std::string text) {
+    if (activeInputLabel != NULL) {
+        if (&labelServerBindIpTextInput == activeInputLabel) {
+            return textInputEditLabel(text, &activeInputLabel);
+        }
+    }
+    return false;
+}
 
 } // namespace Game
 } // namespace Glest
