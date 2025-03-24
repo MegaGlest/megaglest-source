@@ -13,7 +13,7 @@
 #define _GLEST_GAME_SOUNDRENDERER_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
+#include <winsock2.h>
 #endif
 
 #include "sound.h"
@@ -24,12 +24,13 @@
 #include "platform_common.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
-using ::Shared::Sound::StrSound;
-using ::Shared::Sound::StaticSound;
-using ::Shared::Sound::SoundPlayer;
 using ::Shared::Graphics::Vec3f;
+using ::Shared::Sound::SoundPlayer;
+using ::Shared::Sound::StaticSound;
+using ::Shared::Sound::StrSound;
 using namespace ::Shared::PlatformCommon;
 
 // =====================================================
@@ -39,58 +40,62 @@ using namespace ::Shared::PlatformCommon;
 // =====================================================
 
 class SoundRenderer : public SimpleTaskCallbackInterface {
-public:
-	static const int ambientFade;
-	static const float audibleDist;
-private:
-	SoundPlayer *soundPlayer;
+ public:
+  static const int ambientFade;
+  static const float audibleDist;
 
-	//volume
-	float fxVolume;
-	float musicVolume;
-	float ambientVolume;
+ private:
+  SoundPlayer *soundPlayer;
 
-	Mutex *mutex;
-	bool runThreadSafe;
+  // volume
+  float fxVolume;
+  float musicVolume;
+  float ambientVolume;
 
-private:
-	SoundRenderer();
+  Mutex *mutex;
+  bool runThreadSafe;
 
-	void cleanup();
+ private:
+  SoundRenderer();
 
-public:
-	//misc
-	virtual ~SoundRenderer();
-	static SoundRenderer &getInstance();
-	bool init(Window *window);
-	void update();
-	virtual void simpleTask(BaseThread *callingThread,void *userdata) { update(); }
-	SoundPlayer *getSoundPlayer() const	{return soundPlayer;}
+  void cleanup();
 
-	//music
-	void playMusic(StrSound *strSound);
-	void setMusicVolume(StrSound *strSound);
-	void stopMusic(StrSound *strSound);
+ public:
+  // misc
+  virtual ~SoundRenderer();
+  static SoundRenderer &getInstance();
+  bool init(Window *window);
+  void update();
+  virtual void simpleTask(BaseThread *callingThread, void *userdata) {
+    update();
+  }
+  SoundPlayer *getSoundPlayer() const { return soundPlayer; }
 
-	//fx
-	void playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPos);
-	void playFx(StaticSound *staticSound, bool force=false);
+  // music
+  void playMusic(StrSound *strSound);
+  void setMusicVolume(StrSound *strSound);
+  void stopMusic(StrSound *strSound);
 
-	//ambient
-	void playAmbient(StrSound *strSound);
-	void stopAmbient(StrSound *strSound);
+  // fx
+  void playFx(StaticSound *staticSound, Vec3f soundPos, Vec3f camPos);
+  void playFx(StaticSound *staticSound, bool force = false);
 
-	//misc
-	void stopAllSounds(int64 fadeOff=0);
-	void loadConfig();
+  // ambient
+  void playAmbient(StrSound *strSound);
+  void stopAmbient(StrSound *strSound);
 
-	bool wasInitOk() const;
+  // misc
+  void stopAllSounds(int64 fadeOff = 0);
+  void loadConfig();
 
-	bool runningThreaded() const { return runThreadSafe; }
+  bool wasInitOk() const;
 
-	bool isVolumeTurnedOff() const;
+  bool runningThreaded() const { return runThreadSafe; }
+
+  bool isVolumeTurnedOff() const;
 };
 
-}}//end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif

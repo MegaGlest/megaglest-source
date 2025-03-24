@@ -13,7 +13,7 @@
 #define _GLEST_GAME_PROGRAM_H_
 
 #ifdef WIN32
-    #include <winsock2.h>
+#include <winsock2.h>
 #endif
 
 #include "context.h"
@@ -26,16 +26,17 @@
 #include "stats.h"
 #include "leak_dumper.h"
 
-using Shared::Platform::MouseButton;
 using Shared::Graphics::Context;
-using Shared::Platform::WindowGl;
-using Shared::Platform::SizeState;
-using Shared::Platform::MouseState;
-using Shared::PlatformCommon::PerformanceTimer;
 using Shared::Platform::Ip;
+using Shared::Platform::MouseButton;
+using Shared::Platform::MouseState;
+using Shared::Platform::SizeState;
+using Shared::Platform::WindowGl;
+using Shared::PlatformCommon::PerformanceTimer;
 using namespace Shared::PlatformCommon;
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 class Program;
 class MainWindow;
@@ -49,70 +50,72 @@ class GameSettings;
 // =====================================================
 
 class ProgramState {
-protected:
-	Program *program;
+ protected:
+  Program *program;
 
-	int mouseX;
-	int mouseY;
-	int mouse2dAnim;
+  int mouseX;
+  int mouseY;
+  int mouse2dAnim;
 
-	int startX;
-    int startY;
-    bool forceMouseRender;
+  int startX;
+  int startY;
+  bool forceMouseRender;
 
-    int fps;
-    int lastFps;
+  int fps;
+  int lastFps;
 
-public:
+ public:
+  static const char *MAIN_PROGRAM_RENDER_KEY;
 
-    static const char *MAIN_PROGRAM_RENDER_KEY;
+  explicit ProgramState(Program *program);
+  virtual ~ProgramState() {};
 
-	explicit ProgramState(Program *program);
-	virtual ~ProgramState(){};
+  int getFps() const { return fps; }
+  int getLastFps() const { return lastFps; }
 
-    int getFps() const { return fps; }
-    int getLastFps() const { return lastFps; }
+  // virtual void render()=0;
+  virtual bool canRender(bool sleepIfCannotRender = true);
+  virtual void render();
+  virtual void update();
+  virtual void updateCamera() {};
+  virtual void tick();
+  virtual void init() {};
+  virtual void load() {};
+  virtual void end() {};
+  virtual void mouseDownLeft(int x, int y) {};
+  virtual void mouseUpLeft(int x, int y) {};
+  virtual void mouseUpRight(int x, int y) {}
+  virtual void mouseUpCenter(int x, int y) {}
+  virtual void mouseDownRight(int x, int y) {};
+  virtual void mouseDownCenter(int x, int y) {}
+  virtual void mouseDoubleClickLeft(int x, int y) {};
+  virtual void mouseDoubleClickRight(int x, int y) {}
+  virtual void mouseDoubleClickCenter(int x, int y) {}
+  virtual void eventMouseWheel(int x, int y, int zDelta) {}
+  virtual void mouseMove(int x, int y, const MouseState *mouseState);
+  virtual bool textInput(std::string text) { return false; };
+  virtual void keyDown(SDL_KeyboardEvent key) {};
+  virtual bool sdlKeyDown(SDL_KeyboardEvent key) { return false; };
+  virtual void keyUp(SDL_KeyboardEvent key) {};
+  virtual void keyPress(SDL_KeyboardEvent c) {};
+  virtual void setStartXY(int X, int Y) {
+    startX = X;
+    startY = Y;
+  }
+  virtual void restoreToStartXY();
+  virtual bool isInSpecialKeyCaptureEvent() { return false; }
+  virtual bool quitTriggered() { return false; }
+  virtual Stats quitAndToggleState() { return Stats(); };
+  virtual Program *getProgram() { return program; }
+  virtual const Program *getProgramConstPtr() { return program; }
+  virtual void setForceMouseRender(bool value) { forceMouseRender = value; }
+  virtual void consoleAddLine(string line) {};
 
-	//virtual void render()=0;
-    virtual bool canRender(bool sleepIfCannotRender=true);
-	virtual void render();
-	virtual void update();
-	virtual void updateCamera(){};
-	virtual void tick();
-	virtual void init(){};
-	virtual void load(){};
-	virtual void end(){};
-	virtual void mouseDownLeft(int x, int y){};
-	virtual void mouseUpLeft(int x, int y){};
-	virtual void mouseUpRight(int x, int y){}
-	virtual void mouseUpCenter(int x, int y){}
-	virtual void mouseDownRight(int x, int y){};
-	virtual void mouseDownCenter(int x, int y){}
-	virtual void mouseDoubleClickLeft(int x, int y){};
-	virtual void mouseDoubleClickRight(int x, int y){}
-	virtual void mouseDoubleClickCenter(int x, int y){}
-	virtual void eventMouseWheel(int x, int y, int zDelta){}
-	virtual void mouseMove(int x, int y, const MouseState *mouseState);
-	virtual bool textInput(std::string text){ return false; };
-	virtual void keyDown(SDL_KeyboardEvent key){};
-	virtual bool sdlKeyDown(SDL_KeyboardEvent key){ return false; };
-	virtual void keyUp(SDL_KeyboardEvent key){};
-	virtual void keyPress(SDL_KeyboardEvent c){};
-	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
-	virtual void restoreToStartXY();
-	virtual bool isInSpecialKeyCaptureEvent() { return false; }
-	virtual bool quitTriggered() { return false; }
-	virtual Stats quitAndToggleState() { return Stats(); };
-	virtual Program * getProgram() { return program; }
-	virtual const Program * getProgramConstPtr() { return program; }
-	virtual void setForceMouseRender(bool value) { forceMouseRender=value;}
-	virtual void consoleAddLine(string line) { };
+  virtual void reloadUI() {};
+  virtual void addPerformanceCount(string key, int64 value) {};
 
-	virtual void reloadUI() {};
-	virtual void addPerformanceCount(string key,int64 value) {};
-
-protected:
-	virtual void incrementFps();
+ protected:
+  virtual void incrementFps();
 };
 
 // ===============================
@@ -120,125 +123,137 @@ protected:
 // ===============================
 
 class Program {
-private:
-	static const int maxTimes;
-	SimpleTaskThread *soundThreadManager;
+ private:
+  static const int maxTimes;
+  SimpleTaskThread *soundThreadManager;
 
-	class ShowMessageProgramState : public ProgramState {
-		GraphicMessageBox msgBox;
-		int mouseX;
-		int mouseY;
-		int mouse2dAnim;
-		string msg;
-		bool userWantsExit;
-
-	public:
-		ShowMessageProgramState(Program *program, const char *msg);
-
-		virtual void render();
-		virtual void mouseDownLeft(int x, int y);
-		virtual void mouseMove(int x, int y, const MouseState &mouseState);
-		virtual void keyPress(SDL_KeyboardEvent c);
-		virtual void update();
-		virtual bool wantExit() { return userWantsExit; }
-	};
-
-
-private:
-    ProgramState *programState;
-
-	PerformanceTimer fpsTimer;
-	PerformanceTimer updateTimer;
-	PerformanceTimer updateCameraTimer;
-
-    WindowGl *window;
-    static Program *singleton;
-
+  class ShowMessageProgramState : public ProgramState {
     GraphicMessageBox msgBox;
-    int skipRenderFrameCount;
+    int mouseX;
+    int mouseY;
+    int mouse2dAnim;
+    string msg;
+    bool userWantsExit;
 
-    bool messageBoxIsSystemError;
-    ProgramState *programStateOldSystemError;
+   public:
+    ShowMessageProgramState(Program *program, const char *msg);
 
-    //bool masterserverMode;
-    bool shutdownApplicationEnabled;
-    static bool wantShutdownApplicationAfterGame;
+    virtual void render();
+    virtual void mouseDownLeft(int x, int y);
+    virtual void mouseMove(int x, int y, const MouseState &mouseState);
+    virtual void keyPress(SDL_KeyboardEvent c);
+    virtual void update();
+    virtual bool wantExit() { return userWantsExit; }
+  };
 
-    static bool tryingRendererInit;
-    static bool rendererInitOk;
+ private:
+  ProgramState *programState;
 
-public:
-    Program();
-    virtual ~Program();
+  PerformanceTimer fpsTimer;
+  PerformanceTimer updateTimer;
+  PerformanceTimer updateCameraTimer;
 
-    static bool getTryingRendererInit() { return tryingRendererInit; }
-    static bool getRendererInitOk() { return rendererInitOk; }
+  WindowGl *window;
+  static Program *singleton;
 
-    static Program *getInstance()	{ return singleton;      }
+  GraphicMessageBox msgBox;
+  int skipRenderFrameCount;
 
-    static void setWantShutdownApplicationAfterGame(bool value) { wantShutdownApplicationAfterGame = value; }
-    static bool getWantShutdownApplicationAfterGame() { return wantShutdownApplicationAfterGame; }
+  bool messageBoxIsSystemError;
+  ProgramState *programStateOldSystemError;
 
-    //bool isMasterserverMode() const;
-    bool isShutdownApplicationEnabled() const { return shutdownApplicationEnabled; }
-    void setShutdownApplicationEnabled(bool value) { shutdownApplicationEnabled = value; }
+  // bool masterserverMode;
+  bool shutdownApplicationEnabled;
+  static bool wantShutdownApplicationAfterGame;
 
-    GraphicMessageBox * getMsgBox() { return &msgBox; }
-	void initNormal(WindowGl *window);
-	void initServer(WindowGl *window,bool autostart=false,bool openNetworkSlots=false,bool masterserverMode=false);
-	void initServer(WindowGl *window, GameSettings *settings);
-	void initSavedGame(WindowGl *window,bool masterserverMode=false,string saveGameFile="");
-	void initClient(WindowGl *window, const Ip &serverIp,int portNumber=-1);
-	void initClientAutoFindHost(WindowGl *window);
-	void initScenario(WindowGl *window, string autoloadScenarioName);
+  static bool tryingRendererInit;
+  static bool rendererInitOk;
 
-	//main
-	bool textInput(std::string text);
-    void keyDown(SDL_KeyboardEvent key);
-    bool sdlKeyDown(SDL_KeyboardEvent key);
-    void keyUp(SDL_KeyboardEvent key);
-    void keyPress(SDL_KeyboardEvent c);
+ public:
+  Program();
+  virtual ~Program();
 
-	void loop();
-	void loopWorker();
-	void resize(SizeState sizeState);
-	void showMessage(const char *msg);
-	bool isMessageShowing();
+  static bool getTryingRendererInit() { return tryingRendererInit; }
+  static bool getRendererInitOk() { return rendererInitOk; }
 
-	//misc
-	void setState(ProgramState *programStateNew,bool cleanupOldState=true);
-	ProgramState * getState() { return programState;}
-	WindowGl * getWindow() { return window; }
-	const WindowGl * getWindowConstPtr() const { return window; }
-	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
-	void exit();
+  static Program *getInstance() { return singleton; }
 
-	virtual void simpleTask(BaseThread *callingThread,void *userdata);
+  static void setWantShutdownApplicationAfterGame(bool value) {
+    wantShutdownApplicationAfterGame = value;
+  }
+  static bool getWantShutdownApplicationAfterGame() {
+    return wantShutdownApplicationAfterGame;
+  }
 
-	void mouseDownLeft(int x, int y);
-	void eventMouseMove(int x, int y, const MouseState *ms);
+  // bool isMasterserverMode() const;
+  bool isShutdownApplicationEnabled() const {
+    return shutdownApplicationEnabled;
+  }
+  void setShutdownApplicationEnabled(bool value) {
+    shutdownApplicationEnabled = value;
+  }
 
-	void renderProgramMsgBox();
-	bool isInSpecialKeyCaptureEvent() { return programState->isInSpecialKeyCaptureEvent(); }
+  GraphicMessageBox *getMsgBox() { return &msgBox; }
+  void initNormal(WindowGl *window);
+  void initServer(WindowGl *window, bool autostart = false,
+                  bool openNetworkSlots = false, bool masterserverMode = false);
+  void initServer(WindowGl *window, GameSettings *settings);
+  void initSavedGame(WindowGl *window, bool masterserverMode = false,
+                     string saveGameFile = "");
+  void initClient(WindowGl *window, const Ip &serverIp, int portNumber = -1);
+  void initClientAutoFindHost(WindowGl *window);
+  void initScenario(WindowGl *window, string autoloadScenarioName);
 
-	//void reInitGl();
-	//void resetSoundSystem();
-	void stopSoundSystem();
-	void startSoundSystem();
+  // main
+  bool textInput(std::string text);
+  void keyDown(SDL_KeyboardEvent key);
+  bool sdlKeyDown(SDL_KeyboardEvent key);
+  void keyUp(SDL_KeyboardEvent key);
+  void keyPress(SDL_KeyboardEvent c);
 
-	virtual void consoleAddLine(string line);
+  void loop();
+  void loopWorker();
+  void resize(SizeState sizeState);
+  void showMessage(const char *msg);
+  bool isMessageShowing();
 
-	virtual SimpleTaskThread * getSoundThreadManager(bool takeOwnership);
-	virtual void reloadUI();
+  // misc
+  void setState(ProgramState *programStateNew, bool cleanupOldState = true);
+  ProgramState *getState() { return programState; }
+  WindowGl *getWindow() { return window; }
+  const WindowGl *getWindowConstPtr() const { return window; }
+  void init(WindowGl *window, bool initSound = true,
+            bool toggleFullScreen = false);
+  void exit();
 
-private:
+  virtual void simpleTask(BaseThread *callingThread, void *userdata);
 
-	void setDisplaySettings();
-	void restoreDisplaySettings();
-	void restoreStateFromSystemError();
-	void initResolution();
+  void mouseDownLeft(int x, int y);
+  void eventMouseMove(int x, int y, const MouseState *ms);
+
+  void renderProgramMsgBox();
+  bool isInSpecialKeyCaptureEvent() {
+    return programState->isInSpecialKeyCaptureEvent();
+  }
+
+  // void reInitGl();
+  // void resetSoundSystem();
+  void stopSoundSystem();
+  void startSoundSystem();
+
+  virtual void consoleAddLine(string line);
+
+  virtual SimpleTaskThread *getSoundThreadManager(bool takeOwnership);
+  virtual void reloadUI();
+
+ private:
+  void setDisplaySettings();
+  void restoreDisplaySettings();
+  void restoreStateFromSystemError();
+  void initResolution();
 };
 
-}} //end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif

@@ -15,77 +15,77 @@
 #include "main_menu.h"
 #include "leak_dumper.h"
 
-namespace Glest{ namespace Game{
+namespace Glest {
+namespace Game {
 
 // ===============================
 // 	class MenuStateOptionsNetwork
 // ===============================
 
-class MenuStateOptionsNetwork: public MenuState{
-private:
+class MenuStateOptionsNetwork : public MenuState {
+ private:
+  GraphicButton buttonOk;
+  GraphicButton buttonReturn;
 
-	GraphicButton buttonOk;
-	GraphicButton buttonReturn;
+  GraphicButton buttonKeyboardSetup;  // configure the keyboard
+  GraphicButton buttonVideoSection;
+  GraphicButton buttonAudioSection;
+  GraphicButton buttonMiscSection;
+  GraphicButton buttonNetworkSettings;
 
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
+  GraphicMessageBox mainMessageBox;
+  int mainMessageBoxState;
 
+  GraphicLabel labelExternalPort;
+  GraphicLabel labelServerPortLabel;
 
-	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
+  GraphicLabel labelPublishServerExternalPort;
+  GraphicListBox listBoxServerPort;
 
-	GraphicLabel labelExternalPort;
-	GraphicLabel labelServerPortLabel;
+  GraphicLabel labelEnableFTP;
+  GraphicCheckBox checkBoxEnableFTP;
 
-	GraphicLabel labelPublishServerExternalPort;
-	GraphicListBox listBoxServerPort;
+  GraphicLabel labelEnableFTPServer;
+  GraphicCheckBox checkBoxEnableFTPServer;
 
-	GraphicLabel labelEnableFTP;
-	GraphicCheckBox checkBoxEnableFTP;
+  GraphicLabel labelFTPServerPortLabel;
+  GraphicLabel labelFTPServerPort;
 
-	GraphicLabel labelEnableFTPServer;
-	GraphicCheckBox checkBoxEnableFTPServer;
+  GraphicLabel labelFTPServerDataPortsLabel;
+  GraphicLabel labelFTPServerDataPorts;
 
-	GraphicLabel labelFTPServerPortLabel;
-	GraphicLabel labelFTPServerPort;
+  GraphicLabel labelEnableFTPServerInternetTilesetXfer;
+  GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
 
-	GraphicLabel labelFTPServerDataPortsLabel;
-	GraphicLabel labelFTPServerDataPorts;
+  GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
+  GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
 
-	GraphicLabel labelEnableFTPServerInternetTilesetXfer;
-	GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
+  GraphicLabel labelEnablePrivacy;
+  GraphicCheckBox checkBoxEnablePrivacy;
 
-	GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
-	GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
+  ProgramState **parentUI;
 
-	GraphicLabel labelEnablePrivacy;
-	GraphicCheckBox checkBoxEnablePrivacy;
+ public:
+  MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu,
+                          ProgramState **parentUI = NULL);
 
-	ProgramState **parentUI;
+  void mouseClick(int x, int y, MouseButton mouseButton);
+  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+  void mouseMove(int x, int y, const MouseState *mouseState);
+  void render();
+  // virtual void keyDown(SDL_KeyboardEvent key);
+  virtual void keyPress(SDL_KeyboardEvent c);
+  // virtual bool isInSpecialKeyCaptureEvent();
 
-public:
-	MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
+  virtual void reloadUI();
 
-	void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseDoubleClick(int x, int y, MouseButton mouseButton){};
-	void mouseMove(int x, int y, const MouseState *mouseState);
-	void render();
-	//virtual void keyDown(SDL_KeyboardEvent key);
-    virtual void keyPress(SDL_KeyboardEvent c);
-    //virtual bool isInSpecialKeyCaptureEvent();
-
-    virtual void reloadUI();
-
-
-private:
-	void saveConfig();
-	void setActiveInputLable(GraphicLabel* newLable);
-	//void showMessageBox(const string &text, const string &header, bool toggle);
+ private:
+  void saveConfig();
+  void setActiveInputLable(GraphicLabel *newLable);
+  // void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
-}}//end namespace
+}  // namespace Game
+}  // namespace Glest
 
 #endif
