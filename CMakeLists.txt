@@ -338,48 +338,6 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
         SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -pthread")
     ENDIF()
 
-	# Get the git revision info for the binary
-	SET(HAS_GIT "FALSE")
-	SET(GIT_LIVE_REV_CMD "")
-
-	OPTION(WANT_GIT_STAMP "use git revision stamp" ON)
-	IF(WANT_GIT_STAMP)
-		# The stuff below gets GIT Global Revision # but ONLY when calling cmake!
-		# the FindGit.cmake module is part of the standard distribution
-		include(FindGit)
-
-		IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-            SET(HAS_GIT "TRUE")
-            MESSAGE(STATUS "Found GIT and using GIT version stamping...")
-
-            # Get the current commit SHA1
-            execute_process(
-              COMMAND git log -1 --format=%h --abbrev=7
-              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-              OUTPUT_VARIABLE GIT_SHA1
-              OUTPUT_STRIP_TRAILING_WHITESPACE
-            )
-
-            # Get the current version counter
-            execute_process(
-              COMMAND git rev-list HEAD --count
-              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-              OUTPUT_VARIABLE GIT_COMMIT_COUNT
-              OUTPUT_STRIP_TRAILING_WHITESPACE
-            )
-
-            SET(GIT_LIVE_REV_CMD "`cd '${PROJECT_SOURCE_DIR}' && git rev-list HEAD --count`.`cd '${PROJECT_SOURCE_DIR}' && git log -1 --format=%h --abbrev=7`")
-
-            MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
-
-			IF(CMAKE_GENERATOR STREQUAL Xcode)
-				SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\\''")
-			ELSE()
-				SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_LIVE_REV_CMD}\\\"'")
-			ENDIF()
-		ENDIF()
-	ENDIF()
-
 	SET(COMMON_INFO_ABOUT_PATH "(if the path is relative then is appended to the CMAKE_INSTALL_PREFIX)")
 	IF(CMAKE_INSTALL_PREFIX STREQUAL "")
 		MESSAGE(STATUS "*NOTE: NOT USING a Custom Data Install Path...")
@@ -434,9 +392,6 @@ size_t stack_depth = backtrace(stack_addrs, max_depth);
 	ENDIF()
 
 	string(TOUPPER "${CMAKE_BUILD_TYPE}" MG_BUILD_TYPE)
-	IF(HAS_GIT STREQUAL "TRUE")
-		SET(CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}} ${GIT_VERSION_CMD}")
-	ENDIF()
 	SET(CMAKE_CXX_FLAGS_${MG_BUILD_TYPE} "${CMAKE_CXX_FLAGS_${MG_BUILD_TYPE}} ${CUSTOM_INSTALL_PATHS_VALUES}")
 
 	# We do some funky character escaping to get the right stuff written out to

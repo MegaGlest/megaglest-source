@@ -181,6 +181,32 @@ ENDIF()
 
 INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
 
+set(GITVERSION_H_DIR "${CMAKE_CURRENT_BINARY_DIR}/facilities")
+find_package(Git)
+IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
+	add_compile_definitions(HAVE_GIT)
+	execute_process(
+		COMMAND ${GIT_EXECUTABLE} log -1 --format=%h --abbrev=7
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		RESULT_VARIABLE GIT_RESULT
+		OUTPUT_VARIABLE GIT_REVISION
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/facilities/gitversion.h.in
+		${GITVERSION_H_DIR}/gitversion.h
+		@ONLY
+	)
+	include_directories(${GITVERSION_H_DIR})
+	# If Git command fails, set a default value
+	if(NOT GIT_RESULT EQUAL 0)
+			set(GIT_REVISION "unknown")
+	endif()
+else()
+	set(GIT_REVISION "unknown")
+endif()
+message(STATUS "Git Revision: ${GIT_REVISION}")
+
 #INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 
 IF(WIN32)
@@ -216,13 +242,6 @@ FOREACH(DIR IN LISTS DIRS_WITH_SRC)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
 	ENDIF(APPLE)
 ENDFOREACH(DIR)
-
-# Force the git revision stamp (${GIT_COMMIT_COUNT}.${GIT_SHA1}) file to be touched so the compile stamp is always right
-IF(UNIX AND GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-	add_custom_command(OUTPUT mg.tmp
-		COMMAND touch ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp)
-	add_custom_target(run ALL DEPENDS mg.tmp)
-ENDIF()
 
 IF(WIN32 AND NOT MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-subsystem,console -mconsole")
