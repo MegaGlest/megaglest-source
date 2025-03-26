@@ -1,6 +1,6 @@
 #ifndef _GIT_REVISION_H
 #define _GIT_REVISION_H
 
-#define GIT_REVISION "@GIT_REVISION@"
+#cmakedefine GIT_REVISION "@GIT_REVISION@"
 
 #endif
