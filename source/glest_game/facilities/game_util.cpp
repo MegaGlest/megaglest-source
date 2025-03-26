@@ -36,9 +36,7 @@ const char *mailString = " http://bugs.megaglest.org";
 const string glestVersionString = "v3.13-dev";
 const string lastCompatibleSaveGameVersionString = "v3.11.1";
 
-#if defined(HAVE_GIT)
 #include "gitversion.h"
-#endif
 #if defined(GIT_REVISION) || defined(GITVERSIONHEADER)
 const string GIT_RawRev = string(GIT_REVISION);
 #else

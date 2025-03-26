@@ -184,28 +184,35 @@ INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
 set(GITVERSION_H_DIR "${CMAKE_CURRENT_BINARY_DIR}/facilities")
 find_package(Git)
 IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
-	add_compile_definitions(HAVE_GIT)
+	set(GIT_REVISION "unknown")
 	execute_process(
-		COMMAND ${GIT_EXECUTABLE} log -1 --format=%h --abbrev=7
+		COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		RESULT_VARIABLE GIT_RESULT
-		OUTPUT_VARIABLE GIT_REVISION
+		OUTPUT_VARIABLE GIT_REVISION_COUNT
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
-	configure_file(
-		${CMAKE_CURRENT_SOURCE_DIR}/facilities/gitversion.h.in
-		${GITVERSION_H_DIR}/gitversion.h
-		@ONLY
-	)
-	include_directories(${GITVERSION_H_DIR})
-	# If Git command fails, set a default value
-	if(NOT GIT_RESULT EQUAL 0)
-			set(GIT_REVISION "unknown")
+	if(GIT_RESULT EQUAL 0)
+		execute_process(
+			COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+			RESULT_VARIABLE GIT_RESULT
+			OUTPUT_VARIABLE GIT_REVISION_HASH
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		if(GIT_RESULT EQUAL 0)
+			set(GIT_REVISION ${GIT_REVISION_COUNT}.${GIT_REVISION_HASH})
+		endif()
 	endif()
-else()
-	set(GIT_REVISION "unknown")
+	message(STATUS "Git Revision: ${GIT_REVISION}")
 endif()
-message(STATUS "Git Revision: ${GIT_REVISION}")
+
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/facilities/gitversion.h.in
+	${GITVERSION_H_DIR}/gitversion.h
+	@ONLY
+)
+include_directories(${GITVERSION_H_DIR})
 
 #INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 
