@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -18,7 +18,8 @@
 
 using namespace std;
 
-namespace Shared { namespace Graphics {
+namespace Shared {
+namespace Graphics {
 
 // =====================================================
 //	class FontManager
@@ -27,25 +28,26 @@ namespace Shared { namespace Graphics {
 // =====================================================
 
 class FontManager {
-protected:
-	typedef vector<Font*> FontContainer;
+ protected:
+  typedef vector<Font *> FontContainer;
 
-protected:
-	FontContainer fonts;
+ protected:
+  FontContainer fonts;
 
-public:
-	FontManager();
-	virtual ~FontManager();
+ public:
+  FontManager();
+  virtual ~FontManager();
 
-	Font2D *newFont2D();
-	Font3D *newFont3D();
+  Font2D *newFont2D();
+  Font3D *newFont3D();
 
-	void endFont(Font *font,bool mustExistInList=false);
+  void endFont(Font *font, bool mustExistInList = false);
 
-	void init();
-	void end();
+  void init();
+  void end();
 };
 
-}}//end namespace
+}  // namespace Graphics
+}  // namespace Shared
 
 #endif

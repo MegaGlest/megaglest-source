@@ -7,7 +7,4 @@
 
 #include "FileReader.h"
 
-namespace Shared {
-
-
-}
+namespace Shared {}

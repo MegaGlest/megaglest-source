@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -18,36 +18,38 @@
 
 using namespace std;
 
-namespace Shared{ namespace Graphics{
+namespace Shared {
+namespace Graphics {
 
 // =====================================================
 //	class ShaderManager
 // =====================================================
 
-class ShaderManager{
-protected:
-	typedef vector<ShaderProgram*> ShaderProgramContainer;
-	typedef vector<Shader*> ShaderContainer;
+class ShaderManager {
+ protected:
+  typedef vector<ShaderProgram *> ShaderProgramContainer;
+  typedef vector<Shader *> ShaderContainer;
 
-protected:
-	ShaderProgramContainer shaderPrograms;
-	ShaderContainer shaders;
-	string logString;
+ protected:
+  ShaderProgramContainer shaderPrograms;
+  ShaderContainer shaders;
+  string logString;
 
-public:
-	ShaderManager();
-	virtual ~ShaderManager();
+ public:
+  ShaderManager();
+  virtual ~ShaderManager();
 
-	ShaderProgram *newShaderProgram();
-	VertexShader *newVertexShader();
-	FragmentShader *newFragmentShader();
+  ShaderProgram *newShaderProgram();
+  VertexShader *newVertexShader();
+  FragmentShader *newFragmentShader();
 
-	void init();
-	void end();
+  void init();
+  void end();
 
-	const string &getLogString() const	{return logString;}
+  const string &getLogString() const { return logString; }
 };
 
-}}//end namespace
+}  // namespace Graphics
+}  // namespace Shared
 
 #endif

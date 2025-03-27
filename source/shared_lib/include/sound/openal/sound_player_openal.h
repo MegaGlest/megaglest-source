@@ -1,10 +1,10 @@
-//This file is part of Glest Shared Library (www.glest.org)
-//Copyright (C) 2005 Matthias Braun <matze@braunis.de>
+// This file is part of Glest Shared Library (www.glest.org)
+// Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 
-//You can redistribute this code and/or modify it under
-//the terms of the GNU General Public License as published by the Free Software
-//Foundation; either version 2 of the License, or (at your option) any later
-//version.
+// You can redistribute this code and/or modify it under
+// the terms of the GNU General Public License as published by the Free Software
+// Foundation; either version 2 of the License, or (at your option) any later
+// version.
 #ifndef _SHARED_SOUND_SOUNDPLAYEROPENAL_H_
 #define _SHARED_SOUND_SOUNDPLAYEROPENAL_H_
 
@@ -25,64 +25,65 @@
 using std::vector;
 using namespace Shared::PlatformCommon;
 
-namespace Shared{ namespace Sound{ namespace OpenAL{
+namespace Shared {
+namespace Sound {
+namespace OpenAL {
 
 class SoundSource {
-public:
-	SoundSource();
-	virtual ~SoundSource();
+ public:
+  SoundSource();
+  virtual ~SoundSource();
 
-	bool playing();
-	void stop();
-	void unQueueBuffers();
+  bool playing();
+  void stop();
+  void unQueueBuffers();
 
-protected:
-	friend class SoundPlayerOpenAL;
-	ALenum getFormat(Sound* sound);
+ protected:
+  friend class SoundPlayerOpenAL;
+  ALenum getFormat(Sound* sound);
 
-	ALuint source;
+  ALuint source;
 };
 
 class StaticSoundSource : public SoundSource {
-public:
-	StaticSoundSource();
-	virtual ~StaticSoundSource();
+ public:
+  StaticSoundSource();
+  virtual ~StaticSoundSource();
 
-	void play(StaticSound* sound);
+  void play(StaticSound* sound);
 
-protected:
-	friend class SoundPlayerOpenAL;
-	bool bufferAllocated;
-	ALuint buffer;
+ protected:
+  friend class SoundPlayerOpenAL;
+  bool bufferAllocated;
+  ALuint buffer;
 };
 
 class StreamSoundSource : public SoundSource {
-public:
-	StreamSoundSource();
-	virtual ~StreamSoundSource();
+ public:
+  StreamSoundSource();
+  virtual ~StreamSoundSource();
 
-	void play(StrSound* sound, int64 fade);
-	void update();
-	void stop();
-	void stop(int64 fade);
+  void play(StrSound* sound, int64 fade);
+  void update();
+  void stop();
+  void stop(int64 fade);
 
-protected:
-	friend class SoundPlayerOpenAL;
-	static const size_t STREAMBUFFERSIZE = 4096 * 500;
-	static const size_t STREAMFRAGMENTS = 10;
-	static const size_t STREAMFRAGMENTSIZE
-		= STREAMBUFFERSIZE / STREAMFRAGMENTS;
+ protected:
+  friend class SoundPlayerOpenAL;
+  static const size_t STREAMBUFFERSIZE = 4096 * 500;
+  static const size_t STREAMFRAGMENTS = 10;
+  static const size_t STREAMFRAGMENTSIZE = STREAMBUFFERSIZE / STREAMFRAGMENTS;
 
-	bool fillBufferAndQueue(ALuint buffer);
+  bool fillBufferAndQueue(ALuint buffer);
 
-	StrSound* sound;
-	ALuint buffers[STREAMFRAGMENTS];
-	ALenum format;
+  StrSound* sound;
+  ALuint buffers[STREAMFRAGMENTS];
+  ALenum format;
 
-	enum FadeState { NoFading, FadingOn, FadingOff };
-	FadeState fadeState;
-	Chrono chrono; // delay-fade chrono
-	int64 fade;
+  enum FadeState { NoFading, FadingOn, FadingOff };
+  FadeState fadeState;
+  Chrono chrono;  // delay-fade chrono
+  int64 fade;
 };
 
 // ==============================================================
@@ -92,41 +93,42 @@ protected:
 // ==============================================================
 
 class SoundPlayerOpenAL : public SoundPlayer {
-public:
-	SoundPlayerOpenAL();
-	virtual ~SoundPlayerOpenAL();
-	virtual bool init(const SoundPlayerParams *params);
-	virtual void end();
-	virtual void play(StaticSound *staticSound, bool force=false);
-	virtual void play(StrSound *strSound, int64 fadeOn=0);
-	virtual void stop(StrSound *strSound, int64 fadeOff=0);
-	virtual void stopAllSounds(int64 fadeOff=0);
-	virtual void updateStreams();	//updates str buffers if needed
+ public:
+  SoundPlayerOpenAL();
+  virtual ~SoundPlayerOpenAL();
+  virtual bool init(const SoundPlayerParams* params);
+  virtual void end();
+  virtual void play(StaticSound* staticSound, bool force = false);
+  virtual void play(StrSound* strSound, int64 fadeOn = 0);
+  virtual void stop(StrSound* strSound, int64 fadeOff = 0);
+  virtual void stopAllSounds(int64 fadeOff = 0);
+  virtual void updateStreams();  // updates str buffers if needed
 
-private:
-	friend class SoundSource;
-	friend class StaticSoundSource;
-	friend class StreamSoundSource;
+ private:
+  friend class SoundSource;
+  friend class StaticSoundSource;
+  friend class StreamSoundSource;
 
-	void printOpenALInfo();
+  void printOpenALInfo();
 
-	StaticSoundSource* findStaticSoundSource();
-	StreamSoundSource* findStreamSoundSource();
-	void checkAlcError(string message);
-	static void checkAlError(string message);
+  StaticSoundSource* findStaticSoundSource();
+  StreamSoundSource* findStreamSoundSource();
+  void checkAlcError(string message);
+  static void checkAlError(string message);
 
-	ALCdevice* device;
-	ALCcontext* context;
+  ALCdevice* device;
+  ALCcontext* context;
 
-	typedef std::vector<StaticSoundSource*> StaticSoundSources;
-	StaticSoundSources staticSources;
-	typedef std::vector<StreamSoundSource*> StreamSoundSources;
-	StreamSoundSources streamSources;
+  typedef std::vector<StaticSoundSource*> StaticSoundSources;
+  StaticSoundSources staticSources;
+  typedef std::vector<StreamSoundSource*> StreamSoundSources;
+  StreamSoundSources streamSources;
 
-	SoundPlayerParams params;
+  SoundPlayerParams params;
 };
 
-}}}//end namespace
+}  // namespace OpenAL
+}  // namespace Sound
+}  // namespace Shared
 
 #endif
-
