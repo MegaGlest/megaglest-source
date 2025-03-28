@@ -38,51 +38,48 @@ enum ResourceClass { rcTech, rcTileset, rcStatic, rcConsumable };
 // =====================================================
 
 class ResourceType : public DisplayableType {
- private:
-  ResourceClass resourceClass;
-  int tilesetObject;   // used only if class==rcTileset
-  int resourceNumber;  // used only if class==rcTech, resource number in the map
-  int interval;        // used only if class==rcConsumable
-  int defResPerPatch;  // used only if class==rcTileset || class==rcTech
-  bool recoup_cost;
-  bool displayInHud;
+  private:
+    ResourceClass resourceClass;
+    int tilesetObject;  // used only if class==rcTileset
+    int resourceNumber; // used only if class==rcTech, resource number in the map
+    int interval;       // used only if class==rcConsumable
+    int defResPerPatch; // used only if class==rcTileset || class==rcTech
+    bool recoup_cost;
+    bool displayInHud;
 
-  Model *model;
-  ObjectParticleSystemTypes particleTypes;
-  bool cleanupMemory;
+    Model *model;
+    ObjectParticleSystemTypes particleTypes;
+    bool cleanupMemory;
 
- public:
-  ResourceType();
-  ~ResourceType();
-  void load(const string &dir, Checksum *checksum, Checksum *techtreeChecksum,
-            std::map<string, vector<pair<string, string> > > &loadedFileList,
-            string techtreePath);
+  public:
+    ResourceType();
+    ~ResourceType();
+    void load(const string &dir, Checksum *checksum, Checksum *techtreeChecksum, std::map<string, vector<pair<string, string>>> &loadedFileList,
+              string techtreePath);
 
-  virtual string getName(bool translatedValue = false) const;
-  // get
-  int getClass() const { return resourceClass; }
-  int getTilesetObject() const { return tilesetObject; }
-  int getResourceNumber() const { return resourceNumber; }
-  int getInterval() const { return interval; }
-  int getDefResPerPatch() const { return defResPerPatch; }
-  Model *getModel() const { return model; }
-  bool getRecoup_cost() const { return recoup_cost; }
-  bool getDisplayInHud() const { return displayInHud; }
+    virtual string getName(bool translatedValue = false) const;
+    // get
+    int getClass() const { return resourceClass; }
+    int getTilesetObject() const { return tilesetObject; }
+    int getResourceNumber() const { return resourceNumber; }
+    int getInterval() const { return interval; }
+    int getDefResPerPatch() const { return defResPerPatch; }
+    Model *getModel() const { return model; }
+    bool getRecoup_cost() const { return recoup_cost; }
+    bool getDisplayInHud() const { return displayInHud; }
 
-  bool hasParticles() const { return !particleTypes.empty(); }
-  const ObjectParticleSystemTypes *getObjectParticleSystemTypes() const {
-    return &particleTypes;
-  }
+    bool hasParticles() const { return !particleTypes.empty(); }
+    const ObjectParticleSystemTypes *getObjectParticleSystemTypes() const { return &particleTypes; }
 
-  void setCleanupMemory(bool value) { cleanupMemory = value; }
+    void setCleanupMemory(bool value) { cleanupMemory = value; }
 
-  static ResourceClass strToRc(const string &s);
-  void deletePixels();
+    static ResourceClass strToRc(const string &s);
+    void deletePixels();
 
-  void saveGame(XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

@@ -30,49 +30,49 @@ namespace Game {
 // =====================================================
 
 class MainWindow : public WindowGl {
- private:
-  Program *program;
-  PopupMenu popupMenu;
-  int cancelLanguageSelection;
-  bool triggerLanguageToggle;
-  string triggerLanguage;
+  private:
+    Program *program;
+    PopupMenu popupMenu;
+    int cancelLanguageSelection;
+    bool triggerLanguageToggle;
+    string triggerLanguage;
 
-  void showLanguages();
+    void showLanguages();
 
- public:
-  explicit MainWindow(Program *program);
-  ~MainWindow();
+  public:
+    explicit MainWindow(Program *program);
+    ~MainWindow();
 
-  void setProgram(Program *program);
+    void setProgram(Program *program);
 
-  virtual void eventMouseDown(int x, int y, MouseButton mouseButton);
-  virtual void eventMouseUp(int x, int y, MouseButton mouseButton);
-  virtual void eventMouseDoubleClick(int x, int y, MouseButton mouseButton);
-  virtual void eventMouseMove(int x, int y, const MouseState *mouseState);
-  virtual bool eventTextInput(std::string text);
-  virtual bool eventSdlKeyDown(SDL_KeyboardEvent key);
-  virtual void eventKeyDown(SDL_KeyboardEvent key);
-  virtual void eventMouseWheel(int x, int y, int zDelta);
-  virtual void eventKeyUp(SDL_KeyboardEvent key);
-  virtual void eventKeyPress(SDL_KeyboardEvent c);
-  virtual void eventActivate(bool active);
-  virtual void eventResize(SizeState sizeState);
-  virtual void eventClose();
-  virtual void eventWindowEvent(SDL_WindowEvent event);
+    virtual void eventMouseDown(int x, int y, MouseButton mouseButton);
+    virtual void eventMouseUp(int x, int y, MouseButton mouseButton);
+    virtual void eventMouseDoubleClick(int x, int y, MouseButton mouseButton);
+    virtual void eventMouseMove(int x, int y, const MouseState *mouseState);
+    virtual bool eventTextInput(std::string text);
+    virtual bool eventSdlKeyDown(SDL_KeyboardEvent key);
+    virtual void eventKeyDown(SDL_KeyboardEvent key);
+    virtual void eventMouseWheel(int x, int y, int zDelta);
+    virtual void eventKeyUp(SDL_KeyboardEvent key);
+    virtual void eventKeyPress(SDL_KeyboardEvent c);
+    virtual void eventActivate(bool active);
+    virtual void eventResize(SizeState sizeState);
+    virtual void eventClose();
+    virtual void eventWindowEvent(SDL_WindowEvent event);
 
-  virtual void render();
-  void toggleLanguage(string language);
-  bool getTriggerLanguageToggle() const { return triggerLanguageToggle; }
-  string getTriggerLanguage() const { return triggerLanguage; }
+    virtual void render();
+    void toggleLanguage(string language);
+    bool getTriggerLanguageToggle() const { return triggerLanguageToggle; }
+    string getTriggerLanguage() const { return triggerLanguage; }
 
-  virtual int getDesiredScreenWidth();
-  virtual int getDesiredScreenHeight();
+    virtual int getDesiredScreenWidth();
+    virtual int getDesiredScreenHeight();
 
- protected:
-  virtual void eventToggleFullScreen(bool isFullscreen);
+  protected:
+    virtual void eventToggleFullScreen(bool isFullscreen);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

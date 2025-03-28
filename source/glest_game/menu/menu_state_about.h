@@ -27,47 +27,47 @@ namespace Game {
 // ===============================
 
 class MenuStateAbout : public MenuState {
- public:
-  static const int aboutStringCount1 = 4;
-  static const int aboutStringCount2 = 3;
-  static const int teammateCount = 9;
-  static const int teammateTopLineCount = 5;
+  public:
+    static const int aboutStringCount1 = 4;
+    static const int aboutStringCount2 = 3;
+    static const int teammateCount = 9;
+    static const int teammateTopLineCount = 5;
 
- private:
-  GraphicButton buttonReturn;
-  GraphicLabel labelAdditionalCredits;
-  GraphicLabel labelAbout1[aboutStringCount1];
-  GraphicLabel labelAbout2[aboutStringCount2];
-  GraphicLabel labelTeammateName[teammateCount];
-  GraphicLabel labelTeammateRole[teammateCount];
+  private:
+    GraphicButton buttonReturn;
+    GraphicLabel labelAdditionalCredits;
+    GraphicLabel labelAbout1[aboutStringCount1];
+    GraphicLabel labelAbout2[aboutStringCount2];
+    GraphicLabel labelTeammateName[teammateCount];
+    GraphicLabel labelTeammateRole[teammateCount];
 
-  bool adjustModelText;
-  string loadAdditionalCredits();
+    bool adjustModelText;
+    string loadAdditionalCredits();
 
-  bool enableCustomModCredits;
-  Texture2D *customModTexture;
-  int customModTextureX;
-  int customModTextureY;
-  int customModTextureW;
-  int customModTextureH;
-  float customModTextureAlpha;
+    bool enableCustomModCredits;
+    Texture2D *customModTexture;
+    int customModTextureX;
+    int customModTextureY;
+    int customModTextureW;
+    int customModTextureH;
+    float customModTextureAlpha;
 
-  GraphicLabel labelCustomModCredits;
+    GraphicLabel labelCustomModCredits;
 
- public:
-  MenuStateAbout(Program *program, MainMenu *mainMenu);
-  virtual ~MenuStateAbout();
+  public:
+    MenuStateAbout(Program *program, MainMenu *mainMenu);
+    virtual ~MenuStateAbout();
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void render();
-  virtual void keyDown(SDL_KeyboardEvent key);
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void render();
+    virtual void keyDown(SDL_KeyboardEvent key);
 
-  virtual void reloadUI();
+    virtual void reloadUI();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

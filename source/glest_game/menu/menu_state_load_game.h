@@ -23,59 +23,59 @@ namespace Game {
 // ===============================
 // typedef vector<GraphicButton*> SaveSlotButtons;
 class MenuStateLoadGame : public MenuState {
- private:
-  GraphicButton loadButton;
-  GraphicButton deleteButton;
-  GraphicButton abortButton;
-  vector<GraphicButton *> slots;
-  vector<GraphicComponent *> slotsGB;
-  vector<string> filenames;
-  GraphicScrollBar slotsScrollBar;
-  GraphicButton *selectedButton;
+  private:
+    GraphicButton loadButton;
+    GraphicButton deleteButton;
+    GraphicButton abortButton;
+    vector<GraphicButton *> slots;
+    vector<GraphicComponent *> slotsGB;
+    vector<string> filenames;
+    GraphicScrollBar slotsScrollBar;
+    GraphicButton *selectedButton;
 
-  GraphicButton *buttonToDelete;
+    GraphicButton *buttonToDelete;
 
-  Texture2D *previewTexture;
+    Texture2D *previewTexture;
 
-  GraphicLabel headerLabel;
-  GraphicLabel noSavedGamesLabel;
-  GraphicLabel savedGamesLabel;
-  GraphicLabel infoHeaderLabel;
-  GraphicLabel infoTextLabel;
-  GraphicLabel versionWarningLabel;
+    GraphicLabel headerLabel;
+    GraphicLabel noSavedGamesLabel;
+    GraphicLabel savedGamesLabel;
+    GraphicLabel infoHeaderLabel;
+    GraphicLabel infoTextLabel;
+    GraphicLabel versionWarningLabel;
 
-  GraphicLine lines[2];
+    GraphicLine lines[2];
 
-  GraphicMessageBox mainMessageBox;
+    GraphicMessageBox mainMessageBox;
 
-  string saveGameDir;
-  int slotLinesYBase;
-  int slotsLineHeight;
+    string saveGameDir;
+    int slotLinesYBase;
+    int slotsLineHeight;
 
- public:
-  MenuStateLoadGame(Program *program, MainMenu *mainMenu);
-  ~MenuStateLoadGame();
+  public:
+    MenuStateLoadGame(Program *program, MainMenu *mainMenu);
+    ~MenuStateLoadGame();
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton);
-  void mouseUp(int x, int y, const MouseButton mouseButton);
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void update();
-  void render();
-  virtual void keyDown(SDL_KeyboardEvent key);
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton);
+    void mouseUp(int x, int y, const MouseButton mouseButton);
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void update();
+    void render();
+    virtual void keyDown(SDL_KeyboardEvent key);
 
-  void reloadUI();
+    void reloadUI();
 
- private:
-  void clearSlots();
-  void listFiles();
+  private:
+    void clearSlots();
+    void listFiles();
 
-  void showMessageBox(const string &text, const string &header, bool toggle);
+    void showMessageBox(const string &text, const string &header, bool toggle);
 
-  void cleanupTexture(Texture2D **texture);
+    void cleanupTexture(Texture2D **texture);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

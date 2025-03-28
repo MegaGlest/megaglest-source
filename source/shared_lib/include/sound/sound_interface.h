@@ -23,23 +23,23 @@ namespace Sound {
 // =====================================================
 
 class SoundInterface {
- private:
-  SoundFactory *soundFactory;
+  private:
+    SoundFactory *soundFactory;
 
- private:
-  SoundInterface() { soundFactory = 0; }
-  SoundInterface(SoundInterface &);
-  void operator=(SoundInterface &);
+  private:
+    SoundInterface() { soundFactory = 0; }
+    SoundInterface(SoundInterface &);
+    void operator=(SoundInterface &);
 
- public:
-  static SoundInterface &getInstance();
+  public:
+    static SoundInterface &getInstance();
 
-  void setFactory(SoundFactory *soundFactory);
+    void setFactory(SoundFactory *soundFactory);
 
-  SoundPlayer *newSoundPlayer();
+    SoundPlayer *newSoundPlayer();
 };
 
-}  // namespace Sound
-}  // namespace Shared
+} // namespace Sound
+} // namespace Shared
 
 #endif

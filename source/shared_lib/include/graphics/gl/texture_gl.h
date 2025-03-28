@@ -25,42 +25,40 @@ namespace Gl {
 // =====================================================
 
 class TextureGl {
- protected:
-  GLuint handle;
-  GLuint renderBufferId;
-  GLuint frameBufferId;
+  protected:
+    GLuint handle;
+    GLuint renderBufferId;
+    GLuint frameBufferId;
 
-  static bool enableATIHacks;
+    static bool enableATIHacks;
 
-  void initRenderBuffer();
-  void initFrameBuffer();
-  void attachRenderBuffer();
+    void initRenderBuffer();
+    void initFrameBuffer();
+    void attachRenderBuffer();
 
- public:
-  TextureGl();
-  virtual ~TextureGl();
+  public:
+    TextureGl();
+    virtual ~TextureGl();
 
-  static void setEnableATIHacks(bool value) { enableATIHacks = value; }
-  static bool getEnableATIHacks() { return enableATIHacks; }
+    static void setEnableATIHacks(bool value) { enableATIHacks = value; }
+    static bool getEnableATIHacks() { return enableATIHacks; }
 
-  GLuint getHandle() const { return handle; }
-  GLuint getRenderBufferHandle() const { return renderBufferId; }
-  GLuint getFrameBufferHandle() const { return frameBufferId; }
+    GLuint getHandle() const { return handle; }
+    GLuint getRenderBufferHandle() const { return renderBufferId; }
+    GLuint getFrameBufferHandle() const { return frameBufferId; }
 
-  bool supports_FBO_RBO();
-  void setup_FBO_RBO();
-  void attachFrameBufferToTexture();
-  void dettachFrameBufferFromTexture();
-  void dettachRenderBufferFromTexture();
-  bool checkFrameBufferStatus();
-  void teardown_FBO_RBO();
+    bool supports_FBO_RBO();
+    void setup_FBO_RBO();
+    void attachFrameBufferToTexture();
+    void dettachFrameBufferFromTexture();
+    void dettachRenderBufferFromTexture();
+    bool checkFrameBufferStatus();
+    void teardown_FBO_RBO();
 
-  virtual int getTextureWidth() const = 0;
-  virtual int getTextureHeight() const = 0;
+    virtual int getTextureWidth() const = 0;
+    virtual int getTextureHeight() const = 0;
 
-  void OutputTextureDebugInfo(Texture::Format format, int components,
-                              const string path, std::size_t rawSize,
-                              GLenum texType);
+    void OutputTextureDebugInfo(Texture::Format format, int components, const string path, std::size_t rawSize, GLenum texType);
 };
 
 // =====================================================
@@ -68,15 +66,15 @@ class TextureGl {
 // =====================================================
 
 class Texture1DGl : public Texture1D, public TextureGl {
- public:
-  Texture1DGl();
-  virtual ~Texture1DGl();
+  public:
+    Texture1DGl();
+    virtual ~Texture1DGl();
 
-  virtual void init(Filter filter, int maxAnisotropy = 1);
-  virtual void end(bool deletePixelBuffer = true);
+    virtual void init(Filter filter, int maxAnisotropy = 1);
+    virtual void end(bool deletePixelBuffer = true);
 
-  virtual int getTextureWidth() const { return Texture1D::getTextureWidth(); }
-  virtual int getTextureHeight() const { return Texture1D::getTextureHeight(); }
+    virtual int getTextureWidth() const { return Texture1D::getTextureWidth(); }
+    virtual int getTextureHeight() const { return Texture1D::getTextureHeight(); }
 };
 
 // =====================================================
@@ -84,15 +82,15 @@ class Texture1DGl : public Texture1D, public TextureGl {
 // =====================================================
 
 class Texture2DGl : public Texture2D, public TextureGl {
- public:
-  Texture2DGl();
-  virtual ~Texture2DGl();
+  public:
+    Texture2DGl();
+    virtual ~Texture2DGl();
 
-  virtual void init(Filter filter, int maxAnisotropy = 1);
-  virtual void end(bool deletePixelBuffer = true);
+    virtual void init(Filter filter, int maxAnisotropy = 1);
+    virtual void end(bool deletePixelBuffer = true);
 
-  virtual int getTextureWidth() const { return Texture2D::getTextureWidth(); }
-  virtual int getTextureHeight() const { return Texture2D::getTextureHeight(); }
+    virtual int getTextureWidth() const { return Texture2D::getTextureWidth(); }
+    virtual int getTextureHeight() const { return Texture2D::getTextureHeight(); }
 };
 
 // =====================================================
@@ -100,15 +98,15 @@ class Texture2DGl : public Texture2D, public TextureGl {
 // =====================================================
 
 class Texture3DGl : public Texture3D, public TextureGl {
- public:
-  Texture3DGl();
-  virtual ~Texture3DGl();
+  public:
+    Texture3DGl();
+    virtual ~Texture3DGl();
 
-  virtual void init(Filter filter, int maxAnisotropy = 1);
-  virtual void end(bool deletePixelBuffer = true);
+    virtual void init(Filter filter, int maxAnisotropy = 1);
+    virtual void end(bool deletePixelBuffer = true);
 
-  virtual int getTextureWidth() const { return Texture3D::getTextureWidth(); }
-  virtual int getTextureHeight() const { return Texture3D::getTextureHeight(); }
+    virtual int getTextureWidth() const { return Texture3D::getTextureWidth(); }
+    virtual int getTextureHeight() const { return Texture3D::getTextureHeight(); }
 };
 
 // =====================================================
@@ -116,21 +114,19 @@ class Texture3DGl : public Texture3D, public TextureGl {
 // =====================================================
 
 class TextureCubeGl : public TextureCube, public TextureGl {
- public:
-  TextureCubeGl();
-  virtual ~TextureCubeGl();
+  public:
+    TextureCubeGl();
+    virtual ~TextureCubeGl();
 
-  virtual void init(Filter filter, int maxAnisotropy = 1);
-  virtual void end(bool deletePixelBuffer = true);
+    virtual void init(Filter filter, int maxAnisotropy = 1);
+    virtual void end(bool deletePixelBuffer = true);
 
-  virtual int getTextureWidth() const { return TextureCube::getTextureWidth(); }
-  virtual int getTextureHeight() const {
-    return TextureCube::getTextureHeight();
-  }
+    virtual int getTextureWidth() const { return TextureCube::getTextureWidth(); }
+    virtual int getTextureHeight() const { return TextureCube::getTextureHeight(); }
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

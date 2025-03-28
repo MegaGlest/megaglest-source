@@ -25,17 +25,17 @@ class ModelRenderer;
 // =====================================================
 
 class ParticleRenderer {
- public:
-  // particles
-  virtual ~ParticleRenderer() {};
-  virtual void renderManager(ParticleManager *pm, ModelRenderer *mr) = 0;
-  virtual void renderSystem(ParticleSystem *ps) = 0;
-  virtual void renderSystemLine(ParticleSystem *ps) = 0;
-  virtual void renderSystemLineAlpha(ParticleSystem *ps) = 0;
-  virtual void renderModel(GameParticleSystem *ps, ModelRenderer *mr) = 0;
+  public:
+    // particles
+    virtual ~ParticleRenderer() {};
+    virtual void renderManager(ParticleManager *pm, ModelRenderer *mr) = 0;
+    virtual void renderSystem(ParticleSystem *ps) = 0;
+    virtual void renderSystemLine(ParticleSystem *ps) = 0;
+    virtual void renderSystemLineAlpha(ParticleSystem *ps) = 0;
+    virtual void renderModel(GameParticleSystem *ps, ModelRenderer *mr) = 0;
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

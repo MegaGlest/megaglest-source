@@ -25,37 +25,35 @@ namespace Util {
 // =====================================================
 
 class RandomGen {
- private:
-  static const int m;
-  static const int a;
-  static const int b;
+  private:
+    static const int m;
+    static const int a;
+    static const int b;
 
- private:
-  int lastNumber;
-  std::vector<std::string> lastCaller;
-  bool disableLastCallerTracking;
+  private:
+    int lastNumber;
+    std::vector<std::string> lastCaller;
+    bool disableLastCallerTracking;
 
-  int rand(std::string lastCaller);
+    int rand(std::string lastCaller);
 
- public:
-  RandomGen();
-  void init(int seed);
+  public:
+    RandomGen();
+    void init(int seed);
 
-  int randRange(int min, int max, std::string lastCaller = "");
-  float randRange(float min, float max, std::string lastCaller = "");
+    int randRange(int min, int max, std::string lastCaller = "");
+    float randRange(float min, float max, std::string lastCaller = "");
 
-  int getLastNumber() const { return lastNumber; }
-  void setLastNumber(int value) { lastNumber = value; }
+    int getLastNumber() const { return lastNumber; }
+    void setLastNumber(int value) { lastNumber = value; }
 
-  std::string getLastCaller() const;
-  void clearLastCaller();
-  void addLastCaller(std::string text);
-  void setDisableLastCallerTracking(bool value) {
-    disableLastCallerTracking = value;
-  }
+    std::string getLastCaller() const;
+    void clearLastCaller();
+    void addLastCaller(std::string text);
+    void setDisableLastCallerTracking(bool value) { disableLastCallerTracking = value; }
 };
 
-}  // namespace Util
-}  // namespace Shared
+} // namespace Util
+} // namespace Shared
 
 #endif

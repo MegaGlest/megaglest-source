@@ -23,21 +23,20 @@ namespace Sound {
 // =====================================================
 
 SoundInterface &SoundInterface::getInstance() {
-  static SoundInterface soundInterface;
-  return soundInterface;
+    static SoundInterface soundInterface;
+    return soundInterface;
 }
 
 void SoundInterface::setFactory(SoundFactory *soundFactory) {
-  this->soundFactory = soundFactory;
+    this->soundFactory = soundFactory;
 }
 
 SoundPlayer *SoundInterface::newSoundPlayer() {
-  if (SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled)
-    SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s %d]\n",
-                             __FILE__, __FUNCTION__, __LINE__);
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled)
+        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s %d]\n", __FILE__, __FUNCTION__, __LINE__);
 
-  return soundFactory->newSoundPlayer();
+    return soundFactory->newSoundPlayer();
 }
 
-}  // namespace Sound
-}  // namespace Shared
+} // namespace Sound
+} // namespace Shared

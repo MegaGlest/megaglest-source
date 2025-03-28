@@ -29,32 +29,32 @@ namespace Graphics {
 // =====================================================
 
 class FontMetrics {
- private:
-  float *widths;
-  float height;
+  private:
+    float *widths;
+    float height;
 
-  // float yOffsetFactor;
-  Text *textHandler;
+    // float yOffsetFactor;
+    Text *textHandler;
 
- public:
-  // static float DEFAULT_Y_OFFSET_FACTOR;
+  public:
+    // static float DEFAULT_Y_OFFSET_FACTOR;
 
-  FontMetrics(Text *textHandler = NULL);
-  ~FontMetrics();
+    FontMetrics(Text *textHandler = NULL);
+    ~FontMetrics();
 
-  // void setYOffsetFactor(float yOffsetFactor);
-  // float getYOffsetFactor() const;
+    // void setYOffsetFactor(float yOffsetFactor);
+    // float getYOffsetFactor() const;
 
-  void setTextHandler(Text *textHandler);
-  Text *getTextHandler();
+    void setTextHandler(Text *textHandler);
+    Text *getTextHandler();
 
-  void setWidth(int i, float width) { this->widths[i] = width; }
-  void setHeight(float height) { this->height = height; }
+    void setWidth(int i, float width) { this->widths[i] = width; }
+    void setHeight(float height) { this->height = height; }
 
-  float getTextWidth(const string &str);
-  float getHeight(const string &str) const;
+    float getTextWidth(const string &str);
+    float getHeight(const string &str) const;
 
-  string wordWrapText(string text, int maxWidth);
+    string wordWrapText(string text, int maxWidth);
 };
 
 // =====================================================
@@ -62,58 +62,58 @@ class FontMetrics {
 // =====================================================
 
 class Font {
- public:
-  static int charCount;
-  static std::string fontTypeName;
-  static bool fontIsMultibyte;
-  static bool forceLegacyFonts;
-  static bool fontIsRightToLeft;
-  static bool fontSupportMixedRightToLeft;
-  static float scaleFontValue;
-  static float scaleFontValueCenterHFactor;
-  static int baseSize;
-  static int faceResolution;
-  static string langHeightText;
+  public:
+    static int charCount;
+    static std::string fontTypeName;
+    static bool fontIsMultibyte;
+    static bool forceLegacyFonts;
+    static bool fontIsRightToLeft;
+    static bool fontSupportMixedRightToLeft;
+    static float scaleFontValue;
+    static float scaleFontValueCenterHFactor;
+    static int baseSize;
+    static int faceResolution;
+    static string langHeightText;
 
- public:
-  enum Width { wNormal = 400, wBold = 700 };
+  public:
+    enum Width { wNormal = 400, wBold = 700 };
 
- protected:
-  string type;
-  int width;
-  bool inited;
-  int size;
-  FontMetrics metrics;
+  protected:
+    string type;
+    int width;
+    bool inited;
+    int size;
+    FontMetrics metrics;
 
-  Text *textHandler;
-  string fontUniqueId;
+    Text *textHandler;
+    string fontUniqueId;
 
- public:
-  // constructor & destructor
-  Font(FontTextHandlerType type);
-  virtual ~Font();
-  virtual void init() = 0;
-  virtual void end() = 0;
+  public:
+    // constructor & destructor
+    Font(FontTextHandlerType type);
+    virtual ~Font();
+    virtual void init() = 0;
+    virtual void end() = 0;
 
-  void setFontUniqueId(string id) { fontUniqueId = id; }
-  string getFontUniqueId() { return fontUniqueId; }
+    void setFontUniqueId(string id) { fontUniqueId = id; }
+    string getFontUniqueId() { return fontUniqueId; }
 
-  // get
-  int getWidth() const;
-  FontMetrics *getMetrics() { return &metrics; }
-  Text *getTextHandler() { return textHandler; }
-  string getType() const;
+    // get
+    int getWidth() const;
+    FontMetrics *getMetrics() { return &metrics; }
+    Text *getTextHandler() { return textHandler; }
+    string getType() const;
 
-  // set
-  void setType(string typeX11, string typeGeneric, string typeGenericFamily);
-  void setWidth(int width);
+    // set
+    void setType(string typeX11, string typeGeneric, string typeGenericFamily);
+    void setWidth(int width);
 
-  int getSize() const;
-  void setSize(int size);
+    int getSize() const;
+    void setSize(int size);
 
-  static void bidi_cvt(string &str_);
+    static void bidi_cvt(string &str_);
 
-  static void resetToDefaults();
+    static void resetToDefaults();
 };
 
 // =====================================================
@@ -121,9 +121,9 @@ class Font {
 // =====================================================
 
 class Font2D : public Font {
- public:
-  Font2D(FontTextHandlerType type = ftht_2D);
-  virtual ~Font2D() {};
+  public:
+    Font2D(FontTextHandlerType type = ftht_2D);
+    virtual ~Font2D() {};
 };
 
 // =====================================================
@@ -131,29 +131,28 @@ class Font2D : public Font {
 // =====================================================
 
 class Font3D : public Font {
- protected:
-  float depth;
+  protected:
+    float depth;
 
- public:
-  Font3D(FontTextHandlerType type = ftht_3D);
-  virtual ~Font3D() {};
+  public:
+    Font3D(FontTextHandlerType type = ftht_3D);
+    virtual ~Font3D() {};
 
-  float getDepth() const { return depth; }
-  void setDepth(float depth) { this->depth = depth; }
+    float getDepth() const { return depth; }
+    void setDepth(float depth) { this->depth = depth; }
 };
 
 Font3D *ConvertFont2DTo3D(Font2D *font);
 
-const char *findFont(const char *firstFontToTry = NULL,
-                     const char *firstFontFamilyToTry = NULL);
+const char *findFont(const char *firstFontToTry = NULL, const char *firstFontFamilyToTry = NULL);
 
 class FontChangedCallbackInterface {
- public:
-  virtual void FontChangedCallback(std::string fontUniqueId, Font *font) = 0;
-  virtual ~FontChangedCallbackInterface() {};
+  public:
+    virtual void FontChangedCallback(std::string fontUniqueId, Font *font) = 0;
+    virtual ~FontChangedCallbackInterface() {};
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

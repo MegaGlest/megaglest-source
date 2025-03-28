@@ -54,50 +54,46 @@ class FragmentShader;
 // =====================================================
 
 class GraphicsFactory {
- public:
-  virtual ~GraphicsFactory() {}
+  public:
+    virtual ~GraphicsFactory() {}
 
-  // context
-  virtual Context *newContext() { return NULL; }
+    // context
+    virtual Context *newContext() { return NULL; }
 
-  // textures
-  virtual TextureManager *newTextureManager() { return NULL; }
-  virtual Texture1D *newTexture1D() { return NULL; }
-  virtual Texture2D *newTexture2D() { return NULL; }
-  virtual Texture3D *newTexture3D() { return NULL; }
-  virtual TextureCube *newTextureCube() { return NULL; }
+    // textures
+    virtual TextureManager *newTextureManager() { return NULL; }
+    virtual Texture1D *newTexture1D() { return NULL; }
+    virtual Texture2D *newTexture2D() { return NULL; }
+    virtual Texture3D *newTexture3D() { return NULL; }
+    virtual TextureCube *newTextureCube() { return NULL; }
 
-  // models
-  virtual ModelManager *newModelManager() { return NULL; }
-  virtual ModelRenderer *newModelRenderer() { return NULL; }
-  virtual Model *newModel(
-      const string &path, TextureManager *textureManager,
-      bool deletePixMapAfterLoad,
-      std::map<string, std::vector<std::pair<string, string> > >
-          *loadedFileList,
-      string *sourceLoader) {
-    return NULL;
-  }
+    // models
+    virtual ModelManager *newModelManager() { return NULL; }
+    virtual ModelRenderer *newModelRenderer() { return NULL; }
+    virtual Model *newModel(const string &path, TextureManager *textureManager, bool deletePixMapAfterLoad,
+                            std::map<string, std::vector<std::pair<string, string>>> *loadedFileList, string *sourceLoader) {
+        return NULL;
+    }
 
-  // text
-  virtual FontManager *newFontManager() { return NULL; }
-  virtual TextRenderer2D *newTextRenderer2D() { return NULL; }
-  virtual TextRenderer3D *newTextRenderer3D() { return NULL; }
-  virtual Font2D *newFont2D() { return NULL; }
-  virtual Font3D *newFont3D() { return NULL; }
+    // text
+    virtual FontManager *newFontManager() { return NULL; }
+    virtual TextRenderer2D *newTextRenderer2D() { return NULL; }
+    virtual TextRenderer3D *newTextRenderer3D() { return NULL; }
+    virtual Font2D *newFont2D() { return NULL; }
+    virtual Font3D *newFont3D() { return NULL; }
 
-  // particles
-  virtual ParticleManager *newParticleManager() { return NULL; }
-  virtual ParticleRenderer *newParticleRenderer() { return NULL; }
+    // particles
+    virtual ParticleManager *newParticleManager() { return NULL; }
+    virtual ParticleRenderer *newParticleRenderer() { return NULL; }
 
-  // shaders
-  virtual ShaderManager *newShaderManager() { return NULL; }
-  virtual ShaderProgram *newShaderProgram() { return NULL; }
-  virtual VertexShader *newVertexShader() { return NULL; }
-  virtual FragmentShader *newFragmentShader() { return NULL; }
+    // shaders
+    virtual ShaderManager *newShaderManager() { return NULL; }
+    virtual ShaderProgram *newShaderProgram() { return NULL; }
+    virtual VertexShader *newVertexShader() { return NULL; }
+    virtual FragmentShader *newFragmentShader() { return NULL; }
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

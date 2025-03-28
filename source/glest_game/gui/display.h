@@ -40,90 +40,84 @@ namespace Game {
 // =====================================================
 
 class Display {
- public:
-  static const int cellSideCount = 4;
-  static const int upCellCount = 36;
-  static const int downCellCount = cellSideCount * cellSideCount;
-  static const int colorCount = 9;
-  static const int imageSize = 32;
-  static const int invalidPos = -1;
-  static const int downY = imageSize * 9;
-  static const int infoStringY = imageSize * 4;
+  public:
+    static const int cellSideCount = 4;
+    static const int upCellCount = 36;
+    static const int downCellCount = cellSideCount * cellSideCount;
+    static const int colorCount = 9;
+    static const int imageSize = 32;
+    static const int invalidPos = -1;
+    static const int downY = imageSize * 9;
+    static const int infoStringY = imageSize * 4;
 
- private:
-  string title;
-  string text;
-  string infoText;
-  const Texture2D *upImages[upCellCount];
-  const Texture2D *downImages[downCellCount];
-  Vec3f downImageColor[downCellCount];
-  const CommandType *commandTypes[downCellCount];
-  CommandClass commandClasses[downCellCount];
-  int progressBar;
-  int downSelectedPos;
-  Vec4f colors[colorCount];
-  int currentColor;
+  private:
+    string title;
+    string text;
+    string infoText;
+    const Texture2D *upImages[upCellCount];
+    const Texture2D *downImages[downCellCount];
+    Vec3f downImageColor[downCellCount];
+    const CommandType *commandTypes[downCellCount];
+    CommandClass commandClasses[downCellCount];
+    int progressBar;
+    int downSelectedPos;
+    Vec4f colors[colorCount];
+    int currentColor;
 
-  int upCellSideCount;
-  int upImageSize;
-  int maxUpIndex;
+    int upCellSideCount;
+    int upImageSize;
+    int maxUpIndex;
 
- public:
-  Display();
+  public:
+    Display();
 
-  // get
-  string getTitle() const { return title; }
-  string getText() const { return text; }
-  string getInfoText() const { return infoText; }
-  const Texture2D *getUpImage(int index) const { return upImages[index]; }
-  const Texture2D *getDownImage(int index) const { return downImages[index]; }
-  Vec3f getDownImageColor(int index) const { return downImageColor[index]; }
-  const CommandType *getCommandType(int i) const { return commandTypes[i]; }
-  CommandClass getCommandClass(int i) const { return commandClasses[i]; }
-  Vec4f getColor() const;
-  int getProgressBar() const { return progressBar; }
-  int getDownSelectedPos() const { return downSelectedPos; }
-  int getUpCellSideCount() const { return upCellSideCount; }
-  int getUpImageSize() const { return upImageSize; }
+    // get
+    string getTitle() const { return title; }
+    string getText() const { return text; }
+    string getInfoText() const { return infoText; }
+    const Texture2D *getUpImage(int index) const { return upImages[index]; }
+    const Texture2D *getDownImage(int index) const { return downImages[index]; }
+    Vec3f getDownImageColor(int index) const { return downImageColor[index]; }
+    const CommandType *getCommandType(int i) const { return commandTypes[i]; }
+    CommandClass getCommandClass(int i) const { return commandClasses[i]; }
+    Vec4f getColor() const;
+    int getProgressBar() const { return progressBar; }
+    int getDownSelectedPos() const { return downSelectedPos; }
+    int getUpCellSideCount() const { return upCellSideCount; }
+    int getUpImageSize() const { return upImageSize; }
 
-  // set
-  void setTitle(const string title) { this->title = formatString(title); }
-  void setText(const string &text) { this->text = formatString(text); }
-  void setInfoText(const string infoText) {
-    this->infoText = formatString(infoText);
-  }
-  void setUpImage(int i, const Texture2D *image);
-  void setDownImage(int i, const Texture2D *image) { downImages[i] = image; }
-  void setCommandType(int i, const CommandType *ct) { commandTypes[i] = ct; }
-  void setCommandClass(int i, const CommandClass cc) { commandClasses[i] = cc; }
-  void setDownLighted(int i, bool lighted) {
-    downImageColor[i] = lighted ? Vec3f(1.f, 1.f, 1.f) : Vec3f(0.3f, 0.3f, 0.3);
-  }
-  void setDownRedLighted(int i) { downImageColor[i] = Vec3f(1.0f, 0.0f, 0.0); }
-  void setDownOrangeLighted(int i) {
-    downImageColor[i] = Vec3f(1.0f, 0.7f, 0.2);
-  }
-  void setProgressBar(int i) { progressBar = i; }
-  void setDownSelectedPos(int i) { downSelectedPos = i; }
+    // set
+    void setTitle(const string title) { this->title = formatString(title); }
+    void setText(const string &text) { this->text = formatString(text); }
+    void setInfoText(const string infoText) { this->infoText = formatString(infoText); }
+    void setUpImage(int i, const Texture2D *image);
+    void setDownImage(int i, const Texture2D *image) { downImages[i] = image; }
+    void setCommandType(int i, const CommandType *ct) { commandTypes[i] = ct; }
+    void setCommandClass(int i, const CommandClass cc) { commandClasses[i] = cc; }
+    void setDownLighted(int i, bool lighted) { downImageColor[i] = lighted ? Vec3f(1.f, 1.f, 1.f) : Vec3f(0.3f, 0.3f, 0.3); }
+    void setDownRedLighted(int i) { downImageColor[i] = Vec3f(1.0f, 0.0f, 0.0); }
+    void setDownOrangeLighted(int i) { downImageColor[i] = Vec3f(1.0f, 0.7f, 0.2); }
+    void setProgressBar(int i) { progressBar = i; }
+    void setDownSelectedPos(int i) { downSelectedPos = i; }
 
-  // misc
-  void clear();
-  void switchColor();
-  int computeDownIndex(int x, int y) const;
-  int computeUpIndex(int x, int y) const;
-  int computeDownX(int index) const;
-  int computeDownY(int index) const;
-  int computeUpX(int index) const;
-  int computeUpY(int index) const;
+    // misc
+    void clear();
+    void switchColor();
+    int computeDownIndex(int x, int y) const;
+    int computeUpIndex(int x, int y) const;
+    int computeDownX(int index) const;
+    int computeDownY(int index) const;
+    int computeUpX(int index) const;
+    int computeUpY(int index) const;
 
-  void saveGame(XmlNode *rootNode) const;
-  void loadGame(const XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode) const;
+    void loadGame(const XmlNode *rootNode);
 
- private:
-  void calculateUpDimensions(int index);
+  private:
+    void calculateUpDimensions(int index);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

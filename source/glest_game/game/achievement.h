@@ -36,26 +36,23 @@ class PlayerAchievementsInterface;
 // =====================================================
 
 class AchievementBase {
- private:
-  string name;
-  string description;
-  string pictureName;
+  private:
+    string name;
+    string description;
+    string pictureName;
 
- public:
-  AchievementBase();
-  virtual ~AchievementBase();
-  virtual void load(const XmlNode *node);
+  public:
+    AchievementBase();
+    virtual ~AchievementBase();
+    virtual void load(const XmlNode *node);
 
-  string getDescription() const { return description; }
+    string getDescription() const { return description; }
 
-  string getName() const { return name; }
+    string getName() const { return name; }
 
-  string getPictureName() const { return pictureName; }
+    string getPictureName() const { return pictureName; }
 
-  virtual bool checkAchieved(Game *game,
-                             PlayerAchievementsInterface *playerStats) {
-    return false;
-  }
+    virtual bool checkAchieved(Game *game, PlayerAchievementsInterface *playerStats) { return false; }
 };
 
 // =====================================================
@@ -64,22 +61,21 @@ class AchievementBase {
 // =====================================================
 
 class CounterBasedAchievement : public AchievementBase {
- private:
-  string counterName;
-  int minCount;
+  private:
+    string counterName;
+    int minCount;
 
- public:
-  CounterBasedAchievement();
-  ~CounterBasedAchievement();
+  public:
+    CounterBasedAchievement();
+    ~CounterBasedAchievement();
 
-  void load(const XmlNode *node);
+    void load(const XmlNode *node);
 
-  string getCounterName() const { return counterName; }
+    string getCounterName() const { return counterName; }
 
-  int getMinCount() const { return minCount; }
+    int getMinCount() const { return minCount; }
 
-  virtual bool checkAchieved(Game *game,
-                             PlayerAchievementsInterface *playerStats);
+    virtual bool checkAchieved(Game *game, PlayerAchievementsInterface *playerStats);
 };
 
 // =====================================================
@@ -90,18 +86,18 @@ class CounterBasedAchievement : public AchievementBase {
 typedef vector<AchievementBase *> AchievementVector;
 
 class Achievements {
- private:
-  AchievementVector achievements;
-  Achievements();
+  private:
+    AchievementVector achievements;
+    Achievements();
 
- public:
-  static const AchievementVector *getAchievements();
+  public:
+    static const AchievementVector *getAchievements();
 
- private:
-  void load(string xmlFilePath);
+  private:
+    void load(string xmlFilePath);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

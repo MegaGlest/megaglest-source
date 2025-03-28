@@ -26,23 +26,23 @@ namespace Graphics {
 // =====================================================
 
 void ShaderSource::load(const string &path) {
-  pathInfo += path + " ";
+    pathInfo += path + " ";
 
-  // open file
-  ifstream ifs(path.c_str());
-  if (ifs.fail()) {
-    throw megaglest_runtime_error("Can't open shader file: " + path);
-  }
-
-  // read source
-  while (true) {
-    fstream::int_type c = ifs.get();
-    if (ifs.eof() || ifs.fail() || ifs.bad()) {
-      break;
+    // open file
+    ifstream ifs(path.c_str());
+    if (ifs.fail()) {
+        throw megaglest_runtime_error("Can't open shader file: " + path);
     }
-    code += c;
-  }
+
+    // read source
+    while (true) {
+        fstream::int_type c = ifs.get();
+        if (ifs.eof() || ifs.fail() || ifs.bad()) {
+            break;
+        }
+        code += c;
+    }
 }
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared

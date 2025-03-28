@@ -56,23 +56,19 @@ using std::isfinite;
 using std::isinf;
 using std::isnan;
 #elif __cplusplus
-template <typename T>
-inline bool isnan(T value) {
-  return value != value;
+template <typename T> inline bool isnan(T value) {
+    return value != value;
 }
 // requires include <limits>
-template <typename T>
-inline bool isinf(T value) {
-  return std::numeric_limits<T>::has_infinity &&
-         value == std::numeric_limits<T>::infinity();
+template <typename T> inline bool isinf(T value) {
+    return std::numeric_limits<T>::has_infinity && value == std::numeric_limits<T>::infinity();
 }
 // requires include <limits>
-template <typename T>
-inline bool isfinite(T value) {
-  return !isinf<T>(value);
+template <typename T> inline bool isfinite(T value) {
+    return !isinf<T>(value);
 }
 #endif
-}  // namespace math
+} // namespace math
 #endif
 
-#endif  // STREFLOP_COND_H
+#endif // STREFLOP_COND_H

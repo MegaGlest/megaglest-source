@@ -28,33 +28,28 @@ class TextureManager;
 // =====================================================
 
 class ModelManager {
- protected:
-  typedef vector<Model *> ModelContainer;
+  protected:
+    typedef vector<Model *> ModelContainer;
 
- protected:
-  ModelContainer models;
-  TextureManager *textureManager;
+  protected:
+    ModelContainer models;
+    TextureManager *textureManager;
 
- public:
-  ModelManager();
-  virtual ~ModelManager();
+  public:
+    ModelManager();
+    virtual ~ModelManager();
 
-  Model *newModel(
-      const string &path, bool deletePixMapAfterLoad,
-      std::map<string, vector<pair<string, string> > > *loadedFileList,
-      string *sourceLoader);
+    Model *newModel(const string &path, bool deletePixMapAfterLoad, std::map<string, vector<pair<string, string>>> *loadedFileList, string *sourceLoader);
 
-  void init();
-  void end();
-  void endModel(Model *model, bool mustExistInList = false);
-  void endLastModel(bool mustExistInList = false);
+    void init();
+    void end();
+    void endModel(Model *model, bool mustExistInList = false);
+    void endLastModel(bool mustExistInList = false);
 
-  void setTextureManager(TextureManager *textureManager) {
-    this->textureManager = textureManager;
-  }
+    void setTextureManager(TextureManager *textureManager) { this->textureManager = textureManager; }
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

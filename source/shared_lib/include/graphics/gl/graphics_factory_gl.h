@@ -35,47 +35,39 @@ namespace Gl {
 // =====================================================
 
 class GraphicsFactoryGl : public GraphicsFactory {
- public:
-  // context
-  virtual Context *newContext() { return new ContextGl(); }
+  public:
+    // context
+    virtual Context *newContext() { return new ContextGl(); }
 
-  // textures
-  virtual TextureManager *newTextureManager() { return new TextureManager(); }
-  virtual Texture1D *newTexture1D() { return new Texture1DGl(); }
-  virtual Texture2D *newTexture2D() { return new Texture2DGl(); }
-  virtual Texture3D *newTexture3D() { return new Texture3DGl(); }
-  virtual TextureCube *newTextureCube() { return new TextureCubeGl(); }
+    // textures
+    virtual TextureManager *newTextureManager() { return new TextureManager(); }
+    virtual Texture1D *newTexture1D() { return new Texture1DGl(); }
+    virtual Texture2D *newTexture2D() { return new Texture2DGl(); }
+    virtual Texture3D *newTexture3D() { return new Texture3DGl(); }
+    virtual TextureCube *newTextureCube() { return new TextureCubeGl(); }
 
-  // models
-  virtual ModelManager *newModelManager() { return new ModelManager(); }
-  virtual ModelRenderer *newModelRenderer() { return new ModelRendererGl(); }
-  virtual Model *newModel(
-      const string &path, TextureManager *textureManager,
-      bool deletePixMapAfterLoad,
-      std::map<string, vector<pair<string, string> > > *loadedFileList,
-      string *sourceLoader) {
-    return new ModelGl(path, textureManager, deletePixMapAfterLoad,
-                       loadedFileList, sourceLoader);
-  }
+    // models
+    virtual ModelManager *newModelManager() { return new ModelManager(); }
+    virtual ModelRenderer *newModelRenderer() { return new ModelRendererGl(); }
+    virtual Model *newModel(const string &path, TextureManager *textureManager, bool deletePixMapAfterLoad,
+                            std::map<string, vector<pair<string, string>>> *loadedFileList, string *sourceLoader) {
+        return new ModelGl(path, textureManager, deletePixMapAfterLoad, loadedFileList, sourceLoader);
+    }
 
-  // text
-  virtual FontManager *newFontManager() { return new FontManager(); }
-  virtual TextRenderer2D *newTextRenderer2D() { return new TextRenderer2DGl(); }
-  virtual TextRenderer3D *newTextRenderer3D() { return new TextRenderer3DGl(); }
-  virtual Font2D *newFont2D() { return new Font2DGl(); }
-  virtual Font3D *newFont3D() { return new Font3DGl(); }
+    // text
+    virtual FontManager *newFontManager() { return new FontManager(); }
+    virtual TextRenderer2D *newTextRenderer2D() { return new TextRenderer2DGl(); }
+    virtual TextRenderer3D *newTextRenderer3D() { return new TextRenderer3DGl(); }
+    virtual Font2D *newFont2D() { return new Font2DGl(); }
+    virtual Font3D *newFont3D() { return new Font3DGl(); }
 
-  // particles
-  virtual ParticleManager *newParticleManager() {
-    return new ParticleManager();
-  }
-  virtual ParticleRenderer *newParticleRenderer() {
-    return new ParticleRendererGl();
-  }
+    // particles
+    virtual ParticleManager *newParticleManager() { return new ParticleManager(); }
+    virtual ParticleRenderer *newParticleRenderer() { return new ParticleRendererGl(); }
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

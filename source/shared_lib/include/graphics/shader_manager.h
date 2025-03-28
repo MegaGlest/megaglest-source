@@ -26,30 +26,30 @@ namespace Graphics {
 // =====================================================
 
 class ShaderManager {
- protected:
-  typedef vector<ShaderProgram *> ShaderProgramContainer;
-  typedef vector<Shader *> ShaderContainer;
+  protected:
+    typedef vector<ShaderProgram *> ShaderProgramContainer;
+    typedef vector<Shader *> ShaderContainer;
 
- protected:
-  ShaderProgramContainer shaderPrograms;
-  ShaderContainer shaders;
-  string logString;
+  protected:
+    ShaderProgramContainer shaderPrograms;
+    ShaderContainer shaders;
+    string logString;
 
- public:
-  ShaderManager();
-  virtual ~ShaderManager();
+  public:
+    ShaderManager();
+    virtual ~ShaderManager();
 
-  ShaderProgram *newShaderProgram();
-  VertexShader *newVertexShader();
-  FragmentShader *newFragmentShader();
+    ShaderProgram *newShaderProgram();
+    VertexShader *newVertexShader();
+    FragmentShader *newFragmentShader();
 
-  void init();
-  void end();
+    void init();
+    void end();
 
-  const string &getLogString() const { return logString; }
+    const string &getLogString() const { return logString; }
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

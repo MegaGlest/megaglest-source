@@ -45,109 +45,96 @@ class GraphicComponent;
 // ===========================================================
 
 class GraphicComponent : public FontChangedCallbackInterface {
- public:
-  static const float animSpeed;
-  static const float fadeSpeed;
+  public:
+    static const float animSpeed;
+    static const float fadeSpeed;
 
-  static std::map<std::string, std::map<std::string, GraphicComponent *> >
-      registeredGraphicComponentList;
+    static std::map<std::string, std::map<std::string, GraphicComponent *>> registeredGraphicComponentList;
 
- protected:
-  int x, y, w, h;
-  string text;
-  string textNativeTranslation;
-  Font2D *font;
-  Font3D *font3D;
-  string font2DUniqueId;
-  string font3DUniqueId;
-  bool enabled;
-  bool editable;
-  bool visible;
+  protected:
+    int x, y, w, h;
+    string text;
+    string textNativeTranslation;
+    Font2D *font;
+    Font3D *font3D;
+    string font2DUniqueId;
+    string font3DUniqueId;
+    bool enabled;
+    bool editable;
+    bool visible;
 
-  static float anim;
-  static float fade;
-  static Vec3f customTextColor;
+    static float anim;
+    static float fade;
+    static Vec3f customTextColor;
 
-  string containerName;
-  string instanceName;
-  string fontCallbackName;
+    string containerName;
+    string instanceName;
+    string fontCallbackName;
 
-  string getNewUUD();
-  virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
+    string getNewUUD();
+    virtual void FontChangedCallback(std::string fontUniqueId, Font *font);
 
- public:
-  GraphicComponent(const std::string &containerName = "",
-                   const std::string &objName = "",
-                   bool registerControl = true);
-  virtual ~GraphicComponent();
+  public:
+    GraphicComponent(const std::string &containerName = "", const std::string &objName = "", bool registerControl = true);
+    virtual ~GraphicComponent();
 
-  static void setCustomTextColor(Vec3f value) { customTextColor = value; }
-  static Vec3f getCustomTextColor() { return customTextColor; }
+    static void setCustomTextColor(Vec3f value) { customTextColor = value; }
+    static Vec3f getCustomTextColor() { return customTextColor; }
 
-  static void clearRegisteredComponents(std::string containerName = "");
-  static void clearRegisterGraphicComponent(std::string containerName,
-                                            std::string objName);
-  static void clearRegisterGraphicComponent(
-      std::string containerName, std::vector<std::string> objNameList);
-  virtual void registerGraphicComponent(std::string containerName,
-                                        std::string objName);
-  virtual void registerGraphicComponentOnlyFontCallbacks(
-      std::string containerName, std::string objName);
-  static GraphicComponent *findRegisteredComponent(std::string containerName,
-                                                   std::string objName);
-  static void applyAllCustomProperties(std::string containerName);
-  virtual void applyCustomProperties(std::string containerName);
+    static void clearRegisteredComponents(std::string containerName = "");
+    static void clearRegisterGraphicComponent(std::string containerName, std::string objName);
+    static void clearRegisterGraphicComponent(std::string containerName, std::vector<std::string> objNameList);
+    virtual void registerGraphicComponent(std::string containerName, std::string objName);
+    virtual void registerGraphicComponentOnlyFontCallbacks(std::string containerName, std::string objName);
+    static GraphicComponent *findRegisteredComponent(std::string containerName, std::string objName);
+    static void applyAllCustomProperties(std::string containerName);
+    virtual void applyCustomProperties(std::string containerName);
 
-  static bool saveAllCustomProperties(std::string containerName);
-  virtual bool saveCustomProperties(std::string containerName);
+    static bool saveAllCustomProperties(std::string containerName);
+    virtual bool saveCustomProperties(std::string containerName);
 
-  virtual void init(int x, int y, int w, int h);
+    virtual void init(int x, int y, int w, int h);
 
-  string getContainerName() const { return containerName; }
-  string getInstanceName() const { return instanceName; }
-  string getFontCallbackName() const { return fontCallbackName; }
-  void setInstanceName(string value) { instanceName = value; }
+    string getContainerName() const { return containerName; }
+    string getInstanceName() const { return instanceName; }
+    string getFontCallbackName() const { return fontCallbackName; }
+    void setInstanceName(string value) { instanceName = value; }
 
-  virtual int getX() const { return x; }
-  virtual int getY() const { return y; }
-  virtual int getW() const { return w; }
-  virtual int getH() const { return h; }
-  virtual const string &getText() const { return text; }
-  virtual const string &getTextNativeTranslation() {
-    return this->textNativeTranslation;
-  }
-  virtual Font2D *getFont() { return font; }
-  virtual Font3D *getFont3D() { return font3D; }
-  virtual bool getEnabled() const { return enabled; }
-  virtual bool getEditable() const { return editable; }
-  virtual bool getVisible() const { return visible; }
+    virtual int getX() const { return x; }
+    virtual int getY() const { return y; }
+    virtual int getW() const { return w; }
+    virtual int getH() const { return h; }
+    virtual const string &getText() const { return text; }
+    virtual const string &getTextNativeTranslation() { return this->textNativeTranslation; }
+    virtual Font2D *getFont() { return font; }
+    virtual Font3D *getFont3D() { return font3D; }
+    virtual bool getEnabled() const { return enabled; }
+    virtual bool getEditable() const { return editable; }
+    virtual bool getVisible() const { return visible; }
 
-  virtual void setX(int x) { this->x = x; }
-  virtual void setY(int y) { this->y = y; }
-  virtual void setW(int w) { this->w = w; }
-  virtual void setH(int h) { this->h = h; }
-  virtual void setText(const string &text) { this->text = text; }
-  virtual void setTextNativeTranslation(const string &text) {
-    this->textNativeTranslation = text;
-  }
-  virtual void setFont(Font2D *font);
-  virtual void setFont3D(Font3D *font);
-  virtual void setEnabled(bool enabled) { this->enabled = enabled; }
-  virtual void setEditable(bool editable) { this->editable = editable; }
-  virtual void setVisible(bool value) { this->visible = value; }
+    virtual void setX(int x) { this->x = x; }
+    virtual void setY(int y) { this->y = y; }
+    virtual void setW(int w) { this->w = w; }
+    virtual void setH(int h) { this->h = h; }
+    virtual void setText(const string &text) { this->text = text; }
+    virtual void setTextNativeTranslation(const string &text) { this->textNativeTranslation = text; }
+    virtual void setFont(Font2D *font);
+    virtual void setFont3D(Font3D *font);
+    virtual void setEnabled(bool enabled) { this->enabled = enabled; }
+    virtual void setEditable(bool editable) { this->editable = editable; }
+    virtual void setVisible(bool value) { this->visible = value; }
 
-  virtual void reloadFonts();
-  static void reloadFontsForRegisterGraphicComponents(
-      std::string containerName);
+    virtual void reloadFonts();
+    static void reloadFontsForRegisterGraphicComponents(std::string containerName);
 
-  virtual bool eventMouseWheel(int x, int y, int zDelta);
-  virtual bool mouseMove(int x, int y);
-  virtual bool mouseClick(int x, int y);
+    virtual bool eventMouseWheel(int x, int y, int zDelta);
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
 
-  static void update();
-  static void resetFade();
-  static float getAnim() { return anim; }
-  static float getFade() { return fade; }
+    static void update();
+    static void resetFade();
+    static float getAnim() { return anim; }
+    static float getFade() { return fade; }
 };
 
 // ===========================================================
@@ -155,77 +142,74 @@ class GraphicComponent : public FontChangedCallbackInterface {
 // ===========================================================
 
 class GraphicLabel : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  bool centered;
-  Vec3f textColor;
-  bool wordWrap;
+  private:
+    bool centered;
+    Vec3f textColor;
+    bool wordWrap;
 
-  int centeredW;
-  int centeredH;
+    int centeredW;
+    int centeredH;
 
-  bool editModeEnabled;
-  int maxEditWidth;
-  int maxEditRenderWidth;
-  bool renderBackground;
-  Vec4f backgroundColor;
+    bool editModeEnabled;
+    int maxEditWidth;
+    int maxEditRenderWidth;
+    bool renderBackground;
+    Vec4f backgroundColor;
 
-  vector<int> textCharLength;
-  bool isPassword;
-  Texture2D *texture;
+    vector<int> textCharLength;
+    bool isPassword;
+    Texture2D *texture;
 
- public:
-  GraphicLabel(const std::string &containerName = "",
-               const std::string &objName = "", bool registerControl = true);
-  void init(int x, int y, int w = defW, int h = defH, bool centered = false,
-            Vec3f textColor = GraphicComponent::customTextColor,
-            bool wordWrap = false);
+  public:
+    GraphicLabel(const std::string &containerName = "", const std::string &objName = "", bool registerControl = true);
+    void init(int x, int y, int w = defW, int h = defH, bool centered = false, Vec3f textColor = GraphicComponent::customTextColor, bool wordWrap = false);
 
-  virtual bool mouseMove(int x, int y);
+    virtual bool mouseMove(int x, int y);
 
-  vector<int> getTextCharLengthList() const { return textCharLength; }
-  void setTextCharLengthList(vector<int> value) { textCharLength = value; }
-  void clearTextCharLengthList() { textCharLength.clear(); }
-  void addTextCharLengthToList(int length) { textCharLength.push_back(length); }
-  void deleteTextCharLengthFromList() { textCharLength.pop_back(); }
+    vector<int> getTextCharLengthList() const { return textCharLength; }
+    void setTextCharLengthList(vector<int> value) { textCharLength = value; }
+    void clearTextCharLengthList() { textCharLength.clear(); }
+    void addTextCharLengthToList(int length) { textCharLength.push_back(length); }
+    void deleteTextCharLengthFromList() { textCharLength.pop_back(); }
 
-  bool getIsPassword() const { return isPassword; }
-  void setIsPassword(bool value) { isPassword = value; }
+    bool getIsPassword() const { return isPassword; }
+    void setIsPassword(bool value) { isPassword = value; }
 
-  bool getCentered() const { return centered; }
-  void setCentered(bool centered) { this->centered = centered; }
+    bool getCentered() const { return centered; }
+    void setCentered(bool centered) { this->centered = centered; }
 
-  bool getCenteredW() const;
-  // void setCenteredW(bool centered);
+    bool getCenteredW() const;
+    // void setCenteredW(bool centered);
 
-  bool getCenteredH() const;
-  // void setCenteredH(bool centered);
+    bool getCenteredH() const;
+    // void setCenteredH(bool centered);
 
-  Vec3f getTextColor() const { return textColor; }
-  void setTextColor(Vec3f color) { this->textColor = color; }
+    Vec3f getTextColor() const { return textColor; }
+    void setTextColor(Vec3f color) { this->textColor = color; }
 
-  bool getWordWrap() const { return wordWrap; }
-  void setWordWrap(bool value) { wordWrap = value; }
+    bool getWordWrap() const { return wordWrap; }
+    void setWordWrap(bool value) { wordWrap = value; }
 
-  void setEditModeEnabled(bool value) { editModeEnabled = value; }
-  bool getEditModeEnabled() const { return editModeEnabled; }
+    void setEditModeEnabled(bool value) { editModeEnabled = value; }
+    bool getEditModeEnabled() const { return editModeEnabled; }
 
-  void setMaxEditWidth(int value) { maxEditWidth = value; }
-  int getMaxEditWidth() const { return maxEditWidth; }
+    void setMaxEditWidth(int value) { maxEditWidth = value; }
+    int getMaxEditWidth() const { return maxEditWidth; }
 
-  void setRenderBackground(bool value) { renderBackground = value; }
-  bool getRenderBackground() const { return renderBackground; }
-  Vec4f getBackgroundColor() const { return backgroundColor; }
-  void setBackgroundColor(Vec4f color) { this->backgroundColor = color; }
+    void setRenderBackground(bool value) { renderBackground = value; }
+    bool getRenderBackground() const { return renderBackground; }
+    Vec4f getBackgroundColor() const { return backgroundColor; }
+    void setBackgroundColor(Vec4f color) { this->backgroundColor = color; }
 
-  void setMaxEditRenderWidth(int value) { maxEditRenderWidth = value; }
-  int getMaxEditRenderWidth() const { return maxEditRenderWidth; }
+    void setMaxEditRenderWidth(int value) { maxEditRenderWidth = value; }
+    int getMaxEditRenderWidth() const { return maxEditRenderWidth; }
 
-  void setTexture(Texture2D *value) { texture = value; }
-  Texture2D *getTexture() const { return texture; }
+    void setTexture(Texture2D *value) { texture = value; }
+    Texture2D *getTexture() const { return texture; }
 };
 
 // ===========================================================
@@ -233,33 +217,32 @@ class GraphicLabel : public GraphicComponent {
 // ===========================================================
 
 class GraphicButton : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  bool lighted;
-  bool alwaysLighted;
+  private:
+    bool lighted;
+    bool alwaysLighted;
 
-  bool useCustomTexture;
-  Texture *customTexture;
+    bool useCustomTexture;
+    Texture *customTexture;
 
- public:
-  GraphicButton(const std::string &containerName = "",
-                const std::string &objName = "", bool registerControl = true);
-  void init(int x, int y, int w = defW, int h = defH);
+  public:
+    GraphicButton(const std::string &containerName = "", const std::string &objName = "", bool registerControl = true);
+    void init(int x, int y, int w = defW, int h = defH);
 
-  bool getUseCustomTexture() const { return useCustomTexture; }
-  Texture *getCustomTexture() const { return customTexture; }
+    bool getUseCustomTexture() const { return useCustomTexture; }
+    Texture *getCustomTexture() const { return customTexture; }
 
-  void setUseCustomTexture(bool value) { useCustomTexture = value; }
-  void setCustomTexture(Texture *value) { customTexture = value; }
+    void setUseCustomTexture(bool value) { useCustomTexture = value; }
+    void setCustomTexture(Texture *value) { customTexture = value; }
 
-  bool getLighted() const { return lighted || alwaysLighted; }
-  void setLighted(bool lighted) { this->lighted = lighted; }
-  bool getAlwaysLighted() const { return alwaysLighted; }
-  void setAlwaysLighted(bool value) { this->alwaysLighted = value; }
-  virtual bool mouseMove(int x, int y);
+    bool getLighted() const { return lighted || alwaysLighted; }
+    void setLighted(bool lighted) { this->lighted = lighted; }
+    bool getAlwaysLighted() const { return alwaysLighted; }
+    void setAlwaysLighted(bool value) { this->alwaysLighted = value; }
+    virtual bool mouseMove(int x, int y);
 };
 
 // ===========================================================
@@ -267,57 +250,51 @@ class GraphicButton : public GraphicComponent {
 // ===========================================================
 
 class GraphicScrollBar : public GraphicComponent {
- public:
-  static const int defLength;
-  static const int defThickness;
+  public:
+    static const int defLength;
+    static const int defThickness;
 
- private:
-  bool activated;
-  bool lighted;
-  bool horizontal;
-  int elementCount;
-  int visibleSize;
-  int visibleStart;
+  private:
+    bool activated;
+    bool lighted;
+    bool horizontal;
+    int elementCount;
+    int visibleSize;
+    int visibleStart;
 
-  // position on component for renderer
-  int visibleCompPosStart;
-  int visibleCompPosEnd;
+    // position on component for renderer
+    int visibleCompPosStart;
+    int visibleCompPosEnd;
 
- public:
-  GraphicScrollBar(const std::string &containerName = "",
-                   const std::string &objName = "");
-  void init(int x, int y, bool horizontal, int length = defLength,
-            int thickness = defThickness);
-  virtual bool mouseDown(int x, int y);
-  virtual bool eventMouseWheel(int x, int y, int zDelta);
-  virtual bool eventMouseWheel(int x, int y, int zDelta, bool ignorePos);
-  virtual bool mouseMove(int x, int y);
-  virtual void mouseUp(int x, int y);
-  virtual bool mouseClick(int x, int y);
+  public:
+    GraphicScrollBar(const std::string &containerName = "", const std::string &objName = "");
+    void init(int x, int y, bool horizontal, int length = defLength, int thickness = defThickness);
+    virtual bool mouseDown(int x, int y);
+    virtual bool eventMouseWheel(int x, int y, int zDelta);
+    virtual bool eventMouseWheel(int x, int y, int zDelta, bool ignorePos);
+    virtual bool mouseMove(int x, int y);
+    virtual void mouseUp(int x, int y);
+    virtual bool mouseClick(int x, int y);
 
-  bool getHorizontal() const { return horizontal; }
-  int getLength() const;
-  void setLength(int length) { horizontal ? setW(length) : setH(length); }
-  // int getThickness() const;
+    bool getHorizontal() const { return horizontal; }
+    int getLength() const;
+    void setLength(int length) { horizontal ? setW(length) : setH(length); }
+    // int getThickness() const;
 
-  bool getLighted() const { return lighted; }
-  void setLighted(bool lighted) { this->lighted = lighted; }
+    bool getLighted() const { return lighted; }
+    void setLighted(bool lighted) { this->lighted = lighted; }
 
-  int getElementCount() const { return elementCount; }
-  void setElementCount(int elementCount);
-  int getVisibleSize() const { return visibleSize; }
-  void setVisibleSize(int visibleSize);
-  int getVisibleStart() const { return visibleStart; }
-  int getVisibleEnd() const {
-    return visibleStart + visibleSize > elementCount - 1
-               ? elementCount - 1
-               : visibleStart + visibleSize - 1;
-  }
-  void setVisibleStart(int visibleStart);
+    int getElementCount() const { return elementCount; }
+    void setElementCount(int elementCount);
+    int getVisibleSize() const { return visibleSize; }
+    void setVisibleSize(int visibleSize);
+    int getVisibleStart() const { return visibleStart; }
+    int getVisibleEnd() const { return visibleStart + visibleSize > elementCount - 1 ? elementCount - 1 : visibleStart + visibleSize - 1; }
+    void setVisibleStart(int visibleStart);
 
-  int getVisibleCompPosStart() const { return visibleCompPosStart; }
-  int getVisibleCompPosEnd() const { return visibleCompPosEnd; }
-  void arrangeComponents(vector<GraphicComponent *> &gcs);
+    int getVisibleCompPosStart() const { return visibleCompPosStart; }
+    int getVisibleCompPosEnd() const { return visibleCompPosEnd; }
+    void arrangeComponents(vector<GraphicComponent *> &gcs);
 };
 
 // ===========================================================
@@ -325,56 +302,53 @@ class GraphicScrollBar : public GraphicComponent {
 // ===========================================================
 
 class GraphicListBox : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  GraphicButton graphButton1, graphButton2;
-  vector<string> items;
-  vector<string> translated_items;
-  int selectedItemIndex;
-  bool lighted;
-  Vec3f textColor;
-  bool leftControlled;
+  private:
+    GraphicButton graphButton1, graphButton2;
+    vector<string> items;
+    vector<string> translated_items;
+    int selectedItemIndex;
+    bool lighted;
+    Vec3f textColor;
+    bool leftControlled;
 
- public:
-  GraphicListBox(const std::string &containerName = "",
-                 const std::string &objName = "");
-  void init(int x, int y, int w = defW, int h = defH,
-            Vec3f textColor = GraphicComponent::customTextColor);
+  public:
+    GraphicListBox(const std::string &containerName = "", const std::string &objName = "");
+    void init(int x, int y, int w = defW, int h = defH, Vec3f textColor = GraphicComponent::customTextColor);
 
-  int getItemCount() const { return (int)items.size(); }
-  string getItem(int index) const { return items[index]; }
-  int getSelectedItemIndex() const { return selectedItemIndex; }
-  string getSelectedItem() const { return items[selectedItemIndex]; }
-  GraphicButton *getButton1() { return &graphButton1; }
-  GraphicButton *getButton2() { return &graphButton2; }
-  bool getLighted() const { return lighted; }
-  void setLighted(bool lighted) { this->lighted = lighted; }
-  bool getLeftControlled() const { return leftControlled; }
-  void setLeftControlled(bool leftControlled);
-  Vec3f getTextColor() const { return textColor; }
-  void setTextColor(Vec3f color) { this->textColor = color; }
+    int getItemCount() const { return (int)items.size(); }
+    string getItem(int index) const { return items[index]; }
+    int getSelectedItemIndex() const { return selectedItemIndex; }
+    string getSelectedItem() const { return items[selectedItemIndex]; }
+    GraphicButton *getButton1() { return &graphButton1; }
+    GraphicButton *getButton2() { return &graphButton2; }
+    bool getLighted() const { return lighted; }
+    void setLighted(bool lighted) { this->lighted = lighted; }
+    bool getLeftControlled() const { return leftControlled; }
+    void setLeftControlled(bool leftControlled);
+    Vec3f getTextColor() const { return textColor; }
+    void setTextColor(Vec3f color) { this->textColor = color; }
 
-  void pushBackItem(string item, string translated_item = "");
-  void clearItems();
-  vector<string> &getItems() { return items; }
-  void setItems(const vector<string> &items,
-                const vector<string> translated_items = vector<string>());
-  void setSelectedItemIndex(int index, bool errorOnMissing = true);
-  void setSelectedItem(string item, bool errorOnMissing = true);
-  void setEditable(bool editable);
+    void pushBackItem(string item, string translated_item = "");
+    void clearItems();
+    vector<string> &getItems() { return items; }
+    void setItems(const vector<string> &items, const vector<string> translated_items = vector<string>());
+    void setSelectedItemIndex(int index, bool errorOnMissing = true);
+    void setSelectedItem(string item, bool errorOnMissing = true);
+    void setEditable(bool editable);
 
-  bool hasItem(string item) const;
+    bool hasItem(string item) const;
 
-  virtual void setX(int x);
-  virtual void setY(int y);
+    virtual void setX(int x);
+    virtual void setY(int y);
 
-  virtual bool mouseMove(int x, int y);
-  virtual bool mouseClick(int x, int y, string advanceToItemStartingWith = "");
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y, string advanceToItemStartingWith = "");
 
-  virtual const string &getTextNativeTranslation();
+    virtual const string &getTextNativeTranslation();
 };
 
 // ===========================================================
@@ -382,138 +356,131 @@ class GraphicListBox : public GraphicComponent {
 // ===========================================================
 typedef vector<GraphicButton *> GraphicButtons;
 class GraphicComboBox : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  GraphicScrollBar scrollBar;
-  GraphicButtons popupButtons;
-  GraphicButton dropDownButton;
-  bool popupShowing;
-  int preselectedItemIndex;
-  int popupLineCount;
-  int popupButtonHeight;
-  vector<string> items;
-  vector<string> translated_items;
-  int selectedItemIndex;
-  bool lighted;
-  Vec3f textColor;
+  private:
+    GraphicScrollBar scrollBar;
+    GraphicButtons popupButtons;
+    GraphicButton dropDownButton;
+    bool popupShowing;
+    int preselectedItemIndex;
+    int popupLineCount;
+    int popupButtonHeight;
+    vector<string> items;
+    vector<string> translated_items;
+    int selectedItemIndex;
+    bool lighted;
+    Vec3f textColor;
 
- public:
-  GraphicComboBox(const std::string &containerName = "",
-                  const std::string &objName = "");
-  void init(int x, int y, int w = defW, int h = defH,
-            Vec3f textColor = GraphicComponent::customTextColor);
+  public:
+    GraphicComboBox(const std::string &containerName = "", const std::string &objName = "");
+    void init(int x, int y, int w = defW, int h = defH, Vec3f textColor = GraphicComponent::customTextColor);
 
-  int getItemCount() const { return (int)items.size(); }
-  string getItem(int index) const { return items[index]; }
-  int getSelectedItemIndex() const { return selectedItemIndex; }
-  string getSelectedItem() const {
-    if (selectedItemIndex < 0)
-      return "";
-    else
-      return items[selectedItemIndex];
-  }
-  GraphicButton *getButton() { return &dropDownButton; }
-  GraphicScrollBar *getScrollbar() { return &scrollBar; }
-  GraphicButtons *getPopupButtons() { return &popupButtons; }
-  bool getLighted() const { return lighted; }
-  void setLighted(bool lighted) { this->lighted = lighted; }
-  Vec3f getTextColor() const { return textColor; }
-  void setTextColor(Vec3f color) { this->textColor = color; }
-  bool isDropDownShowing() { return this->popupShowing; }
+    int getItemCount() const { return (int)items.size(); }
+    string getItem(int index) const { return items[index]; }
+    int getSelectedItemIndex() const { return selectedItemIndex; }
+    string getSelectedItem() const {
+        if (selectedItemIndex < 0)
+            return "";
+        else
+            return items[selectedItemIndex];
+    }
+    GraphicButton *getButton() { return &dropDownButton; }
+    GraphicScrollBar *getScrollbar() { return &scrollBar; }
+    GraphicButtons *getPopupButtons() { return &popupButtons; }
+    bool getLighted() const { return lighted; }
+    void setLighted(bool lighted) { this->lighted = lighted; }
+    Vec3f getTextColor() const { return textColor; }
+    void setTextColor(Vec3f color) { this->textColor = color; }
+    bool isDropDownShowing() { return this->popupShowing; }
 
-  void pushBackItem(string item, string translated_item = "");
-  void clearItems();
+    void pushBackItem(string item, string translated_item = "");
+    void clearItems();
 
-  GraphicButton *createButton(string item);
-  vector<string> &getItems() { return items; }
-  void setItems(const vector<string> &items,
-                const vector<string> translated_items = vector<string>());
-  void setSelectedItemIndex(int index, bool errorOnMissing = true);
-  void setSelectedItem(string item, bool errorOnMissing = true);
-  void setEditable(bool editable);
+    GraphicButton *createButton(string item);
+    vector<string> &getItems() { return items; }
+    void setItems(const vector<string> &items, const vector<string> translated_items = vector<string>());
+    void setSelectedItemIndex(int index, bool errorOnMissing = true);
+    void setSelectedItem(string item, bool errorOnMissing = true);
+    void setEditable(bool editable);
 
-  bool hasItem(string item) const;
+    bool hasItem(string item) const;
 
-  virtual void setX(int x);
-  virtual void setY(int y);
+    virtual void setX(int x);
+    virtual void setY(int y);
 
-  virtual bool eventMouseWheel(int x, int y, int zDelta);
-  virtual bool mouseMove(int x, int y);
-  virtual bool mouseClick(int x, int y);
-  virtual bool mouseDown(int x, int y);
-  virtual void mouseUp(int x, int y);
+    virtual bool eventMouseWheel(int x, int y, int zDelta);
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
+    virtual bool mouseDown(int x, int y);
+    virtual void mouseUp(int x, int y);
 
-  virtual const string &getTextNativeTranslation();
+    virtual const string &getTextNativeTranslation();
 
-  int getPopupLineCount() const { return popupLineCount; }
-  void setPopupLineCount(int popupLineCount);
+    int getPopupLineCount() const { return popupLineCount; }
+    void setPopupLineCount(int popupLineCount);
 
-  int getPopupButtonHeight() const { return popupButtonHeight; }
-  void setPopupButtonHeight(int popupButtonHeight) {
-    this->popupButtonHeight = popupButtonHeight;
-    scrollBar.setLength(popupLineCount * popupButtonHeight);
-  }
+    int getPopupButtonHeight() const { return popupButtonHeight; }
+    void setPopupButtonHeight(int popupButtonHeight) {
+        this->popupButtonHeight = popupButtonHeight;
+        scrollBar.setLength(popupLineCount * popupButtonHeight);
+    }
 
-  string getPreselectedItem() const { return items[preselectedItemIndex]; }
+    string getPreselectedItem() const { return items[preselectedItemIndex]; }
 
-  int getPreselectedItemIndex() const { return preselectedItemIndex; }
+    int getPreselectedItemIndex() const { return preselectedItemIndex; }
 
- private:
-  bool mouseMoveOverButtons(int x, int y);
-  void setPreselectedItemIndex(int index) {
-    this->preselectedItemIndex = index;
-  }
-  virtual const string &getTextNativeTranslation(int index);
-  virtual void togglePopupVisibility();
-  void clearButtons();
-  void layoutButtons();
+  private:
+    bool mouseMoveOverButtons(int x, int y);
+    void setPreselectedItemIndex(int index) { this->preselectedItemIndex = index; }
+    virtual const string &getTextNativeTranslation(int index);
+    virtual void togglePopupVisibility();
+    void clearButtons();
+    void layoutButtons();
 };
 
 // ===========================================================
 // 	class GraphicMessageBox
 // ===========================================================
 class GraphicMessageBox : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  GraphicButtons buttons;
-  string header;
-  bool autoWordWrap;
+  private:
+    GraphicButtons buttons;
+    string header;
+    bool autoWordWrap;
 
- private:
-  void alignButtons();
+  private:
+    void alignButtons();
 
- public:
-  GraphicMessageBox(const std::string &containerName = "",
-                    const std::string &objName = "");
-  virtual ~GraphicMessageBox();
-  void init(const string &button1Str, const string &button2Str,
-            int newWidth = -1, int newHeight = -1);
-  void init(const string &button1Str, int newWidth = -1, int newHeight = -1);
-  void init(int newWidth = -1, int newHeight = -1);
-  void removeButtons();
-  void addButton(const string &buttonStr, int width = -1, int height = -1);
+  public:
+    GraphicMessageBox(const std::string &containerName = "", const std::string &objName = "");
+    virtual ~GraphicMessageBox();
+    void init(const string &button1Str, const string &button2Str, int newWidth = -1, int newHeight = -1);
+    void init(const string &button1Str, int newWidth = -1, int newHeight = -1);
+    void init(int newWidth = -1, int newHeight = -1);
+    void removeButtons();
+    void addButton(const string &buttonStr, int width = -1, int height = -1);
 
-  bool getAutoWordWrap() const { return autoWordWrap; }
-  void setAutoWordWrap(bool value) { autoWordWrap = value; }
+    bool getAutoWordWrap() const { return autoWordWrap; }
+    void setAutoWordWrap(bool value) { autoWordWrap = value; }
 
-  int getButtonCount() const { return (int)buttons.size(); }
-  GraphicButton *getButton(int index) { return buttons[index]; }
-  string getHeader() const { return header; }
+    int getButtonCount() const { return (int)buttons.size(); }
+    GraphicButton *getButton(int index) { return buttons[index]; }
+    string getHeader() const { return header; }
 
-  virtual void setX(int x);
-  virtual void setY(int y);
+    virtual void setX(int x);
+    virtual void setY(int y);
 
-  void setHeader(string header) { this->header = header; }
+    void setHeader(string header) { this->header = header; }
 
-  virtual bool mouseMove(int x, int y);
-  virtual bool mouseClick(int x, int y);
-  bool mouseClick(int x, int y, int &clickedButton);
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
+    bool mouseClick(int x, int y, int &clickedButton);
 };
 
 // ===========================================================
@@ -521,19 +488,18 @@ class GraphicMessageBox : public GraphicComponent {
 // ===========================================================
 
 class GraphicLine : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  bool horizontal;
+  private:
+    bool horizontal;
 
- public:
-  GraphicLine(const std::string &containerName = "",
-              const std::string &objName = "");
-  void init(int x, int y, int w = defW, int h = defH);
-  bool getHorizontal() const { return horizontal; }
-  void setHorizontal(bool horizontal) { this->horizontal = horizontal; }
+  public:
+    GraphicLine(const std::string &containerName = "", const std::string &objName = "");
+    void init(int x, int y, int w = defW, int h = defH);
+    bool getHorizontal() const { return horizontal; }
+    void setHorizontal(bool horizontal) { this->horizontal = horizontal; }
 };
 
 // ===========================================================
@@ -541,24 +507,23 @@ class GraphicLine : public GraphicComponent {
 // ===========================================================
 
 class GraphicCheckBox : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  bool value;
-  bool lighted;
+  private:
+    bool value;
+    bool lighted;
 
- public:
-  GraphicCheckBox(const std::string &containerName = "",
-                  const std::string &objName = "");
-  void init(int x, int y, int w = defW, int h = defH);
-  bool getValue() const { return value; }
-  void setValue(bool value) { this->value = value; }
-  bool getLighted() const { return lighted; }
-  void setLighted(bool lighted) { this->lighted = lighted; }
-  virtual bool mouseMove(int x, int y);
-  virtual bool mouseClick(int x, int y);
+  public:
+    GraphicCheckBox(const std::string &containerName = "", const std::string &objName = "");
+    void init(int x, int y, int w = defW, int h = defH);
+    bool getValue() const { return value; }
+    void setValue(bool value) { this->value = value; }
+    bool getLighted() const { return lighted; }
+    void setLighted(bool lighted) { this->lighted = lighted; }
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
 };
 
 // ===========================================================
@@ -566,33 +531,32 @@ class GraphicCheckBox : public GraphicComponent {
 // ===========================================================
 
 class PopupMenu : public GraphicComponent {
- public:
-  static const int defH;
-  static const int defW;
+  public:
+    static const int defH;
+    static const int defW;
 
- private:
-  std::vector<GraphicButton> buttons;
-  string header;
+  private:
+    std::vector<GraphicButton> buttons;
+    string header;
 
- public:
-  PopupMenu(const std::string &containerName = "",
-            const std::string &objName = "");
-  virtual ~PopupMenu();
-  void init(string menuHeader, std::vector<string> menuItems);
+  public:
+    PopupMenu(const std::string &containerName = "", const std::string &objName = "");
+    virtual ~PopupMenu();
+    void init(string menuHeader, std::vector<string> menuItems);
 
-  std::vector<GraphicButton> &getMenuItems() { return buttons; }
-  string getHeader() const { return header; }
+    std::vector<GraphicButton> &getMenuItems() { return buttons; }
+    string getHeader() const { return header; }
 
-  virtual void setX(int x);
-  virtual void setY(int y);
+    virtual void setX(int x);
+    virtual void setY(int y);
 
-  void setHeader(string header) { this->header = header; }
+    void setHeader(string header) { this->header = header; }
 
-  virtual bool mouseMove(int x, int y);
-  virtual bool mouseClick(int x, int y);
-  std::pair<int, string> mouseClickedMenuItem(int x, int y);
+    virtual bool mouseMove(int x, int y);
+    virtual bool mouseClick(int x, int y);
+    std::pair<int, string> mouseClickedMenuItem(int x, int y);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 #endif

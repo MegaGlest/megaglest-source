@@ -36,19 +36,17 @@ bool registerImageReaders();
 // Since you can't call void methods here, I have used a method doing nothing
 // except initializing the image Readers
 #ifdef WIN32
-static bool readersRegistered =
-    registerImageReaders();  // should always return true, this should guarantee
-                             // that the readers are registered <-->
-                             // ImageReaders is included anywhere
+static bool readersRegistered = registerImageReaders(); // should always return true, this should guarantee
+                                                        // that the readers are registered <-->
+                                                        // ImageReaders is included anywhere
 #else
-static bool readersRegistered __attribute__((unused)) =
-    registerImageReaders();  // should always return true, this should guarantee
-                             // that the readers are registered <-->
-                             // ImageReaders is included anywhere
+static bool readersRegistered __attribute__((unused)) = registerImageReaders(); // should always return true, this should guarantee
+                                                                                // that the readers are registered <-->
+                                                                                // ImageReaders is included anywhere
 #endif
-}  // namespace ImageRegisterer
+} // namespace ImageRegisterer
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

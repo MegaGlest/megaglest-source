@@ -16,6 +16,6 @@
 
 namespace Shared {
 namespace Platform {}
-}  // namespace Shared
+} // namespace Shared
 
 #endif

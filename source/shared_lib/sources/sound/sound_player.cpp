@@ -21,10 +21,10 @@ namespace Sound {
 // =====================================================
 
 SoundPlayerParams::SoundPlayerParams() {
-  staticBufferCount = 8;
-  strBufferCount = 4;
-  strBufferSize = 44050 * 2 * 2 * 2;  // 2 second buffer
+    staticBufferCount = 8;
+    strBufferCount = 4;
+    strBufferSize = 44050 * 2 * 2 * 2; // 2 second buffer
 }
 
-}  // namespace Sound
-}  // namespace Shared
+} // namespace Sound
+} // namespace Shared

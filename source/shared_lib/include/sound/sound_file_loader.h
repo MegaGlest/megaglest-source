@@ -39,14 +39,14 @@ class SoundInfo;
 // =====================================================
 
 class SoundFileLoader {
- public:
-  virtual ~SoundFileLoader() {}
+  public:
+    virtual ~SoundFileLoader() {}
 
-  virtual void open(const string &path, SoundInfo *soundInfo) = 0;
-  virtual uint32 read(int8 *samples, uint32 size) = 0;
-  virtual void close() = 0;
-  virtual void restart() = 0;
-  virtual string getFileName() = 0;
+    virtual void open(const string &path, SoundInfo *soundInfo) = 0;
+    virtual uint32 read(int8 *samples, uint32 size) = 0;
+    virtual void close() = 0;
+    virtual void restart() = 0;
+    virtual string getFileName() = 0;
 };
 
 // =====================================================
@@ -56,22 +56,22 @@ class SoundFileLoader {
 // =====================================================
 
 class WavSoundFileLoader : public SoundFileLoader {
- private:
-  static const int maxDataRetryCount = 10;
-  string fileName;
+  private:
+    static const int maxDataRetryCount = 10;
+    string fileName;
 
- private:
-  uint32 dataOffset;
-  uint32 dataSize;
-  uint32 bytesPerSecond;
-  ifstream f;
+  private:
+    uint32 dataOffset;
+    uint32 dataSize;
+    uint32 bytesPerSecond;
+    ifstream f;
 
- public:
-  virtual void open(const string &path, SoundInfo *soundInfo);
-  virtual uint32 read(int8 *samples, uint32 size);
-  virtual void close();
-  virtual void restart();
-  virtual string getFileName() { return fileName; }
+  public:
+    virtual void open(const string &path, SoundInfo *soundInfo);
+    virtual uint32 read(int8 *samples, uint32 size);
+    virtual void close();
+    virtual void restart();
+    virtual string getFileName() { return fileName; }
 };
 
 // =====================================================
@@ -81,18 +81,18 @@ class WavSoundFileLoader : public SoundFileLoader {
 // =====================================================
 
 class OggSoundFileLoader : public SoundFileLoader {
- private:
-  OggVorbis_File *vf;
-  FILE *f;
-  string fileName;
+  private:
+    OggVorbis_File *vf;
+    FILE *f;
+    string fileName;
 
- public:
-  OggSoundFileLoader();
-  virtual void open(const string &path, SoundInfo *soundInfo);
-  virtual uint32 read(int8 *samples, uint32 size);
-  virtual void close();
-  virtual void restart();
-  virtual string getFileName() { return fileName; }
+  public:
+    OggSoundFileLoader();
+    virtual void open(const string &path, SoundInfo *soundInfo);
+    virtual uint32 read(int8 *samples, uint32 size);
+    virtual void close();
+    virtual void restart();
+    virtual string getFileName() { return fileName; }
 };
 
 // =====================================================
@@ -100,14 +100,14 @@ class OggSoundFileLoader : public SoundFileLoader {
 // =====================================================
 
 class SoundFileLoaderFactory : public MultiFactory<SoundFileLoader> {
- private:
-  SoundFileLoaderFactory();
+  private:
+    SoundFileLoaderFactory();
 
- public:
-  static SoundFileLoaderFactory *getInstance();
+  public:
+    static SoundFileLoaderFactory *getInstance();
 };
 
-}  // namespace Sound
-}  // namespace Shared
+} // namespace Sound
+} // namespace Shared
 
 #endif

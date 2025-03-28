@@ -47,7 +47,7 @@ string formatNumber(uint64 f);
 double getTimeDuationMinutes(int frames, int updateFps);
 string getTimeDuationString(int frames, int updateFps);
 
-}  // namespace Util
-}  // namespace Shared
+} // namespace Util
+} // namespace Shared
 
 #endif

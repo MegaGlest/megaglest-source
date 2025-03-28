@@ -30,22 +30,21 @@ namespace Game {
 
 class ClientInterface;
 
-class ClientInterfaceThread : public BaseThread,
-                              public SlaveThreadControllerInterface {
- protected:
-  ClientInterface *clientInterface;
+class ClientInterfaceThread : public BaseThread, public SlaveThreadControllerInterface {
+  protected:
+    ClientInterface *clientInterface;
 
-  virtual void setQuitStatus(bool value);
+    virtual void setQuitStatus(bool value);
 
- public:
-  explicit ClientInterfaceThread(ClientInterface *client);
-  virtual ~ClientInterfaceThread();
-  virtual void execute();
+  public:
+    explicit ClientInterfaceThread(ClientInterface *client);
+    virtual ~ClientInterfaceThread();
+    virtual void execute();
 
-  virtual void setMasterController(MasterSlaveThreadController *master) {}
-  virtual void signalSlave(void *userdata) {}
+    virtual void setMasterController(MasterSlaveThreadController *master) {}
+    virtual void signalSlave(void *userdata) {}
 
-  virtual bool canShutdown(bool deleteSelfIfShutdownDelayed = false);
+    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed = false);
 };
 
 // =====================================================
@@ -53,157 +52,151 @@ class ClientInterfaceThread : public BaseThread,
 // =====================================================
 
 class ClientInterface : public GameNetworkInterface {
- private:
-  static const int messageWaitTimeout;
-  static const int waitSleepTime;
-  static const int maxNetworkCommandListSendTimeWait;
+  private:
+    static const int messageWaitTimeout;
+    static const int waitSleepTime;
+    static const int maxNetworkCommandListSendTimeWait;
 
- private:
-  ClientSocket *clientSocket;
-  string serverName;
-  bool introDone;
-  bool launchGame;
-  int playerIndex;
-  bool gameSettingsReceived;
-  int gameSettingsReceivedCount;
-  time_t connectedTime;
-  bool gotIntro;
+  private:
+    ClientSocket *clientSocket;
+    string serverName;
+    bool introDone;
+    bool launchGame;
+    int playerIndex;
+    bool gameSettingsReceived;
+    int gameSettingsReceivedCount;
+    time_t connectedTime;
+    bool gotIntro;
 
-  Ip ip;
-  int port;
+    Ip ip;
+    int port;
 
-  int currentFrameCount;
-  int lastSentFrameCount;
-  time_t lastNetworkCommandListSendTime;
+    int currentFrameCount;
+    int lastSentFrameCount;
+    time_t lastNetworkCommandListSendTime;
 
-  time_t clientSimulationLagStartTime;
-  string versionString;
-  int sessionKey;
-  int serverFTPPort;
+    time_t clientSimulationLagStartTime;
+    string versionString;
+    int sessionKey;
+    int serverFTPPort;
 
-  string serverUUID;
-  string serverPlatform;
+    string serverUUID;
+    string serverPlatform;
 
-  ClientInterfaceThread *networkCommandListThread;
+    ClientInterfaceThread *networkCommandListThread;
 
-  Mutex *networkCommandListThreadAccessor;
-  std::map<int, Commands> cachedPendingCommands;  // commands ready to be given
-  std::map<int, vector<uint32> >
-      cachedPendingCommandCRCs;  // commands ready to be given
-  uint64 cachedPendingCommandsIndex;
-  uint64 cachedLastPendingFrameCount;
-  int64 timeClientWaitedForLastMessage;
+    Mutex *networkCommandListThreadAccessor;
+    std::map<int, Commands> cachedPendingCommands;          // commands ready to be given
+    std::map<int, vector<uint32>> cachedPendingCommandCRCs; // commands ready to be given
+    uint64 cachedPendingCommandsIndex;
+    uint64 cachedLastPendingFrameCount;
+    int64 timeClientWaitedForLastMessage;
 
-  Mutex *flagAccessor;
-  bool joinGameInProgress;
-  bool joinGameInProgressLaunch;
-  bool readyForInGameJoin;
-  bool resumeInGameJoin;
+    Mutex *flagAccessor;
+    bool joinGameInProgress;
+    bool joinGameInProgressLaunch;
+    bool readyForInGameJoin;
+    bool resumeInGameJoin;
 
-  Mutex *quitThreadAccessor;
-  bool quitThread;
+    Mutex *quitThreadAccessor;
+    bool quitThread;
 
-  bool getQuitThread();
-  void setQuitThread(bool value);
-  bool getQuit();
-  void setQuit(bool value);
+    bool getQuitThread();
+    void setQuitThread(bool value);
+    bool getQuit();
+    void setQuit(bool value);
 
- public:
-  ClientInterface();
-  virtual ~ClientInterface();
+  public:
+    ClientInterface();
+    virtual ~ClientInterface();
 
-  virtual std::string getIpAddress(bool mutexLock = true);
-  virtual Socket *getSocket(bool mutexLock = true) { return clientSocket; }
-  virtual void close();
+    virtual std::string getIpAddress(bool mutexLock = true);
+    virtual Socket *getSocket(bool mutexLock = true) { return clientSocket; }
+    virtual void close();
 
-  bool getJoinGameInProgress();
-  bool getJoinGameInProgressLaunch();
+    bool getJoinGameInProgress();
+    bool getJoinGameInProgressLaunch();
 
-  bool getReadyForInGameJoin();
+    bool getReadyForInGameJoin();
 
-  bool getResumeInGameJoin();
-  void sendResumeGameMessage();
+    bool getResumeInGameJoin();
+    void sendResumeGameMessage();
 
-  uint64 getCachedLastPendingFrameCount();
-  int64 getTimeClientWaitedForLastMessage();
+    uint64 getCachedLastPendingFrameCount();
+    int64 getTimeClientWaitedForLastMessage();
 
-  // message processing
-  virtual void update();
-  virtual void updateLobby();
-  virtual void updateKeyframe(int frameCount);
-  virtual void setKeyframe(int frameCount) { currentFrameCount = frameCount; }
-  virtual void waitUntilReady(Checksum *checksum);
+    // message processing
+    virtual void update();
+    virtual void updateLobby();
+    virtual void updateKeyframe(int frameCount);
+    virtual void setKeyframe(int frameCount) { currentFrameCount = frameCount; }
+    virtual void waitUntilReady(Checksum *checksum);
 
-  // message sending
-  virtual void sendTextMessage(const string &text, int teamIndex,
-                               bool echoLocal, string targetLanguage);
-  virtual void quitGame(bool userManuallyQuit);
+    // message sending
+    virtual void sendTextMessage(const string &text, int teamIndex, bool echoLocal, string targetLanguage);
+    virtual void quitGame(bool userManuallyQuit);
 
-  virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex,
-                                   string note, int playerIndex);
-  virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
-  virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
-  // misc
-  virtual string getNetworkStatus();
+    virtual void sendMarkCellMessage(Vec2i targetPos, int factionIndex, string note, int playerIndex);
+    virtual void sendUnMarkCellMessage(Vec2i targetPos, int factionIndex);
+    virtual void sendHighlightCellMessage(Vec2i targetPos, int factionIndex);
+    // misc
+    virtual string getNetworkStatus();
 
-  // accessors
-  string getServerName() const { return serverName; }
-  bool getLaunchGame() const { return launchGame; }
-  bool getIntroDone() const { return introDone; }
-  bool getGameSettingsReceived() const { return gameSettingsReceived; }
-  void setGameSettingsReceived(bool value);
+    // accessors
+    string getServerName() const { return serverName; }
+    bool getLaunchGame() const { return launchGame; }
+    bool getIntroDone() const { return introDone; }
+    bool getGameSettingsReceived() const { return gameSettingsReceived; }
+    void setGameSettingsReceived(bool value);
 
-  int getGameSettingsReceivedCount() const { return gameSettingsReceivedCount; }
+    int getGameSettingsReceivedCount() const { return gameSettingsReceivedCount; }
 
-  int getPlayerIndex() const { return playerIndex; }
+    int getPlayerIndex() const { return playerIndex; }
 
-  void connect(const Ip &ip, int port);
-  void reset();
+    void connect(const Ip &ip, int port);
+    void reset();
 
-  void discoverServers(DiscoveredServersInterface *cb);
-  void stopServerDiscovery();
+    void discoverServers(DiscoveredServersInterface *cb);
+    void stopServerDiscovery();
 
-  void sendSwitchSetupRequest(string selectedFactionName, int8 currentSlotIndex,
-                              int8 toSlotIndex, int8 toTeam,
-                              string networkPlayerName,
-                              int8 networkPlayerStatus, int8 flags,
-                              string language);
-  virtual bool getConnectHasHandshaked() const { return gotIntro; }
-  std::string getServerIpAddress();
+    void sendSwitchSetupRequest(string selectedFactionName, int8 currentSlotIndex, int8 toSlotIndex, int8 toTeam, string networkPlayerName,
+                                int8 networkPlayerStatus, int8 flags, string language);
+    virtual bool getConnectHasHandshaked() const { return gotIntro; }
+    std::string getServerIpAddress();
 
-  int getCurrentFrameCount() const { return currentFrameCount; }
+    int getCurrentFrameCount() const { return currentFrameCount; }
 
-  virtual void sendPingMessage(int32 pingFrequency, int64 pingTime);
+    virtual void sendPingMessage(int32 pingFrequency, int64 pingTime);
 
-  const string &getVersionString() const { return versionString; }
-  virtual string getHumanPlayerName(int index = -1);
-  virtual int getHumanPlayerIndex() const { return playerIndex; }
-  int getServerFTPPort() const { return serverFTPPort; }
+    const string &getVersionString() const { return versionString; }
+    virtual string getHumanPlayerName(int index = -1);
+    virtual int getHumanPlayerIndex() const { return playerIndex; }
+    int getServerFTPPort() const { return serverFTPPort; }
 
-  int getSessionKey() const { return sessionKey; }
-  bool isMasterServerAdminOverride();
+    int getSessionKey() const { return sessionKey; }
+    bool isMasterServerAdminOverride();
 
-  void setGameSettings(GameSettings *serverGameSettings);
-  void broadcastGameSetup(const GameSettings *gameSettings);
-  void broadcastGameStart(const GameSettings *gameSettings);
+    void setGameSettings(GameSettings *serverGameSettings);
+    void broadcastGameSetup(const GameSettings *gameSettings);
+    void broadcastGameStart(const GameSettings *gameSettings);
 
-  void updateNetworkFrame();
+    void updateNetworkFrame();
 
-  virtual void saveGame(XmlNode *rootNode) {};
+    virtual void saveGame(XmlNode *rootNode) {};
 
- protected:
-  Mutex *getServerSynchAccessor() { return NULL; }
-  NetworkMessageType waitForMessage(int waitMicroseconds = 0);
-  bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
+  protected:
+    Mutex *getServerSynchAccessor() { return NULL; }
+    NetworkMessageType waitForMessage(int waitMicroseconds = 0);
+    bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
 
-  void updateFrame(int *checkFrame);
-  void shutdownNetworkCommandListThread(MutexSafeWrapper &safeMutexWrapper);
-  bool getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex);
+    void updateFrame(int *checkFrame);
+    void shutdownNetworkCommandListThread(MutexSafeWrapper &safeMutexWrapper);
+    bool getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex);
 
-  void close(bool lockMutex);
+    void close(bool lockMutex);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

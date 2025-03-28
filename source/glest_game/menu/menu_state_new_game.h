@@ -23,28 +23,28 @@ namespace Game {
 // ===============================
 
 class MenuStateNewGame : public MenuState {
- private:
-  GraphicButton buttonCustomGame;
-  GraphicButton buttonScenario;
-  GraphicButton buttonJoinGame;
-  GraphicButton buttonMasterserverGame;
-  GraphicButton buttonTutorial;
-  GraphicButton buttonReturn;
+  private:
+    GraphicButton buttonCustomGame;
+    GraphicButton buttonScenario;
+    GraphicButton buttonJoinGame;
+    GraphicButton buttonMasterserverGame;
+    GraphicButton buttonTutorial;
+    GraphicButton buttonReturn;
 
- public:
-  MenuStateNewGame(Program *program, MainMenu *mainMenu);
+  public:
+    MenuStateNewGame(Program *program, MainMenu *mainMenu);
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void update();
-  void render();
-  virtual void keyDown(SDL_KeyboardEvent key);
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void update();
+    void render();
+    virtual void keyDown(SDL_KeyboardEvent key);
 
-  void reloadUI();
+    void reloadUI();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

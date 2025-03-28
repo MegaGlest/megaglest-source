@@ -24,20 +24,20 @@ namespace Shared {
 namespace Graphics {
 
 class PNGReader : FileReader<Pixmap2D> {
- public:
-  PNGReader();
+  public:
+    PNGReader();
 
-  Pixmap2D* read(ifstream& in, const string& path, Pixmap2D* ret) const;
+    Pixmap2D *read(ifstream &in, const string &path, Pixmap2D *ret) const;
 };
 
 class PNGReader3D : FileReader<Pixmap3D> {
- public:
-  PNGReader3D();
+  public:
+    PNGReader3D();
 
-  Pixmap3D* read(ifstream& in, const string& path, Pixmap3D* ret) const;
+    Pixmap3D *read(ifstream &in, const string &path, Pixmap3D *ret) const;
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

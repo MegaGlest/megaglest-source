@@ -38,68 +38,66 @@ enum CommandStateType { cst_None, cst_linkedUnit, cst_EmergencyReturnResource };
 // =====================================================
 
 class Command {
- private:
-  const CommandType *commandType;
-  Vec2i originalPos;
-  Vec2i pos;
-  UnitReference unitRef;     // target unit, used to move and attack optionally
-  CardinalDir facing;        // facing, for build command
-  const UnitType *unitType;  // used for build
+  private:
+    const CommandType *commandType;
+    Vec2i originalPos;
+    Vec2i pos;
+    UnitReference unitRef;    // target unit, used to move and attack optionally
+    CardinalDir facing;       // facing, for build command
+    const UnitType *unitType; // used for build
 
-  CommandStateType stateType;
-  int stateValue;
+    CommandStateType stateType;
+    int stateValue;
 
-  int unitCommandGroupId;
+    int unitCommandGroupId;
 
-  Command();
+    Command();
 
- public:
-  // constructor
-  Command(const CommandType *ct, const Vec2i &pos = Vec2i(0));
-  Command(const CommandType *ct, Unit *unit);
-  Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType,
-          CardinalDir facing);
+  public:
+    // constructor
+    Command(const CommandType *ct, const Vec2i &pos = Vec2i(0));
+    Command(const CommandType *ct, Unit *unit);
+    Command(const CommandType *ct, const Vec2i &pos, const UnitType *unitType, CardinalDir facing);
 
-  virtual ~Command() {}
-  // get
-  inline const CommandType *getCommandType() const { return commandType; }
-  inline Vec2i getPos() const { return pos; }
-  inline Vec2i getOriginalPos() const { return originalPos; }
-  inline Unit *getUnit() const { return unitRef.getUnit(); }
-  inline const UnitType *getUnitType() const { return unitType; }
-  inline CardinalDir getFacing() const { return facing; }
+    virtual ~Command() {}
+    // get
+    inline const CommandType *getCommandType() const { return commandType; }
+    inline Vec2i getPos() const { return pos; }
+    inline Vec2i getOriginalPos() const { return originalPos; }
+    inline Unit *getUnit() const { return unitRef.getUnit(); }
+    inline const UnitType *getUnitType() const { return unitType; }
+    inline CardinalDir getFacing() const { return facing; }
 
-  // Priority: commands of higher priority will cancel commands of lower
-  // priority
-  virtual int getPriority();
+    // Priority: commands of higher priority will cancel commands of lower
+    // priority
+    virtual int getPriority();
 
-  // set
-  void setCommandType(const CommandType *commandType);
-  void setPos(const Vec2i &pos);
-  // void setOriginalPos(const Vec2i &pos);
-  void setPosToOriginalPos();
+    // set
+    void setCommandType(const CommandType *commandType);
+    void setPos(const Vec2i &pos);
+    // void setOriginalPos(const Vec2i &pos);
+    void setPosToOriginalPos();
 
-  void setUnit(Unit *unit);
+    void setUnit(Unit *unit);
 
-  inline void setStateType(CommandStateType value) { stateType = value; }
-  inline CommandStateType getStateType() const { return stateType; }
+    inline void setStateType(CommandStateType value) { stateType = value; }
+    inline CommandStateType getStateType() const { return stateType; }
 
-  inline void setStateValue(int value) { stateValue = value; }
-  inline int getStateValue() const { return stateValue; }
+    inline void setStateValue(int value) { stateValue = value; }
+    inline int getStateValue() const { return stateValue; }
 
-  inline void setUnitCommandGroupId(int value) { unitCommandGroupId = value; }
-  inline int getUnitCommandGroupId() const { return unitCommandGroupId; }
+    inline void setUnitCommandGroupId(int value) { unitCommandGroupId = value; }
+    inline int getUnitCommandGroupId() const { return unitCommandGroupId; }
 
-  std::string toString(bool translatedValue) const;
+    std::string toString(bool translatedValue) const;
 
-  void saveGame(XmlNode *rootNode, Faction *faction);
-  static Command *loadGame(const XmlNode *rootNode, const UnitType *ut,
-                           World *world);
+    void saveGame(XmlNode *rootNode, Faction *faction);
+    static Command *loadGame(const XmlNode *rootNode, const UnitType *ut, World *world);
 
-  Checksum getCRC();
+    Checksum getCRC();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

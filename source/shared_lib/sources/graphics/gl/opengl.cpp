@@ -37,13 +37,15 @@ static int vboEnabled = 0;
 // =====================================================
 
 bool getVBOSupported() {
-  if (vboEnabled == 0) {
-    bool value = isGlExtensionSupported("GL_ARB_vertex_buffer_object");
-    vboEnabled = (value == true ? 1 : -1);
-  }
-  return (vboEnabled == 1);
+    if (vboEnabled == 0) {
+        bool value = isGlExtensionSupported("GL_ARB_vertex_buffer_object");
+        vboEnabled = (value == true ? 1 : -1);
+    }
+    return (vboEnabled == 1);
 }
-void setVBOSupported(bool value) { vboEnabled = (value == true ? 1 : -1); };
+void setVBOSupported(bool value) {
+    vboEnabled = (value == true ? 1 : -1);
+};
 
 // void overrideGlExtensionSupport(const char *extensionName,bool value) {
 //	cacheExtensionCheckList[extensionName]=value;
@@ -53,29 +55,26 @@ void setVBOSupported(bool value) { vboEnabled = (value == true ? 1 : -1); };
 // }
 
 bool isGlExtensionSupported(const char *extensionName) {
-  if (cacheExtensionCheckList.find(extensionName) !=
-      cacheExtensionCheckList.end()) {
-    return cacheExtensionCheckList[extensionName];
-  }
-  const GLubyte *extensionStr = glGetString(GL_EXTENSIONS);
-  const char *s = reinterpret_cast<const char *>(extensionStr);
-  size_t len = strlen(extensionName);
-
-  cacheExtensionCheckList[extensionName] = false;
-  if (s != NULL) {
-    while ((s = strstr(s, extensionName)) != NULL) {
-      s += len;
-      if ((*s == ' ') || (*s == '\0')) {
-        cacheExtensionCheckList[extensionName] = true;
-        break;
-      }
+    if (cacheExtensionCheckList.find(extensionName) != cacheExtensionCheckList.end()) {
+        return cacheExtensionCheckList[extensionName];
     }
-  }
+    const GLubyte *extensionStr = glGetString(GL_EXTENSIONS);
+    const char *s = reinterpret_cast<const char *>(extensionStr);
+    size_t len = strlen(extensionName);
 
-  if (SystemFlags::VERBOSE_MODE_ENABLED)
-    printf("OpenGL Extension [%s] supported status = %d\n", extensionName,
-           cacheExtensionCheckList[extensionName]);
-  return cacheExtensionCheckList[extensionName];
+    cacheExtensionCheckList[extensionName] = false;
+    if (s != NULL) {
+        while ((s = strstr(s, extensionName)) != NULL) {
+            s += len;
+            if ((*s == ' ') || (*s == '\0')) {
+                cacheExtensionCheckList[extensionName] = true;
+                break;
+            }
+        }
+    }
+
+    if (SystemFlags::VERBOSE_MODE_ENABLED) printf("OpenGL Extension [%s] supported status = %d\n", extensionName, cacheExtensionCheckList[extensionName]);
+    return cacheExtensionCheckList[extensionName];
 }
 
 // bool isGlVersionSupported(int major, int minor, int release) {
@@ -123,55 +122,54 @@ bool isGlExtensionSupported(const char *extensionName) {
 // }
 
 const char *getGlVersion() {
-  return reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    return reinterpret_cast<const char *>(glGetString(GL_VERSION));
 }
 
 const char *getGlRenderer() {
-  return reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+    return reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 }
 
 const char *getGlVendor() {
-  return reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+    return reinterpret_cast<const char *>(glGetString(GL_VENDOR));
 }
 
 const char *getGlExtensions() {
-  return reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
+    return reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 }
 
 const char *getGlPlatformExtensions() {
-  Context *c = GraphicsInterface::getInstance().getCurrentContext();
-  return getPlatformExtensions(
-      static_cast<ContextGl *>(c)->getPlatformContextGl());
+    Context *c = GraphicsInterface::getInstance().getCurrentContext();
+    return getPlatformExtensions(static_cast<ContextGl *>(c)->getPlatformContextGl());
 }
 
 int getGlMaxLights() {
-  int i;
-  glGetIntegerv(GL_MAX_LIGHTS, (GLint *)&i);
-  return i;
+    int i;
+    glGetIntegerv(GL_MAX_LIGHTS, (GLint *)&i);
+    return i;
 }
 
 int getGlMaxTextureSize() {
-  int i;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&i);
-  return i;
+    int i;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&i);
+    return i;
 }
 
 int getGlMaxTextureUnits() {
-  int i;
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS, (GLint *)&i);
-  return i;
+    int i;
+    glGetIntegerv(GL_MAX_TEXTURE_UNITS, (GLint *)&i);
+    return i;
 }
 
 int getGlModelviewMatrixStackDepth() {
-  int i;
-  glGetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH, (GLint *)&i);
-  return i;
+    int i;
+    glGetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH, (GLint *)&i);
+    return i;
 }
 
 int getGlProjectionMatrixStackDepth() {
-  int i;
-  glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, (GLint *)&i);
-  return i;
+    int i;
+    glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH, (GLint *)&i);
+    return i;
 }
 
 // void checkGlExtension(const char *extensionName) {
@@ -181,6 +179,6 @@ int getGlProjectionMatrixStackDepth() {
 //	}
 // }
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared

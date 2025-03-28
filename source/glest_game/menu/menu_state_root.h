@@ -28,61 +28,55 @@ namespace Game {
 class GraphicMessageBox;
 class PopupMenu;
 
-class MenuStateRoot : public MenuState,
-                      public SimpleTaskCallbackInterface,
-                      public FTPClientCallbackInterface {
- private:
-  GraphicButton buttonNewGame;
-  GraphicButton buttonLoadGame;
-  GraphicButton buttonMods;
-  GraphicButton buttonOptions;
-  GraphicButton buttonAbout;
-  GraphicButton buttonExit;
-  GraphicLabel labelVersion;
-  GraphicLabel labelGreeting;
+class MenuStateRoot : public MenuState, public SimpleTaskCallbackInterface, public FTPClientCallbackInterface {
+  private:
+    GraphicButton buttonNewGame;
+    GraphicButton buttonLoadGame;
+    GraphicButton buttonMods;
+    GraphicButton buttonOptions;
+    GraphicButton buttonAbout;
+    GraphicButton buttonExit;
+    GraphicLabel labelVersion;
+    GraphicLabel labelGreeting;
 
-  GraphicMessageBox mainMessageBox;
-  GraphicMessageBox errorMessageBox;
-  GraphicMessageBox ftpMessageBox;
+    GraphicMessageBox mainMessageBox;
+    GraphicMessageBox errorMessageBox;
+    GraphicMessageBox ftpMessageBox;
 
-  PopupMenu popupMenu;
+    PopupMenu popupMenu;
 
-  static bool gameUpdateChecked;
-  SimpleTaskThread *updatesHttpServerThread;
-  FTPClientThread *ftpClientThread;
-  std::map<string, pair<int, string> > fileFTPProgressList;
-  string ftpFileName;
-  string ftpFileURL;
-  int lastDownloadProgress;
+    static bool gameUpdateChecked;
+    SimpleTaskThread *updatesHttpServerThread;
+    FTPClientThread *ftpClientThread;
+    std::map<string, pair<int, string>> fileFTPProgressList;
+    string ftpFileName;
+    string ftpFileURL;
+    int lastDownloadProgress;
 
-  virtual void simpleTask(BaseThread *callingThread, void *userdata);
-  void startFTPClientIfRequired();
-  virtual void FTPClient_CallbackEvent(
-      string itemName, FTP_Client_CallbackType type,
-      pair<FTP_Client_ResultType, string> result, void *userdata);
+    virtual void simpleTask(BaseThread *callingThread, void *userdata);
+    void startFTPClientIfRequired();
+    virtual void FTPClient_CallbackEvent(string itemName, FTP_Client_CallbackType type, pair<FTP_Client_ResultType, string> result, void *userdata);
 
- public:
-  MenuStateRoot(Program *program, MainMenu *mainMenu);
-  virtual ~MenuStateRoot();
+  public:
+    MenuStateRoot(Program *program, MainMenu *mainMenu);
+    virtual ~MenuStateRoot();
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void render();
-  void update();
-  virtual void keyDown(SDL_KeyboardEvent key);
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void render();
+    void update();
+    virtual void keyDown(SDL_KeyboardEvent key);
 
-  void showMessageBox(const string &text, const string &header, bool toggle);
-  void showErrorMessageBox(const string &text, const string &header,
-                           bool toggle);
-  void showFTPMessageBox(const string &text, const string &header, bool toggle,
-                         bool okOnly);
+    void showMessageBox(const string &text, const string &header, bool toggle);
+    void showErrorMessageBox(const string &text, const string &header, bool toggle);
+    void showFTPMessageBox(const string &text, const string &header, bool toggle, bool okOnly);
 
-  virtual bool isMasterserverMode() const;
-  virtual void reloadUI();
+    virtual bool isMasterserverMode() const;
+    virtual void reloadUI();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

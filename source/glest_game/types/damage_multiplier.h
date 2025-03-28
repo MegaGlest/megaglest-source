@@ -31,19 +31,19 @@ namespace Game {
 // ===============================
 
 class AttackType {
- private:
-  string name;
-  int id;
+  private:
+    string name;
+    int id;
 
- public:
-  AttackType() { id = -1; }
-  int getId() const { return id; }
-  string getName(bool translatedValue = false) const;
+  public:
+    AttackType() { id = -1; }
+    int getId() const { return id; }
+    string getName(bool translatedValue = false) const;
 
-  void setName(const string &name) { this->name = name; }
-  void setId(int id) { this->id = id; }
+    void setName(const string &name) { this->name = name; }
+    void setId(int id) { this->id = id; }
 
-  void saveGame(XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode);
 };
 
 // ===============================
@@ -51,19 +51,19 @@ class AttackType {
 // ===============================
 
 class ArmorType {
- private:
-  string name;
-  int id;
+  private:
+    string name;
+    int id;
 
- public:
-  ArmorType() { id = -1; }
-  int getId() const { return id; }
-  string getName(bool translatedValue = false) const;
+  public:
+    ArmorType() { id = -1; }
+    int getId() const { return id; }
+    string getName(bool translatedValue = false) const;
 
-  void setName(const string &name) { this->name = name; }
-  void setId(int id) { this->id = id; }
+    void setName(const string &name) { this->name = name; }
+    void setId(int id) { this->id = id; }
 
-  void saveGame(XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode);
 };
 
 // =====================================================
@@ -74,24 +74,23 @@ class ArmorType {
 // =====================================================
 
 class DamageMultiplierTable {
- private:
-  double *values;
-  int attackTypeCount;
-  int armorTypeCount;
+  private:
+    double *values;
+    int attackTypeCount;
+    int armorTypeCount;
 
- public:
-  DamageMultiplierTable();
-  ~DamageMultiplierTable();
+  public:
+    DamageMultiplierTable();
+    ~DamageMultiplierTable();
 
-  void init(int attackTypeCount, int armorTypeCount);
-  double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
-  void setDamageMultiplier(const AttackType *att, const ArmorType *art,
-                           double value);
+    void init(int attackTypeCount, int armorTypeCount);
+    double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
+    void setDamageMultiplier(const AttackType *att, const ArmorType *art, double value);
 
-  void saveGame(XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

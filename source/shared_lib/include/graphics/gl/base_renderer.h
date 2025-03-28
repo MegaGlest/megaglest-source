@@ -23,18 +23,16 @@ namespace Graphics {
 // ===============================================
 
 class BaseRenderer : public RendererMapInterface {
- public:
-  BaseRenderer() {}
-  virtual ~BaseRenderer() {}
+  public:
+    BaseRenderer() {}
+    virtual ~BaseRenderer() {}
 
-  virtual void initMapSurface(int clientW, int clientH);
-  virtual void renderMap(MapPreview* map, int x, int y, int clientW,
-                         int clientH, int cellSize, bool grid = false,
-                         bool heightMap = false, bool hideWater = false,
-                         pair<int, int>* mouse_pos = NULL, int* radius = NULL);
+    virtual void initMapSurface(int clientW, int clientH);
+    virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid = false, bool heightMap = false,
+                           bool hideWater = false, pair<int, int> *mouse_pos = NULL, int *radius = NULL);
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif
