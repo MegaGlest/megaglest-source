@@ -217,7 +217,10 @@ set(EXTRA_FLAGS
     "-Werror=strict-aliasing"
     "-frounding-math"
     "-fsignaling-nans"
+    "-D_GLIBCXX_ASSERTIONS"
 )
+
+
 
 # Loop through each flag and check for both C++ and C compilers
 foreach(flag ${EXTRA_FLAGS})
