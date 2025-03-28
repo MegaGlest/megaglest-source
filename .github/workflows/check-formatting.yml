@@ -8,19 +8,25 @@ on:
     branches: develop
     paths:
     - 'source/**/**'
+    - '!**/*.yml'
     - '**/check-formatting.yml'
   pull_request:
     branches: develop
     paths:
     - 'source/**/**'
+    - '!**/*.yml'
     - '**/check-formatting.yml'
 
 jobs:
- clang-format-checking:
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@v4
-     - uses: RafikFarhad/clang-format-github-action@v4
-       with:
-         sources: "source/**/*.cpp,source/**/*.hpp,source/**/*.c,source/**/*.h"
-         style: Google
+  clang-format-checking:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: RafikFarhad/clang-format-github-action@v4
+      with:
+        sources: "source/**/*.cpp,source/**/*.hpp,source/**/*.c,source/**/*.h"
+        excludes: |
+          "/source/shared_lib/sources/platform/miniupnpc/**/*,
+          /source/shared_lib/sources/feathery_ftp/**/*,
+          /source/shared_lib/sources/miniz/**/*"
+        style: file:./source/.clang-format

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -25,33 +25,35 @@ using std::string;
 using Shared::Graphics::GraphicsFactory;
 using Shared::Graphics::Gl::GraphicsFactoryGl;
 using Shared::Sound::SoundFactory;
-using Shared::Sound::OpenAL::SoundFactoryOpenAL;
 using Shared::Sound::SoundFactoryNone;
+using Shared::Sound::OpenAL::SoundFactoryOpenAL;
 
-namespace Shared { namespace Platform {
+namespace Shared {
+namespace Platform {
 
 // =====================================================
 //	class FactoryRepository
 // =====================================================
 
 class FactoryRepository {
-private:
-	FactoryRepository(){};
-	FactoryRepository(const FactoryRepository& );
-	void operator=(const FactoryRepository& );
+ private:
+  FactoryRepository() {};
+  FactoryRepository(const FactoryRepository &);
+  void operator=(const FactoryRepository &);
 
-private:
-	GraphicsFactoryGl graphicsFactoryGl;
-	SoundFactoryOpenAL soundFactoryOpenAL;
-	SoundFactoryNone soundFactoryNone;
+ private:
+  GraphicsFactoryGl graphicsFactoryGl;
+  SoundFactoryOpenAL soundFactoryOpenAL;
+  SoundFactoryNone soundFactoryNone;
 
-public:
-	static FactoryRepository &getInstance();
+ public:
+  static FactoryRepository &getInstance();
 
-	GraphicsFactory *getGraphicsFactory(const string &name);
-	SoundFactory *getSoundFactory(const string &name);
+  GraphicsFactory *getGraphicsFactory(const string &name);
+  SoundFactory *getSoundFactory(const string &name);
 };
 
-}}//end namespace
+}  // namespace Platform
+}  // namespace Shared
 
 #endif

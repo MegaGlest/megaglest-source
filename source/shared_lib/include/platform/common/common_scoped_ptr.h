@@ -15,9 +15,10 @@
 #include <memory>
 
 // =====================================================
-//	Hack for compilers that dont support cxx11's unique_ptr which replaces auto_ptr
+//	Hack for compilers that dont support cxx11's unique_ptr which replaces
+// auto_ptr
 // =====================================================
-//using namespace std;
+// using namespace std;
 
 // C++11
 #if defined(HAVE_CXX11) || (__cplusplus >= 201103L) || (_MSC_VER >= 1900)
@@ -25,7 +26,7 @@
 #if defined(WIN32)
 #define auto_ptr unique_ptr
 #else
-	#define auto_ptr std::unique_ptr
+#define auto_ptr std::unique_ptr
 #endif
 
 #endif

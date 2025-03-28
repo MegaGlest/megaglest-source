@@ -13,7 +13,7 @@
 #define _SHARED_PLATFORMCOMMON_MINIFTPSERVERTHREAD_H_
 
 #ifdef WIN32
-  #include <winsock2.h>
+#include <winsock2.h>
 #endif
 
 #include "base_thread.h"
@@ -26,47 +26,51 @@
 
 using namespace std;
 
-namespace Shared { namespace PlatformCommon {
+namespace Shared {
+namespace PlatformCommon {
 
 // =====================================================
 //	class FTPServerThread
 // =====================================================
 
-class FTPServerThread : public BaseThread
-{
-protected:
-    std::pair<string,string> mapsPath;
-    std::pair<string,string> tilesetsPath;
-    std::pair<string,string> techtreesPath;
-    string tempFilesPath;
+class FTPServerThread : public BaseThread {
+ protected:
+  std::pair<string, string> mapsPath;
+  std::pair<string, string> tilesetsPath;
+  std::pair<string, string> techtreesPath;
+  string tempFilesPath;
 
-    int portNumber;
-    int maxPlayers;
-    static FTPClientValidationInterface *ftpValidationIntf;
+  int portNumber;
+  int maxPlayers;
+  static FTPClientValidationInterface *ftpValidationIntf;
 
-    bool internetEnabled;
-    bool allowInternetTilesetFileTransfers;
-    bool allowInternetTechtreeFileTransfers;
+  bool internetEnabled;
+  bool allowInternetTilesetFileTransfers;
+  bool allowInternetTechtreeFileTransfers;
 
-public:
+ public:
+  FTPServerThread(std::pair<string, string> mapsPath,
+                  std::pair<string, string> tilesetsPath,
+                  std::pair<string, string> techtreesPath,
+                  bool internetEnabledFlag,
+                  bool allowInternetTilesetFileTransfers,
+                  bool allowInternetTechtreeFileTransfers, int portNumber,
+                  int maxPlayers,
+                  FTPClientValidationInterface *ftpValidationIntf,
+                  string tempFilesPath);
+  ~FTPServerThread();
+  virtual void execute();
+  virtual void signalQuit();
+  virtual bool shutdownAndWait();
 
-    FTPServerThread(std::pair<string,string> mapsPath,
-    		std::pair<string,string> tilesetsPath, std::pair<string,string> techtreesPath,
-    		bool internetEnabledFlag,
-    		bool allowInternetTilesetFileTransfers, bool allowInternetTechtreeFileTransfers,
-    		int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf,
-    		string tempFilesPath);
-    ~FTPServerThread();
-    virtual void execute();
-    virtual void signalQuit();
-    virtual bool shutdownAndWait();
-
-    void setInternetEnabled(bool value, bool forceChange=false);
-    static void addClientToServerIPAddress(uint32 clientIp,uint32 ServerIp);
-    static FTPClientValidationInterface * getFtpValidationIntf() { return ftpValidationIntf; }
-
+  void setInternetEnabled(bool value, bool forceChange = false);
+  static void addClientToServerIPAddress(uint32 clientIp, uint32 ServerIp);
+  static FTPClientValidationInterface *getFtpValidationIntf() {
+    return ftpValidationIntf;
+  }
 };
 
-}}//end namespace
+}  // namespace PlatformCommon
+}  // namespace Shared
 
 #endif

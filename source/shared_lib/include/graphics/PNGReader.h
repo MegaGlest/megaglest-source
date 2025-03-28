@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2010 Martiño Figueroa and others
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -20,23 +20,24 @@
 #include "pixmap.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{
+namespace Shared {
+namespace Graphics {
 
-class PNGReader: FileReader<Pixmap2D> {
-public:
-	PNGReader();
+class PNGReader : FileReader<Pixmap2D> {
+ public:
+  PNGReader();
 
-	Pixmap2D* read(ifstream& in, const string& path, Pixmap2D* ret) const;
+  Pixmap2D* read(ifstream& in, const string& path, Pixmap2D* ret) const;
 };
 
-class PNGReader3D: FileReader<Pixmap3D> {
-public:
-	PNGReader3D();
+class PNGReader3D : FileReader<Pixmap3D> {
+ public:
+  PNGReader3D();
 
-	Pixmap3D* read(ifstream& in, const string& path, Pixmap3D* ret) const;
+  Pixmap3D* read(ifstream& in, const string& path, Pixmap3D* ret) const;
 };
 
-
-}} //end namespace
+}  // namespace Graphics
+}  // namespace Shared
 
 #endif

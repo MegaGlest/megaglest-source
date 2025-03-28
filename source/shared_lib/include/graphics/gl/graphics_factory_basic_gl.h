@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2005 Martio Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -21,24 +21,35 @@
 #include "font_gl.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{ namespace Gl{
+namespace Shared {
+namespace Graphics {
+namespace Gl {
 
 // =====================================================
 //	class GraphicsFactoryBasicGl
 // =====================================================
 
-class GraphicsFactoryBasicGl: public GraphicsFactory{
-public:
-	virtual TextRenderer2D *newTextRenderer2D()	{return new TextRenderer2DGl();}
-	virtual TextRenderer3D *newTextRenderer3D()	{return new TextRenderer3DGl();}
-	virtual ModelRenderer *newModelRenderer()	{return new ModelRendererGl();}
-	virtual Context *newContext()				{return new ContextGl();}
-	virtual Model *newModel(const string &path,TextureManager* textureManager,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader) { return new ModelGl(path,textureManager,deletePixMapAfterLoad,loadedFileList,sourceLoader); }
-	virtual Texture2D *newTexture2D()			{return new Texture2DGl();}
-	virtual Font2D *newFont2D()					{return new Font2DGl();}
-	virtual Font3D *newFont3D()					{return new Font3DGl();}
+class GraphicsFactoryBasicGl : public GraphicsFactory {
+ public:
+  virtual TextRenderer2D *newTextRenderer2D() { return new TextRenderer2DGl(); }
+  virtual TextRenderer3D *newTextRenderer3D() { return new TextRenderer3DGl(); }
+  virtual ModelRenderer *newModelRenderer() { return new ModelRendererGl(); }
+  virtual Context *newContext() { return new ContextGl(); }
+  virtual Model *newModel(
+      const string &path, TextureManager *textureManager,
+      bool deletePixMapAfterLoad,
+      std::map<string, vector<pair<string, string> > > *loadedFileList,
+      string *sourceLoader) {
+    return new ModelGl(path, textureManager, deletePixMapAfterLoad,
+                       loadedFileList, sourceLoader);
+  }
+  virtual Texture2D *newTexture2D() { return new Texture2DGl(); }
+  virtual Font2D *newFont2D() { return new Font2DGl(); }
+  virtual Font3D *newFont3D() { return new Font3DGl(); }
 };
 
-}}}//end namespace
+}  // namespace Gl
+}  // namespace Graphics
+}  // namespace Shared
 
 #endif

@@ -3,9 +3,9 @@
 //
 //	Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under 
-//	the terms of the GNU General Public License as published 
-//	by the Free Software Foundation; either version 2 of the 
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
 
@@ -15,7 +15,8 @@
 #include "particle.h"
 #include "leak_dumper.h"
 
-namespace Shared{ namespace Graphics{
+namespace Shared {
+namespace Graphics {
 
 class ModelRenderer;
 
@@ -23,17 +24,18 @@ class ModelRenderer;
 //	class ParticleRenderer
 // =====================================================
 
-class ParticleRenderer{
-public:
-	//particles
-	virtual ~ParticleRenderer(){};
-	virtual void renderManager(ParticleManager *pm, ModelRenderer *mr)=0;
-	virtual void renderSystem(ParticleSystem *ps)=0;
-	virtual void renderSystemLine(ParticleSystem *ps)=0;
-	virtual void renderSystemLineAlpha(ParticleSystem *ps)=0;
-	virtual void renderModel(GameParticleSystem *ps, ModelRenderer *mr)=0;
+class ParticleRenderer {
+ public:
+  // particles
+  virtual ~ParticleRenderer() {};
+  virtual void renderManager(ParticleManager *pm, ModelRenderer *mr) = 0;
+  virtual void renderSystem(ParticleSystem *ps) = 0;
+  virtual void renderSystemLine(ParticleSystem *ps) = 0;
+  virtual void renderSystemLineAlpha(ParticleSystem *ps) = 0;
+  virtual void renderModel(GameParticleSystem *ps, ModelRenderer *mr) = 0;
 };
 
-}}//end namespace
+}  // namespace Graphics
+}  // namespace Shared
 
 #endif
