@@ -2029,12 +2029,24 @@ bool NetworkMessageCommandList::receive(Socket *socket) {
 unsigned char *NetworkMessageCommandList::getData() {
   int headerSize = sizeof(data.header);
   uint16 totalCommand = data.header.commandCount;
-  int detailSize = (sizeof(NetworkCommand) * totalCommand);
+
+  // Ensure the vector has enough elements
+  if (totalCommand > data.commands.size()) {
+    throw std::runtime_error(
+        "NetworkMessageCommandList::getData - commandCount exceeds vector "
+        "size");
+  }
+
+  int detailSize = sizeof(NetworkCommand) * totalCommand;
   int fullBufferSize = headerSize + detailSize;
 
   unsigned char *buffer = new unsigned char[fullBufferSize];
   memcpy(buffer, &data.header, headerSize);
-  memcpy(&buffer[headerSize], &data.commands[0], detailSize);
+
+  if (totalCommand > 0) {
+    memcpy(&buffer[headerSize], data.commands.data(), detailSize);
+  }
+
   return buffer;
 }
 
