@@ -3578,86 +3578,86 @@ double Socket::getAveragePingMS(std::string host, int pingCount) {
   #else
           #error "Your compiler needs to support popen!"
 
-  #endif
+#endif
 
-                          if(debugPingOutput) printf("Running cmd [%s] got
-  [%s]\n",szCmd,buf);
+                        if(debugPingOutput) printf("Running cmd [%s] got
+[%s]\n",szCmd,buf);
 
-                          // Linux
-                          //softcoder@softhauslinux:~/Code/megaglest/trunk/mk/linux$
-  ping -c 5 soft-haus.com
-                          //PING soft-haus.com (65.254.250.110) 56(84) bytes of
-  data.
-                          //64 bytes from 65-254-250-110.yourhostingaccount.com
-  (65.254.250.110): icmp_seq=1 ttl=242 time=133 ms
-                          //64 bytes from 65-254-250-110.yourhostingaccount.com
-  (65.254.250.110): icmp_seq=2 ttl=242 time=137 ms
-                          //
-                          // Windows XP
-                          //C:\Code\megaglest\trunk\data\glest_game>ping -n 5
-  soft-haus.com
-                          //
-                          //Pinging soft-haus.com [65.254.250.110] with 32 bytes
-  of data:
-                          //
-                          //Reply from 65.254.250.110: bytes=32 time=125ms
-  TTL=242
-                          //Reply from 65.254.250.110: bytes=32 time=129ms
-  TTL=242
+                        // Linux
+                        //softcoder@softhauslinux:~/Code/megaglest/trunk/mk/linux$
+ping -c 5 soft-haus.com
+                        //PING soft-haus.com (65.254.250.110) 56(84) bytes of
+data.
+                        //64 bytes from 65-254-250-110.yourhostingaccount.com
+(65.254.250.110): icmp_seq=1 ttl=242 time=133 ms
+                        //64 bytes from 65-254-250-110.yourhostingaccount.com
+(65.254.250.110): icmp_seq=2 ttl=242 time=137 ms
+                        //
+                        // Windows XP
+                        //C:\Code\megaglest\trunk\data\glest_game>ping -n 5
+soft-haus.com
+                        //
+                        //Pinging soft-haus.com [65.254.250.110] with 32 bytes
+of data:
+                        //
+                        //Reply from 65.254.250.110: bytes=32 time=125ms
+TTL=242
+                        //Reply from 65.254.250.110: bytes=32 time=129ms
+TTL=242
 
-                          std::string str = buf;
-                          std::string::size_type ms_pos = 0;
-                          int count = 0;
-                          while ( ms_pos != std::string::npos) {
-                                  ms_pos = str.find("time=", ms_pos);
+                        std::string str = buf;
+                        std::string::size_type ms_pos = 0;
+                        int count = 0;
+                        while ( ms_pos != std::string::npos) {
+                                ms_pos = str.find("time=", ms_pos);
 
-                                  if(debugPingOutput) printf("count = %d ms_pos
-  = %d\n",count,ms_pos);
+                                if(debugPingOutput) printf("count = %d ms_pos
+= %d\n",count,ms_pos);
 
-                                  if ( ms_pos != std::string::npos ) {
-                                          ++count;
+                                if ( ms_pos != std::string::npos ) {
+                                        ++count;
 
-                                          int endPos = str.find(" ms", ms_pos+5
-  );
+                                        int endPos = str.find(" ms", ms_pos+5
+);
 
-                                          if(debugPingOutput) printf("count = %d
-  endPos = %d\n",count,endPos);
+                                        if(debugPingOutput) printf("count = %d
+endPos = %d\n",count,endPos);
 
-                                          if(endPos == std::string::npos) {
-                                                  endPos = str.find("ms ",
-  ms_pos+5 );
+                                        if(endPos == std::string::npos) {
+                                                endPos = str.find("ms ",
+ms_pos+5 );
 
-                                                  if(debugPingOutput)
-  printf("count = %d endPos = %d\n",count,endPos);
-                                          }
+                                                if(debugPingOutput)
+printf("count = %d endPos = %d\n",count,endPos);
+                                        }
 
-                                          if(endPos != std::string::npos) {
+                                        if(endPos != std::string::npos) {
 
-                                                  if(count == 1) {
-                                                          result = 0;
-                                                  }
-                                                  int startPos = ms_pos + 5;
-                                                  int posLength = endPos -
-  startPos; if(debugPingOutput) printf("count = %d startPos = %d posLength = %d
-  str = [%s]\n",count,startPos,posLength,str.substr(startPos,
-  posLength).c_str());
+                                                if(count == 1) {
+                                                        result = 0;
+                                                }
+                                                int startPos = ms_pos + 5;
+                                                int posLength = endPos -
+startPos; if(debugPingOutput) printf("count = %d startPos = %d posLength = %d
+str = [%s]\n",count,startPos,posLength,str.substr(startPos,
+posLength).c_str());
 
-                                                  float pingMS =
-  strToFloat(str.substr(startPos, posLength)); result += pingMS;
-                                          }
+                                                float pingMS =
+strToFloat(str.substr(startPos, posLength)); result += pingMS;
+                                        }
 
-                                          ms_pos += 5; // start next search
-  after this "time="
-                                  }
-                          }
+                                        ms_pos += 5; // start next search
+after this "time="
+                                }
+                        }
 
-                          if(result > 0 && count > 1) {
-                                  result /= count;
-                          }
-                  }
-          }
-          return result;
-  */
+                        if(result > 0 && count > 1) {
+                                result /= count;
+                        }
+                }
+        }
+        return result;
+*/
 }
 
 std::string Socket::getIpAddress() {
