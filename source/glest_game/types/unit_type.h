@@ -194,6 +194,7 @@ class UnitType : public ProducibleType, public ValueCheckerVault {
     // info
     SkillTypes skillTypes;
     CommandTypes commandTypes;
+    CommandTypes commandTypesSorted;
     StoredResources storedResources;
     Levels levels;
     LootableResources lootableResources;
@@ -334,6 +335,7 @@ class UnitType : public ProducibleType, public ValueCheckerVault {
   private:
     void computeFirstStOfClass();
     void computeFirstCtOfClass();
+    void sortCommandTypes(CommandTypes cts);
 };
 
 /**
