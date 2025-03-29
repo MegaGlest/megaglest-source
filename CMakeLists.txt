@@ -215,16 +215,31 @@ set(EXTRA_FLAGS
     "-Werror=odr"
     "-Werror=lto-type-mismatch"
     "-Werror=strict-aliasing"
+    # Note: These two may not be needed globally. They are added in the original
+    # Streflop Makefile and may only be recommended for building streflop itself,
+    # not applications that link to streflop.
     "-frounding-math"
     "-fsignaling-nans"
-    "-D_GLIBCXX_ASSERTIONS"
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT result OUTPUT output)
 
+    if(result)
+        message(STATUS "IPO (LTO) is supported: enabling for Release build.")
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    else()
+        message(STATUS "IPO (LTO) is not supported: ${output}")
+    endif()
+else()
+    # Add other flags that will be added if NOT RELEASE)
+    #list(APPEND EXTRA_FLAGS ...)
+    add_compile_definitions(_GLIBCXX_ASSERTIONS)
+endif()
 
 # Loop through each flag and check for both C++ and C compilers
 foreach(flag ${EXTRA_FLAGS})
-
     # Check for C++ compiler
     check_cxx_compiler_flag(${flag} CXX_SUPPORTS_${flag})
     if(CXX_SUPPORTS_${flag})
@@ -242,20 +257,7 @@ foreach(flag ${EXTRA_FLAGS})
     else()
         message(STATUS "C compiler does not support flag ${flag}")
     endif()
-
 endforeach()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT result OUTPUT output)
-
-    if(result)
-        message(STATUS "IPO (LTO) is supported: enabling for Release build.")
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    else()
-        message(STATUS "IPO (LTO) is not supported: ${output}")
-    endif()
-endif()
 
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
