@@ -61,9 +61,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]
+        release: [true, false]
         os: [ubuntu-22.04, ubuntu-24.04]
         compiler: [gcc, clang]
+        exclude:
+          - release: true
+            os: ubuntu-22.04
     runs-on: ${{ matrix.os }}
     env:
       MATRIX_COMPILER: ${{matrix.compiler}}
@@ -77,16 +80,21 @@ jobs:
         sudo apt remove -y firefox # save some time during upgrade
         sudo apt upgrade -y
         sudo mk/linux/setupBuildDeps.sh
-    - name: Build
+    - name: Build RelwithDebinfo
+      if: ${{ matrix.release != true }}
       run:  |
         if [ "${MATRIX_COMPILER}" = "clang" ]; then
           EXTRA_OPTS="-f"
-        else
-          ADD_FLAGS="-flto=auto"
-          export CFLAGS=$ADD_FLAGS CXXFLAGS=$ADD_FLAGS
         fi
         mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
         make -C mk/linux/build -j$(nproc) VERBOSE=1
+
+    - name: Build Release
+      if: ${{ matrix.release == true }}
+      run: |
+        # Note: LTO should be added automatically and visible in the make output
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        make VERBOSE=1 -C build -j$(nproc)
 
   build-win64-deps:
     # The CMake configure and build commands are platform agnostic and should work equally
