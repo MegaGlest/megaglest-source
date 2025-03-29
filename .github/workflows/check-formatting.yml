@@ -23,16 +23,21 @@ on:
       - 'source/**/*.hpp'
       - '**/check-formatting.yml'
 
+# If the clang-format version is different than the version used to
+# format the files, the check will on some files
+
 jobs:
   clang-format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    env:
+      CLANG_FORMAT_VERSION: 19
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install clang-format
-        run: sudo apt-get install -y clang-format
+        run: sudo apt-get install -y clang-format-${CLANG_FORMAT_VERSION}
 
       - name: Run clang-format check
         run: |
@@ -42,5 +47,5 @@ jobs:
             -path "./shared_lib/*/libircclient" -o \
             -path "./shared_lib/*/platform/miniupnpc" -o \
             -path "./shared_lib/*/feathery_ftp" \
-          \) -prune -o -type f \( -name '*.cpp' -o -name '*.h' \) -print | xargs clang-format --dry-run --Werror
+          \) -prune -o -type f \( -name '*.cpp' -o -name '*.h' \) -print | xargs clang-format-${CLANG_FORMAT_VERSION} --dry-run --Werror
 
