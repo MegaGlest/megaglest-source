@@ -88,13 +88,14 @@ public:
 };
 
 // =====================================================
-// 	class Gui
+//	class Gui
 //
 ///	In game GUI
 // =====================================================
 
 class Gui {
 public:
+	static const int commandKeys= 12;
 	static const int maxSelBuff= 128*5;
 	static const int upgradeDisplayIndex= 8;
 

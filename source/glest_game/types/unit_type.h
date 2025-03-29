@@ -215,6 +215,7 @@ private:
 	//info
     SkillTypes skillTypes;
     CommandTypes commandTypes;
+    CommandTypes commandTypesSorted;
     StoredResources storedResources;
 	Levels levels;
 	LootableResources lootableResources;
@@ -273,10 +274,12 @@ public:
     inline const ArmorType *getArmorType() const				{return armorType;}
     inline const SkillType *getSkillType(int i) const			{return skillTypes[i];}
 	const CommandType *getCommandType(int i) const;
+	const CommandType *getCommandTypeSorted(int i) const;
 	inline const Level *getLevel(int i) const					{return &levels[i];}
 	const Level *getLevel(string name) const;
 	inline int getSkillTypeCount() const						{return (int)skillTypes.size();}
 	inline int getCommandTypeCount() const						{return (int)commandTypes.size();}
+	inline int getCommandTypeSortedCount() const						{return (int)commandTypesSorted.size();}
 	inline int getLevelCount() const							{return (int)levels.size();}
 	inline bool getLight() const								{return light;}
 	inline bool getRotationAllowed() const						{return rotationAllowed;}
@@ -361,6 +364,7 @@ public:
 private:
     void computeFirstStOfClass();
     void computeFirstCtOfClass();
+    void sortCommandTypes(CommandTypes cts);
 };
 
 /**
