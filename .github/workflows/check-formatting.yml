@@ -5,28 +5,42 @@ concurrency:
 
 on:
   push:
-    branches: develop
+    branches:
+      - develop
     paths:
-    - 'source/**/**'
-    - '!**/*.yml'
-    - '**/check-formatting.yml'
+      - 'source/**/*.c'
+      - 'source/**/*.cpp'
+      - 'source/**/*.h'
+      - 'source/**/*.hpp'
+      - '**/check-formatting.yml'
   pull_request:
-    branches: develop
+    branches:
+      - develop
     paths:
-    - 'source/**/**'
-    - '!**/*.yml'
-    - '**/check-formatting.yml'
+      - 'source/**/*.c'
+      - 'source/**/*.cpp'
+      - 'source/**/*.h'
+      - 'source/**/*.hpp'
+      - '**/check-formatting.yml'
 
 jobs:
-  clang-format-checking:
+  clang-format:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: RafikFarhad/clang-format-github-action@v4
-      with:
-        sources: "source/**/*.cpp,source/**/*.hpp,source/**/*.c,source/**/*.h"
-        excludes: |
-          "/source/shared_lib/sources/platform/miniupnpc/**/*,
-          /source/shared_lib/sources/feathery_ftp/**/*,
-          /source/shared_lib/sources/miniz/**/*"
-        style: file:./source/.clang-format
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get install -y clang-format
+
+      - name: Run clang-format check
+        run: |
+          cd source
+          find . \( \
+            -path "./shared_lib/*/streflop" -o \
+            -path "./shared_lib/*/libircclient" -o \
+            -path "./shared_lib/*/platform/miniupnpc" -o \
+            -path "./shared_lib/*/feathery_ftp" \
+          \) -prune -o -type f \( -name '*.cpp' -o -name '*.h' \) -print | xargs clang-format --dry-run --Werror
+
