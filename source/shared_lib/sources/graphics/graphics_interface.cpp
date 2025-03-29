@@ -25,23 +25,23 @@ namespace Graphics {
 // =====================================================
 
 GraphicsInterface::GraphicsInterface() {
-  graphicsFactory = NULL;
-  currentContext = NULL;
+    graphicsFactory = NULL;
+    currentContext = NULL;
 }
 
 GraphicsInterface &GraphicsInterface::getInstance() {
-  static GraphicsInterface graphicsInterface;
-  return graphicsInterface;
+    static GraphicsInterface graphicsInterface;
+    return graphicsInterface;
 }
 
 void GraphicsInterface::setFactory(GraphicsFactory *graphicsFactory) {
-  this->graphicsFactory = graphicsFactory;
+    this->graphicsFactory = graphicsFactory;
 }
 
 void GraphicsInterface::setCurrentContext(Context *context) {
-  this->currentContext = context;
-  currentContext->makeCurrent();
+    this->currentContext = context;
+    currentContext->makeCurrent();
 }
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared

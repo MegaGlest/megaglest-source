@@ -39,67 +39,65 @@ namespace Game {
 // =====================================================
 
 class Logger {
- private:
-  static const int logLineCount;
+  private:
+    static const int logLineCount;
 
- private:
-  typedef deque<string> Strings;
+  private:
+    typedef deque<string> Strings;
 
- private:
-  string fileName;
-  string state;
-  string subtitle;
-  string current;
-  Texture2D *loadingTexture;
-  Properties gameHints;
-  Properties gameHintsTranslation;
-  string gameHintToShow;
-  int progress;
-  bool showProgressBar;
+  private:
+    string fileName;
+    string state;
+    string subtitle;
+    string current;
+    Texture2D *loadingTexture;
+    Properties gameHints;
+    Properties gameHintsTranslation;
+    string gameHintToShow;
+    int progress;
+    bool showProgressBar;
 
-  string statusText;
-  bool cancelSelected;
-  GraphicButton buttonCancel;
-  Vec4f displayColor;
-  GraphicButton buttonNextHint;
+    string statusText;
+    bool cancelSelected;
+    GraphicButton buttonCancel;
+    Vec4f displayColor;
+    GraphicButton buttonNextHint;
 
- private:
-  Logger();
-  ~Logger();
+  private:
+    Logger();
+    ~Logger();
 
- public:
-  static Logger &getInstance();
+  public:
+    static Logger &getInstance();
 
-  // void setMasterserverMode(bool value) { masterserverMode = value; }
+    // void setMasterserverMode(bool value) { masterserverMode = value; }
 
-  void setFile(const string &fileName) { this->fileName = fileName; }
-  void setState(const string &state) { this->state = state; }
-  void setSubtitle(const string &subtitle) { this->subtitle = subtitle; }
-  void setProgress(int value) { this->progress = value; }
-  int getProgress() const { return progress; }
-  void showProgress() { showProgressBar = true; }
-  void hideProgress() { showProgressBar = false; }
+    void setFile(const string &fileName) { this->fileName = fileName; }
+    void setState(const string &state) { this->state = state; }
+    void setSubtitle(const string &subtitle) { this->subtitle = subtitle; }
+    void setProgress(int value) { this->progress = value; }
+    int getProgress() const { return progress; }
+    void showProgress() { showProgressBar = true; }
+    void hideProgress() { showProgressBar = false; }
 
-  void add(const string str, bool renderScreen = false,
-           const string statusText = "");
-  void loadLoadingScreen(string filepath);
-  void loadGameHints(string filePathEnglish, string filePathTranslation,
-                     bool clearList);
-  void renderLoadingScreen();
+    void add(const string str, bool renderScreen = false, const string statusText = "");
+    void loadLoadingScreen(string filepath);
+    void loadGameHints(string filePathEnglish, string filePathTranslation, bool clearList);
+    void renderLoadingScreen();
 
-  void setCancelLoadingEnabled(bool value);
-  bool getCancelLoading() const { return cancelSelected; }
-  void setCancelLoading(bool value) { cancelSelected = value; }
-  void handleMouseClick(int x, int y);
-  void clearHints();
+    void setCancelLoadingEnabled(bool value);
+    bool getCancelLoading() const { return cancelSelected; }
+    void setCancelLoading(bool value) { cancelSelected = value; }
+    void handleMouseClick(int x, int y);
+    void clearHints();
 
-  void clear();
+    void clear();
 
- private:
-  void showNextHint();
+  private:
+    void showNextHint();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

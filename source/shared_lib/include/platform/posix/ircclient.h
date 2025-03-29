@@ -41,106 +41,102 @@ enum IRCEventType { IRC_evt_chatText = 0, IRC_evt_exitThread = 1 };
 void normalizeNick(char *nick);
 
 class IRCCallbackInterface {
- public:
-  virtual void IRC_CallbackEvent(IRCEventType evt, const char *origin,
-                                 const char **params, unsigned int count) = 0;
+  public:
+    virtual void IRC_CallbackEvent(IRCEventType evt, const char *origin, const char **params, unsigned int count) = 0;
 
-  virtual ~IRCCallbackInterface() {}
+    virtual ~IRCCallbackInterface() {}
 };
 
 class IRCThread : public BaseThread {
- public:
-  static bool debugEnabled;
+  public:
+    static bool debugEnabled;
 
- protected:
-  static const char *globalCacheContainerName;
+  protected:
+    static const char *globalCacheContainerName;
 
-  std::vector<string> argv;
+    std::vector<string> argv;
 
-  Mutex mutexIRCSession;
-  irc_session_t *ircSession;
+    Mutex mutexIRCSession;
+    irc_session_t *ircSession;
 
-  string execute_cmd_onconnect;
-  // string password;
-  string username;
-  string channel;
-  string nick;
+    string execute_cmd_onconnect;
+    // string password;
+    string username;
+    string channel;
+    string nick;
 
-  string playerName;
-  string glestVersionString;
+    string playerName;
+    string glestVersionString;
 
-  bool hasJoinedChannel;
+    bool hasJoinedChannel;
 
-  Mutex mutexEventDataDone;
-  bool eventDataDone;
+    Mutex mutexEventDataDone;
+    bool eventDataDone;
 
-  Mutex mutexNickList;
-  time_t lastNickListUpdate;
-  std::vector<string> eventData;
+    Mutex mutexNickList;
+    time_t lastNickListUpdate;
+    std::vector<string> eventData;
 
-  Mutex mutexIRCCB;
-  IRCCallbackInterface *callbackObj;
+    Mutex mutexIRCCB;
+    IRCCallbackInterface *callbackObj;
 
-  bool wantToLeaveChannel;
+    bool wantToLeaveChannel;
 
-  int irc_run_session(irc_session_t *session);
+    int irc_run_session(irc_session_t *session);
 
- public:
-  IRCThread(const std::vector<string> &argv, IRCCallbackInterface *callbackObj);
-  virtual ~IRCThread();
-  virtual void execute();
-  virtual void signalQuit();
-  virtual bool shutdownAndWait();
+  public:
+    IRCThread(const std::vector<string> &argv, IRCCallbackInterface *callbackObj);
+    virtual ~IRCThread();
+    virtual void execute();
+    virtual void signalQuit();
+    virtual bool shutdownAndWait();
 
-  static void setGlobalCacheContainerName(const char *name) {
-    globalCacheContainerName = name;
-  }
+    static void setGlobalCacheContainerName(const char *name) { globalCacheContainerName = name; }
 
-  void setPlayerName(string value) { playerName = value; }
-  void setGlestVersionString(string value) { glestVersionString = value; }
-  string getPlayerName() const { return playerName; }
+    void setPlayerName(string value) { playerName = value; }
+    void setGlestVersionString(string value) { glestVersionString = value; }
+    string getPlayerName() const { return playerName; }
 
-  bool getWantToLeaveChannel() const { return wantToLeaveChannel; }
+    bool getWantToLeaveChannel() const { return wantToLeaveChannel; }
 
-  void SendIRCCmdMessage(string target, string msg);
-  std::vector<string> getNickList();
-  bool isConnected(bool mutexLockRequired = true);
+    void SendIRCCmdMessage(string target, string msg);
+    std::vector<string> getNickList();
+    bool isConnected(bool mutexLockRequired = true);
 
-  std::vector<string> GetIRCConnectedNickList(string target,
-                                              bool waitForCompletion);
+    std::vector<string> GetIRCConnectedNickList(string target, bool waitForCompletion);
 
-  bool getEventDataDone();
-  void setEventDataDone(bool value);
+    bool getEventDataDone();
+    void setEventDataDone(bool value);
 
-  bool getHasJoinedChannel() const { return hasJoinedChannel; }
-  void setHasJoinedChannel(bool value) { hasJoinedChannel = value; }
+    bool getHasJoinedChannel() const { return hasJoinedChannel; }
+    void setHasJoinedChannel(bool value) { hasJoinedChannel = value; }
 
-  time_t getLastNickListUpdate() const { return lastNickListUpdate; }
-  void setLastNickListUpdate(time_t value) { lastNickListUpdate = value; }
+    time_t getLastNickListUpdate() const { return lastNickListUpdate; }
+    void setLastNickListUpdate(time_t value) { lastNickListUpdate = value; }
 
-  string getChannel() const { return channel; }
-  string getNick() const { return nick; }
+    string getChannel() const { return channel; }
+    string getNick() const { return nick; }
 
-  string getExecute_cmd_onconnect() const { return execute_cmd_onconnect; }
-  void setExecute_cmd_onconnect(string value) { execute_cmd_onconnect = value; }
+    string getExecute_cmd_onconnect() const { return execute_cmd_onconnect; }
+    void setExecute_cmd_onconnect(string value) { execute_cmd_onconnect = value; }
 
-  std::vector<string> getArgs() const { return argv; }
+    std::vector<string> getArgs() const { return argv; }
 
-  Mutex *getMutexNickList() { return &mutexNickList; }
-  std::vector<string> &getCachedNickList() { return eventData; }
-  void setCachedNickList(std::vector<string> &list) { eventData = list; }
+    Mutex *getMutexNickList() { return &mutexNickList; }
+    std::vector<string> &getCachedNickList() { return eventData; }
+    void setCachedNickList(std::vector<string> &list) { eventData = list; }
 
-  Mutex *getMutexIRCCB() { return &mutexIRCCB; }
-  IRCCallbackInterface *getCallbackObj(bool lockObj = true);
-  void setCallbackObj(IRCCallbackInterface *cb);
+    Mutex *getMutexIRCCB() { return &mutexIRCCB; }
+    IRCCallbackInterface *getCallbackObj(bool lockObj = true);
+    void setCallbackObj(IRCCallbackInterface *cb);
 
-  void joinChannel();
-  void leaveChannel();
-  void connectToHost();
-  void disconnect();
+    void joinChannel();
+    void leaveChannel();
+    void connectToHost();
+    void disconnect();
 };
 
-}  // namespace PlatformCommon
-}  // namespace Shared
+} // namespace PlatformCommon
+} // namespace Shared
 
 #endif

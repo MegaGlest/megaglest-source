@@ -24,8 +24,8 @@ extern bool shouldBeFullscreen;
 extern int ScreenWidth;
 extern int ScreenHeight;
 
-}  // namespace Private
-}  // namespace PlatformCommon
-}  // namespace Shared
+} // namespace Private
+} // namespace PlatformCommon
+} // namespace Shared
 
 #endif

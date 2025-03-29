@@ -31,43 +31,42 @@ namespace Gl {
 // =====================================================
 
 class ShaderProgramGl : public ShaderProgram {
- private:
-  typedef pair<string, int> AttributePair;
-  typedef vector<AttributePair> Attributes;
+  private:
+    typedef pair<string, int> AttributePair;
+    typedef vector<AttributePair> Attributes;
 
- private:
-  Attributes attributes;
-  GLhandleARB handle;
-  VertexShader *vertexShader;
-  FragmentShader *fragmentShader;
-  bool inited;
+  private:
+    Attributes attributes;
+    GLhandleARB handle;
+    VertexShader *vertexShader;
+    FragmentShader *fragmentShader;
+    bool inited;
 
- public:
-  ShaderProgramGl();
+  public:
+    ShaderProgramGl();
 
-  GLhandleARB getHandle() const { return handle; }
+    GLhandleARB getHandle() const { return handle; }
 
-  virtual void init();
-  virtual void end();
+    virtual void init();
+    virtual void end();
 
-  virtual void attach(VertexShader *vertexShader,
-                      FragmentShader *fragmentShader);
-  virtual bool link(string &messages);
-  virtual void activate();
-  virtual void deactivate();
+    virtual void attach(VertexShader *vertexShader, FragmentShader *fragmentShader);
+    virtual bool link(string &messages);
+    virtual void activate();
+    virtual void deactivate();
 
-  virtual void setUniform(const string &name, int value);
-  virtual void setUniform(const string &name, float value);
-  virtual void setUniform(const string &name, const Vec2f &value);
-  virtual void setUniform(const string &name, const Vec3f &value);
-  virtual void setUniform(const string &name, const Vec4f &value);
-  virtual void setUniform(const string &name, const Matrix3f &value);
-  virtual void setUniform(const string &name, const Matrix4f &value);
+    virtual void setUniform(const string &name, int value);
+    virtual void setUniform(const string &name, float value);
+    virtual void setUniform(const string &name, const Vec2f &value);
+    virtual void setUniform(const string &name, const Vec3f &value);
+    virtual void setUniform(const string &name, const Vec4f &value);
+    virtual void setUniform(const string &name, const Matrix3f &value);
+    virtual void setUniform(const string &name, const Matrix4f &value);
 
-  void bindAttribute(const string &name, int index);
+    void bindAttribute(const string &name, int index);
 
- private:
-  GLint getLocation(const string &name);
+  private:
+    GLint getLocation(const string &name);
 };
 
 // =====================================================
@@ -75,20 +74,20 @@ class ShaderProgramGl : public ShaderProgram {
 // =====================================================
 
 class ShaderGl : virtual public Shader {
- protected:
-  GLhandleARB handle;
-  ShaderSource source;
-  bool inited;
+  protected:
+    GLhandleARB handle;
+    ShaderSource source;
+    bool inited;
 
- public:
-  ShaderGl();
+  public:
+    ShaderGl();
 
-  const ShaderSource *getSource() const { return &source; }
-  GLhandleARB getHandle() const { return handle; }
+    const ShaderSource *getSource() const { return &source; }
+    GLhandleARB getHandle() const { return handle; }
 
-  virtual void load(const string &path);
-  virtual bool compile(string &messages);
-  virtual void end();
+    virtual void load(const string &path);
+    virtual bool compile(string &messages);
+    virtual void end();
 };
 
 // =====================================================
@@ -96,8 +95,8 @@ class ShaderGl : virtual public Shader {
 // =====================================================
 
 class VertexShaderGl : public VertexShader, public ShaderGl {
- public:
-  virtual void init();
+  public:
+    virtual void init();
 };
 
 // =====================================================
@@ -105,12 +104,12 @@ class VertexShaderGl : public VertexShader, public ShaderGl {
 // =====================================================
 
 class FragmentShaderGl : public FragmentShader, public ShaderGl {
- public:
-  virtual void init();
+  public:
+    virtual void init();
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

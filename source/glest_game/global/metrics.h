@@ -27,52 +27,52 @@ namespace Game {
 // =====================================================
 
 class Metrics {
- private:
-  int virtualW;
-  int virtualH;
-  int screenW;
-  int screenH;
-  int minimapX;
-  int minimapY;
-  int minimapW;
-  int minimapH;
-  int displayX;
-  int displayY;
-  int displayH;
-  int displayW;
+  private:
+    int virtualW;
+    int virtualH;
+    int screenW;
+    int screenH;
+    int minimapX;
+    int minimapY;
+    int minimapW;
+    int minimapH;
+    int displayX;
+    int displayY;
+    int displayH;
+    int displayW;
 
- private:
-  Metrics();
-  static Metrics *getInstancePtr();
-  void reloadData(int resWidth = -1, int resHeight = -1);
+  private:
+    Metrics();
+    static Metrics *getInstancePtr();
+    void reloadData(int resWidth = -1, int resHeight = -1);
 
- public:
-  static const Metrics &getInstance();
+  public:
+    static const Metrics &getInstance();
 
-  int getVirtualW() const { return virtualW; }
-  int getVirtualH() const { return virtualH; }
-  int getScreenW() const { return screenW; }
-  int getScreenH() const { return screenH; }
-  int getMinimapX() const { return minimapX; }
-  int getMinimapY() const { return minimapY; }
-  int getMinimapW() const { return minimapW; }
-  int getMinimapH() const { return minimapH; }
-  int getDisplayX() const { return displayX; }
-  int getDisplayY() const { return displayY; }
-  int getDisplayH() const { return displayH; }
-  int getDisplayW() const { return displayW; }
-  float getAspectRatio() const;
+    int getVirtualW() const { return virtualW; }
+    int getVirtualH() const { return virtualH; }
+    int getScreenW() const { return screenW; }
+    int getScreenH() const { return screenH; }
+    int getMinimapX() const { return minimapX; }
+    int getMinimapY() const { return minimapY; }
+    int getMinimapW() const { return minimapW; }
+    int getMinimapH() const { return minimapH; }
+    int getDisplayX() const { return displayX; }
+    int getDisplayY() const { return displayY; }
+    int getDisplayH() const { return displayH; }
+    int getDisplayW() const { return displayW; }
+    float getAspectRatio() const;
 
-  int toVirtualX(int w) const;
-  int toVirtualY(int h) const;
+    int toVirtualX(int w) const;
+    int toVirtualY(int h) const;
 
-  bool isInDisplay(int x, int y) const;
-  bool isInMinimap(int x, int y) const;
+    bool isInDisplay(int x, int y) const;
+    bool isInMinimap(int x, int y) const;
 
-  static void reload(int resWidth = -1, int resHeight = -1);
+    static void reload(int resWidth = -1, int resHeight = -1);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

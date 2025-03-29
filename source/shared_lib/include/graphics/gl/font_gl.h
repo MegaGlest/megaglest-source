@@ -28,15 +28,15 @@ namespace Gl {
 // =====================================================
 
 class FontGl {
- protected:
-  GLuint handle;
-  static string default_fonttype;
+  protected:
+    GLuint handle;
+    static string default_fonttype;
 
- public:
-  GLuint getHandle() const { return handle; }
+  public:
+    GLuint getHandle() const { return handle; }
 
-  static string getDefault_fontType() { return default_fonttype; }
-  static void setDefault_fontType(string value) { default_fonttype = value; }
+    static string getDefault_fontType() { return default_fonttype; }
+    static void setDefault_fontType(string value) { default_fonttype = value; }
 };
 
 // =====================================================
@@ -46,9 +46,9 @@ class FontGl {
 // =====================================================
 
 class Font2DGl : public Font2D, public FontGl {
- public:
-  virtual void init();
-  virtual void end();
+  public:
+    virtual void init();
+    virtual void end();
 };
 
 // =====================================================
@@ -58,13 +58,13 @@ class Font2DGl : public Font2D, public FontGl {
 // =====================================================
 
 class Font3DGl : public Font3D, public FontGl {
- public:
-  virtual void init();
-  virtual void end();
+  public:
+    virtual void init();
+    virtual void end();
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

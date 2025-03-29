@@ -25,29 +25,29 @@ namespace Game {
 // ===============================
 
 class MenuStateGraphicInfo : public MenuState {
- private:
-  GraphicButton buttonReturn;
-  GraphicLabel labelInfo;
-  GraphicLabel labelMoreInfo;
+  private:
+    GraphicButton buttonReturn;
+    GraphicLabel labelInfo;
+    GraphicLabel labelMoreInfo;
 
-  GraphicLabel labelInternalInfo;
+    GraphicLabel labelInternalInfo;
 
-  // string glInfo;
-  // string glMoreInfo;
+    // string glInfo;
+    // string glMoreInfo;
 
- public:
-  MenuStateGraphicInfo(Program *program, MainMenu *mainMenu);
+  public:
+    MenuStateGraphicInfo(Program *program, MainMenu *mainMenu);
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void render();
-  virtual void keyDown(SDL_KeyboardEvent key);
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void render();
+    virtual void keyDown(SDL_KeyboardEvent key);
 
-  virtual void reloadUI();
+    virtual void reloadUI();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

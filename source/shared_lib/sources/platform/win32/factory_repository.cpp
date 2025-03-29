@@ -21,27 +21,27 @@ namespace Platform {
 // =====================================================
 
 FactoryRepository &FactoryRepository::getInstance() {
-  static FactoryRepository factoryRepository;
-  return factoryRepository;
+    static FactoryRepository factoryRepository;
+    return factoryRepository;
 }
 
 GraphicsFactory *FactoryRepository::getGraphicsFactory(const string &name) {
-  if (name == "OpenGL") {
-    return &graphicsFactoryGl;
-  }
+    if (name == "OpenGL") {
+        return &graphicsFactoryGl;
+    }
 
-  throw megaglest_runtime_error("Unknown graphics factory: [" + name + "]");
+    throw megaglest_runtime_error("Unknown graphics factory: [" + name + "]");
 }
 
 SoundFactory *FactoryRepository::getSoundFactory(const string &name) {
-  if (name == "OpenAL") {
-    return &soundFactoryOpenAL;
-  } else if (name == "" || name == "None") {
-    return &soundFactoryNone;
-  }
+    if (name == "OpenAL") {
+        return &soundFactoryOpenAL;
+    } else if (name == "" || name == "None") {
+        return &soundFactoryNone;
+    }
 
-  throw megaglest_runtime_error("Unknown sound factory: [" + name + "]");
+    throw megaglest_runtime_error("Unknown sound factory: [" + name + "]");
 }
 
-}  // namespace Platform
-}  // namespace Shared
+} // namespace Platform
+} // namespace Shared

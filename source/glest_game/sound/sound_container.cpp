@@ -23,23 +23,25 @@ namespace Game {
 // 	class SoundContainer
 // =====================================================
 
-SoundContainer::SoundContainer() { lastSound = -1; }
-
-StaticSound *SoundContainer::getRandSound() const {
-  switch (sounds.size()) {
-    case 0:
-      return NULL;
-    case 1:
-      return sounds[0];
-    default:
-      int soundIndex = random.randRange(0, (int)sounds.size() - 1);
-      if (soundIndex == lastSound) {
-        soundIndex = (lastSound + 1) % sounds.size();
-      }
-      lastSound = soundIndex;
-      return sounds[soundIndex];
-  }
+SoundContainer::SoundContainer() {
+    lastSound = -1;
 }
 
-}  // namespace Game
-}  // namespace Glest
+StaticSound *SoundContainer::getRandSound() const {
+    switch (sounds.size()) {
+    case 0:
+        return NULL;
+    case 1:
+        return sounds[0];
+    default:
+        int soundIndex = random.randRange(0, (int)sounds.size() - 1);
+        if (soundIndex == lastSound) {
+            soundIndex = (lastSound + 1) % sounds.size();
+        }
+        lastSound = soundIndex;
+        return sounds[soundIndex];
+    }
+}
+
+} // namespace Game
+} // namespace Glest

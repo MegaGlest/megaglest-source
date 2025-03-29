@@ -5,8 +5,7 @@
 extern "C" {
 #endif
 
-typedef enum STEAMSHIM_EventType
-{
+typedef enum STEAMSHIM_EventType {
     SHIMEVENT_BYE,
     SHIMEVENT_STATSRECEIVED,
     SHIMEVENT_STATSSTORED,
@@ -22,8 +21,7 @@ typedef enum STEAMSHIM_EventType
 } STEAMSHIM_EventType;
 
 /* not all of these fields make sense in a given event. */
-typedef struct STEAMSHIM_Event
-{
+typedef struct STEAMSHIM_Event {
     STEAMSHIM_EventType type;
     int okay;
     int ivalue;
@@ -32,7 +30,7 @@ typedef struct STEAMSHIM_Event
     char name[256];
 } STEAMSHIM_Event;
 
-int STEAMSHIM_init(void);  /* non-zero on success, zero on failure. */
+int STEAMSHIM_init(void); /* non-zero on success, zero on failure. */
 void STEAMSHIM_deinit(void);
 int STEAMSHIM_alive(void);
 const STEAMSHIM_Event *STEAMSHIM_pump(void);
@@ -52,6 +50,6 @@ void STEAMSHIM_getCurrentGameLanguage();
 }
 #endif
 
-#endif  /* include-once blocker */
+#endif /* include-once blocker */
 
 /* end of steamshim_child.h ... */

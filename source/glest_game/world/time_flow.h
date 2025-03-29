@@ -33,40 +33,38 @@ using Shared::Sound::StrSound;
 // =====================================================
 
 class TimeFlow {
- public:
-  static const float dusk;
-  static const float dawn;
+  public:
+    static const float dusk;
+    static const float dawn;
 
- private:
-  bool firstTime;
-  Tileset *tileset;
-  float time;
-  float lastTime;
-  float timeInc;
+  private:
+    bool firstTime;
+    Tileset *tileset;
+    float time;
+    float lastTime;
+    float timeInc;
 
- public:
-  TimeFlow();
-  void init(Tileset *tileset);
+  public:
+    TimeFlow();
+    void init(Tileset *tileset);
 
-  inline float getTime() const { return time; }
-  inline bool isDay() const { return time > dawn && time < dusk; }
-  inline bool isNight() const { return !isDay(); }
-  inline bool isTotalNight() const {
-    return time < dawn + 1.f || time > dusk - 1.f;
-  }
-  inline float getTimeInc() const { return timeInc; }
+    inline float getTime() const { return time; }
+    inline bool isDay() const { return time > dawn && time < dusk; }
+    inline bool isNight() const { return !isDay(); }
+    inline bool isTotalNight() const { return time < dawn + 1.f || time > dusk - 1.f; }
+    inline float getTimeInc() const { return timeInc; }
 
-  Vec3f computeLightColor() const;
-  void update();
+    Vec3f computeLightColor() const;
+    void update();
 
-  void saveGame(XmlNode *rootNode);
-  void loadGame(const XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode);
+    void loadGame(const XmlNode *rootNode);
 
- private:
-  // bool isAproxTime(float time) const;
+  private:
+    // bool isAproxTime(float time) const;
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

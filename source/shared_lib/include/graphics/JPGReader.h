@@ -24,13 +24,13 @@ namespace Shared {
 namespace Graphics {
 
 class JPGReader : FileReader<Pixmap2D> {
- public:
-  JPGReader();
+  public:
+    JPGReader();
 
-  Pixmap2D* read(ifstream& in, const string& path, Pixmap2D* ret) const;
+    Pixmap2D *read(ifstream &in, const string &path, Pixmap2D *ret) const;
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

@@ -23,100 +23,99 @@ namespace Game {
 // ===============================
 
 class MenuStateOptionsGraphics : public MenuState {
- private:
-  GraphicButton buttonOk;
-  GraphicButton buttonReturn;
-  GraphicButton buttonAutoConfig;
-  GraphicButton buttonVideoInfo;
+  private:
+    GraphicButton buttonOk;
+    GraphicButton buttonReturn;
+    GraphicButton buttonAutoConfig;
+    GraphicButton buttonVideoInfo;
 
-  GraphicButton buttonKeyboardSetup;  // configure the keyboard
-  GraphicButton buttonVideoSection;
-  GraphicButton buttonAudioSection;
-  GraphicButton buttonMiscSection;
-  GraphicButton buttonNetworkSettings;
+    GraphicButton buttonKeyboardSetup; // configure the keyboard
+    GraphicButton buttonVideoSection;
+    GraphicButton buttonAudioSection;
+    GraphicButton buttonMiscSection;
+    GraphicButton buttonNetworkSettings;
 
-  GraphicLabel labelShadows;
-  GraphicListBox listBoxShadows;
-  GraphicLabel labelFilter;
-  GraphicListBox listBoxFilter;
-  GraphicLabel labelFilterMaxAnisotropy;
-  GraphicListBox listBoxFilterMaxAnisotropy;
+    GraphicLabel labelShadows;
+    GraphicListBox listBoxShadows;
+    GraphicLabel labelFilter;
+    GraphicListBox listBoxFilter;
+    GraphicLabel labelFilterMaxAnisotropy;
+    GraphicListBox listBoxFilterMaxAnisotropy;
 
-  GraphicLabel labelTextures3D;
-  GraphicCheckBox checkBoxTextures3D;
-  GraphicLabel labelLights;
-  GraphicListBox listBoxLights;
-  GraphicLabel labelUnitParticles;
-  GraphicCheckBox checkBoxUnitParticles;
+    GraphicLabel labelTextures3D;
+    GraphicCheckBox checkBoxTextures3D;
+    GraphicLabel labelLights;
+    GraphicListBox listBoxLights;
+    GraphicLabel labelUnitParticles;
+    GraphicCheckBox checkBoxUnitParticles;
 
-  GraphicLabel labelTilesetParticles;
-  GraphicCheckBox checkBoxTilesetParticles;
-  GraphicLabel labelAnimatedTilesetObjects;
-  GraphicListBox listBoxAnimatedTilesetObjects;
+    GraphicLabel labelTilesetParticles;
+    GraphicCheckBox checkBoxTilesetParticles;
+    GraphicLabel labelAnimatedTilesetObjects;
+    GraphicListBox listBoxAnimatedTilesetObjects;
 
-  GraphicLabel labelScreenModes;
-  GraphicListBox listBoxScreenModes;
-  vector<ModeInfo> modeInfos;
+    GraphicLabel labelScreenModes;
+    GraphicListBox listBoxScreenModes;
+    vector<ModeInfo> modeInfos;
 
-  GraphicLabel labelFullscreenWindowed;
-  GraphicCheckBox checkBoxFullscreenWindowed;
+    GraphicLabel labelFullscreenWindowed;
+    GraphicCheckBox checkBoxFullscreenWindowed;
 
-  GraphicLabel labelMapPreview;
-  GraphicCheckBox checkBoxMapPreview;
+    GraphicLabel labelMapPreview;
+    GraphicCheckBox checkBoxMapPreview;
 
-  GraphicMessageBox mainMessageBox;
-  int mainMessageBoxState;
+    GraphicMessageBox mainMessageBox;
+    int mainMessageBoxState;
 
-  GraphicLabel labelEnableTextureCompression;
-  GraphicCheckBox checkBoxEnableTextureCompression;
+    GraphicLabel labelEnableTextureCompression;
+    GraphicCheckBox checkBoxEnableTextureCompression;
 
-  GraphicLabel labelRainEffect;
-  GraphicLabel labelRainEffectSeparator;
-  GraphicCheckBox checkBoxRainEffect;
-  GraphicCheckBox checkBoxRainEffectMenu;
+    GraphicLabel labelRainEffect;
+    GraphicLabel labelRainEffectSeparator;
+    GraphicCheckBox checkBoxRainEffect;
+    GraphicCheckBox checkBoxRainEffectMenu;
 
-  GraphicLabel labelGammaCorrection;
-  GraphicListBox listBoxGammaCorrection;
+    GraphicLabel labelGammaCorrection;
+    GraphicListBox listBoxGammaCorrection;
 
-  GraphicLabel labelShadowIntensity;
-  GraphicListBox listBoxShadowIntensity;
+    GraphicLabel labelShadowIntensity;
+    GraphicListBox listBoxShadowIntensity;
 
-  GraphicLabel labelShadowTextureSize;
-  GraphicListBox listBoxShadowTextureSize;
+    GraphicLabel labelShadowTextureSize;
+    GraphicListBox listBoxShadowTextureSize;
 
-  GraphicLabel labelVideos;
-  GraphicCheckBox checkBoxVideos;
+    GraphicLabel labelVideos;
+    GraphicCheckBox checkBoxVideos;
 
-  GraphicLabel labelSelectionType;
-  GraphicListBox listBoxSelectionType;
+    GraphicLabel labelSelectionType;
+    GraphicListBox listBoxSelectionType;
 
-  ProgramState **parentUI;
-  time_t screenModeChangedTimer;
+    ProgramState **parentUI;
+    time_t screenModeChangedTimer;
 
- public:
-  MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu,
-                           ProgramState **parentUI = NULL);
+  public:
+    MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI = NULL);
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void render();
-  // virtual void keyDown(SDL_KeyboardEvent key);
-  virtual void keyPress(SDL_KeyboardEvent c);
-  // virtual bool isInSpecialKeyCaptureEvent();
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void render();
+    // virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
+    // virtual bool isInSpecialKeyCaptureEvent();
 
-  virtual void reloadUI();
+    virtual void reloadUI();
 
- private:
-  void saveConfig();
-  void setActiveInputLable(GraphicLabel *newLable);
-  void showMessageBox(const string &text, const string &header, bool toggle);
-  void revertScreenMode();
-  void setupTransifexUI();
-  virtual void update();
+  private:
+    void saveConfig();
+    void setActiveInputLable(GraphicLabel *newLable);
+    void showMessageBox(const string &text, const string &header, bool toggle);
+    void revertScreenMode();
+    void setupTransifexUI();
+    virtual void update();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

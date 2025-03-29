@@ -40,33 +40,33 @@ namespace Util {
 ** \return A new Null-terminated String (must be deleted with the keyword
 *`delete[]`), even if s is NULL
 */
-char* ConvertToUTF8(const char* s);
+char *ConvertToUTF8(const char *s);
 
-char* ConvertFromUTF8(const char* str);
+char *ConvertFromUTF8(const char *str);
 
 /*!
 ** \brief Convert an UTF-8 String into a WideChar String
 */
 struct WString {
- public:
-  WString(const char* s);
-  WString(const std::string& str);
+  public:
+    WString(const char *s);
+    WString(const std::string &str);
 
-  void fromUtf8(const char* s, size_t length);
-  const wchar_t* cw_str() const { return pBuffer; }
+    void fromUtf8(const char *s, size_t length);
+    const wchar_t *cw_str() const { return pBuffer; }
 
- private:
-  wchar_t pBuffer[8096];
+  private:
+    wchar_t pBuffer[8096];
 };
 
-void strrev(char* p);
-void strrev_utf8(char* p);
-void strrev_utf8(std::string& p);
+void strrev(char *p);
+void strrev_utf8(char *p);
+void strrev_utf8(std::string &p);
 bool is_string_all_ascii(std::string str);
 
-int getUTF8_Width(const char* str);
+int getUTF8_Width(const char *str);
 
-}  // namespace Util
-}  // namespace Shared
+} // namespace Util
+} // namespace Shared
 
-#endif  // _SHARED_UTIL_W_STRING_H__
+#endif // _SHARED_UTIL_W_STRING_H__

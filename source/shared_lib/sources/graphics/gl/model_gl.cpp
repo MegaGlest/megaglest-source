@@ -15,15 +15,12 @@ namespace Shared {
 namespace Graphics {
 namespace Gl {
 
-ModelGl::ModelGl(
-    const string &path, TextureManager *textureManager,
-    bool deletePixMapAfterLoad,
-    std::map<string, vector<pair<string, string> > > *loadedFileList,
-    string *sourceLoader) {
-  setTextureManager(textureManager);
-  load(path, deletePixMapAfterLoad, loadedFileList, sourceLoader);
+ModelGl::ModelGl(const string &path, TextureManager *textureManager, bool deletePixMapAfterLoad, std::map<string, vector<pair<string, string>>> *loadedFileList,
+                 string *sourceLoader) {
+    setTextureManager(textureManager);
+    load(path, deletePixMapAfterLoad, loadedFileList, sourceLoader);
 }
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared

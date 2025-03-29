@@ -22,12 +22,12 @@ namespace OpenAL {
 // ===============================
 
 class SoundFactoryOpenAL : public SoundFactory {
- public:
-  virtual SoundPlayer* newSoundPlayer() { return new SoundPlayerOpenAL(); }
+  public:
+    virtual SoundPlayer *newSoundPlayer() { return new SoundPlayerOpenAL(); }
 };
 
-}  // namespace OpenAL
-}  // namespace Sound
-}  // namespace Shared
+} // namespace OpenAL
+} // namespace Sound
+} // namespace Shared
 
 #endif

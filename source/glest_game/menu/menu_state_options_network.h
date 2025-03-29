@@ -23,69 +23,68 @@ namespace Game {
 // ===============================
 
 class MenuStateOptionsNetwork : public MenuState {
- private:
-  GraphicButton buttonOk;
-  GraphicButton buttonReturn;
+  private:
+    GraphicButton buttonOk;
+    GraphicButton buttonReturn;
 
-  GraphicButton buttonKeyboardSetup;  // configure the keyboard
-  GraphicButton buttonVideoSection;
-  GraphicButton buttonAudioSection;
-  GraphicButton buttonMiscSection;
-  GraphicButton buttonNetworkSettings;
+    GraphicButton buttonKeyboardSetup; // configure the keyboard
+    GraphicButton buttonVideoSection;
+    GraphicButton buttonAudioSection;
+    GraphicButton buttonMiscSection;
+    GraphicButton buttonNetworkSettings;
 
-  GraphicMessageBox mainMessageBox;
-  int mainMessageBoxState;
+    GraphicMessageBox mainMessageBox;
+    int mainMessageBoxState;
 
-  GraphicLabel labelExternalPort;
-  GraphicLabel labelServerPortLabel;
+    GraphicLabel labelExternalPort;
+    GraphicLabel labelServerPortLabel;
 
-  GraphicLabel labelPublishServerExternalPort;
-  GraphicListBox listBoxServerPort;
+    GraphicLabel labelPublishServerExternalPort;
+    GraphicListBox listBoxServerPort;
 
-  GraphicLabel labelEnableFTP;
-  GraphicCheckBox checkBoxEnableFTP;
+    GraphicLabel labelEnableFTP;
+    GraphicCheckBox checkBoxEnableFTP;
 
-  GraphicLabel labelEnableFTPServer;
-  GraphicCheckBox checkBoxEnableFTPServer;
+    GraphicLabel labelEnableFTPServer;
+    GraphicCheckBox checkBoxEnableFTPServer;
 
-  GraphicLabel labelFTPServerPortLabel;
-  GraphicLabel labelFTPServerPort;
+    GraphicLabel labelFTPServerPortLabel;
+    GraphicLabel labelFTPServerPort;
 
-  GraphicLabel labelFTPServerDataPortsLabel;
-  GraphicLabel labelFTPServerDataPorts;
+    GraphicLabel labelFTPServerDataPortsLabel;
+    GraphicLabel labelFTPServerDataPorts;
 
-  GraphicLabel labelEnableFTPServerInternetTilesetXfer;
-  GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
+    GraphicLabel labelEnableFTPServerInternetTilesetXfer;
+    GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
 
-  GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
-  GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
+    GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
+    GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
 
-  GraphicLabel labelEnablePrivacy;
-  GraphicCheckBox checkBoxEnablePrivacy;
+    GraphicLabel labelEnablePrivacy;
+    GraphicCheckBox checkBoxEnablePrivacy;
 
-  ProgramState **parentUI;
+    ProgramState **parentUI;
 
- public:
-  MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu,
-                          ProgramState **parentUI = NULL);
+  public:
+    MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI = NULL);
 
-  void mouseClick(int x, int y, MouseButton mouseButton);
-  void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
-  void mouseMove(int x, int y, const MouseState *mouseState);
-  void render();
-  // virtual void keyDown(SDL_KeyboardEvent key);
-  virtual void keyPress(SDL_KeyboardEvent c);
-  // virtual bool isInSpecialKeyCaptureEvent();
+    void mouseClick(int x, int y, MouseButton mouseButton);
+    void mouseDoubleClick(int x, int y, MouseButton mouseButton) {};
+    void mouseMove(int x, int y, const MouseState *mouseState);
+    void render();
+    // virtual void keyDown(SDL_KeyboardEvent key);
+    virtual void keyPress(SDL_KeyboardEvent c);
+    // virtual bool isInSpecialKeyCaptureEvent();
 
-  virtual void reloadUI();
+    virtual void reloadUI();
 
- private:
-  void saveConfig();
-  void setActiveInputLable(GraphicLabel *newLable);
-  // void showMessageBox(const string &text, const string &header, bool toggle);
+  private:
+    void saveConfig();
+    void setActiveInputLable(GraphicLabel *newLable);
+    // void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

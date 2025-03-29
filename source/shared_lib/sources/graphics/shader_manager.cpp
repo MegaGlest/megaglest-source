@@ -27,62 +27,58 @@ namespace Graphics {
 // =====================================================
 
 ShaderManager::ShaderManager() {
-  if (GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-    throw megaglest_runtime_error(
-        "Loading graphics in headless server mode not allowed!");
-  }
+    if (GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+        throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+    }
 }
 
 ShaderManager::~ShaderManager() {}
 
 void ShaderManager::init() {
-  for (unsigned int i = 0; i < shaders.size(); ++i) {
-    shaders[i]->init();
-    if (!shaders[i]->compile(logString)) {
-      throw megaglest_runtime_error("Can't compile shader\n");
+    for (unsigned int i = 0; i < shaders.size(); ++i) {
+        shaders[i]->init();
+        if (!shaders[i]->compile(logString)) {
+            throw megaglest_runtime_error("Can't compile shader\n");
+        }
     }
-  }
-  for (unsigned int i = 0; i < shaderPrograms.size(); ++i) {
-    shaderPrograms[i]->init();
-    if (!shaderPrograms[i]->link(logString)) {
-      throw megaglest_runtime_error("Can't link shader\n");
+    for (unsigned int i = 0; i < shaderPrograms.size(); ++i) {
+        shaderPrograms[i]->init();
+        if (!shaderPrograms[i]->link(logString)) {
+            throw megaglest_runtime_error("Can't link shader\n");
+        }
     }
-  }
 }
 
 void ShaderManager::end() {
-  for (unsigned int i = 0; i < shaderPrograms.size(); ++i) {
-    shaderPrograms[i]->end();
-    delete shaderPrograms[i];
-  }
-  shaderPrograms.clear();
-  for (unsigned int i = 0; i < shaders.size(); ++i) {
-    shaders[i]->end();
-    delete shaders[i];
-  }
-  shaders.clear();
+    for (unsigned int i = 0; i < shaderPrograms.size(); ++i) {
+        shaderPrograms[i]->end();
+        delete shaderPrograms[i];
+    }
+    shaderPrograms.clear();
+    for (unsigned int i = 0; i < shaders.size(); ++i) {
+        shaders[i]->end();
+        delete shaders[i];
+    }
+    shaders.clear();
 }
 
 ShaderProgram *ShaderManager::newShaderProgram() {
-  ShaderProgram *sp =
-      GraphicsInterface::getInstance().getFactory()->newShaderProgram();
-  shaderPrograms.push_back(sp);
-  return sp;
+    ShaderProgram *sp = GraphicsInterface::getInstance().getFactory()->newShaderProgram();
+    shaderPrograms.push_back(sp);
+    return sp;
 }
 
 VertexShader *ShaderManager::newVertexShader() {
-  VertexShader *vs =
-      GraphicsInterface::getInstance().getFactory()->newVertexShader();
-  shaders.push_back(vs);
-  return vs;
+    VertexShader *vs = GraphicsInterface::getInstance().getFactory()->newVertexShader();
+    shaders.push_back(vs);
+    return vs;
 }
 
 FragmentShader *ShaderManager::newFragmentShader() {
-  FragmentShader *fs =
-      GraphicsInterface::getInstance().getFactory()->newFragmentShader();
-  shaders.push_back(fs);
-  return fs;
+    FragmentShader *fs = GraphicsInterface::getInstance().getFactory()->newFragmentShader();
+    shaders.push_back(fs);
+    return fs;
 }
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared

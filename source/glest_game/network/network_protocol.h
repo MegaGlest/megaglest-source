@@ -18,7 +18,7 @@ namespace Game {
 unsigned int pack(unsigned char *buf, const char *format, ...);
 unsigned int unpack(unsigned char *buf, const char *format, ...);
 
-}  // namespace Game
-};  // namespace Glest
+} // namespace Game
+}; // namespace Glest
 
 #endif /* NETWORK_PROTOCOL_H_ */

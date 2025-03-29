@@ -31,54 +31,53 @@ namespace Game {
 // ===============================
 
 class ServerLine {
- private:
-  MasterServerInfo masterServerInfo;
-  int lineHeight;
-  int baseY;
-  bool compatible;
-  GraphicButton selectButton;
-  GraphicLabel wrongVersionLabel;
+  private:
+    MasterServerInfo masterServerInfo;
+    int lineHeight;
+    int baseY;
+    bool compatible;
+    GraphicButton selectButton;
+    GraphicLabel wrongVersionLabel;
 
-  // general info:
-  GraphicLabel glestVersionLabel;
-  GraphicLabel platformLabel;
-  // GraphicLabel binaryCompileDateLabel;
+    // general info:
+    GraphicLabel glestVersionLabel;
+    GraphicLabel platformLabel;
+    // GraphicLabel binaryCompileDateLabel;
 
-  // game info:
-  GraphicLabel serverTitleLabel;
-  GraphicLabel ipAddressLabel;
+    // game info:
+    GraphicLabel serverTitleLabel;
+    GraphicLabel ipAddressLabel;
 
-  // game setup info:
-  GraphicLabel techLabel;
-  GraphicLabel mapLabel;
-  GraphicLabel tilesetLabel;
-  GraphicLabel activeSlotsLabel;
+    // game setup info:
+    GraphicLabel techLabel;
+    GraphicLabel mapLabel;
+    GraphicLabel tilesetLabel;
+    GraphicLabel activeSlotsLabel;
 
-  GraphicLabel externalConnectPort;
+    GraphicLabel externalConnectPort;
 
-  GraphicLabel country;
-  GraphicLabel status;
+    GraphicLabel country;
+    GraphicLabel status;
 
-  Texture2D *countryTexture;
+    Texture2D *countryTexture;
 
-  const char *containerName;
+    const char *containerName;
 
- public:
-  ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY,
-             int lineHeight, const char *containerName);
-  virtual ~ServerLine();
-  MasterServerInfo *getMasterServerInfo() { return &masterServerInfo; }
-  const int getLineHeight() const { return lineHeight; }
-  bool buttonMouseClick(int x, int y);
-  bool buttonMouseMove(int x, int y);
-  void setY(int y);
-  // void setIndex(int value);
-  void render();
+  public:
+    ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, int lineHeight, const char *containerName);
+    virtual ~ServerLine();
+    MasterServerInfo *getMasterServerInfo() { return &masterServerInfo; }
+    const int getLineHeight() const { return lineHeight; }
+    bool buttonMouseClick(int x, int y);
+    bool buttonMouseMove(int x, int y);
+    void setY(int y);
+    // void setIndex(int value);
+    void render();
 
-  virtual void reloadUI();
+    virtual void reloadUI();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

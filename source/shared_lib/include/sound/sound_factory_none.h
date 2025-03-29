@@ -20,11 +20,11 @@ namespace Sound {
 // ===============================
 
 class SoundFactoryNone : public SoundFactory {
- public:
-  virtual SoundPlayer* newSoundPlayer() { return NULL; }
+  public:
+    virtual SoundPlayer *newSoundPlayer() { return NULL; }
 };
 
-}  // namespace Sound
-}  // namespace Shared
+} // namespace Sound
+} // namespace Shared
 
 #endif

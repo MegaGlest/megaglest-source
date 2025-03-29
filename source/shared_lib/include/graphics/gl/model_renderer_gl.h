@@ -26,34 +26,29 @@ namespace Gl {
 // =====================================================
 
 class ModelRendererGl : public ModelRenderer {
- private:
-  bool rendering;
-  bool duplicateTexCoords;
-  int secondaryTexCoordUnit;
-  GLuint lastTexture;
+  private:
+    bool rendering;
+    bool duplicateTexCoords;
+    int secondaryTexCoordUnit;
+    GLuint lastTexture;
 
- public:
-  ModelRendererGl();
-  virtual void begin(bool renderNormals, bool renderTextures, bool renderColors,
-                     bool colorPickingMode, MeshCallback *meshCallback);
-  virtual void end();
-  virtual void render(Model *model, int renderMode = rmNormal);
-  virtual void renderNormalsOnly(Model *model);
+  public:
+    ModelRendererGl();
+    virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, bool colorPickingMode, MeshCallback *meshCallback);
+    virtual void end();
+    virtual void render(Model *model, int renderMode = rmNormal);
+    virtual void renderNormalsOnly(Model *model);
 
-  void setDuplicateTexCoords(bool duplicateTexCoords) {
-    this->duplicateTexCoords = duplicateTexCoords;
-  }
-  void setSecondaryTexCoordUnit(int secondaryTexCoordUnit) {
-    this->secondaryTexCoordUnit = secondaryTexCoordUnit;
-  }
+    void setDuplicateTexCoords(bool duplicateTexCoords) { this->duplicateTexCoords = duplicateTexCoords; }
+    void setSecondaryTexCoordUnit(int secondaryTexCoordUnit) { this->secondaryTexCoordUnit = secondaryTexCoordUnit; }
 
- private:
-  void renderMesh(Mesh *mesh, int renderMode = rmNormal);
-  void renderMeshNormals(Mesh *mesh);
+  private:
+    void renderMesh(Mesh *mesh, int renderMode = rmNormal);
+    void renderMeshNormals(Mesh *mesh);
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

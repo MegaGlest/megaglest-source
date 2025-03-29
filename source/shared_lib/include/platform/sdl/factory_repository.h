@@ -36,24 +36,24 @@ namespace Platform {
 // =====================================================
 
 class FactoryRepository {
- private:
-  FactoryRepository() {};
-  FactoryRepository(const FactoryRepository &);
-  void operator=(const FactoryRepository &);
+  private:
+    FactoryRepository() {};
+    FactoryRepository(const FactoryRepository &);
+    void operator=(const FactoryRepository &);
 
- private:
-  GraphicsFactoryGl graphicsFactoryGl;
-  SoundFactoryOpenAL soundFactoryOpenAL;
-  SoundFactoryNone soundFactoryNone;
+  private:
+    GraphicsFactoryGl graphicsFactoryGl;
+    SoundFactoryOpenAL soundFactoryOpenAL;
+    SoundFactoryNone soundFactoryNone;
 
- public:
-  static FactoryRepository &getInstance();
+  public:
+    static FactoryRepository &getInstance();
 
-  GraphicsFactory *getGraphicsFactory(const string &name);
-  SoundFactory *getSoundFactory(const string &name);
+    GraphicsFactory *getGraphicsFactory(const string &name);
+    SoundFactory *getSoundFactory(const string &name);
 };
 
-}  // namespace Platform
-}  // namespace Shared
+} // namespace Platform
+} // namespace Shared
 
 #endif

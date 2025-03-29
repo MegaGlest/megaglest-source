@@ -27,36 +27,36 @@ namespace Gl {
  */
 //====================================================================
 class TextFTGL : public Text {
- public:
-  static string langHeightText;
-  static int faceResolution;
+  public:
+    static string langHeightText;
+    static int faceResolution;
 
-  TextFTGL(FontTextHandlerType type);
-  virtual ~TextFTGL();
-  virtual void init(string fontName, string fontFamilyName, int fontSize);
+    TextFTGL(FontTextHandlerType type);
+    virtual ~TextFTGL();
+    virtual void init(string fontName, string fontFamilyName, int fontSize);
 
-  virtual void SetFaceSize(int);
-  virtual int GetFaceSize();
+    virtual void SetFaceSize(int);
+    virtual int GetFaceSize();
 
-  virtual void Render(const char*, const int = -1);
-  virtual float Advance(const char*, const int = -1);
-  virtual float LineHeight(const char*, const int = -1);
+    virtual void Render(const char *, const int = -1);
+    virtual float Advance(const char *, const int = -1);
+    virtual float LineHeight(const char *, const int = -1);
 
-  virtual void Render(const wchar_t*, const int = -1);
-  virtual float Advance(const wchar_t*, const int = -1);
-  virtual float LineHeight(const wchar_t* = L" ", const int = -1);
+    virtual void Render(const wchar_t *, const int = -1);
+    virtual float Advance(const wchar_t *, const int = -1);
+    virtual float LineHeight(const wchar_t * = L" ", const int = -1);
 
- private:
-  FTFont* ftFont;
-  const char* fontFile;
+  private:
+    FTFont *ftFont;
+    const char *fontFile;
 
-  void cleanupFont();
+    void cleanupFont();
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
-#endif  // USE_FTGL
+#endif // USE_FTGL
 
-#endif  // TextFTGL_h
+#endif // TextFTGL_h

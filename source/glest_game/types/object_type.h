@@ -40,48 +40,43 @@ typedef vector<ObjectParticleSystemType *> ObjectParticleSystemTypes;
 typedef vector<ObjectParticleSystemTypes> ObjectParticleVector;
 
 class ObjectType {
- private:
-  typedef vector<TilesetModelType *> ModelTypes;
+  private:
+    typedef vector<TilesetModelType *> ModelTypes;
 
- private:
-  static const int tree1 = 0;
-  static const int tree2 = 1;
-  static const int choppedTree = 2;
+  private:
+    static const int tree1 = 0;
+    static const int tree2 = 1;
+    static const int choppedTree = 2;
 
- private:
-  ModelTypes modeltypes;
-  Vec3f color;
-  int objectClass;
-  bool walkable;
-  int height;
+  private:
+    ModelTypes modeltypes;
+    Vec3f color;
+    int objectClass;
+    bool walkable;
+    int height;
 
- public:
-  ObjectType() {
-    objectClass = -1;
-    walkable = false;
-    height = 0;
-  }
-  ~ObjectType();
-  void init(int modelCount, int objectClass, bool walkable, int height);
+  public:
+    ObjectType() {
+        objectClass = -1;
+        walkable = false;
+        height = 0;
+    }
+    ~ObjectType();
+    void init(int modelCount, int objectClass, bool walkable, int height);
 
-  TilesetModelType *loadModel(
-      const string &path,
-      std::map<string, vector<pair<string, string> > > *loadedFileList = NULL,
-      string parentLoader = "");
+    TilesetModelType *loadModel(const string &path, std::map<string, vector<pair<string, string>>> *loadedFileList = NULL, string parentLoader = "");
 
-  inline TilesetModelType *getTilesetModelType(int i) { return modeltypes[i]; }
-  inline int getModelCount() const { return (int)modeltypes.size(); }
-  inline const Vec3f &getColor() const { return color; }
-  inline int getClass() const { return objectClass; }
-  inline bool getWalkable() const { return walkable; }
-  inline int getHeight() const { return height; }
-  inline bool isATree() const {
-    return objectClass == tree1 || objectClass == tree2;
-  }
-  void deletePixels();
+    inline TilesetModelType *getTilesetModelType(int i) { return modeltypes[i]; }
+    inline int getModelCount() const { return (int)modeltypes.size(); }
+    inline const Vec3f &getColor() const { return color; }
+    inline int getClass() const { return objectClass; }
+    inline bool getWalkable() const { return walkable; }
+    inline int getHeight() const { return height; }
+    inline bool isATree() const { return objectClass == tree1 || objectClass == tree2; }
+    void deletePixels();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

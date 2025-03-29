@@ -46,18 +46,18 @@ class ResourceType;
 // =====================================================
 
 class AiRule {
- protected:
-  Ai *ai;
+  protected:
+    Ai *ai;
 
- public:
-  explicit AiRule(Ai *ai);
-  virtual ~AiRule() {}
+  public:
+    explicit AiRule(Ai *ai);
+    virtual ~AiRule() {}
 
-  virtual int getTestInterval() const = 0;  // in milliseconds
-  virtual string getName() const = 0;
+    virtual int getTestInterval() const = 0; // in milliseconds
+    virtual string getName() const = 0;
 
-  virtual bool test() = 0;
-  virtual void execute() = 0;
+    virtual bool test() = 0;
+    virtual void execute() = 0;
 };
 
 // =====================================================
@@ -65,19 +65,17 @@ class AiRule {
 // =====================================================
 
 class AiRuleWorkerHarvest : public AiRule {
- private:
-  int stoppedWorkerIndex;
+  private:
+    int stoppedWorkerIndex;
 
- public:
-  explicit AiRuleWorkerHarvest(Ai *ai);
+  public:
+    explicit AiRuleWorkerHarvest(Ai *ai);
 
-  virtual int getTestInterval() const { return 2000; }
-  virtual string getName() const {
-    return "Worker stopped => Order worker to harvest";
-  }
+    virtual int getTestInterval() const { return 2000; }
+    virtual string getName() const { return "Worker stopped => Order worker to harvest"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -85,19 +83,17 @@ class AiRuleWorkerHarvest : public AiRule {
 // =====================================================
 
 class AiRuleRefreshHarvester : public AiRule {
- private:
-  int workerIndex;
+  private:
+    int workerIndex;
 
- public:
-  explicit AiRuleRefreshHarvester(Ai *ai);
+  public:
+    explicit AiRuleRefreshHarvester(Ai *ai);
 
-  virtual int getTestInterval() const { return 20000; }
-  virtual string getName() const {
-    return "Worker reassigned to needed resource";
-  }
+    virtual int getTestInterval() const { return 20000; }
+    virtual string getName() const { return "Worker reassigned to needed resource"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -105,16 +101,14 @@ class AiRuleRefreshHarvester : public AiRule {
 // =====================================================
 
 class AiRuleScoutPatrol : public AiRule {
- public:
-  explicit AiRuleScoutPatrol(Ai *ai);
+  public:
+    explicit AiRuleScoutPatrol(Ai *ai);
 
-  virtual int getTestInterval() const { return 10000; }
-  virtual string getName() const {
-    return "Base is stable => Send scout patrol";
-  }
+    virtual int getTestInterval() const { return 10000; }
+    virtual string getName() const { return "Base is stable => Send scout patrol"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -122,21 +116,21 @@ class AiRuleScoutPatrol : public AiRule {
 // =====================================================
 
 class AiRuleRepair : public AiRule {
- private:
-  int damagedUnitIndex;
-  bool damagedUnitIsCastle;
+  private:
+    int damagedUnitIndex;
+    bool damagedUnitIsCastle;
 
-  int getMinUnitsToRepairCastle();
-  double getMinCastleHpRatio() const;
+    int getMinUnitsToRepairCastle();
+    double getMinCastleHpRatio() const;
 
- public:
-  explicit AiRuleRepair(Ai *ai);
+  public:
+    explicit AiRuleRepair(Ai *ai);
 
-  virtual int getTestInterval() const { return 10000; }
-  virtual string getName() const { return "Building Damaged => Repair"; }
+    virtual int getTestInterval() const { return 10000; }
+    virtual string getName() const { return "Building Damaged => Repair"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -144,17 +138,17 @@ class AiRuleRepair : public AiRule {
 // =====================================================
 
 class AiRuleReturnBase : public AiRule {
- private:
-  int stoppedUnitIndex;
+  private:
+    int stoppedUnitIndex;
 
- public:
-  explicit AiRuleReturnBase(Ai *ai);
+  public:
+    explicit AiRuleReturnBase(Ai *ai);
 
-  virtual int getTestInterval() const { return 5000; }
-  virtual string getName() const { return "Stopped unit => Order return base"; }
+    virtual int getTestInterval() const { return 5000; }
+    virtual string getName() const { return "Stopped unit => Order return base"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -162,24 +156,22 @@ class AiRuleReturnBase : public AiRule {
 // =====================================================
 
 class AiRuleMassiveAttack : public AiRule {
- private:
-  static const int baseRadius = 25;
+  private:
+    static const int baseRadius = 25;
 
- private:
-  Vec2i attackPos;
-  Field field;
-  bool ultraAttack;
+  private:
+    Vec2i attackPos;
+    Field field;
+    bool ultraAttack;
 
- public:
-  explicit AiRuleMassiveAttack(Ai *ai);
+  public:
+    explicit AiRuleMassiveAttack(Ai *ai);
 
-  virtual int getTestInterval() const { return 1000; }
-  virtual string getName() const {
-    return "Unit under attack => Order massive attack";
-  }
+    virtual int getTestInterval() const { return 1000; }
+    virtual string getName() const { return "Unit under attack => Order massive attack"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -187,14 +179,14 @@ class AiRuleMassiveAttack : public AiRule {
 // =====================================================
 
 class AiRuleAddTasks : public AiRule {
- public:
-  explicit AiRuleAddTasks(Ai *ai);
+  public:
+    explicit AiRuleAddTasks(Ai *ai);
 
-  virtual int getTestInterval() const { return 5000; }
-  virtual string getName() const { return "Tasks empty => Add tasks"; }
+    virtual int getTestInterval() const { return 5000; }
+    virtual string getName() const { return "Tasks empty => Add tasks"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -202,17 +194,17 @@ class AiRuleAddTasks : public AiRule {
 // =====================================================
 
 class AiRuleBuildOneFarm : public AiRule {
- private:
-  const UnitType *farm;
+  private:
+    const UnitType *farm;
 
- public:
-  explicit AiRuleBuildOneFarm(Ai *ai);
+  public:
+    explicit AiRuleBuildOneFarm(Ai *ai);
 
-  virtual int getTestInterval() const { return 10000; }
-  virtual string getName() const { return "No farms => Build one"; }
+    virtual int getTestInterval() const { return 10000; }
+    virtual string getName() const { return "No farms => Build one"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -220,24 +212,22 @@ class AiRuleBuildOneFarm : public AiRule {
 // =====================================================
 
 class AiRuleProduceResourceProducer : public AiRule {
- private:
-  static const int minStaticResources = 20;
-  static const int longInterval = 60000;
-  static const int shortInterval = 5000;
-  const ResourceType *rt;
-  int interval;
-  bool newResourceBehaviour;
+  private:
+    static const int minStaticResources = 20;
+    static const int longInterval = 60000;
+    static const int shortInterval = 5000;
+    const ResourceType *rt;
+    int interval;
+    bool newResourceBehaviour;
 
- public:
-  explicit AiRuleProduceResourceProducer(Ai *ai);
+  public:
+    explicit AiRuleProduceResourceProducer(Ai *ai);
 
-  virtual int getTestInterval() const { return interval; }
-  virtual string getName() const {
-    return "No resources => Build Resource Producer";
-  }
+    virtual int getTestInterval() const { return interval; }
+    virtual string getName() const { return "No resources => Build Resource Producer"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -245,59 +235,55 @@ class AiRuleProduceResourceProducer : public AiRule {
 // =====================================================
 
 class AiRuleProduce : public AiRule {
- private:
-  const ProduceTask *produceTask;
+  private:
+    const ProduceTask *produceTask;
 
-  typedef vector<const UnitType *> UnitTypes;
-  typedef vector<bool> UnitTypesGiveBack;
-  bool newResourceBehaviour;
+    typedef vector<const UnitType *> UnitTypes;
+    typedef vector<bool> UnitTypesGiveBack;
+    bool newResourceBehaviour;
 
- public:
-  explicit AiRuleProduce(Ai *ai);
+  public:
+    explicit AiRuleProduce(Ai *ai);
 
-  virtual int getTestInterval() const { return 2000; }
-  virtual string getName() const { return "Performing produce task"; }
+    virtual int getTestInterval() const { return 2000; }
+    virtual string getName() const { return "Performing produce task"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 
- private:
-  void produceGeneric(const ProduceTask *pt);
-  void produceGenericNew(const ProduceTask *pt);
-  void produceSpecific(const ProduceTask *pt);
-  bool canUnitTypeOfferResourceType(const UnitType *ut, const ResourceType *rt);
-  bool setAIProduceTaskForResourceType(const ProduceTask *pt,
-                                       AiInterface *aiInterface);
-  void addUnitTypeToCandidates(const UnitType *producedUnit,
-                               UnitTypes &ableUnits,
-                               UnitTypesGiveBack &ableUnitsGiveBack,
-                               bool unitCanGiveBackResource);
+  private:
+    void produceGeneric(const ProduceTask *pt);
+    void produceGenericNew(const ProduceTask *pt);
+    void produceSpecific(const ProduceTask *pt);
+    bool canUnitTypeOfferResourceType(const UnitType *ut, const ResourceType *rt);
+    bool setAIProduceTaskForResourceType(const ProduceTask *pt, AiInterface *aiInterface);
+    void addUnitTypeToCandidates(const UnitType *producedUnit, UnitTypes &ableUnits, UnitTypesGiveBack &ableUnitsGiveBack, bool unitCanGiveBackResource);
 };
 // =====================================================
 //	class AiRuleBuild
 // =====================================================
 
 class AiRuleBuild : public AiRule {
- private:
-  const BuildTask *buildTask;
+  private:
+    const BuildTask *buildTask;
 
- public:
-  explicit AiRuleBuild(Ai *ai);
+  public:
+    explicit AiRuleBuild(Ai *ai);
 
-  virtual int getTestInterval() const { return 2000; }
-  virtual string getName() const { return "Performing build task"; }
+    virtual int getTestInterval() const { return 2000; }
+    virtual string getName() const { return "Performing build task"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 
- private:
-  void buildGeneric(const BuildTask *bt);
-  void buildSpecific(const BuildTask *bt);
-  void buildBestBuilding(const vector<const UnitType *> &buildings);
+  private:
+    void buildGeneric(const BuildTask *bt);
+    void buildSpecific(const BuildTask *bt);
+    void buildBestBuilding(const vector<const UnitType *> &buildings);
 
-  bool isDefensive(const UnitType *building);
-  bool isResourceProducer(const UnitType *building);
-  bool isWarriorProducer(const UnitType *building);
+    bool isDefensive(const UnitType *building);
+    bool isResourceProducer(const UnitType *building);
+    bool isWarriorProducer(const UnitType *building);
 };
 
 // =====================================================
@@ -305,21 +291,21 @@ class AiRuleBuild : public AiRule {
 // =====================================================
 
 class AiRuleUpgrade : public AiRule {
- private:
-  const UpgradeTask *upgradeTask;
+  private:
+    const UpgradeTask *upgradeTask;
 
- public:
-  explicit AiRuleUpgrade(Ai *ai);
+  public:
+    explicit AiRuleUpgrade(Ai *ai);
 
-  virtual int getTestInterval() const { return 2000; }
-  virtual string getName() const { return "Performing upgrade task"; }
+    virtual int getTestInterval() const { return 2000; }
+    virtual string getName() const { return "Performing upgrade task"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 
- private:
-  void upgradeSpecific(const UpgradeTask *upgt);
-  void upgradeGeneric(const UpgradeTask *upgt);
+  private:
+    void upgradeSpecific(const UpgradeTask *upgt);
+    void upgradeGeneric(const UpgradeTask *upgt);
 };
 
 // =====================================================
@@ -327,21 +313,21 @@ class AiRuleUpgrade : public AiRule {
 // =====================================================
 
 class AiRuleExpand : public AiRule {
- private:
-  static const int expandDistance = 30;
+  private:
+    static const int expandDistance = 30;
 
- private:
-  Vec2i expandPos;
-  const UnitType *storeType;
+  private:
+    Vec2i expandPos;
+    const UnitType *storeType;
 
- public:
-  explicit AiRuleExpand(Ai *ai);
+  public:
+    explicit AiRuleExpand(Ai *ai);
 
-  virtual int getTestInterval() const { return 30000; }
-  virtual string getName() const { return "Expanding"; }
+    virtual int getTestInterval() const { return 30000; }
+    virtual string getName() const { return "Expanding"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
 // =====================================================
@@ -349,19 +335,17 @@ class AiRuleExpand : public AiRule {
 // =====================================================
 
 class AiRuleUnBlock : public AiRule {
- public:
-  explicit AiRuleUnBlock(Ai *ai);
+  public:
+    explicit AiRuleUnBlock(Ai *ai);
 
-  virtual int getTestInterval() const { return 3000; }
-  virtual string getName() const {
-    return "Blocked Units => Move surrounding units";
-  }
+    virtual int getTestInterval() const { return 3000; }
+    virtual string getName() const { return "Blocked Units => Move surrounding units"; }
 
-  virtual bool test();
-  virtual void execute();
+    virtual bool test();
+    virtual void execute();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

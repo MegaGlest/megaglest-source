@@ -32,62 +32,58 @@ class TextureParams;
 // =====================================================
 
 class Texture {
- public:
-  static const int defaultSize;
-  static const int defaultComponents;
-  static bool useTextureCompression;
+  public:
+    static const int defaultSize;
+    static const int defaultComponents;
+    static bool useTextureCompression;
 
-  enum WrapMode { wmRepeat, wmClamp, wmClampToEdge };
+    enum WrapMode { wmRepeat, wmClamp, wmClampToEdge };
 
-  enum Filter { fBilinear, fTrilinear };
+    enum Filter { fBilinear, fTrilinear };
 
-  enum Format { fAuto, fAlpha, fLuminance, fRgb, fRgba };
+    enum Format { fAuto, fAlpha, fLuminance, fRgb, fRgba };
 
- protected:
-  string path;
-  bool mipmap;
-  WrapMode wrapMode;
-  bool pixmapInit;
-  Format format;
+  protected:
+    string path;
+    bool mipmap;
+    WrapMode wrapMode;
+    bool pixmapInit;
+    Format format;
 
-  bool inited;
-  bool forceCompressionDisabled;
-  int textureSystemId;
+    bool inited;
+    bool forceCompressionDisabled;
+    int textureSystemId;
 
- public:
-  Texture();
-  virtual ~Texture() {};
+  public:
+    Texture();
+    virtual ~Texture() {};
 
-  bool getMipmap() const { return mipmap; }
-  WrapMode getWrapMode() const { return wrapMode; }
-  bool getPixmapInit() const { return pixmapInit; }
-  Format getFormat() const { return format; }
-  bool getInited() const { return inited; }
+    bool getMipmap() const { return mipmap; }
+    WrapMode getWrapMode() const { return wrapMode; }
+    bool getPixmapInit() const { return pixmapInit; }
+    Format getFormat() const { return format; }
+    bool getInited() const { return inited; }
 
-  int getTextureSystemId() const { return textureSystemId; }
-  void setTextureSystemId(int id) { textureSystemId = id; }
+    int getTextureSystemId() const { return textureSystemId; }
+    void setTextureSystemId(int id) { textureSystemId = id; }
 
-  void setMipmap(bool mipmap) { this->mipmap = mipmap; }
-  void setWrapMode(WrapMode wrapMode) { this->wrapMode = wrapMode; }
-  void setPixmapInit(bool pixmapInit) { this->pixmapInit = pixmapInit; }
-  void setFormat(Format format) { this->format = format; }
+    void setMipmap(bool mipmap) { this->mipmap = mipmap; }
+    void setWrapMode(WrapMode wrapMode) { this->wrapMode = wrapMode; }
+    void setPixmapInit(bool pixmapInit) { this->pixmapInit = pixmapInit; }
+    void setFormat(Format format) { this->format = format; }
 
-  virtual void init(Filter filter = fBilinear, int maxAnisotropy = 1) = 0;
-  virtual void end(bool deletePixelBuffer = true) = 0;
-  virtual string getPath() const = 0;
-  virtual void deletePixels() = 0;
-  virtual std::size_t getPixelByteCount() const = 0;
+    virtual void init(Filter filter = fBilinear, int maxAnisotropy = 1) = 0;
+    virtual void end(bool deletePixelBuffer = true) = 0;
+    virtual string getPath() const = 0;
+    virtual void deletePixels() = 0;
+    virtual std::size_t getPixelByteCount() const = 0;
 
-  virtual void reseInitState() { inited = false; }
+    virtual void reseInitState() { inited = false; }
 
-  virtual void setForceCompressionDisabled(bool value) {
-    forceCompressionDisabled = value;
-  }
-  virtual bool getForceCompressionDisabled() const {
-    return forceCompressionDisabled;
-  }
+    virtual void setForceCompressionDisabled(bool value) { forceCompressionDisabled = value; }
+    virtual bool getForceCompressionDisabled() const { return forceCompressionDisabled; }
 
-  virtual uint32 getCRC() = 0;
+    virtual uint32 getCRC() = 0;
 };
 
 // =====================================================
@@ -95,24 +91,22 @@ class Texture {
 // =====================================================
 
 class Texture1D : public Texture {
- protected:
-  Pixmap1D pixmap;
+  protected:
+    Pixmap1D pixmap;
 
- public:
-  void load(const string &path);
+  public:
+    void load(const string &path);
 
-  Pixmap1D *getPixmap() { return &pixmap; }
-  const Pixmap1D *getPixmap() const { return &pixmap; }
-  virtual string getPath() const;
-  virtual void deletePixels();
-  virtual std::size_t getPixelByteCount() const {
-    return pixmap.getPixelByteCount();
-  }
+    Pixmap1D *getPixmap() { return &pixmap; }
+    const Pixmap1D *getPixmap() const { return &pixmap; }
+    virtual string getPath() const;
+    virtual void deletePixels();
+    virtual std::size_t getPixelByteCount() const { return pixmap.getPixelByteCount(); }
 
-  virtual int getTextureWidth() const { return pixmap.getW(); }
-  virtual int getTextureHeight() const { return -1; }
+    virtual int getTextureWidth() const { return pixmap.getW(); }
+    virtual int getTextureHeight() const { return -1; }
 
-  virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
+    virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
 // =====================================================
@@ -120,27 +114,24 @@ class Texture1D : public Texture {
 // =====================================================
 
 class Texture2D : public Texture {
- protected:
-  Pixmap2D pixmap;
+  protected:
+    Pixmap2D pixmap;
 
- public:
-  void load(const string &path);
+  public:
+    void load(const string &path);
 
-  Pixmap2D *getPixmap() { return &pixmap; }
-  const Pixmap2D *getPixmapConst() const { return &pixmap; }
-  virtual string getPath() const;
-  virtual void deletePixels();
-  virtual std::size_t getPixelByteCount() const {
-    return pixmap.getPixelByteCount();
-  }
+    Pixmap2D *getPixmap() { return &pixmap; }
+    const Pixmap2D *getPixmapConst() const { return &pixmap; }
+    virtual string getPath() const;
+    virtual void deletePixels();
+    virtual std::size_t getPixelByteCount() const { return pixmap.getPixelByteCount(); }
 
-  virtual int getTextureWidth() const { return pixmap.getW(); }
-  virtual int getTextureHeight() const { return pixmap.getH(); }
+    virtual int getTextureWidth() const { return pixmap.getW(); }
+    virtual int getTextureHeight() const { return pixmap.getH(); }
 
-  virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
+    virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 
-  std::pair<SDL_Surface *, unsigned char *> CreateSDLSurface(
-      bool newPixelData) const;
+    std::pair<SDL_Surface *, unsigned char *> CreateSDLSurface(bool newPixelData) const;
 };
 
 // =====================================================
@@ -148,24 +139,22 @@ class Texture2D : public Texture {
 // =====================================================
 
 class Texture3D : public Texture {
- protected:
-  Pixmap3D pixmap;
+  protected:
+    Pixmap3D pixmap;
 
- public:
-  void loadSlice(const string &path, int slice);
+  public:
+    void loadSlice(const string &path, int slice);
 
-  Pixmap3D *getPixmap() { return &pixmap; }
-  const Pixmap3D *getPixmap() const { return &pixmap; }
-  virtual string getPath() const;
-  virtual void deletePixels();
-  virtual std::size_t getPixelByteCount() const {
-    return pixmap.getPixelByteCount();
-  }
+    Pixmap3D *getPixmap() { return &pixmap; }
+    const Pixmap3D *getPixmap() const { return &pixmap; }
+    virtual string getPath() const;
+    virtual void deletePixels();
+    virtual std::size_t getPixelByteCount() const { return pixmap.getPixelByteCount(); }
 
-  virtual int getTextureWidth() const { return pixmap.getW(); }
-  virtual int getTextureHeight() const { return pixmap.getH(); }
+    virtual int getTextureWidth() const { return pixmap.getW(); }
+    virtual int getTextureHeight() const { return pixmap.getH(); }
 
-  virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
+    virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
 // =====================================================
@@ -173,27 +162,25 @@ class Texture3D : public Texture {
 // =====================================================
 
 class TextureCube : public Texture {
- protected:
-  PixmapCube pixmap;
+  protected:
+    PixmapCube pixmap;
 
- public:
-  void loadFace(const string &path, int face);
+  public:
+    void loadFace(const string &path, int face);
 
-  PixmapCube *getPixmap() { return &pixmap; }
-  const PixmapCube *getPixmap() const { return &pixmap; }
-  virtual string getPath() const;
-  virtual void deletePixels();
-  virtual std::size_t getPixelByteCount() const {
-    return pixmap.getPixelByteCount();
-  }
+    PixmapCube *getPixmap() { return &pixmap; }
+    const PixmapCube *getPixmap() const { return &pixmap; }
+    virtual string getPath() const;
+    virtual void deletePixels();
+    virtual std::size_t getPixelByteCount() const { return pixmap.getPixelByteCount(); }
 
-  virtual int getTextureWidth() const { return -1; }
-  virtual int getTextureHeight() const { return -1; }
+    virtual int getTextureWidth() const { return -1; }
+    virtual int getTextureHeight() const { return -1; }
 
-  virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
+    virtual uint32 getCRC() { return pixmap.getCRC()->getSum(); }
 };
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared
 
 #endif

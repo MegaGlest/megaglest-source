@@ -35,21 +35,21 @@ class Map;
 // =====================================================
 
 class WaterSplash {
- private:
-  Vec2f pos;
-  int size;
-  float anim;
-  bool enabled;
+  private:
+    Vec2f pos;
+    int size;
+    float anim;
+    bool enabled;
 
- public:
-  WaterSplash(const Vec2f &pos, int size);
+  public:
+    WaterSplash(const Vec2f &pos, int size);
 
-  void update(float amount);
+    void update(float amount);
 
-  const Vec2f &getPos() const { return pos; }
-  const int &getSize() const { return size; }
-  float getAnim() const { return anim; }
-  bool getEnabled() const { return enabled; }
+    const Vec2f &getPos() const { return pos; }
+    const int &getSize() const { return size; }
+    float getAnim() const { return anim; }
+    bool getEnabled() const { return enabled; }
 };
 
 // ===============================
@@ -59,28 +59,28 @@ class WaterSplash {
 // ===============================
 
 class WaterEffects {
- public:
-  typedef vector<WaterSplash> WaterSplashes;
+  public:
+    typedef vector<WaterSplash> WaterSplashes;
 
- private:
-  WaterSplashes waterSplashes;
-  float anim;
-  float waveAnim;
+  private:
+    WaterSplashes waterSplashes;
+    float anim;
+    float waveAnim;
 
- public:
-  WaterEffects();
+  public:
+    WaterEffects();
 
-  void update(float speed);
+    void update(float speed);
 
-  float getAnim() const { return anim; }
-  float getWaveAnim() const { return waveAnim; }
+    float getAnim() const { return anim; }
+    float getWaveAnim() const { return waveAnim; }
 
-  void addWaterSplash(const Vec2f &pos, int size);
-  int getWaterSplashCount() const { return (int)waterSplashes.size(); }
-  const WaterSplash *getWaterSplash(int i) const { return &waterSplashes[i]; }
+    void addWaterSplash(const Vec2f &pos, int size);
+    int getWaterSplashCount() const { return (int)waterSplashes.size(); }
+    const WaterSplash *getWaterSplash(int i) const { return &waterSplashes[i]; }
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

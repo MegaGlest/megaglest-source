@@ -56,29 +56,25 @@ int getGlModelviewMatrixStackDepth();
 int getGlProjectionMatrixStackDepth();
 // void checkGlExtension(const char *extensionName);
 
-void inline _assertGl(const char *file, int line,
-                      GLenum *forceErrorNumber = NULL) {
-  GLenum error = (forceErrorNumber != NULL ? *forceErrorNumber : glGetError());
-  if (error != GL_NO_ERROR) {
+void inline _assertGl(const char *file, int line, GLenum *forceErrorNumber = NULL) {
+    GLenum error = (forceErrorNumber != NULL ? *forceErrorNumber : glGetError());
+    if (error != GL_NO_ERROR) {
 #ifdef _DEBUG
-    if (error == GL_INVALID_ENUM) {
-      return;
-    }
+        if (error == GL_INVALID_ENUM) {
+            return;
+        }
 #endif
 
-    // if(error != GL_INVALID_ENUM) {
-    const char *errorString =
-        reinterpret_cast<const char *>(gluErrorString(error));
-    char szBuf[8096] = "";
-    snprintf(szBuf, 8096,
-             "OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d", error,
-             error, errorString, file, line);
-    // throw megaglest_runtime_error("OpenGL error #" + intToStr(error) + " : "
-    // + string(errorString) + " at file: " + string(file) + ", line " +
-    // intToStr(line));
-    throw megaglest_runtime_error(szBuf);
-    //}
-  }
+        // if(error != GL_INVALID_ENUM) {
+        const char *errorString = reinterpret_cast<const char *>(gluErrorString(error));
+        char szBuf[8096] = "";
+        snprintf(szBuf, 8096, "OpenGL error #%d [0x%X] : [%s] at file: [%s], line: %d", error, error, errorString, file, line);
+        // throw megaglest_runtime_error("OpenGL error #" + intToStr(error) + " : "
+        // + string(errorString) + " at file: " + string(file) + ", line " +
+        // intToStr(line));
+        throw megaglest_runtime_error(szBuf);
+        //}
+    }
 }
 
 #ifdef NDEBUG
@@ -89,13 +85,12 @@ void inline _assertGl(const char *file, int line,
 #else
 
 #define assertGl() _assertGl(__FILE__, __LINE__);
-#define assertGlWithErrorNumber(forceErrorNumber) \
-  _assertGl(__FILE__, __LINE__, &forceErrorNumber);
+#define assertGlWithErrorNumber(forceErrorNumber) _assertGl(__FILE__, __LINE__, &forceErrorNumber);
 
 #endif
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

@@ -24,21 +24,19 @@ namespace Gl {
 // =====================================================
 
 class ModelGl : public Model {
-  friend class GraphicsFactoryGl;
+    friend class GraphicsFactoryGl;
 
- protected:
-  ModelGl(const string &path, TextureManager *textureManager,
-          bool deletePixMapAfterLoad,
-          std::map<string, vector<pair<string, string> > > *loadedFileList,
-          string *sourceLoader);
+  protected:
+    ModelGl(const string &path, TextureManager *textureManager, bool deletePixMapAfterLoad, std::map<string, vector<pair<string, string>>> *loadedFileList,
+            string *sourceLoader);
 
- public:
-  virtual void init() {}
-  virtual void end() {}
+  public:
+    virtual void init() {}
+    virtual void end() {}
 };
 
-}  // namespace Gl
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Gl
+} // namespace Graphics
+} // namespace Shared
 
 #endif

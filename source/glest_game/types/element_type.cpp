@@ -32,13 +32,15 @@ namespace Game {
 // 	class DisplayableType
 // =====================================================
 
-DisplayableType::DisplayableType() { image = NULL; }
+DisplayableType::DisplayableType() {
+    image = NULL;
+}
 
 string DisplayableType::getName(bool translatedValue) const {
-  if (translatedValue == false) return name;
+    if (translatedValue == false) return name;
 
-  Lang &lang = Lang::getInstance();
-  return lang.getTechTreeString("CommandName_" + name, name.c_str());
+    Lang &lang = Lang::getInstance();
+    return lang.getTechTreeString("CommandName_" + name, name.c_str());
 }
 
 // void DisplayableType::saveGame(XmlNode *rootNode) const {
@@ -53,37 +55,34 @@ string DisplayableType::getName(bool translatedValue) const {
 // =====================================================
 
 string RequirableType::getReqDesc(bool translatedValue) const {
-  bool anyReqs = false;
+    bool anyReqs = false;
 
-  string reqString = "";
-  for (int i = 0; i < getUnitReqCount(); ++i) {
-    if (getUnitReq(i) == NULL) {
-      throw megaglest_runtime_error("getUnitReq(i) == NULL");
-    }
-    reqString += getUnitReq(i)->getName(translatedValue);
-    reqString += "\n";
-    anyReqs = true;
-  }
-
-  for (int i = 0; i < getUpgradeReqCount(); ++i) {
-    if (getUpgradeReq(i) == NULL) {
-      throw megaglest_runtime_error("getUpgradeReq(i) == NULL");
+    string reqString = "";
+    for (int i = 0; i < getUnitReqCount(); ++i) {
+        if (getUnitReq(i) == NULL) {
+            throw megaglest_runtime_error("getUnitReq(i) == NULL");
+        }
+        reqString += getUnitReq(i)->getName(translatedValue);
+        reqString += "\n";
+        anyReqs = true;
     }
 
-    reqString += getUpgradeReq(i)->getName(translatedValue);
-    reqString += "\n";
-    anyReqs = true;
-  }
+    for (int i = 0; i < getUpgradeReqCount(); ++i) {
+        if (getUpgradeReq(i) == NULL) {
+            throw megaglest_runtime_error("getUpgradeReq(i) == NULL");
+        }
 
-  string str = getName(translatedValue);
-  if (anyReqs) {
-    return str + " " +
-           Lang::getInstance().getString(
-               "Reqs", (translatedValue == true ? "" : "english")) +
-           ":\n" + reqString;
-  } else {
-    return str;
-  }
+        reqString += getUpgradeReq(i)->getName(translatedValue);
+        reqString += "\n";
+        anyReqs = true;
+    }
+
+    string str = getName(translatedValue);
+    if (anyReqs) {
+        return str + " " + Lang::getInstance().getString("Reqs", (translatedValue == true ? "" : "english")) + ":\n" + reqString;
+    } else {
+        return str;
+    }
 }
 
 // void RequirableType::saveGame(XmlNode *rootNode) const {
@@ -115,79 +114,73 @@ string RequirableType::getReqDesc(bool translatedValue) const {
 // =====================================================
 
 ProducibleType::ProducibleType() {
-  cancelImage = NULL;
-  productionTime = 0;
+    cancelImage = NULL;
+    productionTime = 0;
 }
 
 ProducibleType::~ProducibleType() {}
 
 const Resource *ProducibleType::getCost(const ResourceType *rt) const {
-  for (int i = 0; i < (int)costs.size(); ++i) {
-    if (costs[i].getType() == rt) {
-      return &costs[i];
+    for (int i = 0; i < (int)costs.size(); ++i) {
+        if (costs[i].getType() == rt) {
+            return &costs[i];
+        }
     }
-  }
-  return NULL;
+    return NULL;
 }
 
 string ProducibleType::getReqDesc(bool translatedValue) const {
-  return getReqDesc(false, translatedValue);
+    return getReqDesc(false, translatedValue);
 }
 
-string ProducibleType::getResourceReqDesc(bool lineBreaks,
-                                          bool translatedValue) const {
-  string str = "";
-  for (int i = 0; i < getCostCount(); ++i) {
-    if (getCost(i)->getAmount() != 0) {
-      str += getCost(i)->getType()->getName(translatedValue);
-      str += ": " + intToStr(getCost(i)->getAmount());
-      if (lineBreaks == true) {
-        str += "\n";
-      } else {
-        str += " ";
-      }
+string ProducibleType::getResourceReqDesc(bool lineBreaks, bool translatedValue) const {
+    string str = "";
+    for (int i = 0; i < getCostCount(); ++i) {
+        if (getCost(i)->getAmount() != 0) {
+            str += getCost(i)->getType()->getName(translatedValue);
+            str += ": " + intToStr(getCost(i)->getAmount());
+            if (lineBreaks == true) {
+                str += "\n";
+            } else {
+                str += " ";
+            }
+        }
     }
-  }
 
-  return str;
+    return str;
 }
 
-string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks,
-                                                bool translatedValue) const {
-  string str = "";
-  for (int i = 0; i < getUnitReqCount(); ++i) {
-    str += getUnitReq(i)->getName(translatedValue);
-    if (lineBreaks == true) {
-      str += "\n";
-    } else {
-      str += " ";
+string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks, bool translatedValue) const {
+    string str = "";
+    for (int i = 0; i < getUnitReqCount(); ++i) {
+        str += getUnitReq(i)->getName(translatedValue);
+        if (lineBreaks == true) {
+            str += "\n";
+        } else {
+            str += " ";
+        }
     }
-  }
 
-  for (int i = 0; i < getUpgradeReqCount(); ++i) {
-    str += getUpgradeReq(i)->getName(translatedValue);
-    if (lineBreaks == true) {
-      str += "\n";
-    } else {
-      str += " ";
+    for (int i = 0; i < getUpgradeReqCount(); ++i) {
+        str += getUpgradeReq(i)->getName(translatedValue);
+        if (lineBreaks == true) {
+            str += "\n";
+        } else {
+            str += " ";
+        }
     }
-  }
 
-  return str;
+    return str;
 }
 
-string ProducibleType::getReqDesc(bool ignoreResourceRequirements,
-                                  bool translatedValue) const {
-  string str = getName(translatedValue) + " " +
-               Lang::getInstance().getString(
-                   "Reqs", (translatedValue == true ? "" : "english")) +
-               ":\n";
-  if (ignoreResourceRequirements == false) {
-    str += getResourceReqDesc(true, translatedValue);
-  }
+string ProducibleType::getReqDesc(bool ignoreResourceRequirements, bool translatedValue) const {
+    string str = getName(translatedValue) + " " + Lang::getInstance().getString("Reqs", (translatedValue == true ? "" : "english")) + ":\n";
+    if (ignoreResourceRequirements == false) {
+        str += getResourceReqDesc(true, translatedValue);
+    }
 
-  str += getUnitAndUpgradeReqDesc(true, translatedValue);
-  return str;
+    str += getUnitAndUpgradeReqDesc(true, translatedValue);
+    return str;
 }
 
 // void ProducibleType::saveGame(XmlNode *rootNode) const {
@@ -214,5 +207,5 @@ string ProducibleType::getReqDesc(bool ignoreResourceRequirements,
 //	//int newUnitId = producibleTypeNode->getAttribute("id")->getIntValue();
 // }
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest

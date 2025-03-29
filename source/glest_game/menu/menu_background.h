@@ -44,74 +44,74 @@ namespace Game {
 // ===========================================================
 
 class MenuBackground {
- public:
-  static const int meshSize = 32;
-  static const int raindropCount = 1000;
-  static const int characterCount = 5;
+  public:
+    static const int meshSize = 32;
+    static const int raindropCount = 1000;
+    static const int characterCount = 5;
 
- private:
-  Model *mainModel;
+  private:
+    Model *mainModel;
 
-  // water
-  bool water;
-  float waterHeight;
-  Texture2D *waterTexture;
+    // water
+    bool water;
+    float waterHeight;
+    Texture2D *waterTexture;
 
-  // fog
-  bool fog;
-  float fogDensity;
+    // fog
+    bool fog;
+    float fogDensity;
 
-  // rain
-  bool rain;
-  Vec2f raindropPos[raindropCount];
-  float raindropStates[raindropCount];
+    // rain
+    bool rain;
+    Vec2f raindropPos[raindropCount];
+    float raindropStates[raindropCount];
 
-  // camera
-  Camera camera;
-  Camera lastCamera;
-  const Camera *targetCamera;
-  float t;
+    // camera
+    Camera camera;
+    Camera lastCamera;
+    const Camera *targetCamera;
+    float t;
 
-  // misc
-  RandomGen random;
-  Model *characterModels[characterCount];
-  float anim;
-  float fade;
-  Vec3f aboutPosition;
+    // misc
+    RandomGen random;
+    Model *characterModels[characterCount];
+    float anim;
+    float fade;
+    Vec3f aboutPosition;
 
-  RainParticleSystem *rps;
+    RainParticleSystem *rps;
 
- public:
-  MenuBackground();
-  ~MenuBackground();
+  public:
+    MenuBackground();
+    ~MenuBackground();
 
-  bool getWater() const { return water; }
-  float getWaterHeight() const { return waterHeight; }
-  bool getFog() const { return fog; }
-  float getFogDensity() const { return fogDensity; }
-  bool getRain() const { return rain; }
-  Texture2D *getWaterTexture() const { return waterTexture; }
-  const Camera *getCamera() const { return &camera; }
-  const Model *getCharacterModel(int i) const { return characterModels[i]; }
-  Model *getCharacterModelPtr(int i) const { return characterModels[i]; }
-  const Model *getMainModel() const { return mainModel; }
-  Model *getMainModelPtr() const { return mainModel; }
-  float getFade() const { return fade; }
-  Vec2f getRaindropPos(int i) const { return raindropPos[i]; }
-  float getRaindropState(int i) const { return raindropStates[i]; }
-  float getAnim() const { return anim; }
-  const Vec3f &getAboutPosition() const { return aboutPosition; }
+    bool getWater() const { return water; }
+    float getWaterHeight() const { return waterHeight; }
+    bool getFog() const { return fog; }
+    float getFogDensity() const { return fogDensity; }
+    bool getRain() const { return rain; }
+    Texture2D *getWaterTexture() const { return waterTexture; }
+    const Camera *getCamera() const { return &camera; }
+    const Model *getCharacterModel(int i) const { return characterModels[i]; }
+    Model *getCharacterModelPtr(int i) const { return characterModels[i]; }
+    const Model *getMainModel() const { return mainModel; }
+    Model *getMainModelPtr() const { return mainModel; }
+    float getFade() const { return fade; }
+    Vec2f getRaindropPos(int i) const { return raindropPos[i]; }
+    float getRaindropState(int i) const { return raindropStates[i]; }
+    float getAnim() const { return anim; }
+    const Vec3f &getAboutPosition() const { return aboutPosition; }
 
-  void setTargetCamera(const Camera *targetCamera);
-  void update();
+    void setTargetCamera(const Camera *targetCamera);
+    void update();
 
- private:
-  Vec2f computeRaindropPos();
-  void createRainParticleSystem();
-  void cleanup();
+  private:
+    Vec2f computeRaindropPos();
+    void createRainParticleSystem();
+    void cleanup();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

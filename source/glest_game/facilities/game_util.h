@@ -52,12 +52,11 @@ string getCompileDateTime();
 string formatString(string str);
 
 string getGameReadWritePath(const string &lookupKey = "");
-string getGameCustomCoreDataPath(string originalBasePath,
-                                 string uniqueFilePath);
+string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);
 
 bool upgradeFilesInTemp();
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

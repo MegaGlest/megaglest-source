@@ -21,13 +21,13 @@ namespace Graphics {
 // =====================================================
 
 Context::Context() {
-  colorBits = 32;
-  depthBits = 24;
-  stencilBits = 0;
-  hardware_acceleration = 0;
-  fullscreen_anti_aliasing = 0;
-  gammaValue = 0;
+    colorBits = 32;
+    depthBits = 24;
+    stencilBits = 0;
+    hardware_acceleration = 0;
+    fullscreen_anti_aliasing = 0;
+    gammaValue = 0;
 }
 
-}  // namespace Graphics
-}  // namespace Shared
+} // namespace Graphics
+} // namespace Shared

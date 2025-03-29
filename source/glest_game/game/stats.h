@@ -31,26 +31,26 @@ namespace Glest {
 namespace Game {
 
 class PlayerStats {
- public:
-  PlayerStats();
+  public:
+    PlayerStats();
 
-  ControlType control;
-  float resourceMultiplier;
-  string factionTypeName;
-  FactionPersonalityType personalityType;
-  int teamIndex;
-  bool victory;
-  int kills;
-  int enemykills;
-  int deaths;
-  int unitsProduced;
-  int resourcesHarvested;
-  string playerName;
-  bool playerLeftBeforeEnd;
-  int timePlayerLeft;
-  Vec3f playerColor;
+    ControlType control;
+    float resourceMultiplier;
+    string factionTypeName;
+    FactionPersonalityType personalityType;
+    int teamIndex;
+    bool victory;
+    int kills;
+    int enemykills;
+    int deaths;
+    int unitsProduced;
+    int resourcesHarvested;
+    string playerName;
+    bool playerLeftBeforeEnd;
+    int timePlayerLeft;
+    Vec3f playerColor;
 
-  string getStats() const;
+    string getStats() const;
 };
 
 // =====================================================
@@ -60,159 +60,101 @@ class PlayerStats {
 // =====================================================
 
 class Stats {
- private:
-  PlayerStats playerStats[GameConstants::maxPlayers];
+  private:
+    PlayerStats playerStats[GameConstants::maxPlayers];
 
-  string description;
-  int factionCount;
-  int thisFactionIndex;
+    string description;
+    int factionCount;
+    int thisFactionIndex;
 
-  float worldTimeElapsed;
-  int framesPlayed;
-  int framesToCalculatePlaytime;
-  int maxConcurrentUnitCount;
-  int totalEndGameConcurrentUnitCount;
-  bool isMasterserverMode;
-  string techName;
+    float worldTimeElapsed;
+    int framesPlayed;
+    int framesToCalculatePlaytime;
+    int maxConcurrentUnitCount;
+    int totalEndGameConcurrentUnitCount;
+    bool isMasterserverMode;
+    string techName;
 
- public:
-  Stats() {
-    // description 		= "";
-    factionCount = 0;
-    thisFactionIndex = 0;
+  public:
+    Stats() {
+        // description 		= "";
+        factionCount = 0;
+        thisFactionIndex = 0;
 
-    worldTimeElapsed = 0.0;
-    framesPlayed = 0;
-    framesToCalculatePlaytime = 0;
-    maxConcurrentUnitCount = 0;
-    totalEndGameConcurrentUnitCount = 0;
-    isMasterserverMode = false;
-    // techName						= "";
-  }
+        worldTimeElapsed = 0.0;
+        framesPlayed = 0;
+        framesToCalculatePlaytime = 0;
+        maxConcurrentUnitCount = 0;
+        totalEndGameConcurrentUnitCount = 0;
+        isMasterserverMode = false;
+        // techName						= "";
+    }
 
-  void init(int factionCount, int thisFactionIndex, const string &description,
-            const string &techName);
+    void init(int factionCount, int thisFactionIndex, const string &description, const string &techName);
 
-  string getDescription() const { return description; }
-  int getThisFactionIndex() const { return thisFactionIndex; }
-  int getFactionCount() const { return factionCount; }
+    string getDescription() const { return description; }
+    int getThisFactionIndex() const { return thisFactionIndex; }
+    int getFactionCount() const { return factionCount; }
 
-  float getWorldTimeElapsed() const { return worldTimeElapsed; }
-  int getFramesPlayed() const { return framesPlayed; }
-  int getFramesToCalculatePlaytime() const { return framesToCalculatePlaytime; }
-  int getMaxConcurrentUnitCount() const { return maxConcurrentUnitCount; }
-  int getTotalEndGameConcurrentUnitCount() const {
-    return totalEndGameConcurrentUnitCount;
-  }
+    float getWorldTimeElapsed() const { return worldTimeElapsed; }
+    int getFramesPlayed() const { return framesPlayed; }
+    int getFramesToCalculatePlaytime() const { return framesToCalculatePlaytime; }
+    int getMaxConcurrentUnitCount() const { return maxConcurrentUnitCount; }
+    int getTotalEndGameConcurrentUnitCount() const { return totalEndGameConcurrentUnitCount; }
 
-  const string &getFactionTypeName(int factionIndex) const {
-    return playerStats[factionIndex].factionTypeName;
-  }
-  FactionPersonalityType getPersonalityType(int factionIndex) const {
-    return playerStats[factionIndex].personalityType;
-  }
-  ControlType getControl(int factionIndex) const {
-    return playerStats[factionIndex].control;
-  }
-  float getResourceMultiplier(int factionIndex) const {
-    return playerStats[factionIndex].resourceMultiplier;
-  }
-  bool getVictory(int factionIndex) const {
-    return playerStats[factionIndex].victory;
-  }
-  int getTeam(int factionIndex) const {
-    return playerStats[factionIndex].teamIndex;
-  }
-  int getKills(int factionIndex) const {
-    return playerStats[factionIndex].kills;
-  }
-  int getEnemyKills(int factionIndex) const {
-    return playerStats[factionIndex].enemykills;
-  }
-  int getDeaths(int factionIndex) const {
-    return playerStats[factionIndex].deaths;
-  }
-  int getUnitsProduced(int factionIndex) const {
-    return playerStats[factionIndex].unitsProduced;
-  }
-  int getResourcesHarvested(int factionIndex) const {
-    return playerStats[factionIndex].resourcesHarvested;
-  }
-  string getPlayerName(int factionIndex) const {
-    return playerStats[factionIndex].playerName;
-  }
-  bool getPlayerLeftBeforeEnd(int factionIndex) const {
-    return playerStats[factionIndex].playerLeftBeforeEnd;
-  }
-  void setPlayerLeftBeforeEnd(int factionIndex, bool value) {
-    playerStats[factionIndex].playerLeftBeforeEnd = value;
-  }
-  Vec3f getPlayerColor(int factionIndex) const {
-    return playerStats[factionIndex].playerColor;
-  }
+    const string &getFactionTypeName(int factionIndex) const { return playerStats[factionIndex].factionTypeName; }
+    FactionPersonalityType getPersonalityType(int factionIndex) const { return playerStats[factionIndex].personalityType; }
+    ControlType getControl(int factionIndex) const { return playerStats[factionIndex].control; }
+    float getResourceMultiplier(int factionIndex) const { return playerStats[factionIndex].resourceMultiplier; }
+    bool getVictory(int factionIndex) const { return playerStats[factionIndex].victory; }
+    int getTeam(int factionIndex) const { return playerStats[factionIndex].teamIndex; }
+    int getKills(int factionIndex) const { return playerStats[factionIndex].kills; }
+    int getEnemyKills(int factionIndex) const { return playerStats[factionIndex].enemykills; }
+    int getDeaths(int factionIndex) const { return playerStats[factionIndex].deaths; }
+    int getUnitsProduced(int factionIndex) const { return playerStats[factionIndex].unitsProduced; }
+    int getResourcesHarvested(int factionIndex) const { return playerStats[factionIndex].resourcesHarvested; }
+    string getPlayerName(int factionIndex) const { return playerStats[factionIndex].playerName; }
+    bool getPlayerLeftBeforeEnd(int factionIndex) const { return playerStats[factionIndex].playerLeftBeforeEnd; }
+    void setPlayerLeftBeforeEnd(int factionIndex, bool value) { playerStats[factionIndex].playerLeftBeforeEnd = value; }
+    Vec3f getPlayerColor(int factionIndex) const { return playerStats[factionIndex].playerColor; }
 
-  int getTimePlayerLeft(int factionIndex) const {
-    return playerStats[factionIndex].timePlayerLeft;
-  }
-  void setTimePlayerLeft(int factionIndex, int value) {
-    playerStats[factionIndex].timePlayerLeft = value;
-  }
+    int getTimePlayerLeft(int factionIndex) const { return playerStats[factionIndex].timePlayerLeft; }
+    void setTimePlayerLeft(int factionIndex, int value) { playerStats[factionIndex].timePlayerLeft = value; }
 
-  bool getIsMasterserverMode() const { return isMasterserverMode; }
-  void setIsMasterserverMode(bool value) { isMasterserverMode = value; }
+    bool getIsMasterserverMode() const { return isMasterserverMode; }
+    void setIsMasterserverMode(bool value) { isMasterserverMode = value; }
 
-  void setDescription(const string &description) {
-    this->description = description;
-  }
-  void setWorldTimeElapsed(float value) { this->worldTimeElapsed = value; }
-  void setFramesPlayed(int value) { this->framesPlayed = value; }
-  void setMaxConcurrentUnitCount(int value) {
-    this->maxConcurrentUnitCount = value;
-  }
-  void setTotalEndGameConcurrentUnitCount(int value) {
-    this->totalEndGameConcurrentUnitCount = value;
-  }
+    void setDescription(const string &description) { this->description = description; }
+    void setWorldTimeElapsed(float value) { this->worldTimeElapsed = value; }
+    void setFramesPlayed(int value) { this->framesPlayed = value; }
+    void setMaxConcurrentUnitCount(int value) { this->maxConcurrentUnitCount = value; }
+    void setTotalEndGameConcurrentUnitCount(int value) { this->totalEndGameConcurrentUnitCount = value; }
 
-  void setFactionTypeName(int playerIndex, const string &factionTypeName) {
-    playerStats[playerIndex].factionTypeName = factionTypeName;
-  }
-  void setPersonalityType(int playerIndex, FactionPersonalityType value) {
-    playerStats[playerIndex].personalityType = value;
-  }
-  void setControl(int playerIndex, ControlType control) {
-    playerStats[playerIndex].control = control;
-  }
-  void setResourceMultiplier(int playerIndex, float resourceMultiplier) {
-    playerStats[playerIndex].resourceMultiplier = resourceMultiplier;
-  }
-  void setTeam(int playerIndex, int teamIndex) {
-    playerStats[playerIndex].teamIndex = teamIndex;
-  }
-  void setVictorious(int playerIndex);
-  void kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy,
-            bool isDeathCounted, bool isKillCounted);
-  void die(int diedFactionIndex, bool isDeathCounted);
-  void produce(int producerFactionIndex, bool isProductionCounted);
-  void harvest(int harvesterFactionIndex, int amount);
-  void setPlayerName(int playerIndex, const string &value) {
-    playerStats[playerIndex].playerName = value;
-  }
-  void setPlayerColor(int playerIndex, Vec3f value) {
-    playerStats[playerIndex].playerColor = value;
-  }
+    void setFactionTypeName(int playerIndex, const string &factionTypeName) { playerStats[playerIndex].factionTypeName = factionTypeName; }
+    void setPersonalityType(int playerIndex, FactionPersonalityType value) { playerStats[playerIndex].personalityType = value; }
+    void setControl(int playerIndex, ControlType control) { playerStats[playerIndex].control = control; }
+    void setResourceMultiplier(int playerIndex, float resourceMultiplier) { playerStats[playerIndex].resourceMultiplier = resourceMultiplier; }
+    void setTeam(int playerIndex, int teamIndex) { playerStats[playerIndex].teamIndex = teamIndex; }
+    void setVictorious(int playerIndex);
+    void kill(int killerFactionIndex, int killedFactionIndex, bool isEnemy, bool isDeathCounted, bool isKillCounted);
+    void die(int diedFactionIndex, bool isDeathCounted);
+    void produce(int producerFactionIndex, bool isProductionCounted);
+    void harvest(int harvesterFactionIndex, int amount);
+    void setPlayerName(int playerIndex, const string &value) { playerStats[playerIndex].playerName = value; }
+    void setPlayerColor(int playerIndex, Vec3f value) { playerStats[playerIndex].playerColor = value; }
 
-  void addFramesToCalculatePlaytime() { this->framesToCalculatePlaytime++; }
+    void addFramesToCalculatePlaytime() { this->framesToCalculatePlaytime++; }
 
-  void setTechName(const string &name) { techName = name; }
-  string getTechName() const { return techName; }
+    void setTechName(const string &name) { techName = name; }
+    string getTechName() const { return techName; }
 
-  string getStats() const;
+    string getStats() const;
 
-  void saveGame(XmlNode *rootNode);
-  void loadGame(const XmlNode *rootNode);
+    void saveGame(XmlNode *rootNode);
+    void loadGame(const XmlNode *rootNode);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

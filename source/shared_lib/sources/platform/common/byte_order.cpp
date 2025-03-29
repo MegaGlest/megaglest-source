@@ -13,4 +13,4 @@
 
 namespace Shared {
 namespace PlatformByteOrder {}
-};  // namespace Shared
+}; // namespace Shared

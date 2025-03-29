@@ -48,7 +48,7 @@
 
 @interface NSFont (withay_OpenGL)
 
-+ (void) setOpenGLLogging:(BOOL)logEnabled;
-- (BOOL) makeGLDisplayListFirst:(unichar)first count:(int)count base:(GLint)base;
++ (void)setOpenGLLogging:(BOOL)logEnabled;
+- (BOOL)makeGLDisplayListFirst:(unichar)first count:(int)count base:(GLint)base;
 
 @end

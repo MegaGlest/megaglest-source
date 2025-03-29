@@ -23,46 +23,48 @@ namespace Game {
 // =====================================================
 
 WaterSplash::WaterSplash(const Vec2f &pos, int size) {
-  this->pos = pos;
-  this->size = 1 + (size - 1) / 2;
-  anim = 0.f;
-  enabled = true;
+    this->pos = pos;
+    this->size = 1 + (size - 1) / 2;
+    anim = 0.f;
+    enabled = true;
 }
 
 void WaterSplash::update(float amount) {
-  if (enabled) {
-    anim += amount / size;
-    if (anim > 1.f) {
-      enabled = false;
+    if (enabled) {
+        anim += amount / size;
+        if (anim > 1.f) {
+            enabled = false;
+        }
     }
-  }
 }
 
 // ===============================
 // 	class WaterEffects
 // ===============================
 
-WaterEffects::WaterEffects() { anim = 0; }
+WaterEffects::WaterEffects() {
+    anim = 0;
+}
 
 void WaterEffects::update(float speed) {
-  anim += 0.5f / GameConstants::updateFps;
-  if (anim > 1.f) {
-    anim = 0;
-  }
-  for (int i = 0; i < (int)waterSplashes.size(); ++i) {
-    waterSplashes[i].update(speed / GameConstants::updateFps);
-  }
+    anim += 0.5f / GameConstants::updateFps;
+    if (anim > 1.f) {
+        anim = 0;
+    }
+    for (int i = 0; i < (int)waterSplashes.size(); ++i) {
+        waterSplashes[i].update(speed / GameConstants::updateFps);
+    }
 }
 
 void WaterEffects::addWaterSplash(const Vec2f &pos, int size) {
-  for (int i = 0; i < (int)waterSplashes.size(); ++i) {
-    if (!waterSplashes[i].getEnabled()) {
-      waterSplashes[i] = WaterSplash(pos, size);
-      return;
+    for (int i = 0; i < (int)waterSplashes.size(); ++i) {
+        if (!waterSplashes[i].getEnabled()) {
+            waterSplashes[i] = WaterSplash(pos, size);
+            return;
+        }
     }
-  }
-  waterSplashes.push_back(WaterSplash(pos, size));
+    waterSplashes.push_back(WaterSplash(pos, size));
 }
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest

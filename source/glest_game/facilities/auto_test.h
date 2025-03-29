@@ -40,40 +40,38 @@ class Game;
 // =====================================================
 
 class AutoTest {
- private:
-  int gameStartTime;
-  RandomGen random;
-  bool exitGame;
-  static bool wantExitGame;
+  private:
+    int gameStartTime;
+    RandomGen random;
+    bool exitGame;
+    static bool wantExitGame;
 
-  static GameSettings gameSettings;
-  static string loadGameSettingsFile;
+    static GameSettings gameSettings;
+    static string loadGameSettingsFile;
 
-  static const time_t invalidTime;
-  static time_t gameTime;
+    static const time_t invalidTime;
+    static time_t gameTime;
 
- public:
-  static AutoTest &getInstance();
-  AutoTest();
+  public:
+    static AutoTest &getInstance();
+    AutoTest();
 
-  static void setMaxGameTime(time_t value) { gameTime = value; }
-  static void setWantExitGameWhenDone(bool value) { wantExitGame = value; }
-  static string getLoadGameSettingsFile() { return loadGameSettingsFile; }
-  static void setLoadGameSettingsFile(const string &filename) {
-    loadGameSettingsFile = filename;
-  }
+    static void setMaxGameTime(time_t value) { gameTime = value; }
+    static void setWantExitGameWhenDone(bool value) { wantExitGame = value; }
+    static string getLoadGameSettingsFile() { return loadGameSettingsFile; }
+    static void setLoadGameSettingsFile(const string &filename) { loadGameSettingsFile = filename; }
 
-  bool mustExitGame() const { return exitGame; }
+    bool mustExitGame() const { return exitGame; }
 
-  void updateIntro(Program *program);
-  void updateRoot(Program *program, MainMenu *mainMenu);
-  void updateNewGame(Program *program, MainMenu *mainMenu);
-  void updateScenario(MenuStateScenario *menuStateScenario);
-  bool updateGame(Game *game);
-  void updateBattleEnd(Program *program);
+    void updateIntro(Program *program);
+    void updateRoot(Program *program, MainMenu *mainMenu);
+    void updateNewGame(Program *program, MainMenu *mainMenu);
+    void updateScenario(MenuStateScenario *menuStateScenario);
+    bool updateGame(Game *game);
+    void updateBattleEnd(Program *program);
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif

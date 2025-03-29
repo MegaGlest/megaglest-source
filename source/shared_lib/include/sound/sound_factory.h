@@ -23,12 +23,12 @@ namespace Sound {
 // =====================================================
 
 class SoundFactory {
- public:
-  virtual ~SoundFactory() {}
-  virtual SoundPlayer *newSoundPlayer() { return NULL; }
+  public:
+    virtual ~SoundFactory() {}
+    virtual SoundPlayer *newSoundPlayer() { return NULL; }
 };
 
-}  // namespace Sound
-}  // namespace Shared
+} // namespace Sound
+} // namespace Shared
 
 #endif

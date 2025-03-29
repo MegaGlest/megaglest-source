@@ -40,37 +40,37 @@ class TechTree;
 // =====================================================
 
 class Resource : public ValueCheckerVault {
- private:
-  int amount;
-  const ResourceType *type;
-  Vec2i pos;
-  int balance;
+  private:
+    int amount;
+    const ResourceType *type;
+    Vec2i pos;
+    int balance;
 
- public:
-  Resource();
-  void init(const ResourceType *rt, int amount);
-  void init(const ResourceType *rt, const Vec2i &pos);
+  public:
+    Resource();
+    void init(const ResourceType *rt, int amount);
+    void init(const ResourceType *rt, const Vec2i &pos);
 
-  const ResourceType *getType() const { return type; }
-  Vec2i getPos() const { return pos; }
+    const ResourceType *getType() const { return type; }
+    Vec2i getPos() const { return pos; }
 
-  int getAmount() const;
-  int getBalance() const;
-  string getDescription(bool translatedValue) const;
+    int getAmount() const;
+    int getBalance() const;
+    string getDescription(bool translatedValue) const;
 
-  void setAmount(int amount);
-  void setBalance(int balance);
+    void setAmount(int amount);
+    void setBalance(int balance);
 
-  bool decAmount(int i);
+    bool decAmount(int i);
 
-  void saveGame(XmlNode *rootNode) const;
-  void loadGame(const XmlNode *rootNode, int index, const TechTree *techTree);
+    void saveGame(XmlNode *rootNode) const;
+    void loadGame(const XmlNode *rootNode, int index, const TechTree *techTree);
 
-  std::string toString() const;
-  Checksum getCRC();
+    std::string toString() const;
+    Checksum getCRC();
 };
 
-}  // namespace Game
-}  // namespace Glest
+} // namespace Game
+} // namespace Glest
 
 #endif
