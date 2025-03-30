@@ -215,6 +215,7 @@ set(EXTRA_FLAGS
     "-Werror=odr"
     "-Werror=lto-type-mismatch"
     "-Werror=strict-aliasing"
+    "-Wall"
     # Note: These two may not be needed globally. They are added in the original
     # Streflop Makefile and may only be recommended for building streflop itself,
     # not applications that link to streflop.
