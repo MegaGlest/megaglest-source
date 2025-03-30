@@ -241,8 +241,8 @@ typedef uint64_t uintmax_t;
 // 7.18.2 Limits of specified-width integer types
 
 #if !defined(__cplusplus) ||                                                                                                                                   \
-    defined(__STDC_LIMIT_MACROS) // [   See footnote 220 at page 257 and                                                              \
-                                                          // footnote 221 at page 259
+    defined(__STDC_LIMIT_MACROS) /* [   See footnote 220 at page 257 and                                                              \
+                                                          footnote 221 at page 259 */
 
 // 7.18.2.1 Limits of exact-width integer types
 #define INT8_MIN ((int8_t)_I8_MIN)
