@@ -57,12 +57,10 @@ Mutex *BaseThread::getMutexThreadObjectAccessor() {
 }
 
 BaseThread::~BaseThread() {
-    // printf("In ~BaseThread Line: %d uniqueID
-    // [%s]\n",__LINE__,uniqueID.c_str());
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
         SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s]\n", __FILE__, __FUNCTION__, __LINE__, uniqueID.c_str());
+    }
 
-    // BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
     if (this->getStarted() == false) {
         time_t elapsed = time(NULL);
         for (; this->getStarted() == false && difftime((long int)time(NULL), elapsed) <= 3;) {
@@ -70,84 +68,51 @@ BaseThread::~BaseThread() {
         }
     }
 
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s]\n", __FILE__, __FUNCTION__, __LINE__, uniqueID.c_str());
     bool ret = shutdownAndWait();
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                 uniqueID.c_str(), ret);
-
-    // printf("In ~BaseThread Line: %d uniqueID
-    // [%s]\n",__LINE__,uniqueID.c_str());
+    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+        SystemFlags::OutputDebug(SystemFlags::debugSystem, "shutdownAndWait() returned [%d] for uniqueID [%s]\n", ret, uniqueID.c_str());
+    }
 
     MutexSafeWrapper safeMutexMasterList(&mutexMasterThreadList);
 
-    // printf("In ~BaseThread Line: %d uniqueID
-    // [%s]\n",__LINE__,uniqueID.c_str());
-
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                 uniqueID.c_str(), ret);
-
-    // printf("In ~BaseThread Line: %d uniqueID
-    // [%s]\n",__LINE__,uniqueID.c_str());
-
     if (masterThreadList.find(this) == masterThreadList.end()) {
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                     uniqueID.c_str(), ret);
+        // **Instead of throwing an exception, log an error message**
+        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem, "ERROR: Invalid thread delete for ptr: %p\n", this);
+        }
 
-        char szBuf[8096] = "";
-        snprintf(szBuf, 8096, "invalid thread delete for ptr: %p", this);
-        throw megaglest_runtime_error(szBuf);
+        // Optionally, store the error for later handling instead of throwing
+        //lastErrorMessage = "Invalid thread delete for ptr: " + std::to_string(reinterpret_cast<uintptr_t>(this));
+
+        // Return early to prevent further issues
+        return;
     }
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                 uniqueID.c_str(), ret);
-
-    // printf("In ~BaseThread Line: %d uniqueID
-    // [%s]\n",__LINE__,uniqueID.c_str());
 
     masterThreadList[this]--;
     if (masterThreadList[this] <= 0) {
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                     uniqueID.c_str(), ret);
         masterThreadList.erase(this);
     }
 
-    // printf("In ~BaseThread Line: %d uniqueID
-    // [%s]\n",__LINE__,uniqueID.c_str());
-
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                 uniqueID.c_str(), ret);
-
     safeMutexMasterList.ReleaseLock();
 
-    if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n", __FILE__, __FUNCTION__, __LINE__,
-                                 uniqueID.c_str(), ret);
-
+    // Safe cleanup of dynamically allocated mutexes
     delete mutexRunning;
-    mutexRunning = NULL;
     delete mutexQuit;
-    mutexQuit = NULL;
     delete mutexBeginExecution;
-    mutexBeginExecution = NULL;
     delete mutexDeleteSelfOnExecutionDone;
-    mutexDeleteSelfOnExecutionDone = NULL;
     delete mutexThreadObjectAccessor;
-    mutexThreadObjectAccessor = NULL;
     delete mutexThreadOwnerValid;
-    mutexThreadOwnerValid = NULL;
     delete mutexExecutingTask;
-    mutexExecutingTask = NULL;
     delete mutexStarted;
-    mutexStarted = NULL;
 
-    // printf("In ~BaseThread Line: %d uniqueID [%s]
-    // [%p]\n",__LINE__,uniqueID.c_str(),this);
+    mutexRunning = nullptr;
+    mutexQuit = nullptr;
+    mutexBeginExecution = nullptr;
+    mutexDeleteSelfOnExecutionDone = nullptr;
+    mutexThreadObjectAccessor = nullptr;
+    mutexThreadOwnerValid = nullptr;
+    mutexExecutingTask = nullptr;
+    mutexStarted = nullptr;
 }
 
 bool BaseThread::getStarted() {

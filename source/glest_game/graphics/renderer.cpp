@@ -308,62 +308,50 @@ Renderer::~Renderer() {
                                      __LINE__);
 
         delete modelRenderer;
-        modelRenderer = NULL;
+        modelRenderer = nullptr;
         delete textRenderer;
-        textRenderer = NULL;
+        textRenderer = nullptr;
         delete textRenderer3D;
-        textRenderer3D = NULL;
+        textRenderer3D = nullptr;
         delete particleRenderer;
-        particleRenderer = NULL;
+        particleRenderer = nullptr;
 
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
-                                     __LINE__);
-
-        // resources
         for (int i = 0; i < rsCount; ++i) {
             delete modelManager[i];
-            modelManager[i] = NULL;
+            modelManager[i] = nullptr;
             delete textureManager[i];
-            textureManager[i] = NULL;
+            textureManager[i] = nullptr;
             delete particleManager[i];
-            particleManager[i] = NULL;
+            particleManager[i] = nullptr;
             delete fontManager[i];
-            fontManager[i] = NULL;
+            fontManager[i] = nullptr;
         }
 
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
-                                     __LINE__);
-
-        // Wait for the queue to become empty or timeout the thread at 7 seconds
         cleanupScreenshotThread();
-
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
-                                     __LINE__);
 
         mapSurfaceData.clear();
         quadCache = VisibleQuadContainerCache();
         quadCache.clearFrustumData();
 
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
-                                     __LINE__);
-
-        this->menu = NULL;
-        this->game = NULL;
-        this->gameCamera = NULL;
+        this->menu = nullptr;
+        this->game = nullptr;
+        this->gameCamera = nullptr;
 
         delete saveScreenShotThreadAccessor;
-        saveScreenShotThreadAccessor = NULL;
-    } catch (const exception &e) {
+        saveScreenShotThreadAccessor = nullptr;
+    } catch (const std::exception &e) {
+        // Log the error instead of throwing an exception
         char szBuf[8096] = "";
-        snprintf(szBuf, 8096, "In [%s::%s Line: %d]\nError [%s]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, e.what());
-        SystemFlags::OutputDebug(SystemFlags::debugError, szBuf);
-        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem, szBuf);
+        snprintf(szBuf, sizeof(szBuf), "In [%s::%s Line: %d]\nError [%s]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, e.what());
 
-        throw megaglest_runtime_error(szBuf);
+        SystemFlags::OutputDebug(SystemFlags::debugError, szBuf);
+
+        if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
+            SystemFlags::OutputDebug(SystemFlags::debugSystem, szBuf);
+        }
+
+        // Optionally store the error message for later debugging
+        // lastErrorMessage = szBuf;
     }
 }
 
