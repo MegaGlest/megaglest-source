@@ -1742,13 +1742,13 @@ void Model::autoJoinMeshFrames() {
 // ----------------------------------------------------------------------------
 
 bool PixelBufferWrapper::isPBOEnabled = false;
-int PixelBufferWrapper::index = 0;
+int PixelBufferWrapper::index = 0;  
 vector<unsigned int> PixelBufferWrapper::pboIds;
 
 PixelBufferWrapper::PixelBufferWrapper(int pboCount, int bufferSize) {
     this->bufferSize = bufferSize;
     // if(isGlExtensionSupported("GL_ARB_pixel_buffer_object") == true &&
-    if (GLEW_ARB_pixel_buffer_object) {
+    if (GL_ARB_pixel_buffer_object) {
         PixelBufferWrapper::isPBOEnabled = true;
         cleanup();
         // For some wacky reason this fails in VC++ 2008
