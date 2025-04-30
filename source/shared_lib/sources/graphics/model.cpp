@@ -336,33 +336,33 @@ void Mesh::BuildVBOs() {
             // VBO...\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
             // Generate And Bind The Vertex Buffer
-            glGenBuffersARB(1, (GLuint *)&m_nVBOVertices);        // Get A Valid Name
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_nVBOVertices); // Bind The Buffer
+            glGenBuffers(1, (GLuint *)&m_nVBOVertices);        // Get A Valid Name
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, m_nVBOVertices); // Bind The Buffer
             // Load The Data
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(Vec3f) * frameCount * vertexCount, vertices, GL_STATIC_DRAW_ARB);
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+            glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(Vec3f) * frameCount * vertexCount, vertices, GL_STATIC_DRAW_ARB);
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
             // Generate And Bind The Texture Coordinate Buffer
-            glGenBuffersARB(1, (GLuint *)&m_nVBOTexCoords);        // Get A Valid Name
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_nVBOTexCoords); // Bind The Buffer
+            glGenBuffers(1, (GLuint *)&m_nVBOTexCoords);        // Get A Valid Name
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, m_nVBOTexCoords); // Bind The Buffer
             // Load The Data
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * vertexCount, texCoords, GL_STATIC_DRAW_ARB);
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+            glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) * vertexCount, texCoords, GL_STATIC_DRAW_ARB);
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
             // Generate And Bind The Normal Buffer
-            glGenBuffersARB(1, (GLuint *)&m_nVBONormals);        // Get A Valid Name
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_nVBONormals); // Bind The Buffer
+            glGenBuffers(1, (GLuint *)&m_nVBONormals);        // Get A Valid Name
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, m_nVBONormals); // Bind The Buffer
             // Load The Data
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(Vec3f) * frameCount * vertexCount, normals, GL_STATIC_DRAW_ARB);
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+            glBufferData(GL_ARRAY_BUFFER_ARB, sizeof(Vec3f) * frameCount * vertexCount, normals, GL_STATIC_DRAW_ARB);
+            glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
             // Generate And Bind The Index Buffer
-            glGenBuffersARB(1, (GLuint *)&m_nVBOIndexes); // Get A Valid Name
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+            glGenBuffers(1, (GLuint *)&m_nVBOIndexes); // Get A Valid Name
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB,
                             m_nVBOIndexes); // Bind The Buffer
             // Load The Data
-            glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(uint32) * indexCount, indices, GL_STATIC_DRAW_ARB);
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(uint32) * indexCount, indices, GL_STATIC_DRAW_ARB);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
             // Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics
             // Card
@@ -386,10 +386,10 @@ void Mesh::BuildVBOs() {
 void Mesh::ReleaseVBOs() {
     if (getVBOSupported() == true) {
         if (hasBuiltVBOs == true) {
-            glDeleteBuffersARB(1, (GLuint *)&m_nVBOVertices);  // Get A Valid Name
-            glDeleteBuffersARB(1, (GLuint *)&m_nVBOTexCoords); // Get A Valid Name
-            glDeleteBuffersARB(1, (GLuint *)&m_nVBONormals);   // Get A Valid Name
-            glDeleteBuffersARB(1, (GLuint *)&m_nVBOIndexes);   // Get A Valid Name
+            glDeleteBuffers(1, (GLuint *)&m_nVBOVertices);  // Get A Valid Name
+            glDeleteBuffers(1, (GLuint *)&m_nVBOTexCoords); // Get A Valid Name
+            glDeleteBuffers(1, (GLuint *)&m_nVBONormals);   // Get A Valid Name
+            glDeleteBuffers(1, (GLuint *)&m_nVBOIndexes);   // Get A Valid Name
             hasBuiltVBOs = false;
         }
     }
@@ -1753,7 +1753,7 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount, int bufferSize) {
         cleanup();
         // For some wacky reason this fails in VC++ 2008
         // pboIds.reserve(pboCount);
-        // glGenBuffersARB(pboCount, (GLuint*)&pboIds[0]);
+        // glGenBuffers(pboCount, (GLuint*)&pboIds[0]);
         //
 
         /*
@@ -1761,15 +1761,15 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount, int bufferSize) {
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
 
             pboIds.push_back(0);
-            glGenBuffersARB(1, (GLuint*)&pboIds[i]);
+            glGenBuffers(1, (GLuint*)&pboIds[i]);
             // create pixel buffer objects, you need to delete them when program
     exits.
-            // glBufferDataARB with NULL pointer reserves only memory space.
-            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i]);
-            glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0,
-    GL_STREAM_READ_ARB);
+            // glBufferData with NULL pointer reserves only memory space.
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i]);
+            glBufferData(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0,
+    GL_STREAM_READ);
     }
-    glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
     */
         addBuffersToPixelBuf(pboCount);
     }
@@ -1781,13 +1781,13 @@ void PixelBufferWrapper::addBuffersToPixelBuf(int pboCount) {
         if (SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n", i);
 
         pboIds.push_back(0);
-        glGenBuffersARB(1, (GLuint *)&pboIds[i + iStartIndex]);
+        glGenBuffers(1, (GLuint *)&pboIds[i + iStartIndex]);
         // create pixel buffer objects, you need to delete them when program exits.
-        // glBufferDataARB with NULL pointer reserves only memory space.
-        glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i + iStartIndex]);
-        glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ_ARB);
+        // glBufferData with NULL pointer reserves only memory space.
+        glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pboIds[i + iStartIndex]);
+        glBufferData(GL_PIXEL_PACK_BUFFER_ARB, bufferSize, 0, GL_STREAM_READ);
     }
-    glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
 }
 
 Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x, int y, int w, int h, int colorComponents) {
@@ -1829,8 +1829,8 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x, int y, int w, int h, int 
             // Use offset instead of pointer.
             // OpenGL should perform asynch DMA transfer, so glReadPixels() will
             // return immediately.
-            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
-            // glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+            // glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
 
             codeSection = "E";
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
@@ -1848,12 +1848,12 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x, int y, int w, int h, int 
             codeSection = "F";
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
             // map the PBO that contain framebuffer pixels before processing it
-            // glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
-            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
+            // glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
 
             codeSection = "G";
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
-            GLubyte *src = (GLubyte *)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
+            GLubyte *src = (GLubyte *)glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
             if (src) {
                 codeSection = "H";
                 if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
@@ -1865,7 +1865,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x, int y, int w, int h, int 
 
                 codeSection = "J";
                 if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
-                glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB); // release pointer to the mapped buffer
+                glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB); // release pointer to the mapped buffer
                                                             // pixmapScreenShot->save("debugPBO.png");
             }
             codeSection = "K";
@@ -1873,7 +1873,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x, int y, int w, int h, int 
             // measure the time reading framebuffer
             // t1.stop();
             // processTime = t1.getElapsedTimeInMilliSec();
-            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
 
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
         } catch (megaglest_runtime_error &ex) {
@@ -1914,10 +1914,10 @@ void PixelBufferWrapper::cleanup() {
         if (pboIds.empty() == false) {
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Delete size = %d\n", (int)pboIds.size());
 
-            glDeleteBuffersARB((int)pboIds.size(), &pboIds[0]);
+            glDeleteBuffers((int)pboIds.size(), &pboIds[0]);
             pboIds.clear();
 
-            glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
         }
     }
 }

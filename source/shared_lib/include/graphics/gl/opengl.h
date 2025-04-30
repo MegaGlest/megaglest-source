@@ -21,9 +21,8 @@
 #include "platform_util.h"
 #include "leak_dumper.h"
 
-#if defined(WIN32)
 #include <GL/glu.h>
-#endif
+
 
 using std::runtime_error;
 using std::string;

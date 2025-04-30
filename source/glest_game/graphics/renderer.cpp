@@ -3866,43 +3866,43 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 //		VisibleQuadContainerVBOCache vboCache;
 //
 //		// Generate And Bind The Vertex Buffer
-//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOVertices );
-//// Get A Valid Name 		glBindBufferARB( GL_ARRAY_BUFFER_ARB,
+//		glGenBuffers( 1, (GLuint*)&vboCache.m_nVBOVertices );
+//// Get A Valid Name 		glBindBuffer( GL_ARRAY_BUFFER_ARB,
 // vboCache.m_nVBOVertices );			// Bind The Buffer
 //		// Load The Data
-//		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) *
+//		glBufferData( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) *
 // cellData->bufferCount, vertices, GL_STATIC_DRAW_ARB );
-//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 //
 //		assertGl();
 //		// Generate And Bind The Texture Coordinate Buffer
-//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOFowTexCoords );
-//// Get A Valid Name 		glBindBufferARB( GL_ARRAY_BUFFER_ARB,
+//		glGenBuffers( 1, (GLuint*)&vboCache.m_nVBOFowTexCoords );
+//// Get A Valid Name 		glBindBuffer( GL_ARRAY_BUFFER_ARB,
 // vboCache.m_nVBOFowTexCoords );		// Bind The Buffer
 //		// Load The Data
-//		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) *
+//		glBufferData( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) *
 // cellData->bufferCount, texCoords, GL_STATIC_DRAW_ARB );
-//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 //
 //		assertGl();
 //		// Generate And Bind The Texture Coordinate Buffer
-//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBOSurfaceTexCoords );
-//// Get A Valid Name 		glBindBufferARB( GL_ARRAY_BUFFER_ARB,
+//		glGenBuffers( 1, (GLuint*)&vboCache.m_nVBOSurfaceTexCoords );
+//// Get A Valid Name 		glBindBuffer( GL_ARRAY_BUFFER_ARB,
 // vboCache.m_nVBOSurfaceTexCoords );		// Bind The Buffer
 //		// Load The Data
-//		glBufferDataARB( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) *
+//		glBufferData( GL_ARRAY_BUFFER_ARB, sizeof(Vec2f) *
 // cellData->bufferCount, texCoordsSurface, GL_STATIC_DRAW_ARB );
-//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 //
 //		assertGl();
 //		// Generate And Bind The Normal Buffer
-//		glGenBuffersARB( 1, (GLuint*)&vboCache.m_nVBONormals );
-//// Get A Valid Name 		glBindBufferARB( GL_ARRAY_BUFFER_ARB,
+//		glGenBuffers( 1, (GLuint*)&vboCache.m_nVBONormals );
+//// Get A Valid Name 		glBindBuffer( GL_ARRAY_BUFFER_ARB,
 // vboCache.m_nVBONormals );			// Bind The Buffer
 //		// Load The Data
-//		glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) *
+//		glBufferData( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f) *
 // cellData->bufferCount, normals, GL_STATIC_DRAW_ARB );
-//		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+//		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 //
 //		vboCache.hasBuiltVBOs = true;
 //
@@ -3921,12 +3921,12 @@ void Renderer::ReleaseSurfaceVBOs() {
     for (std::map<uint32, VisibleQuadContainerVBOCache>::iterator iterFind = mapSurfaceVBOCache.begin(); iterFind != mapSurfaceVBOCache.end(); ++iterFind) {
         VisibleQuadContainerVBOCache &item = iterFind->second;
         if (item.hasBuiltVBOs == true) {
-            glDeleteBuffersARB(1,
+            glDeleteBuffers(1,
                                (GLuint *)&item.m_nVBOVertices);            // Get A Valid Name
-            glDeleteBuffersARB(1, (GLuint *)&item.m_nVBOFowTexCoords);     // Get A Valid Name
-            glDeleteBuffersARB(1, (GLuint *)&item.m_nVBOSurfaceTexCoords); // Get A Valid Name
-            glDeleteBuffersARB(1, (GLuint *)&item.m_nVBONormals);          // Get A Valid Name
-                                                                           // glDeleteBuffersARB( 1, &item.m_nVBOIndexes );
+            glDeleteBuffers(1, (GLuint *)&item.m_nVBOFowTexCoords);     // Get A Valid Name
+            glDeleteBuffers(1, (GLuint *)&item.m_nVBOSurfaceTexCoords); // Get A Valid Name
+            glDeleteBuffers(1, (GLuint *)&item.m_nVBONormals);          // Get A Valid Name
+                                                                           // glDeleteBuffers( 1, &item.m_nVBOIndexes );
                                                                            // // Get A Valid Name
         }
     }
@@ -3935,21 +3935,21 @@ void Renderer::ReleaseSurfaceVBOs() {
 }
 
 Renderer::MapRenderer::Layer::~Layer() {
-    if (vbo_vertices) glDeleteBuffersARB(1, &vbo_vertices);
-    if (vbo_normals) glDeleteBuffersARB(1, &vbo_normals);
-    if (vbo_fowTexCoords) glDeleteBuffersARB(1, &vbo_fowTexCoords);
-    if (vbo_surfTexCoords) glDeleteBuffersARB(1, &vbo_surfTexCoords);
-    if (vbo_indices) glDeleteBuffersARB(1, &vbo_indices);
+    if (vbo_vertices) glDeleteBuffers(1, &vbo_vertices);
+    if (vbo_normals) glDeleteBuffers(1, &vbo_normals);
+    if (vbo_fowTexCoords) glDeleteBuffers(1, &vbo_fowTexCoords);
+    if (vbo_surfTexCoords) glDeleteBuffers(1, &vbo_surfTexCoords);
+    if (vbo_indices) glDeleteBuffers(1, &vbo_indices);
 }
 
 template <typename T> void _loadVBO(GLuint &vbo, std::vector<T> buf, int target = GL_ARRAY_BUFFER_ARB) {
     assert(buf.size());
     if (true /* vbo enabled? */) {
-        glGenBuffersARB(1, &vbo);
+        glGenBuffers(1, &vbo);
         assert(vbo);
-        glBindBufferARB(target, vbo);
-        glBufferDataARB(target, sizeof(T) * buf.size(), &buf[0], GL_STATIC_DRAW_ARB);
-        glBindBufferARB(target, 0);
+        glBindBuffer(target, vbo);
+        glBufferData(target, sizeof(T) * buf.size(), &buf[0], GL_STATIC_DRAW_ARB);
+        glBindBuffer(target, 0);
         assertGl();
         buf.clear();
     }
@@ -4699,7 +4699,7 @@ void Renderer::renderSurface(const int renderFps) {
             //					glClientActiveTexture(fowTexUnit);
             //					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
             //
-            //					glBindBufferARB(
+            //					glBindBuffer(
             // GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOFowTexCoords);
             //					glTexCoordPointer(2, GL_FLOAT,
             // 0,(char *) NULL);
@@ -4709,16 +4709,16 @@ void Renderer::renderSurface(const int renderFps) {
             // glClientActiveTexture(baseTexUnit);
             //					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
             //
-            //					glBindBufferARB(
+            //					glBindBuffer(
             // GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOSurfaceTexCoords);
             //					glTexCoordPointer(2, GL_FLOAT,
             // 0, (char *) NULL);
             //
-            //					glBindBufferARB(
+            //					glBindBuffer(
             // GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOVertices);
             // glVertexPointer(3, GL_FLOAT, 0, (char *) NULL);
             //
-            //					glBindBufferARB(
+            //					glBindBuffer(
             // GL_ARRAY_BUFFER_ARB, vboCache->m_nVBONormals);
             //					glNormalPointer(GL_FLOAT, 0,
             //(char *) NULL);
@@ -4726,7 +4726,7 @@ void Renderer::renderSurface(const int renderFps) {
             //					glDrawArrays(GL_TRIANGLE_STRIP,
             // 0, data.bufferCount);
             //
-            //					glBindBufferARB(
+            //					glBindBuffer(
             // GL_ARRAY_BUFFER_ARB, 0 );
             //
             //					glClientActiveTexture(fowTexUnit);
