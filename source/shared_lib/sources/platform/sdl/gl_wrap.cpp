@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <cassert>
 
+// #include <glad/gl.h>
+
 #include "opengl.h"
 #include "sdl_private.h"
 #include "noimpl.h"
@@ -309,17 +311,17 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits, bool
         // SDL_SetRelativeMouseMode(SDL_FALSE);
 
         if (SystemFlags::VERBOSE_MODE_ENABLED)
-            printf("In [%s::%s %d] BEFORE glewInit call\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
+            printf("In [%s::%s %d] BEFORE gladLoadGL call\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 
-        GLuint err = glewInit();
+        GLuint err = gladLoadGL();
 
         if (SystemFlags::VERBOSE_MODE_ENABLED)
-            printf("In [%s::%s %d] AFTER glewInit call err = %d\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, err);
+            printf("In [%s::%s %d] AFTER gladLoadGL call err = %d\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, err);
 
-        if (GLEW_OK != err) {
+        if (GL_NO_ERROR != err) {
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 
-            fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
+            fprintf(stderr, "Error [main]: gladLoadGL failed: %s\n", glewGetErrorString(err));
             // return 1;
             throw std::runtime_error((char *)glewGetErrorString(err));
         }

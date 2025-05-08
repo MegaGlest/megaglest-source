@@ -535,9 +535,9 @@ void MainWindow::setupStartupSettings() {
     glCanvas->setCurrentGLContext();
     // printf("In setupStartupSettings #2\n");
 
-    GLuint err = glewInit();
-    if (GLEW_OK != err) {
-        fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
+    GLuint err = gladLoadGL();
+    if (GL_NO_ERROR != err) {
+        fprintf(stderr, "Error [main]: gladLoadGL failed: %s\n", glewGetErrorString(err));
         // return 1;
         throw std::runtime_error((char *)glewGetErrorString(err));
     }
