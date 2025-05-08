@@ -11,7 +11,6 @@ git pull
     freetype:x64-windows-static `
     fribidi:x64-windows-static `
     ftgl:x64-windows-static `
-    glew:x64-windows-static `
     libiconv:x64-windows-static `
     libjpeg-turbo:x64-windows-static `
     liblzma:x64-windows-static `

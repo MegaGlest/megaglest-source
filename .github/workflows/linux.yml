@@ -37,7 +37,6 @@ jobs:
               fribidi \
               ftgl \
               git \
-              glew \
               jpeg-turbo \
               libGLU \
               libircclient \
