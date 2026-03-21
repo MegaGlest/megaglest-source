@@ -12,6 +12,7 @@
 #define NOMINMAX
 
 #include <cassert>
+#include "deterministic_math.h"
 #include "unit.h"
 #include "unit_particle_type.h"
 #include "world.h"
@@ -949,22 +950,14 @@ void Unit::calculateXZRotation() {
         SurfaceCell *sc = map->getSurfaceCell(Map::toSurfCoords(pos));
         const Vec3f normal = sc->getNormal();
 
-#ifdef USE_STREFLOP
-        targetRotationZ = radToDeg(streflop::atan2(static_cast<streflop::Simple>(abs(normal.x)), static_cast<streflop::Simple>(abs(normal.y))));
-#else
-        targetRotationZ = radToDeg(atan2(abs(normal.x), abs(normal.y)));
-#endif
+        targetRotationZ = deterministicAtan2Deg(abs(normal.x), abs(normal.y));
 
         if ((normal.y < 0 || normal.x < 0) && !(normal.y < 0 && normal.x < 0)) {
             targetRotationZ = targetRotationZ * -1;
         }
         targetRotationZ = targetRotationZ * -1;
 
-#ifdef USE_STREFLOP
-        targetRotationX = radToDeg(streflop::atan2(static_cast<streflop::Simple>(abs(normal.z)), static_cast<streflop::Simple>(abs(normal.y))));
-#else
-        targetRotationX = radToDeg(atan2(abs(normal.z), abs(normal.y)));
-#endif
+        targetRotationX = deterministicAtan2Deg(abs(normal.z), abs(normal.y));
 
         if ((normal.y < 0 || normal.z < 0) && !(normal.y < 0 && normal.z < 0)) {
             targetRotationX = targetRotationX * -1;
@@ -1483,11 +1476,7 @@ void Unit::setTargetPos(const Vec2i &targetPos, bool threaded) {
     // map->clampPos(relPos);
 
     Vec2f relPosf = Vec2f((float)relPos.x, (float)relPos.y);
-#ifdef USE_STREFLOP
-    targetRotation = radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
-#else
-    targetRotation = radToDeg(atan2(relPosf.x, relPosf.y));
-#endif
+    targetRotation = deterministicAtan2Deg(relPosf.x, relPosf.y);
     targetRotation = truncateDecimal<float>(targetRotation, 6);
 
     targetRef = NULL;
@@ -3922,11 +3911,7 @@ void Unit::updateTarget() {
         targetPos = target->getCellPos();
         Vec2i relPos = targetPos - pos;
         Vec2f relPosf = Vec2f((float)relPos.x, (float)relPos.y);
-#ifdef USE_STREFLOP
-        targetRotation = radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
-#else
-        targetRotation = radToDeg(atan2(relPosf.x, relPosf.y));
-#endif
+        targetRotation = deterministicAtan2Deg(relPosf.x, relPosf.y);
         targetVec = target->getCurrVectorAsTarget();
     }
 }

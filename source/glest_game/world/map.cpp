@@ -1709,12 +1709,7 @@ void Map::smoothSurface(Tileset *tileset) {
             float numUsedToSmooth = 0.f;
             for (int k = -1; k <= 1; ++k) {
                 for (int l = -1; l <= 1; ++l) {
-#ifdef USE_STREFLOP
-                    if (cliffLevel <= 0.1f ||
-                        cliffLevel > streflop::fabs(static_cast<streflop::Simple>(oldHeights[(j)*surfaceW + (i)] - oldHeights[(j + k) * surfaceW + (i + l)]))) {
-#else
                     if (cliffLevel <= 0.1f || cliffLevel > fabs(oldHeights[(j)*surfaceW + (i)] - oldHeights[(j + k) * surfaceW + (i + l)])) {
-#endif
                         height += oldHeights[(j + k) * surfaceW + (i + l)];
                         numUsedToSmooth++;
                     } else {
@@ -2060,12 +2055,7 @@ bool PosCircularIterator::next() {
         }
         if (pos.y > center.y + radius) return false;
     }
-#ifdef USE_STREFLOP
-    while (streflop::floor(static_cast<streflop::Simple>(pos.dist(center))) >= (radius + 1) || !map->isInside(pos) ||
-           !map->isInsideSurface(map->toSurfCoords(pos)));
-#else
     while (floor(pos.dist(center)) >= (radius + 1) || !map->isInside(pos) || !map->isInsideSurface(map->toSurfCoords(pos)));
-#endif
 
     return true;
 }
