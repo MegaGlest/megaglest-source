@@ -6,13 +6,19 @@ concurrency:
 on:
   push:
     branches: [ develop ]
-    paths-ignore:
-      - '**/appimage.yml'
+    paths:
+      - '**'
+      - '!**.md'
+      - '!**.yml'
+      - '.github/workflows/cmake.yml'
 
   pull_request:
     branches: [ develop ]
-    paths-ignore:
-      - '**/appimage.yml'
+    paths:
+      - '**'
+      - '!**.md'
+      - '!**.yml'
+      - '.github/workflows/cmake.yml'
 
 jobs:
   freebsd:

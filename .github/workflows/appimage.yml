@@ -12,6 +12,12 @@ on:
         type: string
   push:
     branches: develop
+    paths:
+    - '**/appimage.yml'
+    - '**/docker-compose.yml'
+    - '**/build-appimage.sh'
+    - '**/AppRun'
+    - '**/.env'
   pull_request:
     branches: develop
     paths:
