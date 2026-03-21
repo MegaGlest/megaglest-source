@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Get dependencies
       run: |
