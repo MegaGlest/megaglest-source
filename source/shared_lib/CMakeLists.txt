@@ -153,21 +153,31 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
 	IF(WANT_USE_FontConfig)
-	        FIND_PACKAGE(FontConfig)
-	        IF(FONTCONFIG_FOUND)
-				IF(APPLE)
-					# Apple/ brew can't collect transitive deps.
-					FIND_PACKAGE(EXPAT 2.2.0 MODULE REQUIRED)
-					SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} EXPAT::EXPAT)
-				ENDIF()
-                MESSAGE(STATUS "**NOTE: FontConfig support was detected and enabled.")
-	            SET(HAVE_FONTCONFIG 1)
-                    ADD_DEFINITIONS(-DHAVE_FONTCONFIG)
-
-	            INCLUDE_DIRECTORIES( ${FONTCONFIG_INCLUDE_DIR} )
-	            SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FONTCONFIG_LIBRARIES} )
-	        ENDIF(FONTCONFIG_FOUND)
-        ENDIF()
+		IF(APPLE)
+			# On macOS, use pkg-config for fontconfig so that all transitive
+			# dependencies (freetype, expat, CoreFoundation, etc.) are included.
+			# FIND_PACKAGE(FontConfig) only finds libfontconfig.a and omits
+			# transitive deps, causing undefined symbols at link time on arm64.
+			pkg_check_modules(FONTCONFIG fontconfig)
+			IF(FONTCONFIG_FOUND)
+				MESSAGE(STATUS "**NOTE: FontConfig support was detected and enabled.")
+				SET(HAVE_FONTCONFIG 1)
+				ADD_DEFINITIONS(-DHAVE_FONTCONFIG)
+				INCLUDE_DIRECTORIES(${FONTCONFIG_INCLUDE_DIRS})
+				LINK_DIRECTORIES(${FONTCONFIG_LIBRARY_DIRS})
+				SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FONTCONFIG_LIBRARIES})
+			ENDIF()
+		ELSE()
+			FIND_PACKAGE(FontConfig)
+			IF(FONTCONFIG_FOUND)
+				MESSAGE(STATUS "**NOTE: FontConfig support was detected and enabled.")
+				SET(HAVE_FONTCONFIG 1)
+				ADD_DEFINITIONS(-DHAVE_FONTCONFIG)
+				INCLUDE_DIRECTORIES(${FONTCONFIG_INCLUDE_DIR})
+				SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FONTCONFIG_LIBRARIES})
+			ENDIF()
+		ENDIF()
+	ENDIF()
 
 	OPTION(WANT_USE_FTGL "Use libFTGL for on-screen fonts (found on your system)" ON)
 	find_package( Freetype REQUIRED)
