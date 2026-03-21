@@ -4823,8 +4823,7 @@ bool Game::sdlKeyDown(SDL_KeyboardEvent key) {
                    key.keysym.mod, groupHotKey, key.keysym.sym, keyName.c_str(), isKeyPressed(groupHotKey, key));
         // printf(" group key check %d   scancode:%d sym:%d groupHotKey=%d
         // \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
-        if (key.keysym.sym == groupHotKey ||
-            key.keysym.scancode == SDL_GetScancodeFromKey(groupHotKey)) {
+        if (key.keysym.sym == groupHotKey || key.keysym.scancode == SDL_GetScancodeFromKey(groupHotKey)) {
             if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
                 SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
                                          __LINE__);
