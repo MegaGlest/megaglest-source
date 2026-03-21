@@ -158,11 +158,9 @@ jobs:
         ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
 
     - name: Git Hash
-      if: ${{ github.ref == 'refs/heads/develop' }}
       run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
 
     - name: Prepare Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
       run: |
         cd mk\windoze
         Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
@@ -174,7 +172,6 @@ jobs:
         cd ../..
 
     - name: Create MegaGlest Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
       uses: actions/upload-artifact@v7
       with:
         name: megaglest-x64-windows-archive
