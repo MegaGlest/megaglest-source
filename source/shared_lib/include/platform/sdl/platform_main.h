@@ -604,7 +604,6 @@ int mainSetup(int argc, char **argv) {
         haveSpecialOutputCommandLineOption = true;
     }
 
-
     if (hasCommandArgument(argc, argv, string(GAME_ARGS[GAME_ARG_HELP])) == true ||
         hasCommandArgument(argc, argv, string(GAME_ARGS[GAME_ARG_VERSION])) == true ||
         hasCommandArgument(argc, argv, string(GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS])) == true ||
