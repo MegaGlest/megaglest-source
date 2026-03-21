@@ -34,22 +34,17 @@ namespace det_math_impl {
 // Error < 4e-11 radians (6 terms = degree-11 polynomial).
 inline double atan_core(double t) {
     double t2 = t * t;
-    return t * (1.0
-        - t2 * (1.0 / 3.0
-        - t2 * (1.0 / 5.0
-        - t2 * (1.0 / 7.0
-        - t2 * (1.0 / 9.0
-        - t2 * (1.0 / 11.0))))));
+    return t * (1.0 - t2 * (1.0 / 3.0 - t2 * (1.0 / 5.0 - t2 * (1.0 / 7.0 - t2 * (1.0 / 9.0 - t2 * (1.0 / 11.0))))));
 }
 
 // atan(x) for x in [0, 1].
 inline double atan01(double x) {
     // tan(pi/12) = 2 - sqrt(3)
-    const double TAN_PI12    = 0.26794919243112270647255365849413;
+    const double TAN_PI12 = 0.26794919243112270647255365849413;
     // tan(pi/6)  = 1/sqrt(3)
     const double SQRT3_OVER3 = 0.57735026918962576450914878050196;
-    const double SQRT3       = 1.7320508075688772935274463415059;
-    const double PI_OVER_6   = 0.52359877559829887307710723054658;
+    const double SQRT3 = 1.7320508075688772935274463415059;
+    const double PI_OVER_6 = 0.52359877559829887307710723054658;
 
     if (x <= TAN_PI12) {
         return atan_core(x);
@@ -70,15 +65,15 @@ inline double atan01(double x) {
 // Arguments follow the same (y, x) convention as std::atan2.
 // Returns the angle in degrees.
 inline float deterministicAtan2Deg(float y, float x) {
-    const double PI      = 3.14159265358979323846264338328;
-    const double PI_2    = 1.57079632679489661923132169164;
+    const double PI = 3.14159265358979323846264338328;
+    const double PI_2 = 1.57079632679489661923132169164;
     const double RAD2DEG = 57.295779513082320876798154814105;
 
     double dx = static_cast<double>(x);
     double dy = static_cast<double>(y);
 
     if (dx == 0.0) {
-        if (dy > 0.0) return static_cast<float>( PI_2 * RAD2DEG);
+        if (dy > 0.0) return static_cast<float>(PI_2 * RAD2DEG);
         if (dy < 0.0) return static_cast<float>(-PI_2 * RAD2DEG);
         return 0.0f;
     }

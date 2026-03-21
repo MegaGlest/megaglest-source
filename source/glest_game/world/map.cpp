@@ -2054,8 +2054,7 @@ bool PosCircularIterator::next() {
             pos.y++;
         }
         if (pos.y > center.y + radius) return false;
-    }
-    while (floor(pos.dist(center)) >= (radius + 1) || !map->isInside(pos) || !map->isInsideSurface(map->toSurfCoords(pos)));
+    } while (floor(pos.dist(center)) >= (radius + 1) || !map->isInside(pos) || !map->isInsideSurface(map->toSurfCoords(pos)));
 
     return true;
 }
