@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     name: FreeBSD
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Test in FreeBSD
       id: test
       uses: vmactions/freebsd-vm@v1
@@ -74,7 +74,7 @@ jobs:
       MATRIX_COMPILER: ${{matrix.compiler}}
       MATRIX_OS: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Get dependencies
       run: |
         echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
