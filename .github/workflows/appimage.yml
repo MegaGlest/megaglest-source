@@ -12,7 +12,7 @@ on:
         type: string
   push:
     branches: develop
-    paths:
+    paths: &appimage_paths
     - '**/appimage.yml'
     - '**/docker-compose.yml'
     - '**/build-appimage.sh'
@@ -20,12 +20,7 @@ on:
     - '**/.env'
   pull_request:
     branches: develop
-    paths:
-    - '**/appimage.yml'
-    - '**/docker-compose.yml'
-    - '**/build-appimage.sh'
-    - '**/AppRun'
-    - '**/.env'
+    paths: *appimage_paths
 
 jobs:
   build-mg-appimage:

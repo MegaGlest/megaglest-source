@@ -6,7 +6,7 @@ concurrency:
 on:
   push:
     branches: [ develop ]
-    paths:
+    paths: &cmake_paths
       - '**'
       - '!**.md'
       - '!**.yml'
@@ -14,11 +14,7 @@ on:
 
   pull_request:
     branches: [ develop ]
-    paths:
-      - '**'
-      - '!**.md'
-      - '!**.yml'
-      - '.github/workflows/cmake.yml'
+    paths: *cmake_paths
 
 jobs:
   freebsd:
