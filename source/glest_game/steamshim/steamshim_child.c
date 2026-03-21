@@ -268,7 +268,7 @@ static const STEAMSHIM_Event *processEvent(const uint8 *buf, size_t buflen) {
     case SHIMEVENT_SETSTATF:
     case SHIMEVENT_GETSTATF:
         event.okay = *(buf++) ? 1 : 0;
-        event.fvalue = (int)*((float *)buf);
+        event.fvalue = *((float *)buf);
         buf += sizeof(float);
         strcpy(event.name, (const char *)buf);
         break;
