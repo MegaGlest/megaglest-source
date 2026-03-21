@@ -4,7 +4,7 @@ concurrency:
   cancel-in-progress: true
 on:
   workflow_run:
-    workflows: [macOS]
+    workflows: [macOS, Windows]
     types: [completed]
     branches: [develop]
 
@@ -16,67 +16,72 @@ jobs:
       contents: write
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-    - name: 'Download artifacts'
+    - name: 'Check both workflows completed'
+      id: check
       uses: actions/github-script@v8
       with:
         script: |
-          const fs = require('fs');
           const headSha = context.payload.workflow_run.head_sha;
-
-          // Download macOS artifact from the triggering workflow run
-          let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-          });
-          let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-            return artifact.name == "megaglest-x64-macos"
-          })[0];
-          let download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: matchArtifact.id,
-              archive_format: 'zip',
-          });
-          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-macos.zip`, Buffer.from(download.data));
-
-          // Find the Windows workflow run for the same commit SHA
-          const windowsRuns = await github.rest.actions.listWorkflowRunsForRepo({
+          const runs = await github.rest.actions.listWorkflowRunsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head_sha: headSha,
               status: 'success',
               per_page: 20,
           });
-          const windowsRun = windowsRuns.data.workflow_runs.find(r => r.name === 'Windows');
-          if (!windowsRun) {
-              core.setFailed(`No successful Windows workflow run found for SHA ${headSha}`);
-              return;
+          const names = runs.data.workflow_runs.map(r => r.name);
+          const hasMacos   = names.includes('macOS');
+          const hasWindows = names.includes('Windows');
+          console.log(`macOS: ${hasMacos}, Windows: ${hasWindows}`);
+          core.setOutput('ready', String(hasMacos && hasWindows));
+
+    - name: 'Download artifacts'
+      if: steps.check.outputs.ready == 'true'
+      uses: actions/github-script@v8
+      with:
+        script: |
+          const fs = require('fs');
+          const headSha = context.payload.workflow_run.head_sha;
+
+          const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: headSha,
+              status: 'success',
+              per_page: 20,
+          });
+
+          const macosRun   = runs.data.workflow_runs.find(r => r.name === 'macOS');
+          const windowsRun = runs.data.workflow_runs.find(r => r.name === 'Windows');
+
+          for (const [runId, artifactName, destFile] of [
+              [macosRun.id,   'megaglest-x64-macos',           'megaglest-x64-macos.zip'],
+              [windowsRun.id, 'megaglest-x64-windows-archive', 'megaglest-x64-windows-archive.zip'],
+          ]) {
+              const allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: runId,
+              });
+              const artifact = allArtifacts.data.artifacts.find(a => a.name === artifactName);
+              const download = await github.rest.actions.downloadArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                  archive_format: 'zip',
+              });
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/${destFile}`, Buffer.from(download.data));
           }
 
-          allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: windowsRun.id,
-          });
-          matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-            return artifact.name == "megaglest-x64-windows-archive"
-          })[0];
-          download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: matchArtifact.id,
-              archive_format: 'zip',
-          });
-          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-windows-archive.zip`, Buffer.from(download.data));
-
     - name: 'Prepare artifacts'
+      if: steps.check.outputs.ready == 'true'
       run: |
         unzip megaglest-x64-windows-archive.zip
         unzip megaglest-x64-macos.zip
         rm megaglest-x64-windows-archive.zip megaglest-x64-macos.zip
 
     - name: 'Prerelease'
+      if: steps.check.outputs.ready == 'true'
       uses: ncipollo/release-action@v1
       with:
         artifacts: "*.zip,*.tar.bz2"
