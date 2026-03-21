@@ -228,12 +228,8 @@ template <typename T> class Vec2 {
     inline bool operator<(const Vec2<T> &v) const { return x < v.x || (x == v.x && y < v.y); }
 
     inline float length() const {
-#ifdef USE_STREFLOP
-        float len = static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x * x + y * y)));
-#else
         float len = static_cast<float>(std::sqrt(static_cast<float>(x * x + y * y)));
         len = truncateDecimal<float>(len, 6);
-#endif
         return len;
     }
 
@@ -422,12 +418,8 @@ template <typename T> class Vec3 {
     }
 
     inline float length() const {
-#ifdef USE_STREFLOP
-        float len = static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x * x + y * y + z * z)));
-#else
         float len = static_cast<float>(std::sqrt(x * x + y * y + z * z));
         len = truncateDecimal<float>(len, 6);
-#endif
         return len;
     }
 

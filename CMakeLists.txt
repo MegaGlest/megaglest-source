@@ -100,7 +100,6 @@ OPTION(WANT_STATIC_LIBS "Builds as many static libs as possible." OFF)
 OPTION(WANT_USE_OpenSSL "Use libOpenSSL during CURL linking." ON)
 OPTION(WANT_USE_FriBiDi "Enable libFriBIDi support." ON)
 OPTION(WANT_USE_GoogleBreakpad "Enable GoogleBreakpad support." ON)
-OPTION(WANT_USE_STREFLOP "Use the library streflop." OFF)
 OPTION(WANT_USE_XercesC "Enable libXercesC support." OFF)
 
 FIND_PROGRAM(HELP2MAN "help2man")
@@ -262,39 +261,6 @@ endforeach()
 
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
-
-	OPTION(FORCE_STREFLOP_SOFTWRAPPER "Set the streflop library to be forced to use the software emulator" OFF)
-    IF(NOT FORCE_MAX_SSE_LEVEL AND NOT FORCE_STREFLOP_SOFTWRAPPER)
-        SET(FORCE_MAX_SSE_LEVEL "1" CACHE STRING "Set the max SSE level to use if supported (0-3)")
-    ENDIF()
-
-    IF(NOT FORCE_STREFLOP_SOFTWRAPPER)
-        MESSAGE(STATUS "*NOTE: Checking for max SSE LEVEL [${FORCE_MAX_SSE_LEVEL}]")
-        special_check_for_sse( ${FORCE_MAX_SSE_LEVEL} )
-    ENDIF()
-
-	IF(WANT_USE_STREFLOP)
-		ADD_DEFINITIONS("-DUSE_STREFLOP -DSTREFLOP_RANDOM_GEN_SIZE=32 -DLIBM_COMPILING_FLT32 -DN_SPECIALIZED=32")
-
-        IF(HAS_SSE_EXTENSIONS AND NOT ${FORCE_MAX_SSE_LEVEL} MATCHES "0" AND NOT FORCE_STREFLOP_SOFTWRAPPER)
-            ADD_DEFINITIONS("-DSTREFLOP_SSE")
-            MESSAGE(STATUS "*NOTE: using SSE for STREFLOP.")
-        ELSE()
-            IF(NOT FORCE_STREFLOP_SOFTWRAPPER)
-                special_check_for_x87()
-            ENDIF()
-
-            IF(HAS_X87_SUPPORT AND NOT FORCE_STREFLOP_SOFTWRAPPER)
-                ADD_DEFINITIONS("-DSTREFLOP_X87")
-                MESSAGE(STATUS "*NOTE: using X87 for STREFLOP.")
-            ELSE()
-                ADD_DEFINITIONS("-DSTREFLOP_SOFT")
-                MESSAGE(STATUS "*NOTE: using SOFT emulation for STREFLOP.")
-            ENDIF()
-        ENDIF()
-	ELSE()
-		MESSAGE(STATUS "*NOTE: STREFLOP disabled. atan2 calls that feed into sync state use deterministicAtan2Deg() instead.")
-	ENDIF()
 
 	include(CheckCXXSourceRuns)
 
