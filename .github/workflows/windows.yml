@@ -1,0 +1,96 @@
+name: Windows
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ develop ]
+    paths: &windows_paths
+      - '**'
+      - '!**.md'
+      - '!**.yml'
+      - '.github/workflows/windows.yml'
+
+  pull_request:
+    branches: [ develop ]
+    paths: *windows_paths
+
+jobs:
+  build-win64-deps:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+        build_type: [Release]
+        include:
+          - build_type: Release
+            release: 'ON'
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Cache Vcpkg Libs
+      uses: actions/cache@v5
+      env:
+        cache-name: cache-vcpkg-deps
+      with:
+        path: c:/vcpkg/installed
+        key: vcpkg-deps
+
+    - name: Install Windows Deps
+      run: |
+        cd mk\windoze
+        $scriptDir = Get-Location
+        cd c:\vcpkg
+        & "$(Join-Path $scriptDir install-deps-vcpkg.ps1)"
+
+  build-win64:
+    needs: build-win64-deps
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+        build_type: [Release]
+        include:
+          - build_type: Release
+            release: 'ON'
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get Vcpkg Libs Cache
+      uses: actions/cache@v5
+      env:
+        cache-name: cache-vcpkg-deps
+      with:
+        path: c:/vcpkg/installed
+        key: vcpkg-deps
+
+    - name: Build MegaGlest
+      run: |
+        cd mk/windoze
+        ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
+
+    - name: Git Hash
+      run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
+
+    - name: Prepare Snapshot
+      run: |
+        cd mk\windoze
+        Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
+        cp ..\shared\*.ini .
+        $7zPath = $(Get-Command 7z).Source
+        cp $7zPath .
+        Remove-Item glest-dev.ini
+        Compress-Archive -Path *.exe,*.ini -DestinationPath megaglest-x64-windows.zip
+        cd ../..
+
+    - name: Create MegaGlest Snapshot
+      uses: actions/upload-artifact@v7
+      with:
+        name: megaglest-x64-windows-archive
+        retention-days: 1
+        path: mk/windoze/*.zip

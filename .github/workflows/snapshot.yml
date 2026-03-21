@@ -4,7 +4,7 @@ concurrency:
   cancel-in-progress: true
 on:
   workflow_run:
-    workflows: [CMake]
+    workflows: [macOS]
     types: [completed]
     branches: [develop]
 
@@ -16,10 +16,14 @@ jobs:
       contents: write
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-    - name: 'Download artifact'
+    - name: 'Download artifacts'
       uses: actions/github-script@v8
       with:
         script: |
+          const fs = require('fs');
+          const headSha = context.payload.workflow_run.head_sha;
+
+          // Download macOS artifact from the triggering workflow run
           let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -34,9 +38,27 @@ jobs:
               artifact_id: matchArtifact.id,
               archive_format: 'zip',
           });
-          let fs = require('fs');
           fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/megaglest-x64-macos.zip`, Buffer.from(download.data));
 
+          // Find the Windows workflow run for the same commit SHA
+          const windowsRuns = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: headSha,
+              status: 'success',
+              per_page: 20,
+          });
+          const windowsRun = windowsRuns.data.workflow_runs.find(r => r.name === 'Windows');
+          if (!windowsRun) {
+              core.setFailed(`No successful Windows workflow run found for SHA ${headSha}`);
+              return;
+          }
+
+          allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: windowsRun.id,
+          });
           matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
             return artifact.name == "megaglest-x64-windows-archive"
           })[0];
@@ -53,7 +75,7 @@ jobs:
         unzip megaglest-x64-windows-archive.zip
         unzip megaglest-x64-macos.zip
         rm megaglest-x64-windows-archive.zip megaglest-x64-macos.zip
-        
+
     - name: 'Prerelease'
       uses: ncipollo/release-action@v1
       with:
@@ -66,7 +88,7 @@ jobs:
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
         tag: snapshot
-  
+
 
   on-failure:
     runs-on: ubuntu-latest

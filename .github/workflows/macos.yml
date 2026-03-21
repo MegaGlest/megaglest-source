@@ -1,0 +1,55 @@
+name: macOS
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ develop ]
+    paths: &macos_paths
+      - '**'
+      - '!**.md'
+      - '!**.yml'
+      - '.github/workflows/macos.yml'
+
+  pull_request:
+    branches: [ develop ]
+    paths: *macos_paths
+
+jobs:
+  build-macos:
+    strategy:
+      fail-fast: false
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get dependencies
+      run: |
+        mk/macos/setupBuildDeps.sh
+
+    - name: Build MegaGlest With Clang Compiler
+      run: |
+        mk/macos/build-mg.sh -m
+        make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
+
+    - name: Git Hash
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      run: |
+        echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+    - name: Prepare Snapshot
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      run: |
+        cd mk/macos
+        ./make-binary-archive.sh
+        cd -
+        mv release/mg-binary-macos*.tar.bz2 release/megaglest-x64-macos.tar.bz2
+
+    - name: Create MegaGlest Snapshot
+      if: ${{ github.ref == 'refs/heads/develop' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: megaglest-x64-macos
+        retention-days: 1
+        path: release/*.tar.bz2
