@@ -158,14 +158,16 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 			# dependencies (freetype, expat, CoreFoundation, etc.) are included.
 			# FIND_PACKAGE(FontConfig) only finds libfontconfig.a and omits
 			# transitive deps, causing undefined symbols at link time on arm64.
+			# Use FONTCONFIG_LINK_LIBRARIES (full paths) rather than
+			# FONTCONFIG_LIBRARIES (bare names) + LINK_DIRECTORIES, because
+			# LINK_DIRECTORIES is directory-scoped and won't reach sibling targets.
 			pkg_check_modules(FONTCONFIG fontconfig)
 			IF(FONTCONFIG_FOUND)
 				MESSAGE(STATUS "**NOTE: FontConfig support was detected and enabled.")
 				SET(HAVE_FONTCONFIG 1)
 				ADD_DEFINITIONS(-DHAVE_FONTCONFIG)
 				INCLUDE_DIRECTORIES(${FONTCONFIG_INCLUDE_DIRS})
-				LINK_DIRECTORIES(${FONTCONFIG_LIBRARY_DIRS})
-				SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FONTCONFIG_LIBRARIES})
+				SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FONTCONFIG_LINK_LIBRARIES})
 			ENDIF()
 		ELSE()
 			FIND_PACKAGE(FontConfig)
