@@ -1,0 +1,99 @@
+name: Linux
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ develop ]
+    paths: &linux_paths
+      - '**'
+      - '!**.md'
+      - '!**.yml'
+      - '.github/workflows/linux.yml'
+
+  pull_request:
+    branches: [ develop ]
+    paths: *linux_paths
+
+jobs:
+  freebsd:
+    runs-on: ubuntu-latest
+    name: FreeBSD
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test in FreeBSD
+      id: test
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        prepare: |
+          pkg install -y \
+              bash \
+              cmake \
+              cppunit \
+              curl \
+              freetype2 \
+              fribidi \
+              ftgl \
+              git \
+              glew \
+              jpeg-turbo \
+              libGLU \
+              libircclient \
+              libogg \
+              libvorbis \
+              libX11 \
+              libxml2 \
+              lua53 \
+              mesa-libs \
+              miniupnpc \
+              openal-soft \
+              pkgconf \
+              png \
+              sdl2 \
+              wx30-gtk3
+
+        run: |
+          git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
+          cd mk/linux
+          ./build-mg.sh -f -d
+
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [true, false]
+        os: [ubuntu-22.04, ubuntu-24.04]
+        compiler: [gcc, clang]
+        exclude:
+          - release: true
+            os: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
+    env:
+      MATRIX_COMPILER: ${{matrix.compiler}}
+      MATRIX_OS: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get dependencies
+      run: |
+        echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
+        sudo apt update
+        sudo apt remove -y firefox # save some time during upgrade
+        sudo apt upgrade -y
+        sudo mk/linux/setupBuildDeps.sh
+    - name: Build RelwithDebinfo
+      if: ${{ matrix.release != true }}
+      run:  |
+        if [ "${MATRIX_COMPILER}" = "clang" ]; then
+          EXTRA_OPTS="-f"
+        fi
+        mk/linux/build-mg.sh -m -d ${EXTRA_OPTS}
+        make -C mk/linux/build -j$(nproc) VERBOSE=1
+
+    - name: Build Release
+      if: ${{ matrix.release == true }}
+      run: |
+        # Note: LTO should be added automatically and visible in the make output
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        make VERBOSE=1 -C build -j$(nproc)
