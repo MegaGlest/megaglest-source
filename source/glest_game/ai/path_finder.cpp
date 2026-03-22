@@ -856,6 +856,17 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                     }
 
                     return aStar(unit, targetPos, false, frameIndex, pathFindNodesExploratoryMax, nullptr, 0.25f, true);
+                } else if (unit->getLastPathfindFailedPos() == finalPos) {
+                    // Still in cooldown for this destination.  Using bestClosedNode
+                    // here would give a partial path in the wrong direction (toward
+                    // open space rather than around the obstacle), causing visible
+                    // back-and-forth oscillation.  Return tsBlocked so the unit
+                    // waits until the cooldown expires and a fresh exploratory retry
+                    // can fire.
+                    if (frameIndex < 0) {
+                        path->incBlockCount();
+                    }
+                    return tsBlocked;
                 }
             }
         } else {
