@@ -140,7 +140,7 @@ class PathFinder {
         std::unordered_set<Vec2i, Vec2iHash> openPosList;
         // Binary min-heap open list: O(log n) push/pop, no tree allocation.
         std::vector<OpenListEntry> openNodesList;
-        int openSeq;       // insertion counter for deterministic tie-breaking
+        int openSeq;          // insertion counter for deterministic tie-breaking
         Node *bestClosedNode; // best (lowest-heuristic) node expanded so far
         std::vector<Node> nodePool;
 
@@ -245,9 +245,7 @@ class PathFinder {
 
     inline static float heuristic(const Vec2i &pos, const Vec2i &finalPos) { return pos.dist(finalPos); }
 
-    inline static bool openPos(const Vec2i &sucPos, FactionState &faction) {
-        return faction.openPosList.count(sucPos) > 0;
-    }
+    inline static bool openPos(const Vec2i &sucPos, FactionState &faction) { return faction.openPosList.count(sucPos) > 0; }
 
     inline static Node *minHeuristicFastLookup(FactionState &faction) {
         if (faction.openNodesList.empty() == true) {
