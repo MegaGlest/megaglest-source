@@ -233,7 +233,7 @@ class PathFinder {
     void init();
 
     TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount = -1, uint32 *searched_node_count = NULL,
-                      float heuristicWeight = 1.0f);
+                      float heuristicWeight = 1.0f, bool isExploratoryRetry = false);
     inline static Node *newNode(FactionState &faction, int maxNodeCount) {
         if (faction.nodePoolCount < (int)faction.nodePool.size() && faction.nodePoolCount < maxNodeCount) {
             Node *node = &(faction.nodePool[faction.nodePoolCount]);

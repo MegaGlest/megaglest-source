@@ -521,7 +521,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 // route a unit using A* algorithm
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout, int frameIndex, int maxNodeCount, uint32 *searched_node_count,
-                              float heuristicWeight) {
+                              float heuristicWeight, bool isExploratoryRetry) {
     TravelState ts = tsImpossible;
 
     try {
@@ -830,7 +830,16 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                 unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
             }
 
-            if (nodeLimitReached == true && maxNodeCount != pathFindNodesAbsoluteMax) {
+            // When the node budget was exhausted and we haven't already done an
+            // exploratory retry, try again with a reduced heuristic weight.
+            // This makes the search expand more uniformly (closer to BFS) so it
+            // can discover routes that go around large obstacles rather than
+            // pressing toward the blocked front.
+            //
+            // isExploratoryRetry prevents infinite recursion.  The old guard
+            // (maxNodeCount != pathFindNodesAbsoluteMax) was dead code after
+            // pathFindNodesMax and pathFindNodesAbsoluteMax were equalised.
+            if (nodeLimitReached == true && isExploratoryRetry == false) {
                 if (unit->isLastPathfindFailedFrameWithinCurrentFrameTolerance() == true) {
                     if (frameIndex < 0) {
                         unit->setLastPathfindFailedFrameToCurrentFrame();
@@ -839,16 +848,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
                     if (SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
                         char szBuf[8096] = "";
-                        snprintf(szBuf, 8096, "calling aStar()");
+                        snprintf(szBuf, 8096, "calling aStar() exploratory retry");
                         unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
                     }
 
-                    // If the unit has been stuck for several frames, the direct
-                    // route is likely blocked by a large obstacle.  Reduce the
-                    // heuristic weight so the search explores more uniformly and
-                    // is more likely to find a path that detours around the back.
-                    float retryWeight = (unit->getPathfindFailedConsecutiveFrameCount() >= 1) ? 0.25f : 1.0f;
-                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax, nullptr, retryWeight);
+                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax, nullptr, 0.25f, true);
                 }
             }
         } else {
