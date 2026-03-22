@@ -196,6 +196,7 @@ class PathFinder {
   private:
     static int pathFindNodesMax;
     static int pathFindNodesAbsoluteMax;
+    static const int pathFindNodesExploratoryMax;
 
     FactionStateManager factions;
     const Map *map;

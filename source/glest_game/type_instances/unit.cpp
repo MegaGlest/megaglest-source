@@ -4811,15 +4811,11 @@ void Unit::setLastPathfindFailedFrameToCurrentFrame() {
 }
 
 bool Unit::isLastPathfindFailedFrameWithinCurrentFrameTolerance() const {
-    // static const bool enablePathfinderEnlargeMaxNodes =
-    // Config::getInstance().getBool("EnablePathfinderEnlargeMaxNodes","false");
-    static const bool enablePathfinderEnlargeMaxNodes = false;
-    bool result = enablePathfinderEnlargeMaxNodes;
-    if (enablePathfinderEnlargeMaxNodes) {
-        const uint32 MIN_FRAME_ELAPSED_RETRY = 960;
-        result = (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
-    }
-    return result;
+    // Allow an exploratory retry after this many frames since the last one.
+    // 60 frames ≈ 1.5 s at 40 fps — frequent enough to react to map changes
+    // without hammering the pathfinder every tick.
+    const uint32 MIN_FRAME_ELAPSED_RETRY = 60;
+    return (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
 }
 
 void Unit::setLastStuckFrameToCurrentFrame() {

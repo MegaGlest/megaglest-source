@@ -41,6 +41,9 @@ const int PathFinder::maxFreeSearchRadius = 10;
 
 int PathFinder::pathFindNodesAbsoluteMax = 2000;
 int PathFinder::pathFindNodesMax = 2000;
+// Larger budget for exploratory retries that need to find paths around
+// large obstacles.  8 factions * 8000 nodes * ~32 bytes = ~2 MB extra.
+const int PathFinder::pathFindNodesExploratoryMax = 8000;
 const int PathFinder::pathFindBailoutRadius = 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount = 25;
 const int PathFinder::pathFindExtendRefreshNodeCountMin = 40;
@@ -69,8 +72,8 @@ void PathFinder::init(const Map *map) {
     for (int factionIndex = 0; factionIndex < GameConstants::maxPlayers; ++factionIndex) {
         FactionState &faction = factions.getFactionState(factionIndex);
 
-        faction.nodePool.resize(pathFindNodesAbsoluteMax);
-        faction.openNodesList.reserve(pathFindNodesAbsoluteMax);
+        faction.nodePool.resize(pathFindNodesExploratoryMax);
+        faction.openNodesList.reserve(pathFindNodesExploratoryMax);
         faction.useMaxNodeCount = PathFinder::pathFindNodesMax;
     }
     this->map = map;
@@ -852,7 +855,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                         unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
                     }
 
-                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax, nullptr, 0.25f, true);
+                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesExploratoryMax, nullptr, 0.25f, true);
                 }
             }
         } else {
