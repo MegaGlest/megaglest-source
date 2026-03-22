@@ -39,7 +39,7 @@ namespace Game {
 
 const int PathFinder::maxFreeSearchRadius = 10;
 
-int PathFinder::pathFindNodesAbsoluteMax = 900;
+int PathFinder::pathFindNodesAbsoluteMax = 2000;
 int PathFinder::pathFindNodesMax = 2000;
 const int PathFinder::pathFindBailoutRadius = 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount = 25;
@@ -70,6 +70,7 @@ void PathFinder::init(const Map *map) {
         FactionState &faction = factions.getFactionState(factionIndex);
 
         faction.nodePool.resize(pathFindNodesAbsoluteMax);
+        faction.openNodesList.reserve(pathFindNodesAbsoluteMax);
         faction.useMaxNodeCount = PathFinder::pathFindNodesMax;
     }
     this->map = map;
@@ -556,7 +557,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
         faction.nodePoolCount = 0;
         faction.openNodesList.clear();
         faction.openPosList.clear();
-        faction.closedNodesList.clear();
+        faction.openSeq = 0;
+        faction.bestClosedNode = nullptr;
 
         // check the pre-cache to see if we can re-use a cached path
         if (frameIndex < 0) {
@@ -685,11 +687,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
         firstNode->pos = unitPos;
         firstNode->heuristic = heuristic(unitPos, finalPos);
         firstNode->exploredCell = true;
-        if (faction.openNodesList.find(firstNode->heuristic) == faction.openNodesList.end()) {
-            faction.openNodesList[firstNode->heuristic].clear();
-        }
-        faction.openNodesList[firstNode->heuristic].push_back(firstNode);
-        faction.openPosList[firstNode->pos] = true;
+        faction.openNodesList.push_back({firstNode->heuristic, faction.openSeq++, firstNode});
+        std::push_heap(faction.openNodesList.begin(), faction.openNodesList.end(), std::greater<OpenListEntry>{});
+        faction.openPosList.insert(firstNode->pos);
 
         // b) loop
         bool pathFound = true;
@@ -852,10 +852,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
         // if consumed all nodes find best node (to avoid strange behaviour)
         if (nodeLimitReached == true) {
-            if (faction.closedNodesList.empty() == false) {
-                float bestHeuristic = truncateDecimal<float>(faction.closedNodesList.begin()->first, 6);
-                if (lastNode != NULL && bestHeuristic < lastNode->heuristic) {
-                    lastNode = faction.closedNodesList.begin()->second.front();
+            if (faction.bestClosedNode != nullptr) {
+                if (lastNode == nullptr || faction.bestClosedNode->heuristic < lastNode->heuristic) {
+                    lastNode = faction.bestClosedNode;
                 }
             }
         }
@@ -1012,7 +1011,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
         faction.openNodesList.clear();
         faction.openPosList.clear();
-        faction.closedNodesList.clear();
 
         if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4)
             SystemFlags::OutputDebug(SystemFlags::debugPerformance,
