@@ -4812,9 +4812,11 @@ void Unit::setLastPathfindFailedFrameToCurrentFrame() {
 
 bool Unit::isLastPathfindFailedFrameWithinCurrentFrameTolerance() const {
     // Allow an exploratory retry after this many frames since the last one.
-    // 60 frames ≈ 1.5 s at 40 fps — frequent enough to react to map changes
-    // without hammering the pathfinder every tick.
-    const uint32 MIN_FRAME_ELAPSED_RETRY = 60;
+    // Must be short enough that the retry fires again before the previous
+    // partial path is exhausted (typically ~10 frames for a 5-cell path at
+    // 1x speed), otherwise normal A* bestClosedNode kicks in between retries
+    // and causes visible back-and-forth oscillation.
+    const uint32 MIN_FRAME_ELAPSED_RETRY = 10;
     return (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
 }
 
