@@ -27,8 +27,13 @@ on:
 # format the files, the check will on some files
 
 jobs:
+  # Runs for pushes to develop and for PRs from forks (external contributors).
+  # Internal PRs are handled by the auto-format job below instead.
   clang-format:
     runs-on: ubuntu-24.04
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name != github.repository
     env:
       CLANG_FORMAT_VERSION: 19
 
@@ -49,3 +54,40 @@ jobs:
             -path "./shared_lib/*/feathery_ftp" \
           \) -prune -o -type f \( -name '*.cpp' -o -name '*.h' \) -print | xargs clang-format-${CLANG_FORMAT_VERSION} --dry-run --Werror
 
+  # Runs only for PRs from branches within this repo (internal contributors).
+  # Applies clang-format in-place and pushes a fixup commit if needed.
+  auto-format:
+    runs-on: ubuntu-24.04
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: write
+    env:
+      CLANG_FORMAT_VERSION: 19
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install clang-format
+        run: sudo apt-get install -y clang-format-${CLANG_FORMAT_VERSION}
+
+      - name: Apply clang-format
+        run: |
+          cd source
+          find . \( \
+            -path "./shared_lib/*/streflop" -o \
+            -path "./shared_lib/*/libircclient" -o \
+            -path "./shared_lib/*/platform/miniupnpc" -o \
+            -path "./shared_lib/*/feathery_ftp" \
+          \) -prune -o -type f \( -name '*.cpp' -o -name '*.h' \) -print | xargs clang-format-${CLANG_FORMAT_VERSION} -i
+
+      - name: Commit and push if needed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet || (git add -u && git commit -m "style: Apply clang-format" && git push)
