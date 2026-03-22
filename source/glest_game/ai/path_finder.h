@@ -124,6 +124,7 @@ class PathFinder {
             nodePoolCount = 0;
             openSeq = 0;
             bestClosedNode = nullptr;
+            heuristicWeight = 1.0f;
             this->factionIndex = factionIndex;
             useMaxNodeCount = 0;
 
@@ -140,8 +141,9 @@ class PathFinder {
         std::unordered_set<Vec2i, Vec2iHash> openPosList;
         // Binary min-heap open list: O(log n) push/pop, no tree allocation.
         std::vector<OpenListEntry> openNodesList;
-        int openSeq;          // insertion counter for deterministic tie-breaking
-        Node *bestClosedNode; // best (lowest-heuristic) node expanded so far
+        int openSeq;           // insertion counter for deterministic tie-breaking
+        Node *bestClosedNode;  // best (lowest-heuristic) node expanded so far
+        float heuristicWeight; // multiplier on h(n); <1.0 makes search more exploratory
         std::vector<Node> nodePool;
 
         int nodePoolCount;
@@ -230,7 +232,8 @@ class PathFinder {
   private:
     void init();
 
-    TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount = -1, uint32 *searched_node_count = NULL);
+    TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount = -1, uint32 *searched_node_count = NULL,
+                      float heuristicWeight = 1.0f);
     inline static Node *newNode(FactionState &faction, int maxNodeCount) {
         if (faction.nodePoolCount < (int)faction.nodePool.size() && faction.nodePoolCount < maxNodeCount) {
             Node *node = &(faction.nodePool[faction.nodePoolCount]);
@@ -290,7 +293,7 @@ class PathFinder {
             Node *sucNode = newNode(faction, maxNodeCount);
             if (sucNode != NULL) {
                 sucNode->pos = sucPos;
-                sucNode->heuristic = heuristic(sucNode->pos, finalPos);
+                sucNode->heuristic = heuristic(sucNode->pos, finalPos) * faction.heuristicWeight;
                 sucNode->prev = node;
                 sucNode->next = NULL;
                 sucNode->exploredCell = map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());

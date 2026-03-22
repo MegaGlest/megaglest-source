@@ -520,7 +520,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 // ==================== PRIVATE ====================
 
 // route a unit using A* algorithm
-TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout, int frameIndex, int maxNodeCount, uint32 *searched_node_count) {
+TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout, int frameIndex, int maxNodeCount, uint32 *searched_node_count,
+                              float heuristicWeight) {
     TravelState ts = tsImpossible;
 
     try {
@@ -559,6 +560,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
         faction.openPosList.clear();
         faction.openSeq = 0;
         faction.bestClosedNode = nullptr;
+        faction.heuristicWeight = heuristicWeight;
 
         // check the pre-cache to see if we can re-use a cached path
         if (frameIndex < 0) {
@@ -685,7 +687,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
         firstNode->next = NULL;
         firstNode->prev = NULL;
         firstNode->pos = unitPos;
-        firstNode->heuristic = heuristic(unitPos, finalPos);
+        firstNode->heuristic = heuristic(unitPos, finalPos) * heuristicWeight;
         firstNode->exploredCell = true;
         faction.openNodesList.push_back({firstNode->heuristic, faction.openSeq++, firstNode});
         std::push_heap(faction.openNodesList.begin(), faction.openNodesList.end(), std::greater<OpenListEntry>{});
@@ -837,7 +839,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                         unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
                     }
 
-                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax);
+                    // If the unit has been stuck for several frames, the direct
+                    // route is likely blocked by a large obstacle.  Reduce the
+                    // heuristic weight so the search explores more uniformly and
+                    // is more likely to find a path that detours around the back.
+                    float retryWeight = (unit->getPathfindFailedConsecutiveFrameCount() >= 2) ? 0.25f : 1.0f;
+                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax, nullptr, retryWeight);
                 }
             }
         } else {
