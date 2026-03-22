@@ -1930,6 +1930,8 @@ string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
             case mt_Scenario:
                 fileName += "scenario_";
                 break;
+            default:
+                break;
             }
             fileName += extractFileFromDirectoryPath(modInfo->imageUrl);
         }

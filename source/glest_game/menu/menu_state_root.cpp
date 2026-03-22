@@ -41,14 +41,15 @@ namespace Game {
 bool MenuStateRoot::gameUpdateChecked = false;
 
 MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu)
-    : MenuState(program, mainMenu, "root"), updatesHttpServerThread(NULL), buttonNewGame("MainMenu", "buttonNewGame"),
-      buttonLoadGame("MainMenu", "buttonLoadGame"), buttonMods("MainMenu", "buttonMods"), buttonOptions("MainMenu", "buttonOptions"),
-      buttonAbout("MainMenu", "buttonAbout"), buttonExit("MainMenu", "buttonExit"), labelVersion("MainMenu", "labelVersion"),
-      labelGreeting("MainMenu", "labelGreeting"),
+    : MenuState(program, mainMenu, "root"), buttonNewGame("MainMenu", "buttonNewGame"), buttonLoadGame("MainMenu", "buttonLoadGame"),
+      buttonMods("MainMenu", "buttonMods"), buttonOptions("MainMenu", "buttonOptions"), buttonAbout("MainMenu", "buttonAbout"),
+      buttonExit("MainMenu", "buttonExit"), labelVersion("MainMenu", "labelVersion"), labelGreeting("MainMenu", "labelGreeting"),
 
       mainMessageBox("MainMenu", "mainMessageBox"), errorMessageBox("MainMenu", "errorMessageBox"), ftpMessageBox("MainMenu", "ftpMessageBox"),
 
-      popupMenu("MainMenu", "popupMenu")
+      popupMenu("MainMenu", "popupMenu"),
+
+      updatesHttpServerThread(NULL)
 
 {
     containerName = "MainMenu";

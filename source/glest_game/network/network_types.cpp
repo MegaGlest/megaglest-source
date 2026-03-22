@@ -30,8 +30,8 @@ namespace Game {
 NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId, int commandTypeId, const Vec2i &pos, int unitTypeId, int targetId, int facing,
                                bool wantQueue, CommandStateType commandStateType, int commandStateValue, int unitCommandGroupId)
     : networkCommandType(networkCommandType), unitId(unitId), unitTypeId(unitTypeId), commandTypeId(commandTypeId), positionX(pos.x), positionY(pos.y),
-      wantQueue(wantQueue), commandStateType(commandStateType), commandStateValue(commandStateValue), unitCommandGroupId(unitCommandGroupId),
-      unitFactionUnitCount(0), unitFactionIndex(0) {
+      wantQueue(wantQueue), unitFactionUnitCount(0), unitFactionIndex(0), commandStateType(commandStateType), commandStateValue(commandStateValue),
+      unitCommandGroupId(unitCommandGroupId) {
     assert(targetId == -1 || facing == -1);
     this->targetId = targetId >= 0 ? targetId : facing;
     this->fromFactionIndex = world->getThisFactionIndex();
