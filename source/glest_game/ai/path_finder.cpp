@@ -549,7 +549,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
             maxNodeCount = faction.useMaxNodeCount;
         }
 
-        if (maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3) {
+        // Reduce the search budget for repeatedly-stuck units to avoid spending
+        // too long pathfinding every frame.  Skip the reduction for exploratory
+        // retries (heuristicWeight < 1.0) — they need the full budget to find
+        // routes that detour around large obstacles.
+        if (maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3 && heuristicWeight >= 1.0f) {
             maxNodeCount = 200;
         }
 
@@ -843,7 +847,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                     // route is likely blocked by a large obstacle.  Reduce the
                     // heuristic weight so the search explores more uniformly and
                     // is more likely to find a path that detours around the back.
-                    float retryWeight = (unit->getPathfindFailedConsecutiveFrameCount() >= 2) ? 0.25f : 1.0f;
+                    float retryWeight = (unit->getPathfindFailedConsecutiveFrameCount() >= 1) ? 0.25f : 1.0f;
                     return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax, nullptr, retryWeight);
                 }
             }
