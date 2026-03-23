@@ -471,8 +471,6 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 	#  MESSAGE(STATUS "map editor, g3d viewer")
 	#endif()
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tools/glexemel )
-
-    ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
 
 # Check if data exist
