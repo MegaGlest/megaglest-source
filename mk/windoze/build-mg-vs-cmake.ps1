@@ -1,6 +1,6 @@
 # Build MegaGlest on Windows.
 # Author: James Sherratt.
-param(${vcpkg-location}, ${buildtype}, [string[]]${cmake-options})
+param(${vcpkg-location}, ${buildtype}, [string[]]${cmake-options}, [switch]${show-options})
 
 $sword = [char]::ConvertFromUtf32(0x2694)
 Write-Output "=====$sword MegaGlest $sword====="
@@ -58,6 +58,16 @@ function Write-Title {
     )
     $titleText
     "-" * $titleText.Length
+}
+
+if (${show-options}) {
+    $buildFolder = $(Join-Path $PSScriptRoot build)
+    if (-not (Test-Path $(Join-Path $buildFolder CMakeCache.txt))) {
+        "No cmake cache found. Run the build script once first to configure."
+        Exit
+    }
+    cmake -LH "$buildFolder"
+    Exit
 }
 
 Write-Title "Updating git source"

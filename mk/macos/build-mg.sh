@@ -51,7 +51,7 @@ then
 	fi
 fi
 
-while getopts "c:defhl:mnwxb" option; do
+while getopts "c:defhl:mnopwxb" option; do
 	case "${option}" in
 		c) CPU_COUNT=${OPTARG};;
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
@@ -70,6 +70,7 @@ while getopts "c:defhl:mnwxb" option; do
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
 			echo "       -w   : Force compilation 'Without using wxWidgets'"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
+			echo "       -o   : Show available cmake options (requires a prior cmake configure)"
 			echo "       -h   : Display this help usage"
 			echo "       --   : Pass remaining arguments verbatim to cmake"
 			echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
@@ -77,6 +78,13 @@ while getopts "c:defhl:mnwxb" option; do
 		l) LUA_FORCED_VERSION=${OPTARG};;
 		m) CMAKE_ONLY=1;;
 		n) MAKE_ONLY=1;;
+		o)
+			if [ ! -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
+				echo "No cmake cache found. Run the build script once first to configure." >&2
+				exit 1
+			fi
+			cmake -LH "${SCRIPTDIR}/build"
+			exit 0;;
 		w) COMPILATION_WITHOUT=1;;
 		x) USE_XCODE=1;;
 		b)	BUILD_BUNDLE=1

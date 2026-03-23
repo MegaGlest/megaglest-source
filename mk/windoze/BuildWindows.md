@@ -58,6 +58,12 @@ Build type options are:
  - Release
  - RelWithDebInfo
 
+* To see all available cmake options (after a first build):
+
+```ps1
+.\build-mg-vs-cmake.ps1 -show-options
+```
+
 * You can pass arbitrary cmake options using `-cmake-options`:
 
 ```ps1

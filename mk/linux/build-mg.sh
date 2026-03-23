@@ -27,7 +27,7 @@ FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:defg:hl:mnswx" option; do
+while getopts "c:defg:hl:mnopswx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -65,6 +65,7 @@ while getopts "c:defg:hl:mnswx" option; do
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
+                echo "       -o   : Show available cmake options (requires a prior cmake configure)"
                 echo "       -h   : Display this help usage"
                 echo "       --   : Pass remaining arguments verbatim to cmake"
                 echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
@@ -82,6 +83,14 @@ while getopts "c:defg:hl:mnswx" option; do
         n)
            MAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
+        ;;
+        o)
+           if [ ! -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
+               echo "No cmake cache found. Run the build script once first to configure." >&2
+               exit 1
+           fi
+           cmake -LH "${SCRIPTDIR}/build"
+           exit 0
         ;;
         s)
            WANT_STATIC_WX_LIBS=1

@@ -46,6 +46,10 @@ On Linux or MacOS, go to mk/linux or mk/macos and run the build script:
 
     ./build-mg.sh (add `-h` to see options)
 
+To see all available cmake options (after a first build has configured the tree):
+
+    ./build-mg.sh -o
+
 Any extra arguments after `--` are passed verbatim to CMake, for example:
 
     ./build-mg.sh -- -DCMAKE_BUILD_TYPE=Debug
