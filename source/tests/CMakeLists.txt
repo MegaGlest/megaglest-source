@@ -185,6 +185,8 @@ IF(BUILD_MEGAGLEST_TESTS)
 	ENDIF()
 
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
+	MESSAGE(STATUS "COMMON_LIBS = [${COMMON_LIBS}]")
+	MESSAGE(STATUS "GLEW_LIBRARY = [${GLEW_LIBRARY}]")
 
         MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
@@ -196,9 +198,12 @@ IF(BUILD_MEGAGLEST_TESTS)
 		IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
-		# COMMON_LIBS (GLEW + CURL) is in scope because tests/ is now added
-		# as a child of source/CMakeLists.txt where COMMON_LIBS is defined.
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest ${COMMON_LIBS})
+		# GLEW_LIBRARY is a CMake cache variable (set by find_library in
+		# FindGLEW.cmake), so it is accessible here even without an explicit
+		# find_package(GLEW) call in this file.  libmegaglest.a references
+		# GLEW symbols; on platforms with a static libGLEW (e.g. FreeBSD,
+		# aarch64) the linker requires it to be listed explicitly.
+		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest ${GLEW_LIBRARY} ${COMMON_LIBS})
 	ENDIF()
 
         TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
