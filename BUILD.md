@@ -46,6 +46,10 @@ On Linux or MacOS, go to mk/linux or mk/macos and run the build script:
 
     ./build-mg.sh (add `-h` to see options)
 
+Any extra arguments after `--` are passed verbatim to CMake, for example:
+
+    ./build-mg.sh -- -DCMAKE_BUILD_TYPE=Debug
+
 When completed, the game, map editor, and viewer binaries will be output the
 current directory. You can run them from that location. When built using the
 script as shown above, the binaries will read the ini files in that directory
