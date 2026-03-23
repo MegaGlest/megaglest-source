@@ -84,7 +84,7 @@ bool Selection::select(Unit *unit, bool addToSelection) {
 
         // check if multitypesel
         if (selectedUnits.size() > 0) {
-            bool isUnifromSelectOK = (selectedUnits.front()->getType() == unit->getType() && unit->isOperative() == selectedUnits.front()->isOperative());
+            bool isUnifromSelectOK = (selectedUnits.front()->getType() == unit->getType() && unit->isAlive() && selectedUnits.front()->isAlive());
             if (selectedUnits.front()->getType()->getUniformSelect() == true && !isUnifromSelectOK) {
                 if (addToSelection)
                     return false;
@@ -151,7 +151,7 @@ void Selection::select(const UnitContainer &units, bool addToSelection) {
 void Selection::selectType(Unit *unit) {
     UnitContainer units;
     for (int i = 0; i < (int)selectedUnits.size(); i++) {
-        if (selectedUnits[i]->getType() == unit->getType() && unit->isOperative() == selectedUnits[i]->isOperative()) {
+        if (selectedUnits[i]->getType() == unit->getType() && selectedUnits[i]->isAlive()) {
             units.push_back(selectedUnits[i]);
         }
     }
@@ -292,8 +292,8 @@ bool Selection::addUnitToGroup(int groupIndex, Unit *unit) {
     if ((int)groups[groupIndex].size() > 0) {
         Unit *unitInGroup = groups[groupIndex][0];
         if (unit->getType()->getUniformSelect() || unitInGroup->getType()->getUniformSelect()) {
-            if (unit->isOperative() != unitInGroup->isOperative()) {
-                // dont add units that are not in same operative state
+            if (!unit->isAlive() || !unitInGroup->isAlive()) {
+                // dont add dead units to a group
                 return false;
             }
             if (unitInGroup->getType() != unit->getType()) {
