@@ -141,6 +141,12 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits, bool
             }
             windowTitleText = SDL_GetWindowTitle(window);
 
+            // Detach the GL context from the window before destroying it so
+            // that SDL (and the underlying X11/EGL/WGL backend) does not try
+            // to use the window handle after it becomes invalid.
+            if (glcontext != NULL) {
+                SDL_GL_MakeCurrent(window, NULL);
+            }
             SDL_DestroyWindow(window);
             window = NULL;
         }
