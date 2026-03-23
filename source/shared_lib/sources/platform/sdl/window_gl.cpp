@@ -95,15 +95,14 @@ void WindowGl::eventToggleFullScreen(bool isFullscreen) {
     Window::eventToggleFullScreen(isFullscreen);
 
     if (GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-        // SDL_Surface *cur_surface = SDL_GetVideoSurface();
-        if (getScreenWindow() != NULL) {
-            if (getIsFullScreen()) {
-                SDL_SetWindowFullscreen(getScreenWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
-            } else {
-                SDL_SetWindowFullscreen(getScreenWindow(), 0);
-            }
-        }
-
+        // Do NOT call SDL_SetWindowFullscreen here.  ChangeVideoMode (via
+        // initGl) destroys and recreates the window with the correct fullscreen
+        // flags set through shouldBeFullscreen.  Calling SDL_SetWindowFullscreen
+        // on the old window first queues X11 events (ConfigureNotify,
+        // PropertyNotify) that reference the old window handle.  When the old
+        // window is then destroyed before those events are processed, X11 raises
+        // a BadWindow error on XTranslateCoordinates which can corrupt the heap.
+        // See: https://github.com/MegaGlest/megaglest-source/issues/326
         if (isFullscreen) {
             changeVideoModeFullScreen(isFullscreen);
             ChangeVideoMode(true, getScreenWidth(), getScreenHeight(), true, context.getColorBits(), context.getDepthBits(), context.getStencilBits(),
