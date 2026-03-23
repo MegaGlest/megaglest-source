@@ -154,7 +154,11 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	FIND_PACKAGE(PNG REQUIRED)
 	INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
+		# Use PNG_LIBRARIES (plural) rather than PNG_LIBRARY so that
+		# transitive dependencies (e.g. zlib) are included on the link
+		# line.  This is required when libpng is static, as on aarch64
+		# Ubuntu where libpng.a references inflateEnd from libz.
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARIES})
 	ENDIF()
 
 	OPTION(WANT_USE_FontConfig "use the library fontconfig" ON)
