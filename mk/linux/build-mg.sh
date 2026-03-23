@@ -287,6 +287,13 @@ case $distribution in
 			WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 		fi
 		;;
+
+	Freebsd)
+		# FreeBSD's libGLEW.a is compiled with hidden symbol visibility,
+		# so its symbols are not accessible when linking against the static
+		# archive.  Force the shared library instead.
+		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_GLEW=OFF"
+		;;
 esac
 
 if [ "$WANT_STATIC_LIBS" = "-DWANT_STATIC_LIBS=ON" ]; then

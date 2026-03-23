@@ -196,7 +196,12 @@ IF(BUILD_MEGAGLEST_TESTS)
 		IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 		ENDIF()
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
+		# GLEW_LIBRARY is a CMake cache variable (set by find_library in
+		# FindGLEW.cmake), so it is accessible here even without an explicit
+		# find_package(GLEW) call in this file.  libmegaglest.a references
+		# GLEW symbols; on platforms with a static libGLEW (e.g. FreeBSD,
+		# aarch64) the linker requires it to be listed explicitly.
+		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest ${GLEW_LIBRARY} ${COMMON_LIBS})
 	ENDIF()
 
         TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
