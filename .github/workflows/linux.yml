@@ -56,14 +56,8 @@ jobs:
 
         run: |
           git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
-          echo "=== GLEW library files ==="
-          ls -la /usr/local/lib/libGLEW* 2>/dev/null || echo "no GLEW files found"
-          echo "=== libGLEW.a members ==="
-          ar t /usr/local/lib/libGLEW.a 2>/dev/null || echo "ar failed or no libGLEW.a"
-          echo "=== nm on libGLEW.a (first 20 lines, unfiltered) ==="
-          nm /usr/local/lib/libGLEW.a 2>/dev/null | head -20 || echo "nm failed"
           cd mk/linux
-          ./build-mg.sh -f -- -DSTATIC_GLEW=OFF
+          ./build-mg.sh -f
 
   build-linux:
     strategy:
