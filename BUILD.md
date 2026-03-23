@@ -50,6 +50,11 @@ Any extra arguments after `--` are passed verbatim to CMake, for example:
 
     ./build-mg.sh -- -DCMAKE_BUILD_TYPE=Debug
 
+`CFLAGS` and `CXXFLAGS` environment variables are picked up by CMake and
+appended to the compiler flags:
+
+    CFLAGS="-fsanitize=address" CXXFLAGS="-fsanitize=address" ./build-mg.sh
+
 On Windows, use the `-cmake-options` parameter:
 
     .\build-mg-vs-cmake.ps1 -cmake-options "-DFOO=BAR","-DBAZ=QUX"
