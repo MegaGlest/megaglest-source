@@ -46,7 +46,7 @@ On Linux or MacOS, go to mk/linux or mk/macos and run the build script:
 
     ./build-mg.sh (add `-h` to see options)
 
-To see all available cmake options (after a first build has configured the tree):
+To see all available cmake options:
 
     ./build-mg.sh -o
 

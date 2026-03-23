@@ -66,7 +66,7 @@ while getopts "c:defg:hl:mnopswx" option; do
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
-                echo "       -o   : Show available cmake options (requires a prior cmake configure)"
+                echo "       -o   : Show available cmake options"
                 echo "       -h   : Display this help usage"
                 echo "       --   : Pass remaining arguments verbatim to cmake"
                 echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"

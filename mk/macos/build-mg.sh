@@ -71,7 +71,7 @@ while getopts "c:defhl:mnopwxb" option; do
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
 			echo "       -w   : Force compilation 'Without using wxWidgets'"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
-			echo "       -o   : Show available cmake options (requires a prior cmake configure)"
+			echo "       -o   : Show available cmake options"
 			echo "       -h   : Display this help usage"
 			echo "       --   : Pass remaining arguments verbatim to cmake"
 			echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
