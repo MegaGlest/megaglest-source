@@ -50,7 +50,7 @@ while getopts "c:defg:hl:mnswx" option; do
            echo "${option} value: ${OPTARG} GCC_FORCED_VERSION [${GCC_FORCED_VERSION}]"
         ;;
         h)
-                echo "Usage: $0 <option>"
+                echo "Usage: $0 <option> [-- cmake-option ...]"
                 echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
@@ -66,6 +66,8 @@ while getopts "c:defg:hl:mnswx" option; do
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
                 echo "       -h   : Display this help usage"
+                echo "       --   : Pass remaining arguments verbatim to cmake"
+                echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
 
         	exit 1
         ;;
@@ -100,6 +102,7 @@ while getopts "c:defg:hl:mnswx" option; do
         ;;
    esac
 done
+shift $((OPTIND-1))
 
 #echo "CPU_COUNT = ${CPU_COUNT} CMAKE_ONLY = ${CMAKE_ONLY} CLANG_FORCED = ${CLANG_FORCED}"
 #exit;
@@ -129,7 +132,9 @@ BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 # by our installers.
 # For more cmake/build options refer to
 #   http://wiki.megaglest.org/Linux_Compiling#Building_using_CMake_by_Hand
-EXTRA_CMAKE_OPTIONS=
+# Any remaining positional arguments are appended verbatim to the cmake call,
+# e.g.: ./build-mg.sh -d -- -DCMAKE_BUILD_TYPE=Debug -DWANT_USE_XercesC=OFF
+EXTRA_CMAKE_OPTIONS="$*"
 
 # Build threads
 # By default we use all physical CPU cores to build.
