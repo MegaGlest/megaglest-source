@@ -1,6 +1,6 @@
 # Build MegaGlest on Windows.
 # Author: James Sherratt.
-param(${vcpkg-location}, ${buildtype})
+param(${vcpkg-location}, ${buildtype}, [string[]]${cmake-options}, [switch]${show-options})
 
 $sword = [char]::ConvertFromUtf32(0x2694)
 Write-Output "=====$sword MegaGlest $sword====="
@@ -58,6 +58,19 @@ function Write-Title {
     )
     $titleText
     "-" * $titleText.Length
+}
+
+if (${show-options}) {
+    $buildFolder = $(Join-Path $PSScriptRoot build)
+    if (-not (Test-Path $(Join-Path $buildFolder CMakeCache.txt))) {
+        $vcpkgDir = if (${vcpkg-location}) { $(Resolve-Path ${vcpkg-location}).ToString() } else { Join-Path $PSScriptRoot \vcpkg }
+        $toolchainPath = $(Join-Path $vcpkgDir \scripts\buildsystems\vcpkg.cmake)
+        $topLevelTargetDir = $($(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString() -replace "\\$", "")
+        cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" "-S$topLevelTargetDir" "-B$buildFolder"
+        if (!$?) { "cmake configure failed."; Exit }
+    }
+    cmake -LH "$buildFolder"
+    Exit
 }
 
 Write-Title "Updating git source"
@@ -126,7 +139,8 @@ else {
     $vsProjType = "Visual Studio 17 2022"
 }
 
-cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-S$topLevelTargetDir" "-B$buildFolder" -G "$vsProjType" -T host=x64 -A x64
+$cmakeExtraOptions = ${cmake-options}
+cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-S$topLevelTargetDir" "-B$buildFolder" -G "$vsProjType" -T host=x64 -A x64 @cmakeExtraOptions
 cmake --build "$buildFolder" --config $buildtype --target ALL_BUILD
 
 if ($?) {

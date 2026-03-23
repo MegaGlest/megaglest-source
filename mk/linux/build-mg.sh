@@ -26,8 +26,9 @@ LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
+SHOW_CMAKE_OPTIONS=0
 
-while getopts "c:defg:hl:mnswx" option; do
+while getopts "c:defg:hl:mnopswx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -50,7 +51,7 @@ while getopts "c:defg:hl:mnswx" option; do
            echo "${option} value: ${OPTARG} GCC_FORCED_VERSION [${GCC_FORCED_VERSION}]"
         ;;
         h)
-                echo "Usage: $0 <option>"
+                echo "Usage: $0 <option> [-- cmake-option ...]"
                 echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
@@ -65,7 +66,10 @@ while getopts "c:defg:hl:mnswx" option; do
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
+                echo "       -o   : Show available cmake options"
                 echo "       -h   : Display this help usage"
+                echo "       --   : Pass remaining arguments verbatim to cmake"
+                echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
 
         	exit 1
         ;;
@@ -80,6 +84,14 @@ while getopts "c:defg:hl:mnswx" option; do
         n)
            MAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
+        ;;
+        o)
+           if [ -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
+               cmake -LH "${SCRIPTDIR}/build"
+               exit 0
+           fi
+           SHOW_CMAKE_OPTIONS=1
+           CMAKE_ONLY=1
         ;;
         s)
            WANT_STATIC_WX_LIBS=1
@@ -100,6 +112,7 @@ while getopts "c:defg:hl:mnswx" option; do
         ;;
    esac
 done
+shift $((OPTIND-1))
 
 #echo "CPU_COUNT = ${CPU_COUNT} CMAKE_ONLY = ${CMAKE_ONLY} CLANG_FORCED = ${CLANG_FORCED}"
 #exit;
@@ -129,7 +142,9 @@ BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 # by our installers.
 # For more cmake/build options refer to
 #   http://wiki.megaglest.org/Linux_Compiling#Building_using_CMake_by_Hand
-EXTRA_CMAKE_OPTIONS=
+# Any remaining positional arguments are appended verbatim to the cmake call,
+# e.g.: ./build-mg.sh -d -- -DCMAKE_BUILD_TYPE=Debug -DWANT_USE_XercesC=OFF
+EXTRA_CMAKE_OPTIONS="$*"
 
 # Build threads
 # By default we use all physical CPU cores to build.
@@ -332,6 +347,11 @@ if [ $MAKE_ONLY = 0 ]; then
         if [ $? -ne 0 ]; then
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
+fi
+
+if [ $SHOW_CMAKE_OPTIONS = 1 ]; then
+        cmake -LH .
+        exit 0
 fi
 
 if [ $CMAKE_ONLY = 1 ]; then

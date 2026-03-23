@@ -19,6 +19,7 @@ WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 COMPILATION_WITHOUT=0
+SHOW_CMAKE_OPTIONS=0
 
 # Some brew things don't appear to link correctly by themselves.
 if command -v brew &> /dev/null
@@ -51,13 +52,13 @@ then
 	fi
 fi
 
-while getopts "c:defhl:mnwxb" option; do
+while getopts "c:defhl:mnopwxb" option; do
 	case "${option}" in
 		c) CPU_COUNT=${OPTARG};;
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
 		e) FORCE_EMBEDDED_LIBS=1;;
 		f) GCC_FORCED=1;;
-		h) 	echo "Usage: $0 <option>"
+		h) 	echo "Usage: $0 <option> [-- cmake-option ...]"
 			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
 			echo "       option descriptions:"
 			echo "       -b   : Force default configuration designed for bundle/release."
@@ -70,11 +71,21 @@ while getopts "c:defhl:mnwxb" option; do
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
 			echo "       -w   : Force compilation 'Without using wxWidgets'"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
+			echo "       -o   : Show available cmake options"
 			echo "       -h   : Display this help usage"
+			echo "       --   : Pass remaining arguments verbatim to cmake"
+			echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
 			exit 0;;
 		l) LUA_FORCED_VERSION=${OPTARG};;
 		m) CMAKE_ONLY=1;;
 		n) MAKE_ONLY=1;;
+		o)
+			if [ -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
+				cmake -LH "${SCRIPTDIR}/build"
+				exit 0
+			fi
+			SHOW_CMAKE_OPTIONS=1
+			CMAKE_ONLY=1;;
 		w) COMPILATION_WITHOUT=1;;
 		x) USE_XCODE=1;;
 		b)	BUILD_BUNDLE=1
@@ -91,6 +102,11 @@ while getopts "c:defhl:mnwxb" option; do
 			exit 1;;
    esac
 done
+shift $((OPTIND-1))
+
+# Any remaining positional arguments are passed verbatim to cmake, e.g.:
+#   ./build-mg.sh -d -- -DCMAKE_BUILD_TYPE=Debug
+EXTRA_CMAKE_OPTIONS="$*"
 
 CLANG_BIN_PATH="$(which clang 2>/dev/null)"
 CLANGPP_BIN_PATH="$(which clang++ 2>/dev/null)"
@@ -236,6 +252,11 @@ if [ "$MAKE_ONLY" -eq "0" ]; then
 		$CMAKE_BIN_PATH —G"Unix Makefiles" $EXTRA_CMAKE_OPTIONS ../../..
 		if [ "$?" -ne "0" ]; then echo 'ERROR: CMAKE failed.' >&2; exit 1; fi
 	fi
+fi
+
+if [ "$SHOW_CMAKE_OPTIONS" -eq "1" ]; then
+	cmake -LH .
+	exit 0
 fi
 
 if [ "$CMAKE_ONLY" -eq "1" ]; then

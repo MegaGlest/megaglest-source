@@ -46,6 +46,23 @@ On Linux or MacOS, go to mk/linux or mk/macos and run the build script:
 
     ./build-mg.sh (add `-h` to see options)
 
+To see all available cmake options:
+
+    ./build-mg.sh -o
+
+Any extra arguments after `--` are passed verbatim to CMake, for example:
+
+    ./build-mg.sh -- -DCMAKE_BUILD_TYPE=Debug
+
+`CFLAGS` and `CXXFLAGS` environment variables are picked up by CMake and
+appended to the compiler flags:
+
+    CFLAGS="-fsanitize=address" CXXFLAGS="-fsanitize=address" ./build-mg.sh
+
+On Windows, use the `-cmake-options` parameter:
+
+    .\build-mg-vs-cmake.ps1 -cmake-options "-DFOO=BAR","-DBAZ=QUX"
+
 When completed, the game, map editor, and viewer binaries will be output the
 current directory. You can run them from that location. When built using the
 script as shown above, the binaries will read the ini files in that directory
