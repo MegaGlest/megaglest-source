@@ -57,7 +57,11 @@ jobs:
         run: |
           git config --global --add safe.directory /home/runner/work/megaglest-source/megaglest-source
           cd mk/linux
-          MAKEFLAGS=VERBOSE=1 ./build-mg.sh -f
+          ./build-mg.sh -f || {
+            echo "=== megaglest_tests link command ==="
+            cat build/source/tests/CMakeFiles/megaglest_tests.dir/link.txt 2>/dev/null || echo "link.txt not found"
+            exit 1
+          }
 
   build-linux:
     strategy:
