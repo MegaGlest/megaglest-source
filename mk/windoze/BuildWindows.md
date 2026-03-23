@@ -58,4 +58,10 @@ Build type options are:
  - Release
  - RelWithDebInfo
 
+* You can pass arbitrary cmake options using `-cmake-options`:
+
+```ps1
+.\build-mg-vs-cmake.ps1 -cmake-options "-DFOO=BAR","-DBAZ=QUX"
+```
+
 * The instructions here suggest installing the "Visual Studio build tools". However, an installation of the "Visual studio IDE" with "Desktop Development with C++" is perfectly fine (but not necessary).

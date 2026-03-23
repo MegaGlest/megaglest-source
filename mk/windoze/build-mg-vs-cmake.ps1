@@ -1,6 +1,6 @@
 # Build MegaGlest on Windows.
 # Author: James Sherratt.
-param(${vcpkg-location}, ${buildtype})
+param(${vcpkg-location}, ${buildtype}, [string[]]${cmake-options})
 
 $sword = [char]::ConvertFromUtf32(0x2694)
 Write-Output "=====$sword MegaGlest $sword====="
@@ -126,7 +126,8 @@ else {
     $vsProjType = "Visual Studio 17 2022"
 }
 
-cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-S$topLevelTargetDir" "-B$buildFolder" -G "$vsProjType" -T host=x64 -A x64
+$cmakeExtraOptions = ${cmake-options}
+cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE "-S$topLevelTargetDir" "-B$buildFolder" -G "$vsProjType" -T host=x64 -A x64 @cmakeExtraOptions
 cmake --build "$buildFolder" --config $buildtype --target ALL_BUILD
 
 if ($?) {

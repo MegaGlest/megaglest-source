@@ -50,6 +50,10 @@ Any extra arguments after `--` are passed verbatim to CMake, for example:
 
     ./build-mg.sh -- -DCMAKE_BUILD_TYPE=Debug
 
+On Windows, use the `-cmake-options` parameter:
+
+    .\build-mg-vs-cmake.ps1 -cmake-options "-DFOO=BAR","-DBAZ=QUX"
+
 When completed, the game, map editor, and viewer binaries will be output the
 current directory. You can run them from that location. When built using the
 script as shown above, the binaries will read the ini files in that directory

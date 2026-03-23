@@ -57,7 +57,7 @@ while getopts "c:defhl:mnwxb" option; do
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
 		e) FORCE_EMBEDDED_LIBS=1;;
 		f) GCC_FORCED=1;;
-		h) 	echo "Usage: $0 <option>"
+		h) 	echo "Usage: $0 <option> [-- cmake-option ...]"
 			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
 			echo "       option descriptions:"
 			echo "       -b   : Force default configuration designed for bundle/release."
@@ -71,6 +71,8 @@ while getopts "c:defhl:mnwxb" option; do
 			echo "       -w   : Force compilation 'Without using wxWidgets'"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
 			echo "       -h   : Display this help usage"
+			echo "       --   : Pass remaining arguments verbatim to cmake"
+			echo "              example: $0 -d -- -DCMAKE_BUILD_TYPE=Debug"
 			exit 0;;
 		l) LUA_FORCED_VERSION=${OPTARG};;
 		m) CMAKE_ONLY=1;;
@@ -91,6 +93,11 @@ while getopts "c:defhl:mnwxb" option; do
 			exit 1;;
    esac
 done
+shift $((OPTIND-1))
+
+# Any remaining positional arguments are passed verbatim to cmake, e.g.:
+#   ./build-mg.sh -d -- -DCMAKE_BUILD_TYPE=Debug
+EXTRA_CMAKE_OPTIONS="$*"
 
 CLANG_BIN_PATH="$(which clang 2>/dev/null)"
 CLANGPP_BIN_PATH="$(which clang++ 2>/dev/null)"
