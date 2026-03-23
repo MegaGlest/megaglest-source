@@ -26,6 +26,7 @@ LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
+SHOW_CMAKE_OPTIONS=0
 
 while getopts "c:defg:hl:mnopswx" option; do
    case "${option}" in
@@ -85,12 +86,12 @@ while getopts "c:defg:hl:mnopswx" option; do
 #           echo "${option} value: ${OPTARG}"
         ;;
         o)
-           if [ ! -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
-               echo "No cmake cache found. Run the build script once first to configure." >&2
-               exit 1
+           if [ -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
+               cmake -LH "${SCRIPTDIR}/build"
+               exit 0
            fi
-           cmake -LH "${SCRIPTDIR}/build"
-           exit 0
+           SHOW_CMAKE_OPTIONS=1
+           CMAKE_ONLY=1
         ;;
         s)
            WANT_STATIC_WX_LIBS=1
@@ -346,6 +347,11 @@ if [ $MAKE_ONLY = 0 ]; then
         if [ $? -ne 0 ]; then
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
+fi
+
+if [ $SHOW_CMAKE_OPTIONS = 1 ]; then
+        cmake -LH .
+        exit 0
 fi
 
 if [ $CMAKE_ONLY = 1 ]; then

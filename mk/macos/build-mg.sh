@@ -19,6 +19,7 @@ WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 COMPILATION_WITHOUT=0
+SHOW_CMAKE_OPTIONS=0
 
 # Some brew things don't appear to link correctly by themselves.
 if command -v brew &> /dev/null
@@ -79,12 +80,12 @@ while getopts "c:defhl:mnopwxb" option; do
 		m) CMAKE_ONLY=1;;
 		n) MAKE_ONLY=1;;
 		o)
-			if [ ! -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
-				echo "No cmake cache found. Run the build script once first to configure." >&2
-				exit 1
+			if [ -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
+				cmake -LH "${SCRIPTDIR}/build"
+				exit 0
 			fi
-			cmake -LH "${SCRIPTDIR}/build"
-			exit 0;;
+			SHOW_CMAKE_OPTIONS=1
+			CMAKE_ONLY=1;;
 		w) COMPILATION_WITHOUT=1;;
 		x) USE_XCODE=1;;
 		b)	BUILD_BUNDLE=1
@@ -251,6 +252,11 @@ if [ "$MAKE_ONLY" -eq "0" ]; then
 		$CMAKE_BIN_PATH —G"Unix Makefiles" $EXTRA_CMAKE_OPTIONS ../../..
 		if [ "$?" -ne "0" ]; then echo 'ERROR: CMAKE failed.' >&2; exit 1; fi
 	fi
+fi
+
+if [ "$SHOW_CMAKE_OPTIONS" -eq "1" ]; then
+	cmake -LH .
+	exit 0
 fi
 
 if [ "$CMAKE_ONLY" -eq "1" ]; then

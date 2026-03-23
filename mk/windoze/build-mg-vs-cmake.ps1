@@ -63,8 +63,11 @@ function Write-Title {
 if (${show-options}) {
     $buildFolder = $(Join-Path $PSScriptRoot build)
     if (-not (Test-Path $(Join-Path $buildFolder CMakeCache.txt))) {
-        "No cmake cache found. Run the build script once first to configure."
-        Exit
+        $vcpkgDir = if (${vcpkg-location}) { $(Resolve-Path ${vcpkg-location}).ToString() } else { Join-Path $PSScriptRoot \vcpkg }
+        $toolchainPath = $(Join-Path $vcpkgDir \scripts\buildsystems\vcpkg.cmake)
+        $topLevelTargetDir = $($(Resolve-Path $(Join-Path $PSScriptRoot ../../)).ToString() -replace "\\$", "")
+        cmake -DCMAKE_TOOLCHAIN_FILE:STRING="$toolchainPath" "-S$topLevelTargetDir" "-B$buildFolder"
+        if (!$?) { "cmake configure failed."; Exit }
     }
     cmake -LH "$buildFolder"
     Exit
