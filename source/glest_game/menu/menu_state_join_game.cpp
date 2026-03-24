@@ -208,12 +208,28 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
 
     host = labelServerIp.getText();
     portNumber = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-    hostPartsList.clear();
-    Tokenize(host, hostPartsList, ":");
-    if (hostPartsList.size() > 1) {
-        host = hostPartsList[0];
-        replaceAll(hostPartsList[1], "_", "");
-        portNumber = strToInt(hostPartsList[1]);
+    // Strip trailing '_' cursor character before parsing
+    replaceAll(host, "_", "");
+    // Parse host:port, being careful not to split on colons inside IPv6 addresses.
+    // Bracket notation [addr]:port is the standard for IPv6 with a port.
+    // A bare IPv6 address (more than one colon) has no port component.
+    if (!host.empty() && host[0] == '[') {
+        size_t close = host.find(']');
+        if (close != string::npos) {
+            if (close + 1 < host.size() && host[close + 1] == ':') {
+                portNumber = strToInt(host.substr(close + 2));
+            }
+            host = host.substr(1, close - 1);
+        }
+    } else {
+        hostPartsList.clear();
+        Tokenize(host, hostPartsList, ":");
+        if (hostPartsList.size() == 2) {
+            // Exactly one colon: IPv4 host:port
+            host = hostPartsList[0];
+            portNumber = strToInt(hostPartsList[1]);
+        }
+        // More than two parts means an IPv6 address — leave host unchanged
     }
 
     port = " (" + intToStr(portNumber) + ")";
@@ -755,11 +771,27 @@ bool MenuStateJoinGame::connectToServer() {
     string host = labelServerIp.getText();
     int port = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
     std::vector<std::string> hostPartsList;
-    Tokenize(host, hostPartsList, ":");
-    if (hostPartsList.size() > 1) {
-        host = hostPartsList[0];
-        replaceAll(hostPartsList[1], "_", "");
-        port = strToInt(hostPartsList[1]);
+    // Strip trailing '_' cursor character before parsing
+    replaceAll(host, "_", "");
+    // Parse host:port, being careful not to split on colons inside IPv6 addresses.
+    // Bracket notation [addr]:port is the standard for IPv6 with a port.
+    // A bare IPv6 address (more than one colon) has no port component.
+    if (!host.empty() && host[0] == '[') {
+        size_t close = host.find(']');
+        if (close != string::npos) {
+            if (close + 1 < host.size() && host[close + 1] == ':') {
+                port = strToInt(host.substr(close + 2));
+            }
+            host = host.substr(1, close - 1);
+        }
+    } else {
+        Tokenize(host, hostPartsList, ":");
+        if (hostPartsList.size() == 2) {
+            // Exactly one colon: IPv4 host:port
+            host = hostPartsList[0];
+            port = strToInt(hostPartsList[1]);
+        }
+        // More than two parts means an IPv6 address — leave host unchanged
     }
     Ip serverIp(host);
 

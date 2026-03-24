@@ -290,14 +290,20 @@ Ip::Ip(const string &ipString) {
     bytes[1] = 0;
     bytes[2] = 0;
     bytes[3] = 0;
-    addrStr = ipString;
+
+    // Strip trailing '_' cursor characters appended by the UI text labels
+    string clean = ipString;
+    while (!clean.empty() && clean.back() == '_') {
+        clean.pop_back();
+    }
+    addrStr = clean;
 
     // For IPv4 dotted-decimal, also populate the bytes array for backwards compat
-    if (ipString.find(':') == string::npos && ipString.find('.') != string::npos) {
+    if (clean.find(':') == string::npos && clean.find('.') != string::npos) {
         size_t offset = 0;
         for (int byteIndex = 0; byteIndex < 4; ++byteIndex) {
-            size_t dotPos = ipString.find_first_of('.', offset);
-            bytes[byteIndex] = (unsigned char)atoi(ipString.substr(offset, dotPos - offset).c_str());
+            size_t dotPos = clean.find_first_of('.', offset);
+            bytes[byteIndex] = (unsigned char)atoi(clean.substr(offset, dotPos - offset).c_str());
             offset = dotPos + 1;
         }
     }
