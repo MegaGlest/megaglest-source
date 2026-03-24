@@ -72,6 +72,7 @@ IF(BUILD_MEGAGLEST_TESTS)
 	SET(DIRS_WITH_SRC
         ./
         shared_lib/graphics
+        shared_lib/platform
         shared_lib/util
 		shared_lib/xml)
 
