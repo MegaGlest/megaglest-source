@@ -275,7 +275,7 @@ else
 
 		if [ "$RUN_TESTS" -eq "1" ]; then
 			echo "==================> Running unit tests... <=================================="
-			ctest --test-dir build --output-on-failure
+			ctest --output-on-failure
 			if [ "$?" -ne "0" ]; then echo 'ERROR: Tests failed.' >&2; exit 3; fi
 		fi
 	fi
