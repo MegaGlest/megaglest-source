@@ -97,6 +97,27 @@ cd builddir
 cmake -LH
 ```
 
+## Unit tests
+
+Unit tests are built and run automatically as part of the normal build (enabled
+by default in `build-mg.sh`). After a successful build the test binary is at:
+
+    mk/linux/megaglest_tests   # Linux / macOS
+
+You can run all tests manually:
+
+    ./mk/linux/megaglest_tests
+
+To run only a specific test suite or a single test:
+
+    ./mk/linux/megaglest_tests SocketTest
+    ./mk/linux/megaglest_tests SocketTest::test_ip_ipv6_cursor_stripped
+
+Tests live under `source/tests/`. To add tests for a new subsystem, create a
+subdirectory under `source/tests/shared_lib/` and add it to `DIRS_WITH_SRC` in
+`source/tests/CMakeLists.txt` — the glob will pick up any `.cpp` files there
+automatically.
+
 ## Installing from manual build
 
 > [!CAUTION]
