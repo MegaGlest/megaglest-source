@@ -21,6 +21,7 @@ WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 COMPILATION_WITHOUT=0
+RUN_TESTS=0
 SHOW_CMAKE_OPTIONS=0
 
 # Some brew things don't appear to link correctly by themselves.
@@ -54,7 +55,7 @@ then
 	fi
 fi
 
-while getopts "B:c:defhl:mnopwxb" option; do
+while getopts "B:c:defhl:mnoptwxb" option; do
 	case "${option}" in
 		B) BUILD_DIR=${OPTARG};;
 		c) CPU_COUNT=${OPTARG};;
@@ -73,6 +74,7 @@ while getopts "B:c:defhl:mnopwxb" option; do
 			echo "       -l x : Force using LUA version x - example: -l 5.3"
 			echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
+			echo "       -t   : Run unit tests after build (requires -DBUILD_MEGAGLEST_TESTS=ON)"
 			echo "       -w   : Force compilation 'Without using wxWidgets'"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
 			echo "       -o   : Show available cmake options"
@@ -90,6 +92,7 @@ while getopts "B:c:defhl:mnopwxb" option; do
 			fi
 			SHOW_CMAKE_OPTIONS=1
 			CMAKE_ONLY=1;;
+		t) RUN_TESTS=1;;
 		w) COMPILATION_WITHOUT=1;;
 		x) USE_XCODE=1;;
 		b)	BUILD_BUNDLE=1
@@ -237,14 +240,7 @@ fi
 if [ "$MAKE_ONLY" -eq "0" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBREAKPAD_ROOT=$BREAKPAD_ROOT"
 	if [ "$BUILD_BUNDLE" -ne "1" ]; then
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_INSTALL_PREFIX=''"
-		if [ "$GCC_FORCED" -ne "1" ] || [ "$USE_XCODE" -eq "1" ]; then :
-			#^ Remove this condition when it V will start working on gcc
-			#EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DBUILD_MEGAGLEST_TESTS=ON"
-			#^ Uncomment when it will start working on clang
-		else
-			rm -f ../megaglest_tests
-		fi
+		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_INSTALL_PREFIX='' -DBUILD_MEGAGLEST_TESTS=ON"
 		rm -f ../MegaGlest*.dmg
 	else
 		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCPACK_GENERATOR=Bundle -DWANT_SINGLE_INSTALL_DIRECTORY=ON"
@@ -276,6 +272,12 @@ else
 		echo "==================> About to call make with $NUMCORES cores... <=================="
 		make -j$NUMCORES
 		if [ "$?" -ne "0" ]; then echo 'ERROR: MAKE failed.' >&2; exit 2; fi
+
+		if [ "$RUN_TESTS" -eq "1" ]; then
+			echo "==================> Running unit tests... <=================================="
+			ctest --test-dir build --output-on-failure
+			if [ "$?" -ne "0" ]; then echo 'ERROR: Tests failed.' >&2; exit 3; fi
+		fi
 	fi
 
 	if [ -d "../Debug" ]; then mv -f ../Debug/megaglest* "$SCRIPTDIR"; rm -rf ../Debug

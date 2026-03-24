@@ -99,19 +99,25 @@ cmake -LH
 
 ## Unit tests
 
-Unit tests are built and run automatically as part of the normal build (enabled
-by default in `build-mg.sh`). After a successful build the test binary is at:
+Unit tests are built by default (enabled by `-DBUILD_MEGAGLEST_TESTS=ON` in
+`build-mg.sh`). After a successful build the test binary is at:
 
-    mk/linux/megaglest_tests   # Linux / macOS
+    mk/linux/megaglest_tests   # Linux
+    mk/macos/megaglest_tests   # macOS
 
-You can run all tests manually:
+Run all tests via CTest:
+
+    ctest --test-dir mk/linux/build --output-on-failure
+
+Or run the binary directly, optionally filtering by suite or test name:
 
     ./mk/linux/megaglest_tests
-
-To run only a specific test suite or a single test:
-
     ./mk/linux/megaglest_tests SocketTest
     ./mk/linux/megaglest_tests SocketTest::test_ip_ipv6_cursor_stripped
+
+To run tests as part of the build script:
+
+    ./mk/linux/build-mg.sh -t   # build then run tests
 
 Tests live under `source/tests/`. To add tests for a new subsystem, create a
 subdirectory under `source/tests/shared_lib/` and add it to `DIRS_WITH_SRC` in

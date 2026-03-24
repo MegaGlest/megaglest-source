@@ -28,9 +28,10 @@ LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
+RUN_TESTS=0
 SHOW_CMAKE_OPTIONS=0
 
-while getopts "B:c:defg:hl:mnopswx" option; do
+while getopts "B:c:defg:hl:mnopswxt" option; do
    case "${option}" in
         B)
            BUILD_DIR=${OPTARG}
@@ -72,6 +73,7 @@ while getopts "B:c:defg:hl:mnopswx" option; do
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
+                echo "       -t   : Run unit tests after build (requires -DBUILD_MEGAGLEST_TESTS=ON)"
                 echo "       -o   : Show available cmake options"
                 echo "       -h   : Display this help usage"
                 echo "       --   : Pass remaining arguments verbatim to cmake"
@@ -110,6 +112,9 @@ while getopts "B:c:defg:hl:mnopswx" option; do
         x)
            FORCE_32BIT_CROSS_COMPILE=1
 #           echo "${option} value: ${OPTARG}"
+        ;;
+        t)
+           RUN_TESTS=1
         ;;
 
         \?)
@@ -374,6 +379,14 @@ else
         make -j$NUMCORES
         if [ $? -ne 0 ]; then
           echo 'ERROR: MAKE failed.' >&2; exit 2
+        fi
+
+        if [ $RUN_TESTS = 1 ]; then
+            echo "==================> Running unit tests... <=================================="
+            ctest --output-on-failure
+            if [ $? -ne 0 ]; then
+              echo 'ERROR: Tests failed.' >&2; exit 3
+            fi
         fi
 
         cd ..
