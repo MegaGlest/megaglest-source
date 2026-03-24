@@ -212,7 +212,9 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
     replaceAll(host, "_", "");
     // Parse host:port, being careful not to split on colons inside IPv6 addresses.
     // Bracket notation [addr]:port is the standard for IPv6 with a port.
-    // A bare IPv6 address (more than one colon) has no port component.
+    // IPv4 addresses always contain dots; IPv6 hex groups never do — use that
+    // to distinguish "192.168.1.1:61357:61357" (IPv4 + duplicate port suffix)
+    // from "2001:db8::1" (IPv6).
     if (!host.empty() && host[0] == '[') {
         size_t close = host.find(']');
         if (close != string::npos) {
@@ -224,12 +226,12 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
     } else {
         hostPartsList.clear();
         Tokenize(host, hostPartsList, ":");
-        if (hostPartsList.size() == 2) {
-            // Exactly one colon: IPv4 host:port
+        bool isIPv4OrHostname = (hostPartsList.size() == 2) || (hostPartsList.size() > 2 && hostPartsList[0].find('.') != string::npos);
+        if (hostPartsList.size() >= 2 && isIPv4OrHostname) {
             host = hostPartsList[0];
             portNumber = strToInt(hostPartsList[1]);
         }
-        // More than two parts means an IPv6 address — leave host unchanged
+        // Multiple colons with no dots in first segment → IPv6, leave host unchanged
     }
 
     port = " (" + intToStr(portNumber) + ")";
@@ -786,12 +788,12 @@ bool MenuStateJoinGame::connectToServer() {
         }
     } else {
         Tokenize(host, hostPartsList, ":");
-        if (hostPartsList.size() == 2) {
-            // Exactly one colon: IPv4 host:port
+        bool isIPv4OrHostname = (hostPartsList.size() == 2) || (hostPartsList.size() > 2 && hostPartsList[0].find('.') != string::npos);
+        if (hostPartsList.size() >= 2 && isIPv4OrHostname) {
             host = hostPartsList[0];
             port = strToInt(hostPartsList[1]);
         }
-        // More than two parts means an IPv6 address — leave host unchanged
+        // Multiple colons with no dots in first segment → IPv6, leave host unchanged
     }
     Ip serverIp(host);
 
