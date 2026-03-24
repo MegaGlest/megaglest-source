@@ -97,6 +97,7 @@ class DiscoveredServersInterface {
 class Ip {
   private:
     unsigned char bytes[4];
+    std::string addrStr; // stores IPv6 or IPv4 strings; overrides bytes when non-empty
 
   public:
     Ip();
@@ -126,6 +127,7 @@ class Socket {
     // static SocketManager wsaManager;
     // #endif
     PLATFORM_SOCKET sock;
+    int socketFamily; // AF_INET or AF_INET6
     time_t lastDebugEvent;
     static int broadcast_portno;
     std::string ipAddress;
