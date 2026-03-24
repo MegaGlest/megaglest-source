@@ -2314,9 +2314,8 @@ void ClientSocket::connect(const Ip &ip, int port) {
     int gai_err = getaddrinfo(ipStr.c_str(), portStr, &hints, &res);
     if (gai_err != 0 || res == NULL) {
         if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,
-                                     "In [%s::%s Line: %d] getaddrinfo failed for [%s]: %s\n",
-                                     __FILE__, __FUNCTION__, __LINE__, ipStr.c_str(), gai_strerror(gai_err));
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] getaddrinfo failed for [%s]: %s\n", __FILE__, __FUNCTION__, __LINE__,
+                                     ipStr.c_str(), gai_strerror(gai_err));
         if (res) freeaddrinfo(res);
         disconnectSocket();
         return;
@@ -2481,8 +2480,7 @@ void ClientSocket::connect(const Ip &ip, int port) {
         }
     } else {
         if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork, "Connected to host [%s] on port = %d sock = %d err = %d", ipStr.c_str(), port, sock,
-                                     err);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork, "Connected to host [%s] on port = %d sock = %d err = %d", ipStr.c_str(), port, sock, err);
         if (SystemFlags::VERBOSE_MODE_ENABLED)
             printf("Connected to host [%s] on port = %d sock "
                    "= " PLATFORM_SOCKET_FORMAT_TYPE " err = %d",
