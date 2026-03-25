@@ -147,7 +147,9 @@ $list_of_libs2" | sed '/:$/d' | sed '/^$/d' | sort -u )"
 		    done
 		done
 		for dyn_lib in $list_of_libs; do
-		    cp "$dyn_lib" "lib/"
+		    case "$dyn_lib" in
+			/*) cp "$dyn_lib" "lib/";;
+		    esac
 		done
 	else
 		echo 'Error: Please run first at least once build-mg.sh script to be ready for prepare directory with dynamic libraries.'
