@@ -12,8 +12,10 @@
 
 # Default to English language output so we can understand your bug reports
 export LANG=C
+set -e
 
 SCRIPTDIR="$(dirname $(readlink -f $0))"
+BUILD_DIR="build"
 CPU_COUNT=-1
 CMAKE_ONLY=0
 MAKE_ONLY=0
@@ -28,8 +30,11 @@ COMPILATION_WITHOUT=0
 BUILD_MEGAGLEST_TESTS="ON"
 SHOW_CMAKE_OPTIONS=0
 
-while getopts "c:defg:hl:mnopswx" option; do
+while getopts "B:c:defg:hl:mnopswx" option; do
    case "${option}" in
+        B)
+           BUILD_DIR=${OPTARG}
+        ;;
         c)
            CPU_COUNT=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
@@ -52,8 +57,9 @@ while getopts "c:defg:hl:mnopswx" option; do
         ;;
         h)
                 echo "Usage: $0 <option> [-- cmake-option ...]"
-                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
+                echo "       where <option> can be: -B dir, -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x -g"
                 echo "       option descriptions:"
+                echo "       -B dir : Use dir as the build directory (default: build)"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
                 echo "       -e   : Force compile with EMBEDDED libraries"
@@ -62,7 +68,7 @@ while getopts "c:defg:hl:mnopswx" option; do
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
-                echo "       -s   : Force compilation of wxWidgets STATIC libs"                
+                echo "       -s   : Force compilation of wxWidgets STATIC libs"
                 echo "       -w   : Force compilation 'Without using wxWidgets'"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
@@ -86,8 +92,8 @@ while getopts "c:defg:hl:mnopswx" option; do
 #           echo "${option} value: ${OPTARG}"
         ;;
         o)
-           if [ -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
-               cmake -LH "${SCRIPTDIR}/build"
+           if [ -f "${SCRIPTDIR}/${BUILD_DIR}/CMakeCache.txt" ]; then
+               cmake -LH "${SCRIPTDIR}/${BUILD_DIR}"
                exit 0
            fi
            SHOW_CMAKE_OPTIONS=1
@@ -123,8 +129,8 @@ shift $((OPTIND-1))
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
-CLANG_BIN_PATH=$( which clang 2>/dev/null )
-CLANGPP_BIN_PATH=$( which clang++ 2>/dev/null )
+CLANG_BIN_PATH=$( which clang 2>/dev/null ) || true
+CLANGPP_BIN_PATH=$( which clang++ 2>/dev/null ) || true
 
 cd ${SCRIPTDIR}
 
@@ -175,10 +181,10 @@ echo "CPU cores to be used: $NUMCORES"
 # ----------------------------------------------------------------------------
 
 if [ $MAKE_ONLY = 0 ]; then
-        mkdir -p build
+        mkdir -p "${BUILD_DIR}"
 fi
 
-cd build
+cd "${BUILD_DIR}"
 
 if [ $MAKE_ONLY = 0 ]; then
         if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
