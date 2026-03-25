@@ -204,6 +204,7 @@ class Socket {
 
     virtual std::string getIpAddress();
     virtual void setIpAddress(std::string value) { ipAddress = value; }
+    int getSocketFamily() const { return socketFamily; }
 
     uint32 getConnectedIPAddress(string IP = "");
 
