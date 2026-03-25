@@ -543,22 +543,25 @@ void Commander::updateNetwork(Game *game) {
                                              perfTimer.getMillis());
 
                 if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
-                // give pending commands
+                // Atomically take all pending commands, then process them from
+                // the local snapshot so no concurrent writer can interfere.
+                GameNetworkInterface::Commands pending;
+                gameNetworkInterface->takePendingCommands(pending);
                 if (SystemFlags::VERBOSE_MODE_ENABLED)
-                    printf("START process: %d network commands in frame: %d\n", gameNetworkInterface->getPendingCommandCount(), this->world->getFrameCount());
-                for (int i = 0; i < gameNetworkInterface->getPendingCommandCount(); ++i) {
-                    giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
+                    printf("START process: %d network commands in frame: %d\n", (int)pending.size(), this->world->getFrameCount());
+                for (int i = 0; i < (int)pending.size(); ++i) {
+                    giveNetworkCommand(&pending[i]);
                 }
                 if (SystemFlags::VERBOSE_MODE_ENABLED)
-                    printf("END process: %d network commands in frame: %d\n", gameNetworkInterface->getPendingCommandCount(), this->world->getFrameCount());
+                    printf("END process: %d network commands in frame: %d\n", (int)pending.size(), this->world->getFrameCount());
                 if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0)
                     SystemFlags::OutputDebug(SystemFlags::debugPerformance,
                                              "In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, "
                                              "PendingCommandCount = %d\n",
                                              extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, perfTimer.getMillis(),
-                                             gameNetworkInterface->getPendingCommandCount());
-                gameNetworkInterface->clearPendingCommands();
-                if (SystemFlags::VERBOSE_MODE_ENABLED) printf("Cleared network commands in frame: %d\n", this->world->getFrameCount());
+                                             (int)pending.size());
+                if (SystemFlags::VERBOSE_MODE_ENABLED)
+                    printf("Processed %d network commands in frame: %d\n", (int)pending.size(), this->world->getFrameCount());
             }
         }
     }

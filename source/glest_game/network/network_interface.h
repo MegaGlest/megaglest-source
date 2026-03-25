@@ -296,12 +296,16 @@ class NetworkInterface {
 // =====================================================
 
 class GameNetworkInterface : public NetworkInterface {
-  protected:
+  public:
     typedef vector<NetworkCommand> Commands;
 
+  protected:
     Commands requestedCommands; // commands requested by the user
     Commands pendingCommands;   // commands ready to be given
     bool quit;
+    // Subclasses that populate pendingCommands from a background thread must
+    // set this to their access mutex; NULL means single-threaded access only.
+    Mutex *pendingCommandsMutex;
 
   public:
     GameNetworkInterface();
@@ -327,9 +331,12 @@ class GameNetworkInterface : public NetworkInterface {
 
     // access functions
     void requestCommand(const NetworkCommand *networkCommand, bool insertAtStart = false);
-    int getPendingCommandCount() const { return (int)pendingCommands.size(); }
-    NetworkCommand *getPendingCommand(int i) { return &pendingCommands[i]; }
-    void clearPendingCommands() { pendingCommands.clear(); }
+    // Atomically move all pending commands into `out`, leaving the queue empty.
+    // Thread-safe: acquires pendingCommandsMutex if set.
+    void takePendingCommands(Commands &out) {
+        MutexSafeWrapper safeMutex(pendingCommandsMutex, CODE_AT_LINE);
+        out.swap(pendingCommands);
+    }
     bool getQuit() const { return quit; }
 };
 
