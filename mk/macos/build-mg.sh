@@ -7,9 +7,11 @@
 # ----------------------------------------------------------------------------
 # Default to English language output so we can understand your bug reports
 export LANG=C
+set -e
 
 SCRIPTDIR="$(cd "$(dirname "$0")"; pwd)"
 BUILD_BUNDLE=0
+BUILD_DIR="build"
 CPU_COUNT=-1
 CMAKE_ONLY=0
 MAKE_ONLY=0
@@ -52,15 +54,17 @@ then
 	fi
 fi
 
-while getopts "c:defhl:mnopwxb" option; do
+while getopts "B:c:defhl:mnopwxb" option; do
 	case "${option}" in
+		B) BUILD_DIR=${OPTARG};;
 		c) CPU_COUNT=${OPTARG};;
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
 		e) FORCE_EMBEDDED_LIBS=1;;
 		f) GCC_FORCED=1;;
 		h) 	echo "Usage: $0 <option> [-- cmake-option ...]"
-			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
+			echo "       where <option> can be: -B dir, -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -w, -x"
 			echo "       option descriptions:"
+			echo "       -B dir : Use dir as the build directory (default: build)"
 			echo "       -b   : Force default configuration designed for bundle/release."
 			echo "       -c x : Force the cpu / cores count to x - example: -c 4"
 			echo "       -d   : Force DYNAMIC compile (do not want static libs)"
@@ -80,8 +84,8 @@ while getopts "c:defhl:mnopwxb" option; do
 		m) CMAKE_ONLY=1;;
 		n) MAKE_ONLY=1;;
 		o)
-			if [ -f "${SCRIPTDIR}/build/CMakeCache.txt" ]; then
-				cmake -LH "${SCRIPTDIR}/build"
+			if [ -f "${SCRIPTDIR}/${BUILD_DIR}/CMakeCache.txt" ]; then
+				cmake -LH "${SCRIPTDIR}/${BUILD_DIR}"
 				exit 0
 			fi
 			SHOW_CMAKE_OPTIONS=1
@@ -108,11 +112,11 @@ shift $((OPTIND-1))
 #   ./build-mg.sh -d -- -DCMAKE_BUILD_TYPE=Debug
 EXTRA_CMAKE_OPTIONS="$*"
 
-CLANG_BIN_PATH="$(which clang 2>/dev/null)"
-CLANGPP_BIN_PATH="$(which clang++ 2>/dev/null)"
+CLANG_BIN_PATH="$(which clang 2>/dev/null)" || true
+CLANGPP_BIN_PATH="$(which clang++ 2>/dev/null)" || true
 GCC_BIN_PATH="/opt/local/bin/gcc"
 GCCPP_BIN_PATH="/opt/local/bin/g++"
-CMAKE_BIN_PATH="$(which cmake 2>/dev/null)"
+CMAKE_BIN_PATH="$(which cmake 2>/dev/null)" || true
 if [ "$CMAKE_BIN_PATH" = "" ]; then CMAKE_BIN_PATH="/opt/local/bin/cmake"; fi
 # ^ install latest (not beta) gcc from "mac ports" and then choose it as default gcc version by "port select ..."
 # ( ^ same situation is with wxwidgets )
@@ -169,15 +173,15 @@ if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 if [ "$CPU_COUNT" != -1 ]; then NUMCORES=$CPU_COUNT; fi
 echo "CPU cores to be used: $NUMCORES"
 
-if [ "$BUILD_BUNDLE" -eq "1" ] && [ -d "build" ]; then rm -rf build; fi
-if [ $MAKE_ONLY = 0 ]; then mkdir -p build; fi
-cd build
+if [ "$BUILD_BUNDLE" -eq "1" ] && [ -d "${BUILD_DIR}" ]; then rm -rf "${BUILD_DIR}"; fi
+if [ $MAKE_ONLY = 0 ]; then mkdir -p "${BUILD_DIR}"; fi
+cd "${BUILD_DIR}"
 
 if [ $MAKE_ONLY = 0 ] && [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 
 distribution="$(sw_vers -productName)"
 release="$(sw_vers -productVersion)"
-xcode_ver="$(xcodebuild -version | awk '/Xcode/ {print $2}')"
+xcode_ver="$(xcodebuild -version 2>/dev/null | awk '/Xcode/ {print $2}')" || true
 architecture="$(uname -m)"
 echo 'We have detected the following system:'
 echo " [ $distribution ] [ $release ] [ $architecture ] [ $xcode_ver ]"
@@ -264,7 +268,7 @@ if [ "$CMAKE_ONLY" -eq "1" ]; then
 else
 	if [ "$USE_XCODE" -eq "1" ]; then
 		echo "==================> About to call xcodebuild... <================================="
-		xcodebuild | egrep "(error|warning):"
+		xcodebuild | egrep "(error|warning):" || true
 		if [ "$?" -ne "0" ]; then echo 'ERROR: xcodebuild failed.' >&2; exit 2; fi
 	else
 		echo "==================> About to call make with $NUMCORES cores... <=================="
