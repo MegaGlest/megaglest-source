@@ -675,7 +675,19 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
             listBoxTeams[i].setSelectedItemIndex(i);
             lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 
-            listBoxControls[i].setItems(controlItems);
+            //by default the main player is at position 0, for any other position make sure the "human" option is not appliccable (skip)
+            if (i == 0) {
+                listBoxControls[i].setItems(controlItems);
+            } else {
+                vector<string> controlItemsNoHuman;
+                for (const string& item : controlItems) {
+                    if (item != lang.getString("Human")) {
+                        controlItemsNoHuman.push_back(item);
+                    }
+                }
+                    listBoxControls[i].setItems(controlItemsNoHuman);
+            }
+
             listBoxRMultiplier[i].setItems(rMultiplier);
             listBoxRMultiplier[i].setSelectedItem("1.0");
             labelNetStatus[i].setText("");
@@ -892,7 +904,17 @@ void MenuStateCustomGame::reloadUI() {
     for (int i = 0; i < GameConstants::maxPlayers; ++i) {
         labelPlayers[i].setText(intToStr(i + 1));
 
-        listBoxControls[i].setItems(controlItems);
+            if (i == 0) {
+                  listBoxControls[i].setItems(controlItems);
+            } else {
+                vector<string> controlItemsNoHuman;
+                for (const string& item : controlItems) {
+                    if (item != lang.getString("Human")) {
+                        controlItemsNoHuman.push_back(item);
+                    }
+                }
+                listBoxControls[i].setItems(controlItemsNoHuman);
+            }
     }
 
     labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
