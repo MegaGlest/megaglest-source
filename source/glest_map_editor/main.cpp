@@ -471,7 +471,13 @@ void MainWindow::onClose(wxCloseEvent &event) {
 		if( wxMessageDialog(NULL, ToUnicode("Do you want to save the current map?"),
 			ToUnicode("Question"), wxYES_NO | wxYES_DEFAULT).ShowModal() == wxID_YES) {
 			wxCommandEvent ev;
-			MainWindow::onMenuFileSave(ev);
+            MainWindow::onMenuFileSave(ev);
+            if (program->getMap()->getHasChanged() == true) {
+                if (event.CanVeto()) {
+                    event.Veto();
+                }
+                return;
+            }
 		}
 	}
 	delete program;
