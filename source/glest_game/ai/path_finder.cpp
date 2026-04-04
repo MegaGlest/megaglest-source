@@ -855,6 +855,21 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                         unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
                     }
 
+                    // If the best node we reached is already close to the
+                    // target, the blockage is likely temporary congestion
+                    // (e.g. many workers queued at a mine).  Skip the
+                    // exploratory retry and wait instead — this restores the
+                    // pre-patch behaviour where workers idle near the mine and
+                    // slide in when a spot opens, rather than wandering away.
+                    const float nearTargetThreshold = 5.0f;
+                    if (faction.bestClosedNode != nullptr &&
+                        faction.bestClosedNode->heuristic <= nearTargetThreshold) {
+                        if (frameIndex < 0) {
+                            path->incBlockCount();
+                        }
+                        return tsBlocked;
+                    }
+
                     return aStar(unit, targetPos, false, frameIndex, pathFindNodesExploratoryMax, nullptr, 0.25f, true);
                 } else if (unit->getLastPathfindFailedPos() == finalPos) {
                     // Still in cooldown for this destination.  Using bestClosedNode
@@ -944,6 +959,29 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
             while (currNode->prev != NULL) {
                 currNode->prev->next = currNode;
                 currNode = currNode->prev;
+            }
+
+            // For exploratory retries, reject paths that are disproportionately
+            // long relative to the direct distance.  A low heuristic weight lets
+            // the search route far around congestion, but if the detour is more
+            // than 4x the straight-line distance the unit would wander visibly
+            // away from its target — particularly bad when many workers share a
+            // gold mine.
+            if (isExploratoryRetry && frameIndex < 0) {
+                int pathLength = 0;
+                Node *countNode = firstNode;
+                while (countNode->next != NULL) {
+                    ++pathLength;
+                    countNode = countNode->next;
+                }
+                float directDist = unitPos.dist(finalPos);
+                if (pathLength > directDist * 4.0f) {
+                    ts = tsBlocked;
+                    path->incBlockCount();
+                    faction.openNodesList.clear();
+                    faction.openPosList.clear();
+                    return ts;
+                }
             }
 
             if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4)
