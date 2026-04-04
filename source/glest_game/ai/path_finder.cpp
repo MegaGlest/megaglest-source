@@ -862,8 +862,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                     // pre-patch behaviour where workers idle near the mine and
                     // slide in when a spot opens, rather than wandering away.
                     const float nearTargetThreshold = 5.0f;
-                    if (faction.bestClosedNode != nullptr &&
-                        faction.bestClosedNode->heuristic <= nearTargetThreshold) {
+                    if (faction.bestClosedNode != nullptr && faction.bestClosedNode->heuristic <= nearTargetThreshold) {
                         if (frameIndex < 0) {
                             path->incBlockCount();
                         }
