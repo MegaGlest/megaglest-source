@@ -940,6 +940,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
             ts = tsBlocked;
             if (frameIndex < 0) {
                 path->incBlockCount();
+                // Record the failed destination so the full-path case can
+                // detect oscillation when the target is occupied by mobile
+                // units (which appear passable from far away but blocked
+                // when the unit arrives close).
+                unit->setLastPathfindFailedPos(finalPos);
             }
 
             if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4)
@@ -1005,6 +1010,30 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                 // so the unit stops at its current position rather than
                 // circling indefinitely around an obstacle or occupied area.
                 if (nodeLimitReached) {
+                    // bestClosedNode partial path — preserve and increment the
+                    // block count so repeated partial steps accumulate toward
+                    // the isBlocked() threshold.
+                    int savedBlockCount = path->getBlockCount();
+                    path->clear();
+                    for (int bc = 0; bc < savedBlockCount; ++bc) {
+                        path->incBlockCount();
+                    }
+                    path->incBlockCount();
+                    if (path->isBlocked()) {
+                        ts = tsBlocked;
+                        faction.openNodesList.clear();
+                        faction.openPosList.clear();
+                        return ts;
+                    }
+                } else if (unit->getLastPathfindFailedPos() == finalPos) {
+                    // A full path was found, but we were recently blocked at
+                    // this same destination.  This happens when the destination
+                    // is occupied by mobile units: far away they appear passable
+                    // (isFreeOrMightBeFreeSoon), so A* finds a complete path,
+                    // but on arrival the cell is still occupied and the unit
+                    // gets deflected — resetting blockCount and creating an
+                    // infinite cycle.  Preserve the block count so it keeps
+                    // accumulating across these oscillations.
                     int savedBlockCount = path->getBlockCount();
                     path->clear();
                     for (int bc = 0; bc < savedBlockCount; ++bc) {
