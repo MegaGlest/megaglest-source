@@ -998,7 +998,21 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
             // store path
             if (frameIndex < 0) {
-                path->clear();
+                // When the node limit was reached we are using a bestClosedNode
+                // partial path, not a real path to the destination.  Preserve
+                // the block count so it keeps accumulating across partial steps:
+                // otherwise the unit circles indefinitely because every
+                // tsMoving step clears the count and the 10-block threshold
+                // that triggers finishCommand() is never reached.
+                if (nodeLimitReached) {
+                    int savedBlockCount = path->getBlockCount();
+                    path->clear();
+                    for (int bc = 0; bc < savedBlockCount; ++bc) {
+                        path->incBlockCount();
+                    }
+                } else {
+                    path->clear();
+                }
             }
 
             // UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
