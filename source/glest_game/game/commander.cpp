@@ -197,14 +197,12 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
 
         // Distribute for produce/upgrade (always-queuable) commands or when explicitly queuing.
         // Idle buildings have an automatic stop command (size=1); treat them as effectively empty.
-        bool shouldDistribute = selection->getCount() > 1 &&
-            (tryQueue || commandClass == ccProduce || commandClass == ccUpgrade);
+        bool shouldDistribute = selection->getCount() > 1 && (tryQueue || commandClass == ccProduce || commandClass == ccUpgrade);
         auto effectiveSize = [](const Unit *unit) -> int {
             int size = (int)unit->getCommandSize();
             if (size == 1) {
                 const Command *cmd = unit->getCurrCommand();
-                if (cmd != NULL && cmd->getCommandType() != NULL &&
-                    cmd->getCommandType()->getClass() == ccStop) {
+                if (cmd != NULL && cmd->getCommandType() != NULL && cmd->getCommandType()->getClass() == ccStop) {
                     return 0;
                 }
             }
@@ -224,9 +222,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             }
             if (!eligibleUnits.empty()) {
                 std::sort(eligibleUnits.begin(), eligibleUnits.end(),
-                          [&effectiveSize](const Unit *a, const Unit *b) {
-                              return effectiveSize(a) < effectiveSize(b);
-                          });
+                          [&effectiveSize](const Unit *a, const Unit *b) { return effectiveSize(a) < effectiveSize(b); });
                 int minSize = effectiveSize(eligibleUnits[0]);
                 for (const Unit *unit : eligibleUnits) {
                     if (effectiveSize(unit) > minSize) break;
@@ -290,14 +286,12 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
 
         // Distribute for produce/upgrade (always-queuable) commands or when explicitly queuing.
         // Idle buildings have an automatic stop command (size=1); treat them as effectively empty.
-        bool shouldDistribute = selection->getCount() > 1 &&
-            (tryQueue || commandType->isQueuable() == qAlways);
+        bool shouldDistribute = selection->getCount() > 1 && (tryQueue || commandType->isQueuable() == qAlways);
         auto effectiveSize = [](const Unit *unit) -> int {
             int size = (int)unit->getCommandSize();
             if (size == 1) {
                 const Command *cmd = unit->getCurrCommand();
-                if (cmd != NULL && cmd->getCommandType() != NULL &&
-                    cmd->getCommandType()->getClass() == ccStop) {
+                if (cmd != NULL && cmd->getCommandType() != NULL && cmd->getCommandType()->getClass() == ccStop) {
                     return 0;
                 }
             }
@@ -317,9 +311,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             }
             if (!eligibleUnits.empty()) {
                 std::sort(eligibleUnits.begin(), eligibleUnits.end(),
-                          [&effectiveSize](const Unit *a, const Unit *b) {
-                              return effectiveSize(a) < effectiveSize(b);
-                          });
+                          [&effectiveSize](const Unit *a, const Unit *b) { return effectiveSize(a) < effectiveSize(b); });
                 int minSize = effectiveSize(eligibleUnits[0]);
                 for (const Unit *unit : eligibleUnits) {
                     if (effectiveSize(unit) > minSize) break;
