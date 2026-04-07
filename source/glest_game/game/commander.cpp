@@ -215,6 +215,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             vector<const Unit *> eligibleUnits;
             for (int i = 0; i < selection->getCount(); ++i) {
                 const Unit *unit = selection->getUnit(i);
+                if (!unit->isBuilt()) continue;
                 const CommandType *ct = unit->getType()->getFirstCtOfClass(commandClass);
                 if (ct != NULL && canSubmitCommandType(unit, ct)) {
                     eligibleUnits.push_back(unit);
@@ -238,6 +239,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             // give orders to all selected units
             for (int i = 0; i < selection->getCount(); ++i) {
                 const Unit *unit = selection->getUnit(i);
+                if (!unit->isBuilt()) continue;
                 const CommandType *ct = unit->getType()->getFirstCtOfClass(commandClass);
                 if (ct != NULL) {
                     std::pair<CommandResult, string> resultCur(crFailUndefined, "");
@@ -245,8 +247,8 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
                     bool canSubmitCommand = canSubmitCommandType(unit, ct);
                     if (canSubmitCommand == true) {
                         int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
-                        int unitId = selection->getUnit(i)->getId();
-                        Vec2i currPos = world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPosNotThreadSafe(), pos);
+                        int unitId = unit->getId();
+                        Vec2i currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
                         NetworkCommand networkCommand(this->world, nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue, cst_None, -1,
                                                       unitCommandGroupId);
 
@@ -254,8 +256,6 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
                         resultCur = pushNetworkCommand(&networkCommand);
                     }
                     results.push_back(resultCur);
-                } else {
-                    results.push_back(std::pair<CommandResult, string>(crFailUndefined, ""));
                 }
             }
         }
@@ -305,6 +305,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             for (int i = 0; i < selection->getCount(); ++i) {
                 const Unit *unit = selection->getUnit(i);
                 assert(unit != NULL);
+                if (!unit->isBuilt()) continue;
                 if (canSubmitCommandType(unit, commandType)) {
                     eligibleUnits.push_back(unit);
                 }
@@ -327,6 +328,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             for (int i = 0; i < selection->getCount(); ++i) {
                 const Unit *unit = selection->getUnit(i);
                 assert(unit != NULL);
+                if (!unit->isBuilt()) continue;
 
                 std::pair<CommandResult, string> resultCur(crFailUndefined, "");
 
@@ -376,6 +378,7 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             const Unit *unit = selection->getUnit(i);
 
             assert(unit != NULL);
+            if (!unit->isBuilt()) continue;
 
             currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 
