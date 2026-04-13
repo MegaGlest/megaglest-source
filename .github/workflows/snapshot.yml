@@ -18,7 +18,7 @@ jobs:
     steps:
     - name: 'Check both workflows completed'
       id: check
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       with:
         script: |
           const headSha = context.payload.workflow_run.head_sha;
@@ -37,7 +37,7 @@ jobs:
 
     - name: 'Download artifacts'
       if: steps.check.outputs.ready == 'true'
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       with:
         script: |
           const fs = require('fs');
