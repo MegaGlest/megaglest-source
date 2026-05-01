@@ -68,6 +68,7 @@ class MenuStateJoinGame : public MenuState, public DiscoveredServersInterface {
     string serversSavedFile;
     bool abortAutoFind;
     bool autoConnectToServer;
+    int serverPortOverride;
 
   public:
     MenuStateJoinGame(Program *program, MainMenu *mainMenu, bool connect = false, Ip serverIp = Ip(), int portNumberOverride = -1);

@@ -70,6 +70,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
     containerName = "JoinGame";
     abortAutoFind = false;
     autoConnectToServer = false;
+    serverPortOverride = portNumberOverride;
     Lang &lang = Lang::getInstance();
     Config &config = Config::getInstance();
     NetworkManager &networkManager = NetworkManager::getInstance();
@@ -165,13 +166,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
 
     string host = labelServerIp.getText();
     int portNumber = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-    std::vector<std::string> hostPartsList;
-    Tokenize(host, hostPartsList, ":");
-    if (hostPartsList.size() > 1) {
-        host = hostPartsList[0];
-        replaceAll(hostPartsList[1], "_", "");
-        portNumber = strToInt(hostPartsList[1]);
-    }
+    Ip::parseHostPort(host, portNumber);
 
     string port = " (" + intToStr(portNumber) + ")";
     labelServerPort.setText(port);
@@ -187,52 +182,18 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
     connected = false;
     playerIndex = -1;
 
-    // server ip
+    // server ip — label stores only the address; port is tracked via serverPortOverride
     if (connect == true) {
-        string hostIP = serverIp.getString();
-        if (portNumberOverride > 0) {
-            hostIP += ":" + intToStr(portNumberOverride);
-        }
-
-        labelServerIp.setText(hostIP + "_");
-
+        labelServerIp.setText(serverIp.getString() + "_");
         autoConnectToServer = true;
     } else {
-        string hostIP = config.getString("ServerIp");
-        if (portNumberOverride > 0) {
-            hostIP += ":" + intToStr(portNumberOverride);
-        }
-
-        labelServerIp.setText(hostIP + "_");
+        labelServerIp.setText(config.getString("ServerIp") + "_");
     }
 
     host = labelServerIp.getText();
-    portNumber = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-    // Strip trailing '_' cursor character before parsing
-    replaceAll(host, "_", "");
-    // Parse host:port, being careful not to split on colons inside IPv6 addresses.
-    // Bracket notation [addr]:port is the standard for IPv6 with a port.
-    // IPv4 addresses always contain dots; IPv6 hex groups never do — use that
-    // to distinguish "192.168.1.1:61357:61357" (IPv4 + duplicate port suffix)
-    // from "2001:db8::1" (IPv6).
-    if (!host.empty() && host[0] == '[') {
-        size_t close = host.find(']');
-        if (close != string::npos) {
-            if (close + 1 < host.size() && host[close + 1] == ':') {
-                portNumber = strToInt(host.substr(close + 2));
-            }
-            host = host.substr(1, close - 1);
-        }
-    } else {
-        hostPartsList.clear();
-        Tokenize(host, hostPartsList, ":");
-        bool isIPv4OrHostname = (hostPartsList.size() == 2) || (hostPartsList.size() > 2 && hostPartsList[0].find('.') != string::npos);
-        if (hostPartsList.size() >= 2 && isIPv4OrHostname) {
-            host = hostPartsList[0];
-            portNumber = strToInt(hostPartsList[1]);
-        }
-        // Multiple colons with no dots in first segment → IPv6, leave host unchanged
-    }
+    portNumber = serverPortOverride > 0 ? serverPortOverride
+                                        : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+    Ip::parseHostPort(host, portNumber);
 
     port = " (" + intToStr(portNumber) + ")";
     labelServerPort.setText(port);
@@ -265,14 +226,9 @@ void MenuStateJoinGame::reloadUI() {
     labelServerPortLabel.setText(lang.getString("ServerPort"));
 
     string host = labelServerIp.getText();
-    int portNumber = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-    std::vector<std::string> hostPartsList;
-    Tokenize(host, hostPartsList, ":");
-    if (hostPartsList.size() > 1) {
-        host = hostPartsList[0];
-        replaceAll(hostPartsList[1], "_", "");
-        portNumber = strToInt(hostPartsList[1]);
-    }
+    int portNumber = serverPortOverride > 0 ? serverPortOverride
+                                            : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+    Ip::parseHostPort(host, portNumber);
 
     string port = " (" + intToStr(portNumber) + ")";
     labelServerPort.setText(port);
@@ -388,14 +344,9 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
         string host = labelServerIp.getText();
         Config &config = Config::getInstance();
-        int portNumber = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-        std::vector<std::string> hostPartsList;
-        Tokenize(host, hostPartsList, ":");
-        if (hostPartsList.size() > 1) {
-            host = hostPartsList[0];
-            replaceAll(hostPartsList[1], "_", "");
-            portNumber = strToInt(hostPartsList[1]);
-        }
+        int portNumber = serverPortOverride > 0 ? serverPortOverride
+                                                : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+        Ip::parseHostPort(host, portNumber);
 
         string port = " (" + intToStr(portNumber) + ")";
         labelServerPort.setText(port);
@@ -603,16 +554,11 @@ void MenuStateJoinGame::update() {
                 labelInfo.setText(lang.getString("WaitingHost"));
 
                 string host = labelServerIp.getText();
-                std::vector<std::string> hostPartsList;
-                Tokenize(host, hostPartsList, ":");
-                if (hostPartsList.size() > 1) {
-                    host = hostPartsList[0];
-                    replaceAll(hostPartsList[1], "_", "");
-                }
-                string saveHost = Ip(host).getString();
-                if (hostPartsList.size() > 1) {
-                    saveHost += ":" + hostPartsList[1];
-                }
+                Config &config = Config::getInstance();
+                int portNumber = serverPortOverride > 0 ? serverPortOverride
+                                                        : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+                Ip::parseHostPort(host, portNumber);
+                string saveHost = Ip::buildHostDisplay(Ip(host).getString(), portNumber);
 
                 servers.setString(clientInterface->getServerName(), saveHost);
             }
@@ -771,32 +717,11 @@ bool MenuStateJoinGame::connectToServer() {
 
     Config &config = Config::getInstance();
     string host = labelServerIp.getText();
-    int port = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-    std::vector<std::string> hostPartsList;
-    // Strip trailing '_' cursor character before parsing
-    replaceAll(host, "_", "");
-    // Parse host:port, being careful not to split on colons inside IPv6 addresses.
-    // Bracket notation [addr]:port is the standard for IPv6 with a port.
-    // A bare IPv6 address (more than one colon) has no port component.
-    if (!host.empty() && host[0] == '[') {
-        size_t close = host.find(']');
-        if (close != string::npos) {
-            if (close + 1 < host.size() && host[close + 1] == ':') {
-                port = strToInt(host.substr(close + 2));
-            }
-            host = host.substr(1, close - 1);
-        }
-    } else {
-        Tokenize(host, hostPartsList, ":");
-        bool isIPv4OrHostname = (hostPartsList.size() == 2) || (hostPartsList.size() > 2 && hostPartsList[0].find('.') != string::npos);
-        if (hostPartsList.size() >= 2 && isIPv4OrHostname) {
-            host = hostPartsList[0];
-            port = strToInt(hostPartsList[1]);
-        }
-        // Multiple colons with no dots in first segment → IPv6, leave host unchanged
-    }
+    int port = serverPortOverride > 0 ? serverPortOverride
+                                      : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+    Ip::parseHostPort(host, port);
+    serverPortOverride = port;
     Ip serverIp(host);
-
     ClientInterface *clientInterface = NetworkManager::getInstance().getClientInterface();
     clientInterface->connect(serverIp, port);
 
@@ -822,10 +747,7 @@ bool MenuStateJoinGame::connectToServer() {
         }
     }
     if (clientInterface->isConnected() == true && clientInterface->getIntroDone() == true) {
-        string saveHost = Ip(host).getString();
-        if (hostPartsList.size() > 1) {
-            saveHost += ":" + hostPartsList[1];
-        }
+        string saveHost = Ip::buildHostDisplay(Ip(host).getString(), port);
         servers.setString(clientInterface->getServerName(), saveHost);
         servers.save(serversSavedFile);
 

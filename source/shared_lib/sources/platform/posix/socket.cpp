@@ -316,6 +316,33 @@ string Ip::getString() const {
     return intToStr(bytes[0]) + "." + intToStr(bytes[1]) + "." + intToStr(bytes[2]) + "." + intToStr(bytes[3]);
 }
 
+void Ip::parseHostPort(string &host, int &port) {
+    replaceAll(host, "_", "");
+    if (!host.empty() && host[0] == '[') {
+        size_t close = host.find(']');
+        if (close != string::npos) {
+            if (close + 2 <= host.size() && host[close + 1] == ':') {
+                port = strToInt(host.substr(close + 2));
+            }
+            host = host.substr(1, close - 1);
+        }
+    } else {
+        size_t firstColon = host.find(':');
+        if (firstColon != string::npos && host.find(':', firstColon + 1) == string::npos) {
+            port = strToInt(host.substr(firstColon + 1));
+            host = host.substr(0, firstColon);
+        }
+    }
+}
+
+string Ip::buildHostDisplay(const string &host, int port) {
+    if (port <= 0) return host;
+    if (host.find(':') != string::npos) {
+        return "[" + host + "]:" + intToStr(port);
+    }
+    return host + ":" + intToStr(port);
+}
+
 // ===============================================
 //	class Socket
 // ===============================================
@@ -2326,7 +2353,6 @@ void ClientSocket::connect(const Ip &ip, int port) {
         disconnectSocket();
         return;
     }
-
     // If the resolved family differs from the current socket family, recreate
     // the socket so it matches (e.g. upgrade AF_INET to AF_INET6).
     if (res->ai_family != socketFamily) {
