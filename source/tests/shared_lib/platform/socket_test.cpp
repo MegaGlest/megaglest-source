@@ -156,39 +156,21 @@ class SocketTest : public CppUnit::TestFixture {
     // --- buildHostDisplay ---
 
     // IPv4 with positive port: plain "host:port"
-    void test_buildHostDisplay_ipv4_with_port() {
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("192.168.1.1:6234"),
-            Ip::buildHostDisplay("192.168.1.1", 6234));
-    }
+    void test_buildHostDisplay_ipv4_with_port() { CPPUNIT_ASSERT_EQUAL(std::string("192.168.1.1:6234"), Ip::buildHostDisplay("192.168.1.1", 6234)); }
 
     // IPv4 with port <= 0: host returned as-is
-    void test_buildHostDisplay_ipv4_no_port() {
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("192.168.1.1"),
-            Ip::buildHostDisplay("192.168.1.1", 0));
-    }
+    void test_buildHostDisplay_ipv4_no_port() { CPPUNIT_ASSERT_EQUAL(std::string("192.168.1.1"), Ip::buildHostDisplay("192.168.1.1", 0)); }
 
     // IPv6 with port: bracket notation "[addr]:port"
     void test_buildHostDisplay_ipv6_with_port() {
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("[2a04:1c43:31da:0:7bb0:7ebc:5759:9a6b]:61367"),
-            Ip::buildHostDisplay("2a04:1c43:31da:0:7bb0:7ebc:5759:9a6b", 61367));
+        CPPUNIT_ASSERT_EQUAL(std::string("[2a04:1c43:31da:0:7bb0:7ebc:5759:9a6b]:61367"), Ip::buildHostDisplay("2a04:1c43:31da:0:7bb0:7ebc:5759:9a6b", 61367));
     }
 
     // IPv6 with port <= 0: host returned as-is (no brackets added)
-    void test_buildHostDisplay_ipv6_no_port() {
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("::1"),
-            Ip::buildHostDisplay("::1", 0));
-    }
+    void test_buildHostDisplay_ipv6_no_port() { CPPUNIT_ASSERT_EQUAL(std::string("::1"), Ip::buildHostDisplay("::1", 0)); }
 
     // Hostname with port: plain "host:port"
-    void test_buildHostDisplay_hostname_with_port() {
-        CPPUNIT_ASSERT_EQUAL(
-            std::string("example.com:6234"),
-            Ip::buildHostDisplay("example.com", 6234));
-    }
+    void test_buildHostDisplay_hostname_with_port() { CPPUNIT_ASSERT_EQUAL(std::string("example.com:6234"), Ip::buildHostDisplay("example.com", 6234)); }
 
     // buildHostDisplay output fed back into parseHostPort recovers the same
     // host and port — this is the round-trip that connectToServer() relies on

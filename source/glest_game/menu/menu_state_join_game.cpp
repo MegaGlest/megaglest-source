@@ -191,8 +191,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp, int portNumberOver
     }
 
     host = labelServerIp.getText();
-    portNumber = serverPortOverride > 0 ? serverPortOverride
-                                        : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+    portNumber = serverPortOverride > 0 ? serverPortOverride : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
     Ip::parseHostPort(host, portNumber);
 
     port = " (" + intToStr(portNumber) + ")";
@@ -226,8 +225,7 @@ void MenuStateJoinGame::reloadUI() {
     labelServerPortLabel.setText(lang.getString("ServerPort"));
 
     string host = labelServerIp.getText();
-    int portNumber = serverPortOverride > 0 ? serverPortOverride
-                                            : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+    int portNumber = serverPortOverride > 0 ? serverPortOverride : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
     Ip::parseHostPort(host, portNumber);
 
     string port = " (" + intToStr(portNumber) + ")";
@@ -344,8 +342,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
         string host = labelServerIp.getText();
         Config &config = Config::getInstance();
-        int portNumber = serverPortOverride > 0 ? serverPortOverride
-                                                : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+        int portNumber = serverPortOverride > 0 ? serverPortOverride : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
         Ip::parseHostPort(host, portNumber);
 
         string port = " (" + intToStr(portNumber) + ")";
@@ -555,8 +552,7 @@ void MenuStateJoinGame::update() {
 
                 string host = labelServerIp.getText();
                 Config &config = Config::getInstance();
-                int portNumber = serverPortOverride > 0 ? serverPortOverride
-                                                        : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+                int portNumber = serverPortOverride > 0 ? serverPortOverride : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
                 Ip::parseHostPort(host, portNumber);
                 string saveHost = Ip::buildHostDisplay(Ip(host).getString(), portNumber);
 
@@ -717,8 +713,7 @@ bool MenuStateJoinGame::connectToServer() {
 
     Config &config = Config::getInstance();
     string host = labelServerIp.getText();
-    int port = serverPortOverride > 0 ? serverPortOverride
-                                      : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
+    int port = serverPortOverride > 0 ? serverPortOverride : config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
     Ip::parseHostPort(host, port);
     serverPortOverride = port;
     Ip serverIp(host);
