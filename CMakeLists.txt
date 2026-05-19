@@ -1,11 +1,8 @@
-IF(WIN32)
-	# Windows cmake version needs to be higher - for CMAKE_MSVC_RUNTIME_LIBRARY.
-	CMAKE_MINIMUM_REQUIRED( VERSION 3.15 )
+cmake_minimum_required(VERSION 3.18)
 
+IF(WIN32)
 	# This must be Set before "PROJECT()" is called.
 	SET(VCPKG_TARGET_TRIPLET "x64-windows-static")
-ELSE()
-	CMAKE_MINIMUM_REQUIRED( VERSION 3.10 )
 ENDIF()
 
 PROJECT( MegaGlest )
