@@ -128,7 +128,7 @@ if [ "$quiet" -eq "1" ]; then
 	ZYPPER_OPTIONS="$ZYPPER_OPTIONS -y"
 fi
 
-packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
+packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.4-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev"
 
 case $distribution in
 Debian | Raspbian)
@@ -161,7 +161,7 @@ Ubuntu)
 		;;
 	22.04)
 		#name > Jammy Jellyfish
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev libbrotli-dev libzstd-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.4-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh-dev libbrotli-dev libzstd-dev"
 		;;
 	24.04)
 		#name > Noble
@@ -183,7 +183,7 @@ Ubuntu)
           libjpeg-dev
           libkrb5-dev
           libldap2-dev
-          liblua5.3-dev
+          liblua5.4-dev
           libminiupnpc-dev
           libnghttp2-dev
           libogg-dev
@@ -234,7 +234,7 @@ LinuxMint | Linuxmint)
 		;;
 	21 | 21.*)
 		#LTS, based on Ubuntu 22.04, EoL April 2027
-		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev libzstd-dev libssh-dev"
+		installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl2-dev libopenal-dev liblua5.4-dev libjpeg-dev libpng-dev libfreetype6-dev libwxgtk3.0-gtk3-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev -dev core-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn2-0-dev libpsl-dev libgnutls28-dev libnghttp2-dev libssh2-1-dev libzstd-dev libssh-dev"
 		;;
 	*)
 		installcommand="apt-get install $APT_OPTIONS $packages_for_next_debian_ubuntu_mint"
@@ -276,7 +276,7 @@ ManjaroLinux* | Manjarolinux*)
 	if [ "$architecture" = "x86_64" ] || [ "$architecture" = "aarch64" ]; then lib=""; else lib="lib32-"; fi
 	case $release in
 	*)
-		installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua53 ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
+		installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua54 ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
 		# unsupported_currently_this_OS="release"
 		;;
 	esac
