@@ -55,7 +55,7 @@ sudo DEBIAN_FRONTEND=noninteractive -i sh -c \
     libcurl4-gnutls-dev
     libsdl2-dev
     libopenal-dev
-    liblua5.3-dev
+    liblua5.4-dev
     libjpeg-dev
     libpng-dev
     libfreetype6-dev

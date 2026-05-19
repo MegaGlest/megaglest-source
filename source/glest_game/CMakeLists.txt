@@ -73,7 +73,7 @@ IF(UNIX)
 	ENDIF()
 ENDIF()
 
-FIND_PACKAGE(LUA REQUIRED)
+find_package(Lua REQUIRED)
 INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
 # vcpkg config-mode lua provides an imported target but may not set LUA_LIBRARIES
 if(TARGET lua::lua AND NOT LUA_LIBRARIES)
