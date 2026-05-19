@@ -79,8 +79,10 @@ jobs:
       run: |
         echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
         sudo apt update
-        sudo apt remove -y firefox # save some time during upgrade
-        sudo apt upgrade -y
+
+        # Upgrade not needed. The runners are updated on a regular basis
+        # -AA 2026-05-19
+        # sudo apt upgrade -y
         sudo mk/linux/setupBuildDeps.sh
     - name: Build RelwithDebinfo
       if: ${{ matrix.release != true }}

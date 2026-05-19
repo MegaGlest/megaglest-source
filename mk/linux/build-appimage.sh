@@ -49,7 +49,6 @@ fi
 
 sudo DEBIAN_FRONTEND=noninteractive -i sh -c \
   "apt update &&
-  apt upgrade -y &&
   apt install --no-install-recommends -y
     build-essential
     $CC

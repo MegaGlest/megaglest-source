@@ -21,8 +21,17 @@ jobs:
     strategy:
       fail-fast: false
     runs-on: macos-latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
     steps:
     - uses: actions/checkout@v6
+    - name: Cache Homebrew packages
+      uses: actions/cache@v5
+      with:
+        path: ~/Library/Caches/Homebrew
+        key: ${{ runner.os }}-${{ matrix.os }}-brew-${{ hashFiles('.github/workflows/macos.yml') }}
+        restore-keys: ${{ runner.os }}-${{ matrix.os }}-brew-
 
     - name: Get dependencies
       run: |

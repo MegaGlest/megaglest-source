@@ -121,7 +121,7 @@ install_command() {
 }
 
 if [ "$quiet" -eq "1" ]; then
-	APT_OPTIONS="$APT_OPTIONS -y -q"
+	APT_OPTIONS="$APT_OPTIONS --no-install-recommends -y -q"
 	URPMI_OPTIONS="$URPMI_OPTIONS -q --auto"
 	PACMAN_OPTIONS="$PACMAN_OPTIONS -q --noconfirm"
 	DNF_OPTIONS="$DNF_OPTIONS -y -q"
