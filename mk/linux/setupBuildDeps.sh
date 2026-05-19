@@ -272,14 +272,9 @@ Mageia)
 	esac
 	;;
 
-ManjaroLinux* | Manjarolinux*)
+Arch | archlinux | ManjaroLinux* | Manjarolinux*)
 	if [ "$architecture" = "x86_64" ] || [ "$architecture" = "aarch64" ]; then lib=""; else lib="lib32-"; fi
-	case $release in
-	*)
-		installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua54 ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
-		# unsupported_currently_this_OS="release"
-		;;
-	esac
+	installcommand="pacman $PACMAN_OPTIONS -S --needed gcc-multilib cmake ${lib}libcurl-gnutls ${lib}sdl2 ${lib}openal lua54 ${lib}libjpeg-turbo ${lib}libpng ${lib}freetype2 wxwidgets-gtk3 cppunit fribidi ftgl ${lib}glew ${lib}libogg ${lib}libvorbis miniupnpc libircclient ${lib}libxml2 ${lib}libx11 ${lib}mesa ${lib}glu"
 	;;
 
 *)
