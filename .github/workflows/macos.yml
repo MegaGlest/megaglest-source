@@ -21,11 +21,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, macos-26-arm64]
+        os: [macos-latest, macos-26]
     runs-on: ${{ matrix.os }}
     env:
       HOMEBREW_NO_AUTO_UPDATE: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
+      SNAPSHOT_ARCH: arm64
     steps:
     - uses: actions/checkout@v6
     - name: Cache Homebrew packages
@@ -50,17 +51,17 @@ jobs:
         echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
     - name: Prepare Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
+      if: ${{ github.ref == 'refs/heads/develop' && matrix.os == 'macos-latest' }}
       run: |
         cd mk/macos
         ./make-binary-archive.sh
         cd -
-        mv release/mg-binary-macos*.tar.bz2 release/megaglest-x64-macos.tar.bz2
+        mv release/mg-binary-macos*.tar.bz2 release/megaglest-${SNAPSHOT_ARCH}-macos.tar.bz2
 
     - name: Create MegaGlest Snapshot
-      if: ${{ github.ref == 'refs/heads/develop' }}
+      if: ${{ github.ref == 'refs/heads/develop' && matrix.os == 'macos-latest' }}
       uses: actions/upload-artifact@v7
       with:
-        name: megaglest-x64-macos
+        name: megaglest-${{ env.SNAPSHOT_ARCH }}-macos
         retention-days: 1
         path: release/*.tar.bz2
