@@ -4364,29 +4364,7 @@ int glestMain(int argc, char **argv) {
 
         printf("\nGIT: [%s]", getGITRevisionString().c_str());
 
-#ifdef USE_STREFLOP
-
-#if defined(STREFLOP_SSE)
-        const char *instruction_set = "[SSE]";
-#elif defined(STREFLOP_X87)
-        const char *instruction_set = "[X87]";
-#elif defined(STREFLOP_SOFT)
-        const char *instruction_set = "[SOFTFLOAT]";
-#else
-        const char *instruction_set = "[none]";
-#endif
-
-#if defined(STREFLOP_NO_DENORMALS)
-        const char *denormals = "[no-denormals]";
-#else
-        const char *denormals = "[denormals]";
-#endif
-
-        printf(" - using STREFLOP %s - %s\n", instruction_set, denormals);
-
-#else
         printf("\n");
-#endif
     }
 
     setGameVersion(glestVersionString);
@@ -4923,11 +4901,7 @@ int glestMain(int argc, char **argv) {
         NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
         MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 
-#ifdef USE_STREFLOP
-        SystemFlags::OutputDebug(SystemFlags::debugSystem, "%s, STREFLOP enabled.\n", getNetworkVersionString().c_str());
-#else
         SystemFlags::OutputDebug(SystemFlags::debugSystem, "%s, STREFLOP NOT enabled.\n", getNetworkVersionString().c_str());
-#endif
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d]\n", __FILE__, __FUNCTION__, __LINE__);
         SystemFlags::OutputDebug(SystemFlags::debugUnitCommands, "START\n");

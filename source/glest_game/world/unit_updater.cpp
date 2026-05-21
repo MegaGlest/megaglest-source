@@ -3161,11 +3161,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr, const Att
             for (int i = center.x - range; i < center.x + range + size; ++i) {
                 for (int j = center.y - range; j < center.y + range + size; ++j) {
                     // cells inside map and in range
-#ifdef USE_STREFLOP
-                    if (map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range + 1)) {
-#else
                     if (map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range + 1)) {
-#endif
                         Cell *cell = map->getCell(i, j);
                         findEnemiesForCell(ast, cell, unit, commandTarget, enemies);
 
@@ -3318,12 +3314,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr, const Att
                         attackWarnings.erase(attackWarnings.begin() + i);
                         delete toDelete; // old one
                     } else {
-#ifdef USE_STREFLOP
-                        currentDistance = streflop::floor(
-                            static_cast<streflop::Simple>(enemyFloatCenter.dist(attackWarnings[i]->attackPosition))); // no need for streflops here!
-#else
-                        currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition)); // no need for streflops here!
-#endif
+                        currentDistance = floor(enemyFloatCenter.dist(attackWarnings[i]->attackPosition));
 
                         if (nearest == NULL) {
                             nearest = attackWarnings[i];
@@ -3419,11 +3410,7 @@ vector<Unit *> UnitUpdater::enemyUnitsOnRange(const Unit *unit, const AttackSkil
             for (int i = center.x - range; i < center.x + range + size; ++i) {
                 for (int j = center.y - range; j < center.y + range + size; ++j) {
                     // cells inside map and in range
-#ifdef USE_STREFLOP
-                    if (map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range + 1)) {
-#else
                     if (map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range + 1)) {
-#endif
                         Cell *cell = map->getCell(i, j);
                         findEnemiesForCell(ast, cell, unit, commandTarget, enemies);
 
@@ -3503,11 +3490,7 @@ vector<Unit *> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
     for (int i = center.x - range; i < center.x + range + size; ++i) {
         for (int j = center.y - range; j < center.y + range + size; ++j) {
             // cells inside map and in range
-#ifdef USE_STREFLOP
-            if (map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range + 1)) {
-#else
             if (map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range + 1)) {
-#endif
                 Cell *cell = map->getCell(i, j);
                 findUnitsForCell(cell, units);
             }

@@ -23,25 +23,6 @@ using namespace Shared::Util;
 namespace Shared {
 namespace Lua {
 
-//
-// This class wraps streflop for LuaScript. We need to toggle the data type
-// for streflop to use when calling into LUA as streflop may corrupt some
-// numeric values passed from Lua otherwise
-//
-class Lua_STREFLOP_Wrapper {
-  public:
-    Lua_STREFLOP_Wrapper() {
-#ifdef USE_STREFLOP
-        streflop_init<streflop::Double>();
-#endif
-    }
-    ~Lua_STREFLOP_Wrapper() {
-#ifdef USE_STREFLOP
-        streflop_init<streflop::Simple>();
-#endif
-    }
-};
-
 // =====================================================
 //	class LuaScript
 // =====================================================
@@ -50,7 +31,6 @@ bool LuaScript::disableSandbox = false;
 bool LuaScript::debugModeEnabled = false;
 
 LuaScript::LuaScript() {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     currentLuaFunction = "";
     currentLuaFunctionIsValid = false;
@@ -521,7 +501,6 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 }
 
 LuaScript::~LuaScript() {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     //	LuaInterface.LuaTable luatab;
     //
@@ -542,7 +521,6 @@ LuaScript::~LuaScript() {
 }
 
 void LuaScript::loadCode(string code, string name) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     // printf("Code [%s]\nName [%s]\n",code.c_str(),name.c_str());
 
@@ -588,14 +566,12 @@ void LuaScript::setSandboxCode(string code) {
 }
 
 int LuaScript::runCode(string code) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     int errorCode = luaL_dostring(luaState, code.c_str());
     return errorCode;
 }
 
 void LuaScript::beginCall(string functionName) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     currentLuaFunction = functionName;
 
@@ -624,7 +600,6 @@ void LuaScript::beginCall(string functionName) {
 }
 
 void LuaScript::endCall() {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     if (SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled)
         SystemFlags::OutputDebug(SystemFlags::debugLUA,
@@ -666,7 +641,6 @@ void LuaScript::endCall() {
 }
 
 void LuaScript::registerFunction(LuaFunction luaFunction, string functionName) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     if (SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled)
         SystemFlags::OutputDebug(SystemFlags::debugLUA, "In [%s::%s Line: %d] functionName [%s]\n", __FILE__, __FUNCTION__, __LINE__, functionName.c_str());
@@ -676,7 +650,6 @@ void LuaScript::registerFunction(LuaFunction luaFunction, string functionName) {
 }
 
 string LuaScript::errorToString(int errorCode) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     string error;
     switch (errorCode) {
@@ -707,14 +680,12 @@ string LuaScript::errorToString(int errorCode) {
 // =====================================================
 
 LuaArguments::LuaArguments(lua_State *luaState) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     this->luaState = luaState;
     returnCount = 0;
 }
 
 int LuaArguments::getInt(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     if (!lua_isnumber(luaState, argumentIndex)) {
         throwLuaError("Can not get int from Lua state");
@@ -725,7 +696,6 @@ int LuaArguments::getInt(int argumentIndex) const {
 }
 
 float LuaArguments::getFloat(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     if (!lua_isnumber(luaState, argumentIndex)) {
         throwLuaError("Can not get int from Lua state");
@@ -734,7 +704,6 @@ float LuaArguments::getFloat(int argumentIndex) const {
     return result;
 }
 Vec2f LuaArguments::getVec2f(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     Vec2f v;
 
@@ -776,7 +745,6 @@ Vec2f LuaArguments::getVec2f(int argumentIndex) const {
 }
 
 Vec3f LuaArguments::getVec3f(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     Vec3f v;
 
@@ -825,7 +793,6 @@ Vec3f LuaArguments::getVec3f(int argumentIndex) const {
 }
 
 Vec4f LuaArguments::getVec4f(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     Vec4f v;
 
@@ -881,7 +848,6 @@ Vec4f LuaArguments::getVec4f(int argumentIndex) const {
 }
 
 string LuaArguments::getString(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     if (!lua_isstring(luaState, argumentIndex)) {
         throwLuaError("Can not get string from Lua state");
@@ -890,7 +856,6 @@ string LuaArguments::getString(int argumentIndex) const {
 }
 
 void *LuaArguments::getGenericData(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     if (lua_isstring(luaState, argumentIndex)) {
         const char *result = luaL_checkstring(luaState, argumentIndex);
@@ -913,7 +878,6 @@ void *LuaArguments::getGenericData(int argumentIndex) const {
 }
 
 Vec2i LuaArguments::getVec2i(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     Vec2i v;
 
@@ -955,7 +919,6 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const {
 }
 
 Vec4i LuaArguments::getVec4i(int argumentIndex) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     Vec4i v;
 
@@ -991,28 +954,24 @@ Vec4i LuaArguments::getVec4i(int argumentIndex) const {
 }
 
 void LuaArguments::returnInt(int value) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     ++returnCount;
     lua_pushinteger(luaState, value);
 }
 
 void LuaArguments::returnFloat(float value) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     ++returnCount;
     lua_pushnumber(luaState, value);
 }
 
 void LuaArguments::returnString(const string &value) {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     ++returnCount;
     lua_pushstring(luaState, value.c_str());
 }
 
 void LuaArguments::returnVec2i(const Vec2i &value) {
-    // Lua_STREFLOP_Wrapper streflopWrapper;
 
     ++returnCount;
 
@@ -1026,7 +985,6 @@ void LuaArguments::returnVec2i(const Vec2i &value) {
 }
 
 void LuaArguments::returnVec4i(const Vec4i &value) {
-    // Lua_STREFLOP_Wrapper streflopWrapper;
 
     ++returnCount;
 
@@ -1046,7 +1004,6 @@ void LuaArguments::returnVec4i(const Vec4i &value) {
 }
 
 void LuaArguments::returnVectorInt(const vector<int> &value) {
-    // Lua_STREFLOP_Wrapper streflopWrapper;
 
     ++returnCount;
 
@@ -1059,7 +1016,6 @@ void LuaArguments::returnVectorInt(const vector<int> &value) {
 }
 
 string LuaArguments::getStackText() const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     string stackString;
     int stackSize = lua_gettop(luaState);
@@ -1163,7 +1119,6 @@ string LuaArguments::getStackText() const {
     return stackString;
 }
 void LuaArguments::throwLuaError(const string &message) const {
-    Lua_STREFLOP_Wrapper streflopWrapper;
 
     string stackString = getStackText();
     throw megaglest_runtime_error("Lua error: " + message + "\n\nLua Stack:\n" + stackString, true);

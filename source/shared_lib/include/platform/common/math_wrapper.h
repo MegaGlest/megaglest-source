@@ -12,16 +12,7 @@
 #ifndef _SHARED_PLATFORMCOMMON_MATHWRAPPER_H_
 #define _SHARED_PLATFORMCOMMON_MATHWRAPPER_H_
 
-#ifdef USE_STREFLOP
-
 #include <cmath>
-#include <streflop_cond.h>
-
-#else
-
-#include <cmath>
-
-#endif
 
 #include "leak_dumper.h"
 
