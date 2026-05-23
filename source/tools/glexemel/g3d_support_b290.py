@@ -255,6 +255,12 @@ class G3DMeshHeaderv4:  # Read Meshheader
         self.istwosided = bool(self.properties & 2)
         self.noselect = bool(self.properties & 4)
         self.glow = bool(self.properties & 8)
+        # The high 8 bits of `properties` encode per-mesh team-color
+        # transparency: 0 = opaque, 255 = fully transparent team-color tint.
+        # The stored value is inverted (255 - x) for compatibility with older
+        # tooling that wrote 0 by default. (Imported from the zetaglest fork's
+        # blender_g3d_plugin.py.)
+        self.teamcoloralpha = 255 - (self.properties >> 24)
 
         self.hastexture = False
         self.diffusetexture = None
@@ -467,9 +473,11 @@ def createMesh(filename, header, data, toblender, operator):
     if header.isv4:
         mesh.g3d_noSelect = header.noselect
         mesh.g3d_glow = header.glow
+        mesh.teamcolor_alpha = header.teamcoloralpha
     else:
         mesh.g3d_noSelect = False
         mesh.glow = False
+        mesh.teamcolor_alpha = 0
 
     # ===================================================================================================
     # Material Setup
@@ -910,6 +918,9 @@ def G3DSaver(filepath, context, toglest, operator):
             properties |= 4
         if mesh.g3d_glow:
             properties |= 8
+        # High 8 bits encode per-mesh team-color transparency (inverted, so 0
+        # in the file = opaque). See header parsing for details.
+        properties |= (255 - mesh.teamcolor_alpha) << 24
 
         #MeshData
         vertices = []
@@ -996,6 +1007,7 @@ class G3DPanel(bpy.types.Panel):
                          text="double sided")
         self.layout.prop(context.object.data, "g3d_noSelect")
         self.layout.prop(context.object.data, "g3d_glow")
+        self.layout.prop(context.object.data, "teamcolor_alpha")
 
 
 class ImportG3D(bpy.types.Operator, ImportHelper):
@@ -1105,6 +1117,10 @@ def register():
         name="glow", description="let objects glow like particles")
     bpy.types.Mesh.show_double_sided = bpy.props.BoolProperty(
         name="double_sided", description="render the object double sided")
+    bpy.types.Mesh.teamcolor_alpha = bpy.props.IntProperty(
+        name="team color alpha",
+        description="set the transparency of the teamcolor part of the texture only",
+        default=0, min=0, max=255)
 
     for classes in (G3DPanel, ImportG3D, ExportG3D):
         bpy.utils.register_class(classes)
