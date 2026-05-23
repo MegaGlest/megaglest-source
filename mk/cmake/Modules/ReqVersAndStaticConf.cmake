@@ -19,7 +19,6 @@ IF(WANT_STATIC_LIBS)
 		    PNG
 		    FontConfig
 		    FTGL
-		    GLEW
 		    FriBiDi
 		    Miniupnpc
 		    Ircclient)
