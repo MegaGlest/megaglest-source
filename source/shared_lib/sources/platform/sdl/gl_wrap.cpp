@@ -195,6 +195,18 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits, bool
             SDL_GL_MakeCurrent(window, glcontext);
         }
 
+        // Load OpenGL function pointers via glad. Must happen after the GL context
+        // is current and BEFORE any GL call, because with glad gl* functions are
+        // function-pointer macros (e.g. #define glViewport glad_glViewport) that are
+        // NULL until loaded.
+        if (isNewWindow) {
+            int gl_version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+            if (gl_version == 0) {
+                fprintf(stderr, "Error [main]: gladLoadGL failed to load OpenGL function pointers\n");
+                throw std::runtime_error("gladLoadGL failed to load OpenGL function pointers");
+            }
+        }
+
         int h;
         int w;
         SDL_GetWindowSize(window, &w, &h);
@@ -309,21 +321,6 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits, bool
         if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
         // SDL_WM_GrabInput(SDL_GRAB_OFF);
         // SDL_SetRelativeMouseMode(SDL_FALSE);
-
-        if (SystemFlags::VERBOSE_MODE_ENABLED)
-            printf("In [%s::%s %d] BEFORE gladLoadGL call\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
-
-        int gl_version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-
-        if (SystemFlags::VERBOSE_MODE_ENABLED)
-            printf("In [%s::%s %d] AFTER gladLoadGL call version = %d.%d\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, GLAD_VERSION_MAJOR(gl_version), GLAD_VERSION_MINOR(gl_version));
-
-        if (gl_version == 0) {
-            if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
-
-            fprintf(stderr, "Error [main]: gladLoadGL failed to load OpenGL function pointers\n");
-            throw std::runtime_error("gladLoadGL failed to load OpenGL function pointers");
-        }
 
         if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 
