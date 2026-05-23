@@ -21,7 +21,11 @@
 #include "platform_util.h"
 #include "leak_dumper.h"
 
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 using std::runtime_error;
 using std::string;
