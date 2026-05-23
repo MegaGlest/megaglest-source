@@ -26,20 +26,31 @@ jobs:
         include:
           - build_type: Release
             release: 'ON'
-    runs-on: windows-latest
+    # Pinned to windows-2022 because windows-latest has migrated to a 2025 image
+    # with VS 2026 pre-installed, but the build script asks cmake for the
+    # "Visual Studio 17 2022" generator and cmake can't find a VS 17 install.
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v6
 
     - name: Cache Vcpkg Libs
+      id: cache-vcpkg
       uses: actions/cache@v5
       env:
         cache-name: cache-vcpkg-deps
       with:
         path: c:/vcpkg/installed
-        key: vcpkg-deps
+        # Key includes the runner image (toolchain ABI) and a content hash of
+        # the install script (the dependency manifest), so the cache is
+        # invalidated automatically when either changes. restore-keys allows
+        # graceful partial-hit fallback when only the package list changes.
+        key: vcpkg-deps-windows-2022-${{ hashFiles('mk/windoze/install-deps-vcpkg.ps1') }}
+        restore-keys: |
+          vcpkg-deps-windows-2022-
 
     - name: Install Windows Deps
+      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
       run: |
         cd mk\windoze
         $scriptDir = Get-Location
@@ -56,7 +67,7 @@ jobs:
         include:
           - build_type: Release
             release: 'ON'
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v6
@@ -67,7 +78,11 @@ jobs:
         cache-name: cache-vcpkg-deps
       with:
         path: c:/vcpkg/installed
-        key: vcpkg-deps
+        # Must match the key/restore-keys used in build-win64-deps so we
+        # restore the libs built there.
+        key: vcpkg-deps-windows-2022-${{ hashFiles('mk/windoze/install-deps-vcpkg.ps1') }}
+        restore-keys: |
+          vcpkg-deps-windows-2022-
 
     - name: Build MegaGlest
       run: |
