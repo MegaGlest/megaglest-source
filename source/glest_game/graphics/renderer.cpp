@@ -92,10 +92,26 @@ void MeshCallbackTeamColor::execute(const Mesh *mesh) {
         glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
         glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 
-        // set alpha to 1
-        glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-        glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PRIMARY_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+        if (mesh->getAlphaIsTransparency()) {
+            // Texture's per-pixel alpha multiplies the mesh's uniform opacity,
+            // yielding sheer-fabric / partial-transparency effects on top of
+            // team-color blending. Stage 0 left output alpha = texture0.alpha
+            // (its "set alpha = 1" comment is misleading — REPLACE writes the
+            // texture's alpha through), so we MODULATE with primary_color.alpha
+            // here.
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PRIMARY_COLOR);
+            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_PREVIOUS);
+            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
+        } else {
+            // Default behavior: discard texture alpha, use mesh opacity only.
+            // Keeps existing assets unaffected — those rely on alpha=0 marking
+            // team-color regions without making them transparent.
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PRIMARY_COLOR);
+            glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+        }
 
         glActiveTexture(GL_TEXTURE0);
     } else {

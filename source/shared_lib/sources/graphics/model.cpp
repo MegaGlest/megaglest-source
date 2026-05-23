@@ -228,6 +228,7 @@ Mesh::Mesh() {
     customColor = false;
     noSelect = false;
     glow = false;
+    alphaIsTransparency = false;
 
     textureFlags = 0;
 
@@ -459,6 +460,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
     customColor = false;
     noSelect = false;
     glow = false;
+    alphaIsTransparency = false;
 
     if (SystemFlags::VERBOSE_MODE_ENABLED)
         printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] "
@@ -827,6 +829,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
     twoSided = (meshHeader.properties & mpfTwoSided) != 0;
     noSelect = (meshHeader.properties & mpfNoSelect) != 0;
     glow = (meshHeader.properties & mpfGlow) != 0;
+    alphaIsTransparency = (meshHeader.properties & mpfAlphaIsTransparency) != 0;
 
     // material
     diffuseColor = Vec3f(meshHeader.diffuseColor);
@@ -962,6 +965,9 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
     }
     if (glow) {
         meshHeader.properties |= mpfGlow;
+    }
+    if (alphaIsTransparency) {
+        meshHeader.properties |= mpfAlphaIsTransparency;
     }
 
     meshHeader.textures = textureFlags;
@@ -1560,6 +1566,7 @@ void Mesh::copyInto(Mesh *dest, bool ignoreInterpolationData, bool destinationOw
     dest->customColor = this->customColor;
     dest->noSelect = this->noSelect;
     dest->glow = this->glow;
+    dest->alphaIsTransparency = this->alphaIsTransparency;
 
     dest->textureFlags = this->textureFlags;
 

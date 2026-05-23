@@ -39,7 +39,19 @@ struct ModelHeader {
 
 enum ModelType { mtMorphMesh };
 
-enum MeshPropertyFlag { mpfCustomColor = 1, mpfTwoSided = 2, mpfNoSelect = 4, mpfGlow = 8 };
+enum MeshPropertyFlag {
+    mpfCustomColor = 1,
+    mpfTwoSided = 2,
+    mpfNoSelect = 4,
+    mpfGlow = 8,
+    // When set together with mpfCustomColor, the renderer modulates the final
+    // alpha by the texture's per-pixel alpha instead of replacing it with the
+    // mesh's uniform opacity. This makes the texture's alpha channel control
+    // BOTH team-color blending (existing behavior) AND per-pixel transparency
+    // (new). Useful for sheer-fabric effects on a team-colored mesh.
+    // Existing assets are unaffected because the flag is opt-in.
+    mpfAlphaIsTransparency = 16
+};
 
 enum MeshTexture {
     mtDiffuse,
