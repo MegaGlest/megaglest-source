@@ -313,19 +313,17 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits, bool
         if (SystemFlags::VERBOSE_MODE_ENABLED)
             printf("In [%s::%s %d] BEFORE gladLoadGL call\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 
-        GLuint err = gladLoadGL();
+        int gl_version = gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
 
         if (SystemFlags::VERBOSE_MODE_ENABLED)
-            printf("In [%s::%s %d] AFTER gladLoadGL call err = %d\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, err);
+            printf("In [%s::%s %d] AFTER gladLoadGL call version = %d.%d\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, GLAD_VERSION_MAJOR(gl_version), GLAD_VERSION_MINOR(gl_version));
 
-        if (GL_NO_ERROR != err) {
+        if (gl_version == 0) {
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 
-            fprintf(stderr, "Error [main]: gladLoadGL failed: %s\n", glewGetErrorString(err));
-            // return 1;
-            throw std::runtime_error((char *)glewGetErrorString(err));
+            fprintf(stderr, "Error [main]: gladLoadGL failed to load OpenGL function pointers\n");
+            throw std::runtime_error("gladLoadGL failed to load OpenGL function pointers");
         }
-        // fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
         if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
 

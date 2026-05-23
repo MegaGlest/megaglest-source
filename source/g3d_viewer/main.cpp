@@ -31,6 +31,27 @@
 #include <errno.h>
 #endif
 
+// Platform-native OpenGL function loader for glad. The viewer manages its GL
+// context via wxWidgets (not SDL), so SDL_GL_GetProcAddress is not available
+// here. We use the OS GLX/WGL entry point directly.
+#if defined(_WIN32)
+#include <windows.h>
+static GLADapiproc viewerGladLoader(const char *name) {
+    return (GLADapiproc)wglGetProcAddress(name);
+}
+#elif defined(__APPLE__)
+#include <dlfcn.h>
+static GLADapiproc viewerGladLoader(const char *name) {
+    static void *libGL = dlopen("/System/Library/Frameworks/OpenGL.framework/OpenGL", RTLD_LAZY);
+    return libGL ? (GLADapiproc)dlsym(libGL, name) : NULL;
+}
+#else
+#include <GL/glx.h>
+static GLADapiproc viewerGladLoader(const char *name) {
+    return (GLADapiproc)glXGetProcAddressARB((const GLubyte *)name);
+}
+#endif
+
 #ifndef WIN32
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
@@ -535,11 +556,10 @@ void MainWindow::setupStartupSettings() {
     glCanvas->setCurrentGLContext();
     // printf("In setupStartupSettings #2\n");
 
-    GLuint err = gladLoadGL();
-    if (GL_NO_ERROR != err) {
-        fprintf(stderr, "Error [main]: gladLoadGL failed: %s\n", glewGetErrorString(err));
-        // return 1;
-        throw std::runtime_error((char *)glewGetErrorString(err));
+    int gl_version = gladLoadGL(viewerGladLoader);
+    if (gl_version == 0) {
+        fprintf(stderr, "Error [main]: gladLoadGL failed to load OpenGL function pointers\n");
+        throw std::runtime_error("gladLoadGL failed to load OpenGL function pointers");
     }
 
     renderer = Renderer::getInstance();

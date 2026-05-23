@@ -7931,7 +7931,7 @@ void Renderer::checkGlCaps() {
     }
 
     // opengl 2.1
-    if (glewIsSupported("GL_VERSION_2_1") == false) {
+    if (!GLAD_GL_VERSION_2_1) {
         string message;
 
         message += "Your system supports OpenGL version [";
@@ -7945,7 +7945,7 @@ void Renderer::checkGlCaps() {
 
     // opengl 1.4 or extension
     // if(!isGlVersionSupported(1, 4, 0)){
-    if (glewIsSupported("GL_VERSION_1_4") == false) {
+    if (!GLAD_GL_VERSION_1_4) {
         checkExtension("GL_ARB_texture_env_crossbar", "MegaGlest");
     }
 }
