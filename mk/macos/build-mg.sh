@@ -135,20 +135,43 @@ if [ "$BUILD_BUNDLE" -eq "1" ]; then
 	if [ -e "megaglest" ] && [ "$(./megaglest --version >/dev/null; echo "$?")" -eq "0" ]; then
 		if [ -d "lib" ]; then rm -rf "lib"; fi
 		mkdir -p "lib"
+		# Recent Homebrew bottles use @rpath/<name> references between dylibs
+		# instead of absolute paths. otool -L on an unresolved @rpath/foo
+		# fails with "can't open file", so we map @rpath/<name> to the actual
+		# file on disk by looking under the standard Homebrew lib prefixes.
+		resolve_rpath() {
+			case "$1" in
+				@rpath/*)
+					local name="${1#@rpath/}"
+					for prefix in /opt/homebrew/lib /usr/local/lib; do
+						if [ -f "$prefix/$name" ]; then
+							echo "$prefix/$name"
+							return
+						fi
+					done
+					echo "$1"
+					;;
+				*)
+					echo "$1"
+					;;
+			esac
+		}
 		list_of_libs="$(otool -L megaglest | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}' | sed '/:$/d')"
 		for (( i=1; i<=50; i++ )); do
 		    for dyn_lib in $list_of_libs; do
-			if [ "$(echo "$list_of_checked_libs" | grep "$dyn_lib")" = "" ]; then
-			    list_of_libs2="$(otool -L "$dyn_lib" | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}')"
+			resolved_lib="$(resolve_rpath "$dyn_lib")"
+			if [ "$(echo "$list_of_checked_libs" | grep "$resolved_lib")" = "" ]; then
+			    list_of_libs2="$(otool -L "$resolved_lib" | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}')"
 			    list_of_libs="$(echo "$list_of_libs
 $list_of_libs2" | sed '/:$/d' | sed '/^$/d' | sort -u )"
-			    list_of_checked_libs="$list_of_checked_libs $dyn_lib"
+			    list_of_checked_libs="$list_of_checked_libs $resolved_lib"
 			fi
 		    done
 		done
 		for dyn_lib in $list_of_libs; do
-		    case "$dyn_lib" in
-			/*) cp "$dyn_lib" "lib/";;
+		    resolved_lib="$(resolve_rpath "$dyn_lib")"
+		    case "$resolved_lib" in
+			/*) cp "$resolved_lib" "lib/";;
 		    esac
 		done
 	else
