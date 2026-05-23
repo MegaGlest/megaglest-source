@@ -23,7 +23,6 @@
 
 #include <GL/glu.h>
 
-
 using std::runtime_error;
 using std::string;
 

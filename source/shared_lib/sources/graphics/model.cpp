@@ -359,7 +359,7 @@ void Mesh::BuildVBOs() {
             // Generate And Bind The Index Buffer
             glGenBuffers(1, (GLuint *)&m_nVBOIndexes); // Get A Valid Name
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                            m_nVBOIndexes); // Bind The Buffer
+                         m_nVBOIndexes); // Bind The Buffer
             // Load The Data
             glBufferData(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(uint32) * indexCount, indices, GL_STATIC_DRAW_ARB);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
@@ -1742,7 +1742,7 @@ void Model::autoJoinMeshFrames() {
 // ----------------------------------------------------------------------------
 
 bool PixelBufferWrapper::isPBOEnabled = false;
-int PixelBufferWrapper::index = 0;  
+int PixelBufferWrapper::index = 0;
 vector<unsigned int> PixelBufferWrapper::pboIds;
 
 PixelBufferWrapper::PixelBufferWrapper(int pboCount, int bufferSize) {
@@ -1866,7 +1866,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x, int y, int w, int h, int 
                 codeSection = "J";
                 if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
                 glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB); // release pointer to the mapped buffer
-                                                            // pixmapScreenShot->save("debugPBO.png");
+                                                         // pixmapScreenShot->save("debugPBO.png");
             }
             codeSection = "K";
             if (SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);

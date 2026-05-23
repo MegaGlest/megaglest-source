@@ -3922,12 +3922,12 @@ void Renderer::ReleaseSurfaceVBOs() {
         VisibleQuadContainerVBOCache &item = iterFind->second;
         if (item.hasBuiltVBOs == true) {
             glDeleteBuffers(1,
-                               (GLuint *)&item.m_nVBOVertices);            // Get A Valid Name
+                            (GLuint *)&item.m_nVBOVertices);            // Get A Valid Name
             glDeleteBuffers(1, (GLuint *)&item.m_nVBOFowTexCoords);     // Get A Valid Name
             glDeleteBuffers(1, (GLuint *)&item.m_nVBOSurfaceTexCoords); // Get A Valid Name
             glDeleteBuffers(1, (GLuint *)&item.m_nVBONormals);          // Get A Valid Name
-                                                                           // glDeleteBuffers( 1, &item.m_nVBOIndexes );
-                                                                           // // Get A Valid Name
+                                                                        // glDeleteBuffers( 1, &item.m_nVBOIndexes );
+                                                                        // // Get A Valid Name
         }
     }
 
