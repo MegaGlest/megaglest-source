@@ -104,7 +104,13 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	FIND_PACKAGE(OpenGL REQUIRED)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-	IF(UNIX)
+	IF(UNIX AND NOT APPLE)
+		# See glest_game/CMakeLists.txt for the rationale: --no-as-needed forces
+		# libGL to stay linked so libGLU's transitive glGetFloatv reference can
+		# resolve after the GLEW→glad migration removed all direct GL symbol
+		# references from the source.
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} "-Wl,--no-as-needed" ${OPENGL_LIBRARY} "-Wl,--as-needed")
+	ELSEIF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 	ENDIF()
 

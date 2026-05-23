@@ -36,7 +36,15 @@ ENDIF()
 
 FIND_PACKAGE(OpenGL REQUIRED)
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-IF(UNIX)
+IF(UNIX AND NOT APPLE)
+	# --no-as-needed: with GLEW removed, no .o file references libGL symbols
+	# directly anymore — all GL calls go through glad's function-pointer macros
+	# in libglad.a. The Ubuntu/Debian linker default of --as-needed then drops
+	# libGL, and libGLU's transitive reference to glGetFloatv fails at link
+	# time. Force the linker to keep libGL even though nothing references it
+	# directly.
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} "-Wl,--no-as-needed" ${OPENGL_LIBRARY} "-Wl,--as-needed")
+ELSEIF(UNIX)
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 ENDIF()
 
