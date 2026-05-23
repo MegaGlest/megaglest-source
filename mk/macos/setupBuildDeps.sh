@@ -13,7 +13,7 @@ brew install cmake \
     libogg \
     libpng \
     libvorbis \
-    lua \
+    lua@5.4 \
     miniupnpc \
     pkg-config \
     sdl2 \
