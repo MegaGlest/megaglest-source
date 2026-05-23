@@ -2564,11 +2564,10 @@ bool App::OnInit() {
 
     mainWindow = new MainWindow(unitToLoad, modelPath, particlePath, projectileParticlePath, splashParticlePath, newAnimValue, newParticleLoopValue,
                                 newZoomValue, newXRotValue, newYRotValue, appPath);
-    if (autoScreenShotAndExit == true) {
-#if !defined(WIN32)
-        mainWindow->Iconize(true);
-#endif
-    }
+    // Note: previously we called mainWindow->Iconize(true) before Show() in
+    // auto-screenshot mode on non-WIN32 to keep the window hidden, but on
+    // Linux/Mesa this prevents the GL canvas from rendering and the captured
+    // screenshot is blank. Show normally; the window flashes briefly then exits.
     mainWindow->Show();
     mainWindow->init();
     mainWindow->Update();
