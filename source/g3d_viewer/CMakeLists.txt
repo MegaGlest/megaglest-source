@@ -22,13 +22,13 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	FIND_PACKAGE(OpenGL REQUIRED)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
-
-	FIND_PACKAGE(GLEW REQUIRED)
-	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
-
-	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARIES})
+	IF(UNIX AND NOT APPLE)
+		# See source/glest_game/CMakeLists.txt for the rationale (GLEW→glad
+		# migration removed direct libGL symbol references; --no-as-needed
+		# keeps libGL linked so libGLU's transitive deps resolve).
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} "-Wl,--no-as-needed" ${OPENGL_LIBRARY} "-Wl,--as-needed")
+	ELSE()
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 	ENDIF()
 
 	IF(WANT_USE_XercesC)

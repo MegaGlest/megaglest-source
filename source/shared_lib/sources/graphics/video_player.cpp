@@ -9,7 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include "video_player.h"
 #include <SDL.h>
 #include <SDL_mutex.h>

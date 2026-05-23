@@ -98,7 +98,6 @@ IF(BUILD_MEGAGLEST_TESTS)
                 ${GLEST_LIB_INCLUDE_ROOT}sound/openal
                 ${GLEST_LIB_INCLUDE_ROOT}xml
                 ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
-                ${GLEST_LIB_INCLUDE_ROOT}glew
                 ${GLEST_LIB_INCLUDE_ROOT}lua
                 ${GLEST_LIB_INCLUDE_ROOT}map
 

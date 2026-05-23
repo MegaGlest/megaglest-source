@@ -17,7 +17,7 @@
 #endif
 
 #include <string>
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 // #include <wx/clrpicker.h>

@@ -104,7 +104,13 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	FIND_PACKAGE(OpenGL REQUIRED)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-	IF(UNIX)
+	IF(UNIX AND NOT APPLE)
+		# See glest_game/CMakeLists.txt for the rationale: --no-as-needed forces
+		# libGL to stay linked so libGLU's transitive glGetFloatv reference can
+		# resolve after the GLEW→glad migration removed all direct GL symbol
+		# references from the source.
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} "-Wl,--no-as-needed" ${OPENGL_LIBRARY} "-Wl,--as-needed")
+	ELSEIF(UNIX)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 	ENDIF()
 
@@ -219,6 +225,9 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		ENDIF()
 	ENDIF()
 
+	add_library(glad STATIC ${CMAKE_CURRENT_SOURCE_DIR}/glad/src/gl.c)
+	target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glad/include) 
+
 	IF(NOT FREETYPE_FOUND)
 		FIND_PACKAGE(Freetype REQUIRED)
 		INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
@@ -236,7 +245,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 			SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
 
 		else()
-			message("Could not find FriBiDi. Disabling FriBiDi support.")
+			message("Could not find FriBiDi. 	Disabling FriBiDi support.")
 		endif()
 	endif()
 
@@ -259,7 +268,6 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	SET(DIRS_WITH_SRC
         compression
 		feathery_ftp
-		glew
 		graphics
 		graphics/gl
 		lua
@@ -528,7 +536,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 				PNG::PNG
 				SDL2::SDL2-static
 				SDL2::SDL2main
-				ZLIB::ZLIB)
+				ZLIB::ZLIB
+				glad)
 		ELSE()
 			TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 zlib jpeg libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
 		ENDIF()
@@ -537,7 +546,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	IF(WANT_USE_STREFLOP AND NOT STREFLOP_FOUND)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
 	ENDIF()
-	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS} ${COMMON_LIBS})
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS} ${COMMON_LIBS} glad)
 
 	#IF(MINIUPNP_DEBUG_BUILD)
 		# REMOVE_DEFINITIONS("-DDEBUG")

@@ -13,7 +13,7 @@
 
 #include <SDL.h>
 #include <iostream>
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include "leak_dumper.h"
 
 #ifndef WIN32

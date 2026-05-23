@@ -15,13 +15,13 @@
 
 #include <windows.h>
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 
 #define GLEST_GLPROC(X, Y) inline X(static a = wglGetProcAddress(a); return a;)
 
 #else
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 #define GL_GLEXT_PROTOTYPES
 
 #endif

@@ -12,7 +12,7 @@
 #ifndef _SHARED_GRAPHICS_GL_OPENGL_H_
 #define _SHARED_GRAPHICS_GL_OPENGL_H_
 
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <cassert>
 #include <stdexcept>
 #include <string>
@@ -21,7 +21,9 @@
 #include "platform_util.h"
 #include "leak_dumper.h"
 
-#if defined(WIN32)
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
 #endif
 
