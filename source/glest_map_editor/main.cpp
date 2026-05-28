@@ -1656,7 +1656,8 @@ bool App::OnInit() {
     if (argc == 2) {
         if (argv[1][0] == '-') { // any flag gives help and exits program.
             std::cout << std::endl
-                      << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *) wxString(wxVERSION_STRING).utf8_str() << "]" << std::endl
+                      << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *)wxString(wxVERSION_STRING).utf8_str() << "]"
+                      << std::endl
                       << std::endl;
             // std::cout << "\nglest_map_editor [MGM FILE]" << std::endl << std::endl;
             std::cout << "Creates or edits megaglest/glest maps. [.mgm/.gbm]" << std::endl << std::endl;
