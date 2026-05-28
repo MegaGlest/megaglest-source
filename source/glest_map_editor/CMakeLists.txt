@@ -38,7 +38,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
 	# Optimal order most likely is gl > core > base, in some cases it may do difference.
-	FIND_PACKAGE(wxWidgets REQUIRED COMPONENTS gl core base)
+	FIND_PACKAGE(wxWidgets 3.0 REQUIRED COMPONENTS gl core base)
 
 	IF(UNIX OR WIN32)
 		# wxWidgets include (this will do all the magic to configure everything)

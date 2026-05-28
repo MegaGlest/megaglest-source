@@ -454,15 +454,6 @@ void MainWindow::init(string fname) {
     // setExtension();
 
     initGlCanvas();
-#if wxCHECK_VERSION(2, 9, 3)
-    // glCanvas->setCurrentGLContext();
-    // printf("setcurrent #1\n");
-#elif wxCHECK_VERSION(2, 9, 1)
-
-#else
-    if (glCanvas) glCanvas->SetCurrent();
-    // printf("setcurrent #2\n");
-#endif
 
     if (startupSettingsInited == false) {
         startupSettingsInited = true;
@@ -699,12 +690,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
         fileDialog->SetWildcard(wxT("Glest&Mega Map (*.gbm *.mgm)|*.gbm;*.mgm|Glest Map "
                                     "(*.gbm)|*.gbm|Mega Map (*.mgm)|*.mgm"));
         if (fileDialog->ShowModal() == wxID_OK) {
-#if wxCHECK_VERSION(2, 9, 1)
             currentFile = fileDialog->GetPath().ToStdString();
-#else
-            const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
-            currentFile = tmp_buf;
-#endif
 
             // printf("#1 file load [%s]\n",currentFile.c_str());
 
@@ -744,11 +730,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
         return;
     }
 
-#if wxCHECK_VERSION(2, 9, 1)
     wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.mgm|*.gbm"), wxFD_SAVE);
-#else
-    wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.mgm|*.gbm"), wxSAVE);
-#endif
 
     if (fileDialog->GetPath() != ToUnicode("")) {
         fd.SetPath(fileDialog->GetPath());
@@ -764,12 +746,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 
     fd.SetWildcard(wxT("MegaGlest Map (*.mgm)|*.mgm|Glest Map (*.gbm)|*.gbm"));
     if (fd.ShowModal() == wxID_OK) {
-#if wxCHECK_VERSION(2, 9, 1)
         currentFile = fd.GetPath().ToStdString();
-#else
-        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
-        currentFile = tmp_buf;
-#endif
 
         fileDialog->SetPath(fd.GetPath());
         setExtension();
@@ -1037,12 +1014,7 @@ void MainWindow::onMenuEditImportHeights(wxCommandEvent &event) {
         wxString savedDir = fileDialog->GetDirectory();
         fileDialog->SetDirectory(heightMapDirectory);
         if (fileDialog->ShowModal() == wxID_OK) {
-#if wxCHECK_VERSION(2, 9, 1)
             currentFile = fileDialog->GetPath().ToStdString();
-#else
-            const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
-            currentFile = tmp_buf;
-#endif
 
             wxImage *img = new wxImage(currentFile);
             if (img != NULL) {
@@ -1074,7 +1046,6 @@ void MainWindow::onMenuEditExportHeights(wxCommandEvent &event) {
     if (program == NULL) {
         return;
     }
-#if wxCHECK_VERSION(2, 9, 1)
     wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""),
                     wxT("All "
                         "Images|*.bmp;*.png;*.jpg;*.jpeg;*.gif;.*.tga;*.tiff;*."
@@ -1082,23 +1053,9 @@ void MainWindow::onMenuEditExportHeights(wxCommandEvent &event) {
                         "*.jpeg)|*.jpg;*.jpeg|BMP-Image (*.bmp)|*.bmp|GIF-Image "
                         "(*.gif)|*.gif|TIFF-Image (*.tif, *.tiff)|*.tiff;*.tif"),
                     wxFD_SAVE);
-#else
-    wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""),
-                    wxT("All "
-                        "Images|*.bmp;*.png;*.jpg;*.jpeg;*.gif;.*.tga;*.tiff;*."
-                        "tif|PNG-Image (*.png)|*.png|JPEG-Image (*.jpg, "
-                        "*.jpeg)|*.jpg;*.jpeg|BMP-Image (*.bmp)|*.bmp|GIF-Image "
-                        "(*.gif)|*.gif|TIFF-Image (*.tif, *.tiff)|*.tiff;*.tif"),
-                    wxSAVE);
-#endif
     fd.SetDirectory(heightMapDirectory);
     if (fd.ShowModal() == wxID_OK) {
-#if wxCHECK_VERSION(2, 9, 1)
         currentFile = fd.GetPath().ToStdString();
-#else
-        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fd.GetPath());
-        currentFile = tmp_buf;
-#endif
         int map_w = program->getMap()->getW();
         int map_h = program->getMap()->getH();
         wxImage img(map_w, map_h);
@@ -1557,14 +1514,8 @@ END_EVENT_TABLE()
 // =====================================================
 
 GlCanvas::GlCanvas(MainWindow *mainWindow, wxWindow *parent, int *args)
-#if wxCHECK_VERSION(2, 9, 1)
     : wxGLCanvas(parent, -1, args, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas")) {
     this->context = new wxGLContext(this);
-#else
-    : wxGLCanvas(parent, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
-    this->context = NULL;
-#endif
-
     this->mainWindow = mainWindow;
 }
 
@@ -1574,11 +1525,9 @@ GlCanvas::~GlCanvas() {
 }
 
 void GlCanvas::setCurrentGLContext() {
-#if wxCHECK_VERSION(2, 9, 1)
     if (this->context == NULL) {
         this->context = new wxGLContext(this);
     }
-#endif
 
     if (this->context) {
         this->SetCurrent(*this->context);
@@ -1708,7 +1657,7 @@ bool App::OnInit() {
     if (argc == 2) {
         if (argv[1][0] == '-') { // any flag gives help and exits program.
             std::cout << std::endl
-                      << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING) << "]"
+                      << "MegaGlest map editor " << mapeditorVersionString << " [Using " << wxString(wxVERSION_STRING).utf8_string() << "]"
                       << std::endl
                       << std::endl;
             // std::cout << "\nglest_map_editor [MGM FILE]" << std::endl << std::endl;
@@ -1722,13 +1671,7 @@ bool App::OnInit() {
             std::cout << std::endl;
             exit(0);
         }
-// #if defined(__MINGW32__)
-#if wxCHECK_VERSION(2, 9, 1)
         fileparam = argv[1].ToStdString();
-#else
-        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[1]);
-        fileparam = tmp_buf;
-#endif
 
 #ifdef WIN32
         auto_ptr<wchar_t> wstr(Ansi2WideString(fileparam.c_str()));
@@ -1750,11 +1693,7 @@ bool App::OnInit() {
     // exe_path += path_separator;
 
     string appPath;
-#if wxCHECK_VERSION(2, 9, 1)
     appPath = exe_path.ToStdString();
-#else
-    appPath = wxFNCONV(exe_path);
-#endif
 
     // #else
     //		const wxWX2MBbuf tmp_buf =
