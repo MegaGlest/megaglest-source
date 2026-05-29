@@ -58,11 +58,7 @@ static GLADapiproc viewerGladLoader(const char *name) {
 #define _strnicmp strncasecmp
 #endif
 
-#if wxCHECK_VERSION(2, 9, 1)
 #define WX2CHR(x) (x.mb_str())
-#else
-#define WX2CHR(x) (wxConvCurrent->cWX2MB(x))
-#endif
 
 using namespace Shared::Platform;
 using namespace Shared::PlatformCommon;
@@ -369,12 +365,6 @@ MainWindow::MainWindow(std::pair<string, vector<string>> unitToLoad, const strin
 
     initGlCanvas();
 
-#if wxCHECK_VERSION(2, 9, 1)
-
-#else
-    glCanvas->SetCurrent();
-#endif
-
     unitPath = unitToLoad;
 
     if (modelPath != "") {
@@ -546,12 +536,6 @@ void MainWindow::setupStartupSettings() {
     // printf("In setupStartupSettings #1\n");
     if (glCanvas == NULL) {
         initGlCanvas();
-
-#if wxCHECK_VERSION(2, 9, 1)
-
-#else
-        glCanvas->SetCurrent();
-#endif
     }
     glCanvas->setCurrentGLContext();
     // printf("In setupStartupSettings #2\n");
@@ -646,16 +630,7 @@ void MainWindow::initGlCanvas() {
     }
 }
 
-void MainWindow::init() {
-#if wxCHECK_VERSION(2, 9, 3)
-
-#elif wxCHECK_VERSION(2, 9, 1)
-
-#else
-    glCanvas->SetCurrent();
-    // printf("setcurrent #2\n");
-#endif
-}
+void MainWindow::init() {}
 
 void MainWindow::onPaint(wxPaintEvent &event) {
     if (!IsShown()) {
@@ -2064,13 +2039,8 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 
 // to prevent flicker
 GlCanvas::GlCanvas(MainWindow *mainWindow, int *args)
-#if wxCHECK_VERSION(2, 9, 1)
     : wxGLCanvas(mainWindow, wxID_ANY, args, wxDefaultPosition, mainWindow->GetClientSize(), wxFULL_REPAINT_ON_RESIZE, wxT("GLCanvas")) {
     this->context = new wxGLContext(this);
-#else
-    : wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
-    this->context = NULL;
-#endif
     this->mainWindow = mainWindow;
 }
 
@@ -2082,28 +2052,11 @@ GlCanvas::~GlCanvas() {
 }
 
 void GlCanvas::setCurrentGLContext() {
-#if wxCHECK_VERSION(3, 0, 0)
-    // printf("Setting glcontext 3x!\n");
-
-    // if(!IsShown()) {}
-    if (this->context == NULL) {
-        // printf("Make new ctx!\n");
-        this->context = new wxGLContext(this);
-        // printf("Set ctx [%p]\n",this->context);
-    }
-#elif wxCHECK_VERSION(2, 9, 1)
-    // printf("Setting glcontext 29x!\n");
-
-    // if(!IsShown()) {}
     if (this->context == NULL) {
         this->context = new wxGLContext(this);
-        // printf("Set ctx [%p]\n",this->context);
     }
-#endif
-    // printf("Set ctx [%p]\n",this->context);
     if (this->context) {
         wxGLCanvas::SetCurrent(*this->context);
-        // printf("Set ctx2 [%p]\n",this->context);
     }
 }
 
@@ -2162,11 +2115,7 @@ bool App::OnInit() {
     bool foundInvalidArgs = false;
     const int knownArgCount = sizeof(GAME_ARGS) / sizeof(GAME_ARGS[0]);
     for (int idx = 1; idx < argc; ++idx) {
-#if wxCHECK_VERSION(2, 9, 1)
         const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx].wc_str());
-#else
-        const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[idx]);
-#endif
         if (hasCommandArgument(knownArgCount, (wxChar **)&GAME_ARGS[0], (const char *)tmp_buf, NULL, 0, true) == false && argv[idx][0] == '-') {
             foundInvalidArgs = true;
 
@@ -2195,11 +2144,7 @@ bool App::OnInit() {
             hasCommandArgument(argc, argv, (const char *)param, &foundParamIndIndex);
         }
         // printf("foundParamIndIndex = %d\n",foundParamIndIndex);
-#if wxCHECK_VERSION(2, 9, 1)
         string options = argv[foundParamIndIndex].ToStdString();
-#else
-        string options = (const char *)wxConvCurrent->cWX2MB(argv[foundParamIndIndex]);
-#endif
         vector<string> paramPartTokens;
         Tokenize(options, paramPartTokens, "=");
         if (paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
