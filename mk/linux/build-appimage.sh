@@ -4,7 +4,7 @@
 # you can use:
 #
 # docker run -it --rm -e HOSTUID=$(id -u) -e \
-# -v $PWD:/workspace -w /workspace andy5995/linuxdeploy:v2-focal bash
+# -v $PWD:/workspace -w /workspace andy5995/linuxdeploy:v3-jammy bash
 #
 # Normally 'bash' can be replaced with the /path/to/script but starting
 # the container from a shell means you can run the script manually in the
