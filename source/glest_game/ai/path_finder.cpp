@@ -39,8 +39,11 @@ namespace Game {
 
 const int PathFinder::maxFreeSearchRadius = 10;
 
-int PathFinder::pathFindNodesAbsoluteMax = 900;
+int PathFinder::pathFindNodesAbsoluteMax = 2000;
 int PathFinder::pathFindNodesMax = 2000;
+// Larger budget for exploratory retries that need to find paths around
+// large obstacles.  8 factions * 8000 nodes * ~32 bytes = ~2 MB extra.
+const int PathFinder::pathFindNodesExploratoryMax = 8000;
 const int PathFinder::pathFindBailoutRadius = 20;
 const int PathFinder::pathFindExtendRefreshForNodeCount = 25;
 const int PathFinder::pathFindExtendRefreshNodeCountMin = 40;
@@ -69,7 +72,8 @@ void PathFinder::init(const Map *map) {
     for (int factionIndex = 0; factionIndex < GameConstants::maxPlayers; ++factionIndex) {
         FactionState &faction = factions.getFactionState(factionIndex);
 
-        faction.nodePool.resize(pathFindNodesAbsoluteMax);
+        faction.nodePool.resize(pathFindNodesExploratoryMax);
+        faction.openNodesList.reserve(pathFindNodesExploratoryMax);
         faction.useMaxNodeCount = PathFinder::pathFindNodesMax;
     }
     this->map = map;
@@ -519,7 +523,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 // ==================== PRIVATE ====================
 
 // route a unit using A* algorithm
-TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout, int frameIndex, int maxNodeCount, uint32 *searched_node_count) {
+TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout, int frameIndex, int maxNodeCount, uint32 *searched_node_count,
+                              float heuristicWeight, bool isExploratoryRetry) {
     TravelState ts = tsImpossible;
 
     try {
@@ -547,7 +552,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
             maxNodeCount = faction.useMaxNodeCount;
         }
 
-        if (maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3) {
+        // Reduce the search budget for repeatedly-stuck units to avoid spending
+        // too long pathfinding every frame.  Skip the reduction for exploratory
+        // retries (heuristicWeight < 1.0) — they need the full budget to find
+        // routes that detour around large obstacles.
+        if (maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3 && heuristicWeight >= 1.0f) {
             maxNodeCount = 200;
         }
 
@@ -556,7 +565,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
         faction.nodePoolCount = 0;
         faction.openNodesList.clear();
         faction.openPosList.clear();
-        faction.closedNodesList.clear();
+        faction.openSeq = 0;
+        faction.bestClosedNode = nullptr;
+        faction.heuristicWeight = heuristicWeight;
 
         // check the pre-cache to see if we can re-use a cached path
         if (frameIndex < 0) {
@@ -683,13 +694,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
         firstNode->next = NULL;
         firstNode->prev = NULL;
         firstNode->pos = unitPos;
-        firstNode->heuristic = heuristic(unitPos, finalPos);
+        firstNode->heuristic = heuristic(unitPos, finalPos) * heuristicWeight;
         firstNode->exploredCell = true;
-        if (faction.openNodesList.find(firstNode->heuristic) == faction.openNodesList.end()) {
-            faction.openNodesList[firstNode->heuristic].clear();
-        }
-        faction.openNodesList[firstNode->heuristic].push_back(firstNode);
-        faction.openPosList[firstNode->pos] = true;
+        faction.openNodesList.push_back({firstNode->heuristic, faction.openSeq++, firstNode});
+        std::push_heap(faction.openNodesList.begin(), faction.openNodesList.end(), std::greater<OpenListEntry>{});
+        faction.openPosList.insert(firstNode->pos);
 
         // b) loop
         bool pathFound = true;
@@ -824,7 +833,16 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                 unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
             }
 
-            if (nodeLimitReached == true && maxNodeCount != pathFindNodesAbsoluteMax) {
+            // When the node budget was exhausted and we haven't already done an
+            // exploratory retry, try again with a reduced heuristic weight.
+            // This makes the search expand more uniformly (closer to BFS) so it
+            // can discover routes that go around large obstacles rather than
+            // pressing toward the blocked front.
+            //
+            // isExploratoryRetry prevents infinite recursion.  The old guard
+            // (maxNodeCount != pathFindNodesAbsoluteMax) was dead code after
+            // pathFindNodesMax and pathFindNodesAbsoluteMax were equalised.
+            if (nodeLimitReached == true && isExploratoryRetry == false) {
                 if (unit->isLastPathfindFailedFrameWithinCurrentFrameTolerance() == true) {
                     if (frameIndex < 0) {
                         unit->setLastPathfindFailedFrameToCurrentFrame();
@@ -833,11 +851,36 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
                     if (SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
                         char szBuf[8096] = "";
-                        snprintf(szBuf, 8096, "calling aStar()");
+                        snprintf(szBuf, 8096, "calling aStar() exploratory retry");
                         unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(), __LINE__, szBuf);
                     }
 
-                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax);
+                    // If the best node we reached is already close to the
+                    // target, the blockage is likely temporary congestion
+                    // (e.g. many workers queued at a mine).  Skip the
+                    // exploratory retry and wait instead — this restores the
+                    // pre-patch behaviour where workers idle near the mine and
+                    // slide in when a spot opens, rather than wandering away.
+                    const float nearTargetThreshold = 5.0f;
+                    if (faction.bestClosedNode != nullptr && faction.bestClosedNode->heuristic <= nearTargetThreshold) {
+                        if (frameIndex < 0) {
+                            path->incBlockCount();
+                        }
+                        return tsBlocked;
+                    }
+
+                    return aStar(unit, targetPos, false, frameIndex, pathFindNodesExploratoryMax, nullptr, 0.25f, true);
+                } else if (unit->getLastPathfindFailedPos() == finalPos) {
+                    // Still in cooldown for this destination.  Using bestClosedNode
+                    // here would give a partial path in the wrong direction (toward
+                    // open space rather than around the obstacle), causing visible
+                    // back-and-forth oscillation.  Return tsBlocked so the unit
+                    // waits until the cooldown expires and a fresh exploratory retry
+                    // can fire.
+                    if (frameIndex < 0) {
+                        path->incBlockCount();
+                    }
+                    return tsBlocked;
                 }
             }
         } else {
@@ -852,10 +895,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
         // if consumed all nodes find best node (to avoid strange behaviour)
         if (nodeLimitReached == true) {
-            if (faction.closedNodesList.empty() == false) {
-                float bestHeuristic = truncateDecimal<float>(faction.closedNodesList.begin()->first, 6);
-                if (lastNode != NULL && bestHeuristic < lastNode->heuristic) {
-                    lastNode = faction.closedNodesList.begin()->second.front();
+            if (faction.bestClosedNode != nullptr) {
+                if (lastNode == nullptr || faction.bestClosedNode->heuristic < lastNode->heuristic) {
+                    lastNode = faction.bestClosedNode;
                 }
             }
         }
@@ -898,6 +940,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
             ts = tsBlocked;
             if (frameIndex < 0) {
                 path->incBlockCount();
+                // Record the failed destination so the full-path case can
+                // detect oscillation when the target is occupied by mobile
+                // units (which appear passable from far away but blocked
+                // when the unit arrives close).
+                unit->setLastPathfindFailedPos(finalPos);
             }
 
             if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4)
@@ -918,6 +965,29 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
                 currNode = currNode->prev;
             }
 
+            // For exploratory retries, reject paths that are disproportionately
+            // long relative to the direct distance.  A low heuristic weight lets
+            // the search route far around congestion, but if the detour is more
+            // than 4x the straight-line distance the unit would wander visibly
+            // away from its target — particularly bad when many workers share a
+            // gold mine.
+            if (isExploratoryRetry && frameIndex < 0) {
+                int pathLength = 0;
+                Node *countNode = firstNode;
+                while (countNode->next != NULL) {
+                    ++pathLength;
+                    countNode = countNode->next;
+                }
+                float directDist = unitPos.dist(finalPos);
+                if (pathLength > directDist * 4.0f) {
+                    ts = tsBlocked;
+                    path->incBlockCount();
+                    faction.openNodesList.clear();
+                    faction.openPosList.clear();
+                    return ts;
+                }
+            }
+
             if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4)
                 SystemFlags::OutputDebug(SystemFlags::debugPerformance, "In [%s::%s Line: %d] took msecs: %lld\n",
                                          extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, chrono.getMillis());
@@ -932,7 +1002,53 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
             // store path
             if (frameIndex < 0) {
-                path->clear();
+                // When the node limit was reached we are using a bestClosedNode
+                // partial path, not a real path to the destination.  Preserve
+                // the existing block count and increment it so that repeated
+                // partial steps accumulate toward the isBlocked() threshold.
+                // When the threshold is reached, return tsBlocked immediately
+                // so the unit stops at its current position rather than
+                // circling indefinitely around an obstacle or occupied area.
+                if (nodeLimitReached) {
+                    // bestClosedNode partial path — preserve and increment the
+                    // block count so repeated partial steps accumulate toward
+                    // the isBlocked() threshold.
+                    int savedBlockCount = path->getBlockCount();
+                    path->clear();
+                    for (int bc = 0; bc < savedBlockCount; ++bc) {
+                        path->incBlockCount();
+                    }
+                    path->incBlockCount();
+                    if (path->isBlocked()) {
+                        ts = tsBlocked;
+                        faction.openNodesList.clear();
+                        faction.openPosList.clear();
+                        return ts;
+                    }
+                } else if (unit->getLastPathfindFailedPos() == finalPos) {
+                    // A full path was found, but we were recently blocked at
+                    // this same destination.  This happens when the destination
+                    // is occupied by mobile units: far away they appear passable
+                    // (isFreeOrMightBeFreeSoon), so A* finds a complete path,
+                    // but on arrival the cell is still occupied and the unit
+                    // gets deflected — resetting blockCount and creating an
+                    // infinite cycle.  Preserve the block count so it keeps
+                    // accumulating across these oscillations.
+                    int savedBlockCount = path->getBlockCount();
+                    path->clear();
+                    for (int bc = 0; bc < savedBlockCount; ++bc) {
+                        path->incBlockCount();
+                    }
+                    path->incBlockCount();
+                    if (path->isBlocked()) {
+                        ts = tsBlocked;
+                        faction.openNodesList.clear();
+                        faction.openPosList.clear();
+                        return ts;
+                    }
+                } else {
+                    path->clear();
+                }
             }
 
             // UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
@@ -1012,7 +1128,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
         faction.openNodesList.clear();
         faction.openPosList.clear();
-        faction.closedNodesList.clear();
 
         if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4)
             SystemFlags::OutputDebug(SystemFlags::debugPerformance,

@@ -16,7 +16,10 @@
 #include <winsock2.h>
 #endif
 
+#include <algorithm>
+#include <functional>
 #include <map>
+#include <unordered_set>
 #include <vector>
 
 #include "game_constants.h"
@@ -85,6 +88,27 @@ class PathFinder {
     };
     typedef vector<Node *> Nodes;
 
+    struct Vec2iHash {
+        std::size_t operator()(const Vec2i &v) const {
+            std::size_t seed = std::hash<int>()(v.x);
+            seed ^= std::hash<int>()(v.y) + 0x9e3779b9u + (seed << 6) + (seed >> 2);
+            return seed;
+        }
+    };
+
+    // Entry stored in the binary-heap open list.
+    // Sorted by (heuristic ASC, seq ASC) so equal-heuristic nodes are
+    // expanded in insertion order, preserving deterministic behaviour.
+    struct OpenListEntry {
+        float heuristic;
+        int seq;
+        Node *node;
+        bool operator>(const OpenListEntry &o) const {
+            if (heuristic != o.heuristic) return heuristic > o.heuristic;
+            return seq > o.seq;
+        }
+    };
+
     class FactionState {
       protected:
         Mutex *factionMutexPrecache;
@@ -96,9 +120,11 @@ class PathFinder {
 
             openPosList.clear();
             openNodesList.clear();
-            closedNodesList.clear();
             nodePool.clear();
             nodePoolCount = 0;
+            openSeq = 0;
+            bestClosedNode = nullptr;
+            heuristicWeight = 1.0f;
             this->factionIndex = factionIndex;
             useMaxNodeCount = 0;
 
@@ -111,9 +137,13 @@ class PathFinder {
         }
         Mutex *getMutexPreCache() { return factionMutexPrecache; }
 
-        std::map<Vec2i, bool> openPosList;
-        std::map<float, Nodes> openNodesList;
-        std::map<float, Nodes> closedNodesList;
+        // Visited-position set: O(1) average lookup vs O(log n) for std::map.
+        std::unordered_set<Vec2i, Vec2iHash> openPosList;
+        // Binary min-heap open list: O(log n) push/pop, no tree allocation.
+        std::vector<OpenListEntry> openNodesList;
+        int openSeq;           // insertion counter for deterministic tie-breaking
+        Node *bestClosedNode;  // best (lowest-heuristic) node expanded so far
+        float heuristicWeight; // multiplier on h(n); <1.0 makes search more exploratory
         std::vector<Node> nodePool;
 
         int nodePoolCount;
@@ -166,6 +196,7 @@ class PathFinder {
   private:
     static int pathFindNodesMax;
     static int pathFindNodesAbsoluteMax;
+    static const int pathFindNodesExploratoryMax;
 
     FactionStateManager factions;
     const Map *map;
@@ -202,7 +233,8 @@ class PathFinder {
   private:
     void init();
 
-    TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount = -1, uint32 *searched_node_count = NULL);
+    TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount = -1, uint32 *searched_node_count = NULL,
+                      float heuristicWeight = 1.0f, bool isExploratoryRetry = false);
     inline static Node *newNode(FactionState &faction, int maxNodeCount) {
         if (faction.nodePoolCount < (int)faction.nodePool.size() && faction.nodePoolCount < maxNodeCount) {
             Node *node = &(faction.nodePool[faction.nodePoolCount]);
@@ -217,23 +249,16 @@ class PathFinder {
 
     inline static float heuristic(const Vec2i &pos, const Vec2i &finalPos) { return pos.dist(finalPos); }
 
-    inline static bool openPos(const Vec2i &sucPos, FactionState &faction) {
-        if (faction.openPosList.find(sucPos) == faction.openPosList.end()) {
-            return false;
-        }
-        return true;
-    }
+    inline static bool openPos(const Vec2i &sucPos, FactionState &faction) { return faction.openPosList.count(sucPos) > 0; }
 
     inline static Node *minHeuristicFastLookup(FactionState &faction) {
         if (faction.openNodesList.empty() == true) {
             throw megaglest_runtime_error("openNodesList.empty() == true");
         }
 
-        Node *result = faction.openNodesList.begin()->second.front();
-        faction.openNodesList.begin()->second.erase(faction.openNodesList.begin()->second.begin());
-        if (faction.openNodesList.begin()->second.empty()) {
-            faction.openNodesList.erase(faction.openNodesList.begin());
-        }
+        Node *result = faction.openNodesList.front().node;
+        std::pop_heap(faction.openNodesList.begin(), faction.openNodesList.end(), std::greater<OpenListEntry>{});
+        faction.openNodesList.pop_back();
         return result;
     }
 
@@ -253,9 +278,9 @@ class PathFinder {
                      "In processNode() nodeLimitReached %d unitFactionIndex %d "
                      "foundOpenPosForPos %d allowUnitMoveSoon %d maxNodeCount %d "
                      "node->pos = %s finalPos = %s sucPos = %s "
-                     "faction.openPosList.size() %lu closedNodesList.size() %lu",
+                     "faction.openPosList.size() %lu nodePoolCount %d",
                      nodeLimitReached, unitFactionIndex, foundOpenPosForPos, allowUnitMoveSoon, maxNodeCount, node->pos.getString().c_str(),
-                     finalPos.getString().c_str(), sucPos.getString().c_str(), faction.openPosList.size(), faction.closedNodesList.size());
+                     finalPos.getString().c_str(), sucPos.getString().c_str(), faction.openPosList.size(), faction.nodePoolCount);
 
             if (Thread::isCurrentThreadMainThread() == false) {
                 unit->logSynchDataThreaded(__FILE__, __LINE__, szBuf);
@@ -269,15 +294,13 @@ class PathFinder {
             Node *sucNode = newNode(faction, maxNodeCount);
             if (sucNode != NULL) {
                 sucNode->pos = sucPos;
-                sucNode->heuristic = heuristic(sucNode->pos, finalPos);
+                sucNode->heuristic = heuristic(sucNode->pos, finalPos) * faction.heuristicWeight;
                 sucNode->prev = node;
                 sucNode->next = NULL;
                 sucNode->exploredCell = map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-                if (faction.openNodesList.find(sucNode->heuristic) == faction.openNodesList.end()) {
-                    faction.openNodesList[sucNode->heuristic].clear();
-                }
-                faction.openNodesList[sucNode->heuristic].push_back(sucNode);
-                faction.openPosList[sucNode->pos] = true;
+                faction.openNodesList.push_back({sucNode->heuristic, faction.openSeq++, sucNode});
+                std::push_heap(faction.openNodesList.begin(), faction.openNodesList.end(), std::greater<OpenListEntry>{});
+                faction.openPosList.insert(sucNode->pos);
 
                 result = true;
 
@@ -374,11 +397,10 @@ class PathFinder {
                 break;
             }
 
-            if (faction.closedNodesList.find(node->heuristic) == faction.closedNodesList.end()) {
-                faction.closedNodesList[node->heuristic].clear();
+            if (faction.bestClosedNode == nullptr || node->heuristic < faction.bestClosedNode->heuristic) {
+                faction.bestClosedNode = node;
             }
-            faction.closedNodesList[node->heuristic].push_back(node);
-            faction.openPosList[node->pos] = true;
+            faction.openPosList.insert(node->pos);
 
             int failureCount = 0;
             int cellCount = 0;

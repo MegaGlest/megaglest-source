@@ -4811,15 +4811,13 @@ void Unit::setLastPathfindFailedFrameToCurrentFrame() {
 }
 
 bool Unit::isLastPathfindFailedFrameWithinCurrentFrameTolerance() const {
-    // static const bool enablePathfinderEnlargeMaxNodes =
-    // Config::getInstance().getBool("EnablePathfinderEnlargeMaxNodes","false");
-    static const bool enablePathfinderEnlargeMaxNodes = false;
-    bool result = enablePathfinderEnlargeMaxNodes;
-    if (enablePathfinderEnlargeMaxNodes) {
-        const uint32 MIN_FRAME_ELAPSED_RETRY = 960;
-        result = (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
-    }
-    return result;
+    // Allow an exploratory retry after this many frames since the last one.
+    // Must be short enough that the retry fires again before the previous
+    // partial path is exhausted (typically ~10 frames for a 5-cell path at
+    // 1x speed), otherwise normal A* bestClosedNode kicks in between retries
+    // and causes visible back-and-forth oscillation.
+    const uint32 MIN_FRAME_ELAPSED_RETRY = 10;
+    return (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
 }
 
 void Unit::setLastStuckFrameToCurrentFrame() {
