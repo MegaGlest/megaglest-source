@@ -11,6 +11,8 @@
 
 #include "commander.h"
 
+#include <algorithm>
+
 #include "command.h"
 #include "command_type.h"
 #include "config.h"
@@ -193,27 +195,68 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             unitCommandGroupId = world->getNextCommandGroupId();
         }
 
-        // give orders to all selected units
-        for (int i = 0; i < selection->getCount(); ++i) {
-            const Unit *unit = selection->getUnit(i);
-            const CommandType *ct = unit->getType()->getFirstCtOfClass(commandClass);
-            if (ct != NULL) {
-                std::pair<CommandResult, string> resultCur(crFailUndefined, "");
-
-                bool canSubmitCommand = canSubmitCommandType(unit, ct);
-                if (canSubmitCommand == true) {
-                    int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
-                    int unitId = selection->getUnit(i)->getId();
-                    Vec2i currPos = world->getMap()->computeDestPos(refPos, selection->getUnit(i)->getPosNotThreadSafe(), pos);
-                    NetworkCommand networkCommand(this->world, nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue, cst_None, -1,
-                                                  unitCommandGroupId);
-
-                    // every unit is ordered to a different pos
-                    resultCur = pushNetworkCommand(&networkCommand);
+        // Distribute for produce/upgrade (always-queuable) commands or when explicitly queuing.
+        // Idle buildings have an automatic stop command (size=1); treat them as effectively empty.
+        bool shouldDistribute = selection->getCount() > 1 && (tryQueue || commandClass == ccProduce || commandClass == ccUpgrade);
+        auto effectiveSize = [](const Unit *unit) -> int {
+            int size = (int)unit->getCommandSize();
+            if (size == 1) {
+                const Command *cmd = unit->getCurrCommand();
+                if (cmd != NULL && cmd->getCommandType() != NULL && cmd->getCommandType()->getClass() == ccStop) {
+                    return 0;
                 }
-                results.push_back(resultCur);
-            } else {
-                results.push_back(std::pair<CommandResult, string>(crFailUndefined, ""));
+            }
+            return size;
+        };
+
+        if (shouldDistribute) {
+            // Distribute queued commands to units with the fewest commands first.
+            // Collect eligible units (those that have this command class).
+            vector<const Unit *> eligibleUnits;
+            for (int i = 0; i < selection->getCount(); ++i) {
+                const Unit *unit = selection->getUnit(i);
+                if (!unit->isBuilt()) continue;
+                const CommandType *ct = unit->getType()->getFirstCtOfClass(commandClass);
+                if (ct != NULL && canSubmitCommandType(unit, ct)) {
+                    eligibleUnits.push_back(unit);
+                }
+            }
+            if (!eligibleUnits.empty()) {
+                std::sort(eligibleUnits.begin(), eligibleUnits.end(),
+                          [&effectiveSize](const Unit *a, const Unit *b) { return effectiveSize(a) < effectiveSize(b); });
+                int minSize = effectiveSize(eligibleUnits[0]);
+                for (const Unit *unit : eligibleUnits) {
+                    if (effectiveSize(unit) > minSize) break;
+                    const CommandType *ct = unit->getType()->getFirstCtOfClass(commandClass);
+                    int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
+                    Vec2i currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
+                    NetworkCommand networkCommand(this->world, nctGiveCommand, unit->getId(), ct->getId(), currPos, -1, targetId, -1, tryQueue, cst_None, -1,
+                                                  unitCommandGroupId);
+                    results.push_back(pushNetworkCommand(&networkCommand));
+                }
+            }
+        } else {
+            // give orders to all selected units
+            for (int i = 0; i < selection->getCount(); ++i) {
+                const Unit *unit = selection->getUnit(i);
+                if (!unit->isBuilt()) continue;
+                const CommandType *ct = unit->getType()->getFirstCtOfClass(commandClass);
+                if (ct != NULL) {
+                    std::pair<CommandResult, string> resultCur(crFailUndefined, "");
+
+                    bool canSubmitCommand = canSubmitCommandType(unit, ct);
+                    if (canSubmitCommand == true) {
+                        int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
+                        int unitId = unit->getId();
+                        Vec2i currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
+                        NetworkCommand networkCommand(this->world, nctGiveCommand, unitId, ct->getId(), currPos, -1, targetId, -1, tryQueue, cst_None, -1,
+                                                      unitCommandGroupId);
+
+                        // every unit is ordered to a different pos
+                        resultCur = pushNetworkCommand(&networkCommand);
+                    }
+                    results.push_back(resultCur);
+                }
             }
         }
         return computeResult(results);
@@ -241,25 +284,67 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             unitCommandGroupId = world->getNextCommandGroupId();
         }
 
-        // give orders to all selected units
-        for (int i = 0; i < selection->getCount(); ++i) {
-            const Unit *unit = selection->getUnit(i);
-            assert(unit != NULL);
-
-            std::pair<CommandResult, string> resultCur(crFailUndefined, "");
-
-            bool canSubmitCommand = canSubmitCommandType(unit, commandType);
-            if (canSubmitCommand == true) {
-                int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
-                int unitId = unit->getId();
-                Vec2i currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
-                NetworkCommand networkCommand(this->world, nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue, cst_None, -1,
-                                              unitCommandGroupId);
-
-                // every unit is ordered to a different position
-                resultCur = pushNetworkCommand(&networkCommand);
+        // Distribute for produce/upgrade (always-queuable) commands or when explicitly queuing.
+        // Idle buildings have an automatic stop command (size=1); treat them as effectively empty.
+        bool shouldDistribute = selection->getCount() > 1 && (tryQueue || commandType->isQueuable() == qAlways);
+        auto effectiveSize = [](const Unit *unit) -> int {
+            int size = (int)unit->getCommandSize();
+            if (size == 1) {
+                const Command *cmd = unit->getCurrCommand();
+                if (cmd != NULL && cmd->getCommandType() != NULL && cmd->getCommandType()->getClass() == ccStop) {
+                    return 0;
+                }
             }
-            results.push_back(resultCur);
+            return size;
+        };
+
+        if (shouldDistribute) {
+            // Distribute queued commands to units with the fewest commands first.
+            // Collect eligible units.
+            vector<const Unit *> eligibleUnits;
+            for (int i = 0; i < selection->getCount(); ++i) {
+                const Unit *unit = selection->getUnit(i);
+                assert(unit != NULL);
+                if (!unit->isBuilt()) continue;
+                if (canSubmitCommandType(unit, commandType)) {
+                    eligibleUnits.push_back(unit);
+                }
+            }
+            if (!eligibleUnits.empty()) {
+                std::sort(eligibleUnits.begin(), eligibleUnits.end(),
+                          [&effectiveSize](const Unit *a, const Unit *b) { return effectiveSize(a) < effectiveSize(b); });
+                int minSize = effectiveSize(eligibleUnits[0]);
+                for (const Unit *unit : eligibleUnits) {
+                    if (effectiveSize(unit) > minSize) break;
+                    int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
+                    Vec2i currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
+                    NetworkCommand networkCommand(this->world, nctGiveCommand, unit->getId(), commandType->getId(), currPos, -1, targetId, -1, tryQueue,
+                                                  cst_None, -1, unitCommandGroupId);
+                    results.push_back(pushNetworkCommand(&networkCommand));
+                }
+            }
+        } else {
+            // give orders to all selected units
+            for (int i = 0; i < selection->getCount(); ++i) {
+                const Unit *unit = selection->getUnit(i);
+                assert(unit != NULL);
+                if (!unit->isBuilt()) continue;
+
+                std::pair<CommandResult, string> resultCur(crFailUndefined, "");
+
+                bool canSubmitCommand = canSubmitCommandType(unit, commandType);
+                if (canSubmitCommand == true) {
+                    int targetId = targetUnit == NULL ? Unit::invalidId : targetUnit->getId();
+                    int unitId = unit->getId();
+                    Vec2i currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
+                    NetworkCommand networkCommand(this->world, nctGiveCommand, unitId, commandType->getId(), currPos, -1, targetId, -1, tryQueue, cst_None, -1,
+                                                  unitCommandGroupId);
+
+                    // every unit is ordered to a different position
+                    resultCur = pushNetworkCommand(&networkCommand);
+                }
+                results.push_back(resultCur);
+            }
         }
 
         return computeResult(results);
@@ -288,12 +373,12 @@ std::pair<CommandResult, string> Commander::tryGiveCommand(const Selection *sele
             unitCommandGroupId = world->getNextCommandGroupId();
         }
 
-        // give orders to all selected units
         refPos = world->getMap()->computeRefPos(selection);
         for (int i = 0; i < selection->getCount(); ++i) {
-            // every unit is ordered to a different pos
             const Unit *unit = selection->getUnit(i);
+
             assert(unit != NULL);
+            if (!unit->isBuilt()) continue;
 
             currPos = world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 

@@ -932,8 +932,15 @@ void Gui::computeDisplay() {
                 if (selection.isUniform()) {
                     // printf("selection.isUniform()\n");
 
-                    // uniform selection
-                    if (u->isBuilt()) {
+                    // uniform selection — show commands if at least one unit is built
+                    bool anyBuilt = false;
+                    for (int i = 0; i < selection.getCount(); ++i) {
+                        if (selection.getUnit(i)->isBuilt()) {
+                            anyBuilt = true;
+                            break;
+                        }
+                    }
+                    if (anyBuilt) {
                         // printf("u->isBuilt()\n");
 
                         int morphPos = 8;
