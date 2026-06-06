@@ -1,6 +1,6 @@
 # Build MegaGlest on Windows.
 # Author: James Sherratt.
-param(${vcpkg-location}, ${buildtype}, [string[]]${cmake-options}, [switch]${show-options})
+param(${vcpkg-location}, ${buildtype}, [string[]]${cmake-options}, [switch]${show-options}, [switch]${run-tests})
 
 $sword = [char]::ConvertFromUtf32(0x2694)
 Write-Output "=====$sword MegaGlest $sword====="
@@ -145,6 +145,11 @@ cmake --build "$buildFolder" --config $buildtype --target ALL_BUILD
 
 if ($?) {
     "Build succeeded. megaglest.exe, megaglest_editor.exe and megaglest_g3dviewer.exe can be found in mk/windoze/."
+    if (${run-tests}) {
+        Write-Title "Running unit tests"
+        ctest --test-dir "$buildFolder" --build-config $buildtype --output-on-failure
+        if (!$?) { "Tests failed."; Exit 3 }
+    }
 }
 else {
     "Build failed. Please make sure you have installed VS C++ tools (2019 or 2022): https://visualstudio.microsoft.com/downloads ."

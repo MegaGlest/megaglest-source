@@ -23,8 +23,11 @@ int main(int argc, char *argv[]) {
 
     // Change the default outputter to a compiler error format outputter
     runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
-    // Run the tests.
-    bool wasSucessful = runner.run();
+    // Run the tests. An optional command-line argument selects a specific
+    // suite or test by path, e.g. "SocketTest" or
+    // "SocketTest::test_ip_ipv6_cursor_stripped".
+    std::string testPath = (argc > 1) ? argv[1] : "";
+    bool wasSucessful = runner.run(testPath);
 
     // Return error code 1 if the one of test failed.
     return wasSucessful ? 0 : 1;

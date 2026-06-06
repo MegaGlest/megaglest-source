@@ -5321,12 +5321,7 @@ int glestMain(int argc, char **argv) {
                 string autoConnectServer = paramPartTokens[1];
 
                 int port = config.getInt("PortServer", intToStr(GameConstants::serverPort).c_str());
-                vector<string> paramPartTokens2;
-                Tokenize(autoConnectServer, paramPartTokens2, ":");
-                autoConnectServer = paramPartTokens2[0];
-                if (paramPartTokens2.size() >= 2 && paramPartTokens2[1].length() > 0) {
-                    port = strToInt(paramPartTokens2[1]);
-                }
+                Ip::parseHostPort(autoConnectServer, port);
 
                 printf("Connecting to host [%s] using port: %d\n", autoConnectServer.c_str(), port);
                 if (autoConnectServer == "auto-connect") {

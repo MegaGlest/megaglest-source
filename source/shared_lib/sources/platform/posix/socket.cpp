@@ -286,21 +286,61 @@ Ip::Ip(unsigned char byte0, unsigned char byte1, unsigned char byte2, unsigned c
 }
 
 Ip::Ip(const string &ipString) {
-    size_t offset = 0;
-    int byteIndex = 0;
+    bytes[0] = 0;
+    bytes[1] = 0;
+    bytes[2] = 0;
+    bytes[3] = 0;
 
-    if (ipString.empty() == false) {
-        for (byteIndex = 0; byteIndex < 4; ++byteIndex) {
-            size_t dotPos = ipString.find_first_of('.', offset);
+    // Strip trailing '_' cursor characters appended by the UI text labels
+    string clean = ipString;
+    while (!clean.empty() && clean.back() == '_') {
+        clean.pop_back();
+    }
+    addrStr = clean;
 
-            bytes[byteIndex] = atoi(ipString.substr(offset, dotPos - offset).c_str());
+    // For IPv4 dotted-decimal, also populate the bytes array for backwards compat
+    if (clean.find(':') == string::npos && clean.find('.') != string::npos) {
+        size_t offset = 0;
+        for (int byteIndex = 0; byteIndex < 4; ++byteIndex) {
+            size_t dotPos = clean.find_first_of('.', offset);
+            bytes[byteIndex] = (unsigned char)atoi(clean.substr(offset, dotPos - offset).c_str());
             offset = dotPos + 1;
         }
     }
 }
 
 string Ip::getString() const {
+    if (!addrStr.empty()) {
+        return addrStr;
+    }
     return intToStr(bytes[0]) + "." + intToStr(bytes[1]) + "." + intToStr(bytes[2]) + "." + intToStr(bytes[3]);
+}
+
+void Ip::parseHostPort(string &host, int &port) {
+    replaceAll(host, "_", "");
+    if (!host.empty() && host[0] == '[') {
+        size_t close = host.find(']');
+        if (close != string::npos) {
+            if (close + 2 <= host.size() && host[close + 1] == ':') {
+                port = strToInt(host.substr(close + 2));
+            }
+            host = host.substr(1, close - 1);
+        }
+    } else {
+        size_t firstColon = host.find(':');
+        if (firstColon != string::npos && host.find(':', firstColon + 1) == string::npos) {
+            port = strToInt(host.substr(firstColon + 1));
+            host = host.substr(0, firstColon);
+        }
+    }
+}
+
+string Ip::buildHostDisplay(const string &host, int port) {
+    if (port <= 0) return host;
+    if (host.find(':') != string::npos) {
+        return "[" + host + "]:" + intToStr(port);
+    }
+    return host + ":" + intToStr(port);
 }
 
 // ===============================================
@@ -677,21 +717,42 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
     char myhostname[101] = "";
     gethostname(myhostname, 100);
 
-    struct hostent *myhostent = gethostbyname(myhostname);
-    if (myhostent) {
-        // get all host IP addresses (Except for loopback)
-        char myhostaddr[101] = "";
-        for (int ipIdx = 0; myhostent->h_addr_list[ipIdx] != NULL; ++ipIdx) {
-            Ip::Inet_NtoA(SockAddrToUint32((struct in_addr *)myhostent->h_addr_list[ipIdx]), myhostaddr);
-
-            // printf("ipIdx = %d [%s]\n",ipIdx,myhostaddr);
-            if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] myhostaddr = [%s]\n", __FILE__, __FUNCTION__, __LINE__, myhostaddr);
-
-            if (strlen(myhostaddr) > 0 && strncmp(myhostaddr, "127.", 4) != 0 && strncmp(myhostaddr, "0.", 2) != 0) {
-                ipList.push_back(myhostaddr);
+    // Use getaddrinfo to enumerate host addresses (supports both IPv4 and IPv6)
+    struct addrinfo hints, *res = NULL, *rp = NULL;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    if (getaddrinfo(myhostname, NULL, &hints, &res) == 0) {
+        for (rp = res; rp != NULL; rp = rp->ai_next) {
+            char myhostaddr[INET6_ADDRSTRLEN] = "";
+            if (rp->ai_family == AF_INET) {
+                struct sockaddr_in *sa = (struct sockaddr_in *)rp->ai_addr;
+                inet_ntop(AF_INET, &sa->sin_addr, myhostaddr, sizeof(myhostaddr));
+                if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] myhostaddr (v4) = [%s]\n", __FILE__, __FUNCTION__, __LINE__,
+                                             myhostaddr);
+                if (strlen(myhostaddr) > 0 && strncmp(myhostaddr, "127.", 4) != 0 && strncmp(myhostaddr, "0.", 2) != 0) {
+                    if (std::find(ipList.begin(), ipList.end(), myhostaddr) == ipList.end()) {
+                        ipList.push_back(myhostaddr);
+                    }
+                }
+            } else if (rp->ai_family == AF_INET6) {
+                struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)rp->ai_addr;
+                if (IN6_IS_ADDR_LOOPBACK(&sa6->sin6_addr) || IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {
+                    continue;
+                }
+                inet_ntop(AF_INET6, &sa6->sin6_addr, myhostaddr, sizeof(myhostaddr));
+                if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] myhostaddr (v6) = [%s]\n", __FILE__, __FUNCTION__, __LINE__,
+                                             myhostaddr);
+                if (strlen(myhostaddr) > 0) {
+                    if (std::find(ipList.begin(), ipList.end(), myhostaddr) == ipList.end()) {
+                        ipList.push_back(myhostaddr);
+                    }
+                }
             }
         }
+        freeaddrinfo(res);
     }
 
     Socket::getLocalIPAddressListForPlatform(ipList);
@@ -700,25 +761,40 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 
 #ifndef WIN32
 void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) {
-    // Now check all linux network devices
+    // Now check all network devices, including IPv6
     struct ifaddrs *ifap = NULL;
     getifaddrs(&ifap);
     for (struct ifaddrs *ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
         if (!ifa->ifa_addr) {
             continue;
         }
-        if (ifa->ifa_addr->sa_family == AF_INET) { // check it is IP4
-            // is a valid IP4 Address
+        char addrBuf[INET6_ADDRSTRLEN] = "";
+        if (ifa->ifa_addr->sa_family == AF_INET) {
             struct sockaddr_in *sa = (struct sockaddr_in *)ifa->ifa_addr;
-            char *addr = inet_ntoa(sa->sin_addr);
-            // printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
+            inet_ntop(AF_INET, &sa->sin_addr, addrBuf, sizeof(addrBuf));
             if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) {
-                SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] Interface: [%s] address: [%s]\n", __FILE__, __FUNCTION__, __LINE__,
-                                         ifa->ifa_name, addr);
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] Interface: [%s] IPv4 address: [%s]\n", __FILE__, __FUNCTION__,
+                                         __LINE__, ifa->ifa_name, addrBuf);
             }
-            if (strlen(addr) > 0 && strncmp(addr, "127.", 4) != 0 && strncmp(addr, "0.", 2) != 0) {
-                if (std::find(ipList.begin(), ipList.end(), addr) == ipList.end()) {
-                    ipList.push_back(addr);
+            if (strlen(addrBuf) > 0 && strncmp(addrBuf, "127.", 4) != 0 && strncmp(addrBuf, "0.", 2) != 0) {
+                if (std::find(ipList.begin(), ipList.end(), addrBuf) == ipList.end()) {
+                    ipList.push_back(addrBuf);
+                }
+            }
+        } else if (ifa->ifa_addr->sa_family == AF_INET6) {
+            struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+            // Skip loopback (::1) and link-local (fe80::/10)
+            if (IN6_IS_ADDR_LOOPBACK(&sa6->sin6_addr) || IN6_IS_ADDR_LINKLOCAL(&sa6->sin6_addr)) {
+                continue;
+            }
+            inet_ntop(AF_INET6, &sa6->sin6_addr, addrBuf, sizeof(addrBuf));
+            if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) {
+                SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] Interface: [%s] IPv6 address: [%s]\n", __FILE__, __FUNCTION__,
+                                         __LINE__, ifa->ifa_name, addrBuf);
+            }
+            if (strlen(addrBuf) > 0) {
+                if (std::find(ipList.begin(), ipList.end(), addrBuf) == ipList.end()) {
+                    ipList.push_back(addrBuf);
                 }
             }
         }
@@ -801,15 +877,13 @@ void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) 
 #ifdef WIN32
 void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) {
     ULONG outBufLen = 0;
-    GetAdaptersAddresses(AF_INET, 0, NULL, NULL, &outBufLen);
+    GetAdaptersAddresses(AF_UNSPEC, 0, NULL, NULL, &outBufLen);
     PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
-    GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen);
+    GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen);
     PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
     PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
     LPSOCKADDR addr = NULL;
     pCurrAddresses = pAddresses;
-    // char buff[100];
-    DWORD bufflen = 100;
     while (pCurrAddresses) {
         if (pCurrAddresses->OperStatus != IfOperStatusUp) {
             pCurrAddresses = pCurrAddresses->Next;
@@ -818,16 +892,29 @@ void Socket::getLocalIPAddressListForPlatform(std::vector<std::string> &ipList) 
         pUnicast = pCurrAddresses->FirstUnicastAddress;
         while (pUnicast) {
             addr = pUnicast->Address.lpSockaddr;
+            char addrBuf[INET6_ADDRSTRLEN] = "";
             if (addr->sa_family == AF_INET && pCurrAddresses->IfType != MIB_IF_TYPE_LOOPBACK) {
                 sockaddr_in *sa_in = (sockaddr_in *)addr;
-                char *strIP = ::inet_ntoa((sa_in->sin_addr));
-                // printf("\tIPV4:%s\n", strIP);
+                inet_ntop(AF_INET, &sa_in->sin_addr, addrBuf, sizeof(addrBuf));
                 if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) {
-                    SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] strIP [%s]\n", __FILE__, __FUNCTION__, __LINE__, strIP);
+                    SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] IPv4 [%s]\n", __FILE__, __FUNCTION__, __LINE__, addrBuf);
                 }
-                if (strlen(strIP) > 0 && strncmp(strIP, "127.", 4) != 0 && strncmp(strIP, "0.", 2) != 0) {
-                    if (std::find(ipList.begin(), ipList.end(), strIP) == ipList.end()) {
-                        ipList.push_back(strIP);
+                if (strlen(addrBuf) > 0 && strncmp(addrBuf, "127.", 4) != 0 && strncmp(addrBuf, "0.", 2) != 0) {
+                    if (std::find(ipList.begin(), ipList.end(), addrBuf) == ipList.end()) {
+                        ipList.push_back(addrBuf);
+                    }
+                }
+            } else if (addr->sa_family == AF_INET6 && pCurrAddresses->IfType != MIB_IF_TYPE_LOOPBACK) {
+                sockaddr_in6 *sa_in6 = (sockaddr_in6 *)addr;
+                if (!IN6_IS_ADDR_LOOPBACK(&sa_in6->sin6_addr) && !IN6_IS_ADDR_LINKLOCAL(&sa_in6->sin6_addr)) {
+                    inet_ntop(AF_INET6, &sa_in6->sin6_addr, addrBuf, sizeof(addrBuf));
+                    if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) {
+                        SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] IPv6 [%s]\n", __FILE__, __FUNCTION__, __LINE__, addrBuf);
+                    }
+                    if (strlen(addrBuf) > 0) {
+                        if (std::find(ipList.begin(), ipList.end(), addrBuf) == ipList.end()) {
+                            ipList.push_back(addrBuf);
+                        }
                     }
                 }
             }
@@ -878,6 +965,7 @@ Socket::Socket(PLATFORM_SOCKET sock) {
     dataSynchAccessorWrite->setOwnerId(CODE_AT_LINE);
 
     this->sock = sock;
+    this->socketFamily = AF_INET;
     this->isSocketBlocking = true;
     this->connectedIpAddress = "";
 }
@@ -901,6 +989,7 @@ Socket::Socket() {
     // this->pingThread = NULL;
 
     this->connectedIpAddress = "";
+    this->socketFamily = AF_INET;
 
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (isSocketValid() == false) {
@@ -2141,20 +2230,37 @@ string Socket::getHostName() {
 }
 
 string Socket::getIp() {
-    hostent *info = gethostbyname(getHostName().c_str());
-    unsigned char *address;
+    struct addrinfo hints, *res = NULL;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET; // prefer IPv4 for backwards compat
+    hints.ai_socktype = SOCK_STREAM;
 
-    if (info == NULL) {
-        throw megaglest_runtime_error("Error getting host by name");
+    int err = getaddrinfo(getHostName().c_str(), NULL, &hints, &res);
+    if (err != 0 || res == NULL) {
+        // Fall back to any address family
+        if (res) freeaddrinfo(res);
+        hints.ai_family = AF_UNSPEC;
+        err = getaddrinfo(getHostName().c_str(), NULL, &hints, &res);
+        if (err != 0 || res == NULL) {
+            if (res) freeaddrinfo(res);
+            throw megaglest_runtime_error("Error getting host ip");
+        }
     }
 
-    address = reinterpret_cast<unsigned char *>(info->h_addr_list[0]);
+    char addrBuf[INET6_ADDRSTRLEN] = "";
+    if (res->ai_family == AF_INET) {
+        struct sockaddr_in *sa = (struct sockaddr_in *)res->ai_addr;
+        inet_ntop(AF_INET, &sa->sin_addr, addrBuf, sizeof(addrBuf));
+    } else if (res->ai_family == AF_INET6) {
+        struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)res->ai_addr;
+        inet_ntop(AF_INET6, &sa6->sin6_addr, addrBuf, sizeof(addrBuf));
+    }
+    freeaddrinfo(res);
 
-    if (address == NULL) {
+    if (addrBuf[0] == '\0') {
         throw megaglest_runtime_error("Error getting host ip");
     }
-
-    return intToStr(address[0]) + "." + intToStr(address[1]) + "." + intToStr(address[2]) + "." + intToStr(address[3]);
+    return addrBuf;
 }
 
 void Socket::throwException(string str) {
@@ -2224,29 +2330,69 @@ void ClientSocket::discoverServers(DiscoveredServersInterface *cb) {
 }
 
 void ClientSocket::connect(const Ip &ip, int port) {
-    sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(ip.getString().c_str());
-    addr.sin_port = htons(port);
+    string ipStr = ip.getString();
 
     if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork, "Connecting to host [%s] on port = %d\n", ip.getString().c_str(), port);
-    if (SystemFlags::VERBOSE_MODE_ENABLED) printf("Connecting to host [%s] on port = %d\n", ip.getString().c_str(), port);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork, "Connecting to host [%s] on port = %d\n", ipStr.c_str(), port);
+    if (SystemFlags::VERBOSE_MODE_ENABLED) printf("Connecting to host [%s] on port = %d\n", ipStr.c_str(), port);
+
+    // Resolve the address using getaddrinfo, which supports both IPv4 and IPv6.
+    char portStr[16];
+    snprintf(portStr, sizeof(portStr), "%d", port);
+    struct addrinfo hints, *res = NULL;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    int gai_err = getaddrinfo(ipStr.c_str(), portStr, &hints, &res);
+    if (gai_err != 0 || res == NULL) {
+        if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s Line: %d] getaddrinfo failed for [%s]: %s\n", __FILE__, __FUNCTION__, __LINE__,
+                                     ipStr.c_str(), gai_strerror(gai_err));
+        if (res) freeaddrinfo(res);
+        disconnectSocket();
+        return;
+    }
+    // If the resolved family differs from the current socket family, recreate
+    // the socket so it matches (e.g. upgrade AF_INET to AF_INET6).
+    if (res->ai_family != socketFamily) {
+        disconnectSocket();
+        sock = socket(res->ai_family, SOCK_STREAM, IPPROTO_TCP);
+        if (isSocketValid() == false) {
+            freeaddrinfo(res);
+            throwException("Error creating socket for connect");
+        }
+        socketFamily = res->ai_family;
+        setBlock(false);
+#ifdef __APPLE__
+        {
+            int set = 1;
+            setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
+        }
+#endif
+        if (Socket::disableNagle == true) {
+            int flag = 1;
+            setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag));
+        }
+    }
+
+    struct sockaddr_storage addr;
+    memcpy(&addr, res->ai_addr, res->ai_addrlen);
+    socklen_t addrlen = (socklen_t)res->ai_addrlen;
+    freeaddrinfo(res);
 
     connectedIpAddress = "";
-    int err = ::connect(sock, reinterpret_cast<const sockaddr *>(&addr), sizeof(addr));
+    int err = ::connect(sock, reinterpret_cast<const sockaddr *>(&addr), addrlen);
     if (err < 0) {
         if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,
                                      "In [%s::%s Line: %d] #2 Error connecting socket for IP: %s for "
                                      "Port: %d err = %d error = %s\n",
-                                     __FILE__, __FUNCTION__, __LINE__, ip.getString().c_str(), port, err, getLastSocketErrorFormattedText().c_str());
+                                     __FILE__, __FUNCTION__, __LINE__, ipStr.c_str(), port, err, getLastSocketErrorFormattedText().c_str());
         if (SystemFlags::VERBOSE_MODE_ENABLED)
             printf("In [%s::%s Line: %d] #2 Error connecting socket for IP: %s for "
                    "Port: %d err = %d error = %s\n",
-                   __FILE__, __FUNCTION__, __LINE__, ip.getString().c_str(), port, err, getLastSocketErrorFormattedText().c_str());
+                   __FILE__, __FUNCTION__, __LINE__, ipStr.c_str(), port, err, getLastSocketErrorFormattedText().c_str());
 
         int lastSocketError = getLastSocketError();
         if (lastSocketError == PLATFORM_SOCKET_INPROGRESS || lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) {
@@ -2362,17 +2508,16 @@ void ClientSocket::connect(const Ip &ip, int port) {
                 printf("In [%s::%s Line: %d] Valid recovery for connection sock "
                        "= " PLATFORM_SOCKET_FORMAT_TYPE ", err = %d, error = %s\n",
                        __FILE__, __FUNCTION__, __LINE__, sock, err, getLastSocketErrorFormattedText().c_str());
-            connectedIpAddress = ip.getString();
+            connectedIpAddress = ipStr;
         }
     } else {
         if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork, "Connected to host [%s] on port = %d sock = %d err = %d", ip.getString().c_str(), port, sock,
-                                     err);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork, "Connected to host [%s] on port = %d sock = %d err = %d", ipStr.c_str(), port, sock, err);
         if (SystemFlags::VERBOSE_MODE_ENABLED)
             printf("Connected to host [%s] on port = %d sock "
                    "= " PLATFORM_SOCKET_FORMAT_TYPE " err = %d",
-                   ip.getString().c_str(), port, sock, err);
-        connectedIpAddress = ip.getString();
+                   ipStr.c_str(), port, sock, err);
+        connectedIpAddress = ipStr;
     }
 }
 
@@ -2681,34 +2826,78 @@ void ServerSocket::bind(int port) {
 
     boundPort = port;
 
-    if (isSocketValid() == false) {
+    // Close any existing socket so we can choose the right address family.
+    if (isSocketValid()) {
+        disconnectSocket();
+        portBound = false;
+    }
+
+    // When no specific address is requested, try an IPv6 dual-stack socket
+    // (IPV6_V6ONLY=0) so the server accepts both IPv4 and IPv6 connections on
+    // a single socket.  If the platform does not support dual-stack (e.g.
+    // OpenBSD where IPV6_V6ONLY cannot be cleared), fall back to IPv4.
+    bool useIPv6 = (this->bindSpecificAddress == "");
+
+    if (useIPv6) {
+        sock = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        if (isSocketValid()) {
+            int v6only = 0;
+#ifndef WIN32
+            if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only)) != 0) {
+#else
+            if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&v6only, sizeof(v6only)) != 0) {
+#endif
+                // Cannot clear IPV6_V6ONLY — fall back to IPv4-only
+                disconnectSocket();
+                portBound = false;
+                useIPv6 = false;
+            }
+        } else {
+            useIPv6 = false;
+        }
+        if (useIPv6) {
+            socketFamily = AF_INET6;
+        }
+    }
+
+    if (!useIPv6) {
         sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (isSocketValid() == false) {
             throwException("Error creating socket");
         }
-        setBlock(false);
+        socketFamily = AF_INET;
     }
 
-    // sockaddr structure
-    sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    if (this->bindSpecificAddress != "") {
-        addr.sin_addr.s_addr = inet_addr(this->bindSpecificAddress.c_str());
-    } else {
-        addr.sin_addr.s_addr = INADDR_ANY;
-    }
-    addr.sin_port = htons(port);
-    addr.sin_zero[0] = 0;
+    setBlock(false);
 
     int val = 1;
-
 #ifndef WIN32
     int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
 #else
     int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
 
-    int err = ::bind(sock, reinterpret_cast<sockaddr *>(&addr), sizeof(addr));
+    int err = -1;
+    if (useIPv6) {
+        sockaddr_in6 addr6;
+        memset(&addr6, 0, sizeof(addr6));
+        addr6.sin6_family = AF_INET6;
+        addr6.sin6_addr = in6addr_any;
+        addr6.sin6_port = htons(port);
+        err = ::bind(sock, reinterpret_cast<sockaddr *>(&addr6), sizeof(addr6));
+    } else {
+        sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        if (this->bindSpecificAddress != "") {
+            addr.sin_addr.s_addr = inet_addr(this->bindSpecificAddress.c_str());
+        } else {
+            addr.sin_addr.s_addr = INADDR_ANY;
+        }
+        addr.sin_port = htons(port);
+        err = ::bind(sock, reinterpret_cast<sockaddr *>(&addr), sizeof(addr));
+    }
+
     if (err < 0) {
         char szBuf[8096] = "";
         snprintf(szBuf, 8096,
@@ -2723,8 +2912,8 @@ void ServerSocket::bind(int port) {
     portBound = true;
 
     if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
-        SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s] Line: %d port = %d, portBound = %d END\n", __FILE__, __FUNCTION__, __LINE__, port,
-                                 portBound);
+        SystemFlags::OutputDebug(SystemFlags::debugNetwork, "In [%s::%s] Line: %d port = %d, portBound = %d (IPv6=%d) END\n", __FILE__, __FUNCTION__, __LINE__,
+                                 port, portBound, useIPv6 ? 1 : 0);
 }
 
 void ServerSocket::disconnectSocket() {
@@ -2794,7 +2983,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
     char client_host[100] = "";
     // const int max_attempts = 100;
     // for(int attempt = 0; attempt < max_attempts; ++attempt) {
-    struct sockaddr_in cli_addr;
+    struct sockaddr_storage cli_addr;
     socklen_t clilen = sizeof(cli_addr);
     client_host[0] = '\0';
     MutexSafeWrapper safeMutex(dataSynchAccessorRead, CODE_AT_LINE);
@@ -2812,12 +3001,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
         int lastSocketError = getLastSocketError();
         if (lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) {
-            // if(attempt+1 >= max_attempts) {
-            //	return NULL;
-            // }
-            // else {
             sleep(0);
-            //}
         }
         if (errorOnFail == true) {
             throwException(szBuf);
@@ -2834,7 +3018,24 @@ Socket *ServerSocket::accept(bool errorOnFail) {
         }
 
     } else {
-        Ip::Inet_NtoA(SockAddrToUint32((struct sockaddr *)&cli_addr), client_host);
+        // Extract client address string, supporting both IPv4 and IPv6.
+        // When the server socket is dual-stack (AF_INET6 + IPV6_V6ONLY=0),
+        // IPv4 clients appear as IPv4-mapped IPv6 addresses (::ffff:x.x.x.x).
+        // Strip the prefix so the rest of the code sees a plain IPv4 address.
+        if (cli_addr.ss_family == AF_INET6) {
+            struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)&cli_addr;
+            if (IN6_IS_ADDR_V4MAPPED(&sa6->sin6_addr)) {
+                // Extract the embedded IPv4 address
+                struct in_addr v4addr;
+                memcpy(&v4addr, sa6->sin6_addr.s6_addr + 12, 4);
+                inet_ntop(AF_INET, &v4addr, client_host, sizeof(client_host));
+            } else {
+                inet_ntop(AF_INET6, &sa6->sin6_addr, client_host, sizeof(client_host));
+            }
+        } else {
+            struct sockaddr_in *sa4 = (struct sockaddr_in *)&cli_addr;
+            inet_ntop(AF_INET, &sa4->sin_addr, client_host, sizeof(client_host));
+        }
         if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,
                                      "In [%s::%s Line: %d] got connection, newSock = "

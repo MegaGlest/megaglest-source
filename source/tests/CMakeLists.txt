@@ -72,6 +72,7 @@ IF(BUILD_MEGAGLEST_TESTS)
 	SET(DIRS_WITH_SRC
         ./
         shared_lib/graphics
+        shared_lib/platform
         shared_lib/util
 		shared_lib/xml)
 
@@ -203,19 +204,14 @@ IF(BUILD_MEGAGLEST_TESTS)
 	ENDIF()
 
         TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
-	IF(NOT "${CMAKE_GENERATOR}" STREQUAL "Xcode")
-		# Run the unit tests after build
-		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} will run tests with it.")
-
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-				COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-				COMMENT "***-- Found MegaGlest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
-		ELSE()
-			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-				COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-				COMMENT "***-- Found MegaGlest test runner: ${TARGET_NAME} about to run unit tests...")
-		ENDIF()
+	# Register with CTest so tests run via `ctest` / `cmake --build . --target test`
+	IF(EXISTS ${XVFB_EXEC})
+		MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} will run tests with it.")
+		add_test(NAME megaglest_tests
+			COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME})
+	ELSE()
+		add_test(NAME megaglest_tests
+			COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME})
 	ENDIF()
 
 ENDIF()

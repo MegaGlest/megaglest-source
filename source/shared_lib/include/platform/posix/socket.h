@@ -97,6 +97,7 @@ class DiscoveredServersInterface {
 class Ip {
   private:
     unsigned char bytes[4];
+    std::string addrStr; // stores IPv6 or IPv4 strings; overrides bytes when non-empty
 
   public:
     Ip();
@@ -106,6 +107,17 @@ class Ip {
 
     unsigned char getByte(int byteIndex) { return bytes[byteIndex]; }
     string getString() const;
+
+    // Parse "host", "host:port", or "[ipv6]:port" from a UI label string.
+    // Strips trailing '_' cursor characters. Updates host and port in-place.
+    // Bare IPv6 addresses (multiple colons, no brackets) leave host unchanged
+    // and do not modify port.
+    static void parseHostPort(std::string &host, int &port);
+
+    // Format host:port for display. Uses "[host]:port" bracket notation when
+    // host is an IPv6 address (contains a colon). Returns host unchanged when
+    // port <= 0.
+    static std::string buildHostDisplay(const std::string &host, int port);
 };
 
 // =====================================================
@@ -126,6 +138,7 @@ class Socket {
     // static SocketManager wsaManager;
     // #endif
     PLATFORM_SOCKET sock;
+    int socketFamily; // AF_INET or AF_INET6
     time_t lastDebugEvent;
     static int broadcast_portno;
     std::string ipAddress;
@@ -202,6 +215,7 @@ class Socket {
 
     virtual std::string getIpAddress();
     virtual void setIpAddress(std::string value) { ipAddress = value; }
+    int getSocketFamily() const { return socketFamily; }
 
     uint32 getConnectedIPAddress(string IP = "");
 

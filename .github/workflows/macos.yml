@@ -45,6 +45,9 @@ jobs:
         mk/macos/build-mg.sh -m
         make -C mk/macos/build -j$(sysctl -n hw.ncpu) VERBOSE=1
 
+    - name: Run tests
+      run: ctest --test-dir mk/macos/build --output-on-failure
+
     - name: Git Hash
       if: ${{ github.ref == 'refs/heads/develop' }}
       run: |

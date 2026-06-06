@@ -7,6 +7,8 @@ ENDIF()
 
 PROJECT( MegaGlest )
 
+enable_testing()
+
 # This helps prevent certain errors such as what's mentioned in
 # https://github.com/MegaGlest/megaglest-source/pull/300
 # and also some consider it good practice to specify a standard
