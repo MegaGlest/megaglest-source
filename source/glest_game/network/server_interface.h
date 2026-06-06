@@ -115,6 +115,7 @@ class ServerInterface : public GameNetworkInterface,
     Chrono clientsAutoPausedDueToLagTimer;
     Chrono lastBroadcastCommandsTimer;
     ClientLagCallbackInterface *clientLagCallbackInterface;
+    bool inLagCheck;
 
   public:
     ServerInterface(bool publishEnabled, ClientLagCallbackInterface *clientLagCallbackInterface);

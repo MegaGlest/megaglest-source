@@ -450,6 +450,7 @@ float NetworkInterface::getThreadedPingMS(std::string host) {
 
 GameNetworkInterface::GameNetworkInterface() {
     quit = false;
+    pendingCommandsMutex = NULL;
 }
 
 void GameNetworkInterface::requestCommand(const NetworkCommand *networkCommand, bool insertAtStart) {

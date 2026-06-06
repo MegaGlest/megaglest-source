@@ -62,6 +62,7 @@ ServerInterface::ServerInterface(bool publishEnabled, ClientLagCallbackInterface
 
     this->clientLagCallbackInterface = clientLagCallbackInterface;
     this->clientsAutoPausedDueToLag = false;
+    this->inLagCheck = false;
 
     allowInGameConnections = false;
     gameLaunched = false;
@@ -756,15 +757,13 @@ int64 ServerInterface::getNextEventId() {
 
 std::pair<bool, bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionSlot, bool skipNetworkBroadCast) {
     std::pair<bool, bool> clientLagExceededOrWarned = std::make_pair(false, false);
-    static bool alreadyInLagCheck = false;
 
-    if (alreadyInLagCheck == true ||
-        (connectionSlot != NULL && (connectionSlot->getSkipLagCheck() == true || connectionSlot->getConnectHasHandshaked() == false))) {
+    if (inLagCheck == true || (connectionSlot != NULL && (connectionSlot->getSkipLagCheck() == true || connectionSlot->getConnectHasHandshaked() == false))) {
         return clientLagExceededOrWarned;
     }
 
     try {
-        alreadyInLagCheck = true;
+        inLagCheck = true;
 
         if ((gameStartTime > 0 && difftime((long int)time(NULL), gameStartTime) >= LAG_CHECK_GRACE_PERIOD) &&
             (resumeGameStartTime == 0 || (resumeGameStartTime > 0 && difftime((long int)time(NULL), resumeGameStartTime) >= LAG_CHECK_GRACE_PERIOD))) {
@@ -906,7 +905,7 @@ std::pair<bool, bool> ServerInterface::clientLagCheck(ConnectionSlot *connection
             }
         }
     } catch (const exception &ex) {
-        alreadyInLagCheck = false;
+        inLagCheck = false;
 
         SystemFlags::OutputDebug(SystemFlags::debugError, "In [%s::%s Line: %d] Error [%s]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__,
                                  __LINE__, ex.what());
@@ -916,7 +915,7 @@ std::pair<bool, bool> ServerInterface::clientLagCheck(ConnectionSlot *connection
         throw megaglest_runtime_error(ex.what());
     }
 
-    alreadyInLagCheck = false;
+    inLagCheck = false;
     return clientLagExceededOrWarned;
 }
 
@@ -1762,32 +1761,38 @@ void ServerInterface::updateKeyframe(int frameCount) {
         networkMessageCommandList.setNetworkPlayerFactionCRC(index, this->getNetworkPlayerFactionCRC(index));
     }
 
-    while (requestedCommands.empty() == false) {
-        // First add the command to the broadcast list (for all clients)
-        if (networkMessageCommandList.addCommand(&requestedCommands.back())) {
-            // Add the command to the local server command list
-            pendingCommands.push_back(requestedCommands.back());
-            requestedCommands.pop_back();
-        } else {
-            break;
+    size_t overflowCount = 0;
+    {
+        MutexSafeWrapper safeMutex(serverSynchAccessor, CODE_AT_LINE);
+        while (requestedCommands.empty() == false) {
+            // First add the command to the broadcast list (for all clients)
+            if (networkMessageCommandList.addCommand(&requestedCommands.back())) {
+                // Add the command to the local server command list
+                pendingCommands.push_back(requestedCommands.back());
+                requestedCommands.pop_back();
+            } else {
+                break;
+            }
         }
+        // Capture overflow count while still holding the lock.
+        overflowCount = requestedCommands.size();
     }
 
     try {
         // Possible cause of out of synch since we have more commands that need
         // to be sent in this frame
-        if (requestedCommands.empty() == false) {
+        if (overflowCount > 0) {
             if (SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled)
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,
                                          "In [%s::%s Line: %d] WARNING / ERROR, "
-                                         "requestedCommands.size() = %d\n",
-                                         extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, requestedCommands.size());
+                                         "requestedCommands.size() = %zu\n",
+                                         extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, overflowCount);
             SystemFlags::OutputDebug(SystemFlags::debugError,
                                      "In [%s::%s Line: %d] WARNING / ERROR, "
-                                     "requestedCommands.size() = %d\n",
-                                     extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, requestedCommands.size());
+                                     "requestedCommands.size() = %zu\n",
+                                     extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, overflowCount);
 
-            string sMsg = "may go out of synch: server requestedCommands.size() = " + intToStr(requestedCommands.size());
+            string sMsg = "may go out of synch: server requestedCommands.size() = " + intToStr(overflowCount);
             sendTextMessage(sMsg, -1, true, "");
         }
 

@@ -198,6 +198,7 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
                                  __FUNCTION__, __LINE__, this);
 
     networkCommandListThreadAccessor = new Mutex(CODE_AT_LINE);
+    pendingCommandsMutex = networkCommandListThreadAccessor;
     networkCommandListThread = NULL;
     cachedPendingCommandsIndex = 0;
     cachedLastPendingFrameCount = 0;
