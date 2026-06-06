@@ -675,7 +675,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu, b
             listBoxTeams[i].setSelectedItemIndex(i);
             lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 
-            listBoxControls[i].setItems(controlItems);
+            fixControlItemsForSlot(i, controlItems);
             listBoxRMultiplier[i].setItems(rMultiplier);
             listBoxRMultiplier[i].setSelectedItem("1.0");
             labelNetStatus[i].setText("");
@@ -891,8 +891,7 @@ void MenuStateCustomGame::reloadUI() {
 
     for (int i = 0; i < GameConstants::maxPlayers; ++i) {
         labelPlayers[i].setText(intToStr(i + 1));
-
-        listBoxControls[i].setItems(controlItems);
+        fixControlItemsForSlot(i, controlItems);
     }
 
     labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
@@ -1765,6 +1764,17 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
     if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
         SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line %d]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
+}
+
+//skip human option for non-human player slots
+void MenuStateCustomGame::fixControlItemsForSlot(int slotIndex, const vector<string> &controlItems) {
+    if (slotIndex == 0) {
+        listBoxControls[slotIndex].setItems(controlItems);
+    } else {
+        vector<string> controlItemsNoHuman = controlItems;
+        controlItemsNoHuman.erase(controlItemsNoHuman.begin() + ctHuman);
+        listBoxControls[slotIndex].setItems(controlItemsNoHuman);
+    }
 }
 
 void MenuStateCustomGame::updateAllResourceMultiplier() {

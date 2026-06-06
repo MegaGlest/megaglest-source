@@ -318,6 +318,7 @@ class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface
     void reloadFactions(bool keepExistingSelectedItem, string scenario);
     void setupTilesetList(string scenario);
     void setSlotHuman(int i);
+    void fixControlItemsForSlot(int slotIndex, const vector<string> &controlItems);
 
     void initFactionPreview(const GameSettings *gameSettings);
 
