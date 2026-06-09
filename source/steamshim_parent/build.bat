@@ -14,9 +14,9 @@ cd /d "%~dp0"
 ECHO using msbuild config [%MSBUILD_CONFIG%]
 ECHO Checking for windows binary runtime tools...
 
-rem setup the Visual Studio 2015 environment
+rem setup the Visual Studio environment (2022, 2019, 2017, or 2015)
 ECHO --------------------------------
-ECHO Setting up Visual Studio 2015 environment vars...
+ECHO Setting up Visual Studio environment vars...
 REM Ensure ultifds HP doesn't mess the build up
 SET Platform=
 if "%DevEnvDir%." == "." goto SETVCVARS
@@ -24,6 +24,21 @@ GOTO GITSECTION
 
 :SETVCVARS
 
+rem Try vswhere.exe to locate VS2017+ installations
+SET VSWHERE="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+IF NOT EXIST %VSWHERE% SET VSWHERE="%ProgramFiles%\Microsoft Visual Studio\Installer\vswhere.exe"
+IF EXIST %VSWHERE% (
+    FOR /F "usebackq tokens=*" %%i IN (`%VSWHERE% -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) DO (
+        SET VS_INSTALL_PATH=%%i
+    )
+)
+IF DEFINED VS_INSTALL_PATH (
+    ECHO Found Visual Studio at: %VS_INSTALL_PATH%
+    call "%VS_INSTALL_PATH%\VC\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
+    goto GITSECTION
+)
+
+rem Fall back to VS2015
 IF EXIST "%VS140COMNTOOLS%..\..\"                             GOTO VC_Common_15
 IF EXIST "\Program Files\Microsoft Visual Studio 14.0\"       GOTO VC_32_15
 IF EXIST "\Program Files (x86)\Microsoft Visual Studio 14.0\" GOTO VC_64_15

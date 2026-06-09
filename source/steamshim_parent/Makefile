@@ -18,7 +18,7 @@ else ifeq ($(HOST),linux32)
 else ifeq ($(HOST),linux64)
 	FLAGS		+= -L$(STEAMWORKS)/redistributable_bin/linux64 -m64
 else ifeq ($(HOST),osx)
-	FLAGS		+= -L$(STEAMWORKS)/redistributable_bin/osx32
+	FLAGS		+= -L$(STEAMWORKS)/redistributable_bin/osx
 endif
 
 FLAGS			+= -lsteam_api
