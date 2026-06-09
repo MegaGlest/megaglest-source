@@ -2398,6 +2398,8 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
         PlayerIndexMessage msg = PlayerIndexMessage(0);
         this->receiveMessage(&msg);
     } break;
+    default:
+        break;
     }
 
     return discard;

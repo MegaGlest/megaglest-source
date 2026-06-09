@@ -1267,7 +1267,7 @@ string UnitType::getCommandTypeListDesc() const {
     for (int i = 0; i < getCommandTypeCount(); ++i) {
         const CommandType *commandType = getCommandType(i);
         desc += " id = " + intToStr(commandType->getId());
-        +" toString: " + commandType->toString(false);
+        desc += " toString: " + commandType->toString(false);
     }
     return desc;
 }

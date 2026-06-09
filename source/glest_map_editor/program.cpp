@@ -80,6 +80,8 @@ void UndoPoint::init(ChangeType change) {
             }
         }
         break;
+    default:
+        break;
     }
 }
 
@@ -129,6 +131,8 @@ void UndoPoint::revert() {
                 Program::map->setResource(i, j, resource[j * w + i]);
             }
         }
+        break;
+    default:
         break;
     }
     // std::cout << "reverted changes (we hope)" << std::endl;

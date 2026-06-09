@@ -890,6 +890,9 @@ void Commander::giveNetworkCommand(NetworkCommand *networkCommand) const {
             SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] found nctPlayerStatusChange\n",
                                      extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__);
     } break;
+
+    default:
+        break;
     }
 
     if (commandWasHandled == false) {

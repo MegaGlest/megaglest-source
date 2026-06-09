@@ -378,8 +378,7 @@ Renderer::~Renderer() {
         snprintf(szBuf, 8096, "In [%s::%s Line: %d]\nError [%s]\n", extractFileFromDirectoryPath(__FILE__).c_str(), __FUNCTION__, __LINE__, e.what());
         SystemFlags::OutputDebug(SystemFlags::debugError, szBuf);
         if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem, szBuf);
-
-        throw megaglest_runtime_error(szBuf);
+        // Destructors must not throw; log and swallow.
     }
 }
 

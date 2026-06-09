@@ -5903,6 +5903,9 @@ string Game::getDebugStats(std::map<int, string> &factionDebugInfo) {
         case ctCpuMega:
             factionInfo += " CPU Mega" + multiplier;
             break;
+
+        default:
+            break;
         }
 
         factionInfo += " [" + formatString(this->gameSettings.getFactionTypeName(i)) + " team: " + intToStr(this->gameSettings.getTeam(i)) + "]";

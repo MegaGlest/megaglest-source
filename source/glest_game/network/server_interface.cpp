@@ -1974,6 +1974,8 @@ bool ServerInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
             PlayerIndexMessage msg = PlayerIndexMessage(0);
             connectionSlot->receiveMessage(&msg);
         } break;
+        default:
+            break;
         }
     }
     return discard;

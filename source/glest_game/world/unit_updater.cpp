@@ -1287,6 +1287,9 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
                             SystemFlags::OutputDebug(SystemFlags::debugUnitCommands, "In [%s::%s Line: %d] got tsBlocked\n", __FILE__, __FUNCTION__, __LINE__);
                     }
                     break;
+
+                default:
+                    break;
                 }
             }
             if (SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0)

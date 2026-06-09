@@ -196,6 +196,8 @@ string NetworkMessage::getNetworkPacketStats() {
         case netmsgstAverageRecvSize:
             result += "recv avg size: " + intToStr(iterMap->second) + "\n";
             break;
+        default:
+            break;
         }
     }
     return result;

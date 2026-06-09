@@ -195,6 +195,8 @@ Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) {
         break;
 
         // std::vector<Texture2D *> miscTextureList;
+    default:
+        break;
     }
     return result;
 }

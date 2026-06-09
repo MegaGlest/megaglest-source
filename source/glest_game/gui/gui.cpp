@@ -1159,6 +1159,9 @@ void Gui::addOrdersResultToConsole(CommandClass cc, std::pair<CommandResult, str
     case crSomeFailed:
         console->addStdMessage("SomeOrdersFailed", result.second);
         break;
+
+    default:
+        break;
     }
 }
 

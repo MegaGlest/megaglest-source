@@ -1300,6 +1300,8 @@ void MainWindow::change(int x, int y) {
     case ctGradient:
         program->pirateChangeMapHeight(x, y, height, radius);
         break;
+    default:
+        break;
     }
 }
 
