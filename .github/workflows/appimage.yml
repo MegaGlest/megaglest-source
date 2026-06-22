@@ -33,10 +33,10 @@ jobs:
 
     steps:
       - name: Checkout MegaGlest
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout Data
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: "megaglest/megaglest-data"
           path: "data/glest_game"
