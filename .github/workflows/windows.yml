@@ -32,7 +32,7 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache Vcpkg Libs
       id: cache-vcpkg
@@ -70,7 +70,7 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Get Vcpkg Libs Cache
       uses: actions/cache@v5
