@@ -4987,17 +4987,42 @@ int glestMain(int argc, char **argv) {
             }
         } else {
 #ifdef _WIN32
-            int localeBufferSize = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME, NULL, 0);
+            // LOCALE_USER_DEFAULT, not LOCALE_SYSTEM_DEFAULT: the latter is the
+            // legacy code page setting (Control Panel calls it the language for
+            // non-Unicode programs), which is still en_US on plenty of machines whose
+            // owner reads Portuguese. The user locale is what every other application
+            // follows, and it is the counterpart of setlocale(LC_ALL, "") below.
+            int localeBufferSize = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, NULL, 0);
             wchar_t *sysLocale = new wchar_t[localeBufferSize];
-            GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME, sysLocale, localeBufferSize);
+            GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, sysLocale, localeBufferSize);
 
             // String langValue(sysLocale);
             // const char *lang_locale = langValue.c_str();
             char langValue[1024] = "";
             wcstombs(langValue, sysLocale, 1023);
-            const char *lang_locale = &langValue[0];
 
             delete[] sysLocale;
+
+            // LOCALE_SISO639LANGNAME only yields the two letter language code, so the
+            // region has to be asked for separately and appended as <lang>_<REGION>.
+            // Without it a pt_BR system is indistinguishable from pt_PT and always
+            // ends up on portuguese.lng, which declares ISO639-1=pt.
+            int countryBufferSize = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, NULL, 0);
+            if (countryBufferSize > 0) {
+                wchar_t *sysCountry = new wchar_t[countryBufferSize];
+                GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, sysCountry, countryBufferSize);
+                char countryValue[1024] = "";
+                wcstombs(countryValue, sysCountry, 1023);
+                delete[] sysCountry;
+
+                size_t langLen = strlen(langValue);
+                if (langLen > 0 && strlen(countryValue) > 0 && langLen + 1 + strlen(countryValue) < 1023) {
+                    strcat(langValue, "_");
+                    strcat(langValue, countryValue);
+                }
+            }
+
+            const char *lang_locale = &langValue[0];
 #else
             const char *lang_locale = setlocale(LC_ALL, "");
 #endif
@@ -5007,9 +5032,36 @@ int glestMain(int argc, char **argv) {
             if (lang_locale != NULL && strlen(lang_locale) >= 2) {
                 if (config.getBool("AutoLocaleLanguageDetect", "true") == true) {
                     language = lang_locale;
-                    language = language.substr(0, 2);
+
+                    // Drop the charset or modifier a POSIX locale carries (pt_BR.UTF-8)
+                    // and normalise the separator to the underscore the .lng files use.
+                    size_t localeCut = language.find_first_of(".@");
+                    if (localeCut != string::npos) {
+                        language = language.substr(0, localeCut);
+                    }
+                    for (unsigned int i = 0; i < language.length(); ++i) {
+                        if (language[i] == '-') {
+                            language[i] = '_';
+                        }
+                    }
+
+                    // Keep the region instead of always truncating to two letters.
+                    // Lang::getLanguageFile() matches ISO639-1 exactly and falls back
+                    // to the plain language code when no regional file exists, so es_AR
+                    // still resolves to spanish.lng while pt_BR now reaches
+                    // portuguese-brazil.lng instead of portuguese.lng.
+                    if (language.length() >= 5 && language[2] == '_') {
+                        language = language.substr(0, 5);
+                    } else {
+                        language = language.substr(0, 2);
+                    }
                     printf("Auto setting language [%s]\n", language.c_str());
 
+                    // Persist the detected value. Without this it lives only in the
+                    // local variable: AutoLocaleLanguageDetect is switched off right
+                    // below, so every later run skips detection and falls back to the
+                    // Lang entry from glest.ini, which is english.
+                    config.setString("Lang", language);
                     config.setString("AutoLocaleLanguageDetect", "false");
                     config.save();
                 }

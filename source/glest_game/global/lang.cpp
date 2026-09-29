@@ -58,7 +58,11 @@ string Lang::getDefaultLanguage() const {
 }
 
 void Lang::loadGameStrings(string uselanguage, bool loadFonts, bool fallbackToDefault) {
-    if (uselanguage.length() == 2 || (uselanguage.length() == 5 && uselanguage[2] == '-')) {
+    // The .lng files spell the regional code with an underscore (ISO639-1=pt_BR),
+    // so accept both separators here, otherwise a detected pt_BR never reaches
+    // getLanguageFile() and the engine looks for a file literally named pt_BR.lng.
+    if (uselanguage.length() == 2 ||
+        (uselanguage.length() == 5 && (uselanguage[2] == '-' || uselanguage[2] == '_'))) {
         uselanguage = getLanguageFile(uselanguage);
     }
     bool languageChanged = (uselanguage != this->language);
@@ -627,7 +631,20 @@ bool Lang::fileMatchesISO630Code(string uselanguage, string testLanguageFile) {
 
     try {
         string iso639 = stringsTest.getString("ISO639-1");
-        if (iso639 == uselanguage) {
+        // Compare separator insensitively: the files use pt_BR, callers may hand
+        // over pt-BR depending on where the locale came from.
+        string wanted = uselanguage;
+        for (unsigned int i = 0; i < wanted.length(); ++i) {
+            if (wanted[i] == '-') {
+                wanted[i] = '_';
+            }
+        }
+        for (unsigned int i = 0; i < iso639.length(); ++i) {
+            if (iso639[i] == '-') {
+                iso639[i] = '_';
+            }
+        }
+        if (iso639 == wanted) {
             result = true;
         }
     }
@@ -665,6 +682,15 @@ string Lang::getLanguageFile(string uselanguage) {
             }
         }
     }
+
+    // No file declares this exact regional code (es_AR, en_NZ and so on), so fall
+    // back to the plain language. This runs only after the regional pass, otherwise
+    // pt_BR would be captured by portuguese.lng, which declares ISO639-1=pt.
+    if (foundMatch == false && uselanguage.length() == 5 &&
+        (uselanguage[2] == '-' || uselanguage[2] == '_')) {
+        return getLanguageFile(uselanguage.substr(0, 2));
+    }
+
     return result;
 }
 
