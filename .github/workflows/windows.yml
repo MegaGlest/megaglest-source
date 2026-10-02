@@ -87,7 +87,7 @@ jobs:
     - name: Build MegaGlest
       run: |
         cd mk/windoze
-        ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/
+        ./build-mg-vs-cmake.ps1 -vcpkg-location c:/vcpkg/ -cmake-options "-DBUILD_MEGAGLEST_TESTS=ON"
 
     - name: Git Hash
       run: echo "VERSION=$(git rev-parse --short HEAD)" >> $env:GITHUB_ENV
@@ -95,6 +95,7 @@ jobs:
     - name: Prepare Snapshot
       run: |
         cd mk\windoze
+        Remove-Item megaglest_tests.exe
         Get-ChildItem *.exe | Rename-Item -NewName {$_.BaseName + "-$env:VERSION" + $_.Extension}
         cp ..\shared\*.ini .
         $7zPath = $(Get-Command 7z).Source

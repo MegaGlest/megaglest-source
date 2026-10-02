@@ -96,5 +96,5 @@ jobs:
       if: ${{ matrix.release == true }}
       run: |
         # Note: LTO should be added automatically and visible in the make output
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_MEGAGLEST_TESTS=ON
         make VERBOSE=1 -C build -j$(nproc)

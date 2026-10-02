@@ -30,50 +30,6 @@ using namespace Shared::Util;
 
 bool TextureGl::enableATIHacks = false;
 
-static void setupGLExtensionMethods() {
-#ifdef WIN32
-
-    static bool setupExtensions = true;
-    if (setupExtensions == true) {
-        setupExtensions = false;
-
-        if (isGlExtensionSupported("GL_EXT_framebuffer_object")) {
-            // glIsRenderbufferEXT =
-            // (PFNGLISRENDERBUFFEREXTPROC)wglGetProcAddress("glIsRenderbufferEXT");
-            glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC)wglGetProcAddress("glBindRenderbufferEXT");
-            glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC)wglGetProcAddress("glDeleteRenderbuffersEXT");
-            glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC)wglGetProcAddress("glGenRenderbuffersEXT");
-            glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC)wglGetProcAddress("glRenderbufferStorageEXT");
-            // glGetRenderbufferParameterivEXT =
-            // (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)wglGetProcAddress("glGetRenderbufferParameterivEXT");
-            // glIsFramebufferEXT =
-            // (PFNGLISFRAMEBUFFEREXTPROC)wglGetProcAddress("glIsFramebufferEXT");
-            glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC)wglGetProcAddress("glBindFramebufferEXT");
-            glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC)wglGetProcAddress("glDeleteFramebuffersEXT");
-            glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC)wglGetProcAddress("glGenFramebuffersEXT");
-            glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)wglGetProcAddress("glCheckFramebufferStatusEXT");
-            // glFramebufferTexture1DEXT =
-            // (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC)wglGetProcAddress("glFramebufferTexture1DEXT");
-            glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)wglGetProcAddress("glFramebufferTexture2DEXT");
-            // glFramebufferTexture3DEXT =
-            // (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC)wglGetProcAddress("glFramebufferTexture3DEXT");
-            glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)wglGetProcAddress("glFramebufferRenderbufferEXT");
-            // glGetFramebufferAttachmentParameterivEXT =
-            // (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC)wglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
-            // glGenerateMipmapEXT =
-            // (PFNGLGENERATEMIPMAPEXTPROC)wglGetProcAddress("glGenerateMipmapEXT");
-
-            if (!glBindRenderbufferEXT || !glDeleteRenderbuffersEXT || !glGenRenderbuffersEXT || !glRenderbufferStorageEXT || !glBindFramebufferEXT ||
-                !glDeleteFramebuffersEXT || !glGenFramebuffersEXT || !glCheckFramebufferStatusEXT || !glFramebufferTexture2DEXT ||
-                !glFramebufferRenderbufferEXT) {
-                glGenFramebuffersEXT = NULL;
-            }
-        }
-    }
-
-#endif
-}
-
 /* gets next power of two */
 int pot(int x) {
     int val = 1;
@@ -497,7 +453,6 @@ TextureGl::TextureGl() {
     handle = 0;
     renderBufferId = 0;
     frameBufferId = 0;
-    setupGLExtensionMethods();
 }
 
 bool TextureGl::supports_FBO_RBO() {

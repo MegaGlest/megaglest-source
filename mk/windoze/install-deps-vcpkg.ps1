@@ -6,6 +6,7 @@ git pull
 .\vcpkg.exe install --disable-metrics `
     brotli:x64-windows-static `
     bzip2:x64-windows-static `
+    cppunit:x64-windows-static `
     curl:x64-windows-static `
     expat:x64-windows-static `
     freetype:x64-windows-static `

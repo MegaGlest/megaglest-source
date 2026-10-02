@@ -37,7 +37,7 @@ static int vboEnabled = 0;
 // =====================================================
 
 bool getVBOSupported() {
-    if (vboEnabled == 0) {
+    if (vboEnabled == 0 && glGetString != NULL) {
         bool value = isGlExtensionSupported("GL_ARB_vertex_buffer_object");
         vboEnabled = (value == true ? 1 : -1);
     }
@@ -57,6 +57,10 @@ void setVBOSupported(bool value) {
 bool isGlExtensionSupported(const char *extensionName) {
     if (cacheExtensionCheckList.find(extensionName) != cacheExtensionCheckList.end()) {
         return cacheExtensionCheckList[extensionName];
+    }
+    // NULL until gladLoadGL() runs; don't cache, so later checks still work
+    if (glGetString == NULL) {
+        return false;
     }
     const GLubyte *extensionStr = glGetString(GL_EXTENSIONS);
     const char *s = reinterpret_cast<const char *>(extensionStr);
